@@ -122,7 +122,6 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
 
 DEFAULT_TASKS_JSONL = ROOT / "data" / "processed" / "extraction" / "route_extraction_tasks.jsonl"
 TERMINAL_STATES = {"JOB_STATE_SUCCEEDED", "JOB_STATE_FAILED", "JOB_STATE_CANCELLED", "JOB_STATE_EXPIRED"}
-ACTIVE_STATES = {"JOB_STATE_PENDING", "JOB_STATE_RUNNING", "JOB_STATE_QUEUED"}
 REPORT_SCHEMA_VERSION = "route_extraction_batch_api_report_v1"
 
 

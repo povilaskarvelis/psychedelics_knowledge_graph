@@ -7,7 +7,6 @@ import argparse
 from collections import Counter, defaultdict
 import datetime as dt
 import hashlib
-import json
 from pathlib import Path
 import re
 import sys

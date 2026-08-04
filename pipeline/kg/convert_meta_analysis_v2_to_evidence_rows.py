@@ -69,11 +69,6 @@ PUBLIC_HEALTH_RE = re.compile(
     r"real.world|public health|use pattern|exposure prevalence)\b",
     re.IGNORECASE,
 )
-CONDITION_RE = re.compile(
-    r"\b(disorder|depress|ptsd|post.traumatic|anxiety|pain|psychosis|schizophren|"
-    r"addiction|substance use|alcohol use|bipolar|suicid|cancer|palliative|migraine|headache)\b",
-    re.IGNORECASE,
-)
 CLINICAL_POPULATION_CONDITION_RE = re.compile(
     r"\b(patient|patients|participant|participants|adults? with|children with|adolescents? with|"
     r"diagnos|disorder|depress|ptsd|post.traumatic|anxiety|obsessive|\bocd\b|pain patients?|"
@@ -272,7 +267,6 @@ def entity_for_result(item: dict, domain: str, overview: dict) -> tuple[str, str
     population = normalize(item.get("population_or_system", "")) or unique_overview_value(
         overview, "populations_or_systems"
     )
-    statement = normalize(item.get("relationship_statement", ""))
     analysis_context = item.get("analysis_context", {}) if isinstance(item.get("analysis_context"), dict) else {}
 
     if domain == "intervention_context":
@@ -487,7 +481,6 @@ def evidence_row(
     network = item.get("network_meta_analysis", {}) if isinstance(item.get("network_meta_analysis"), dict) else {}
     if role in {"network_comparison", "network_ranking"} and not network:
         missing.append("network_result_missing_structure")
-    statement = normalize(item.get("relationship_statement", ""))
     if result_bundles_multiple_estimates(item):
         missing.append("multiple_estimates_in_one_result")
     if effect_estimate_is_range(item):

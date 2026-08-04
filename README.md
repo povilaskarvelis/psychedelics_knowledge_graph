@@ -1,6 +1,6 @@
 # Psychedelics Knowledge Graph
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21671975.svg)](https://doi.org/10.5281/zenodo.21671975)
+[![DOI: 10.5281/zenodo.21671975](docs/assets/zenodo-doi-badge.svg)](https://doi.org/10.5281/zenodo.21671975)
 
 A map of psychedelic research that makes findings easier to explore, audit,
 and keep up to date.

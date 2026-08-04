@@ -435,7 +435,6 @@ let deferredSurfaceRenderToken = 0;
 let activeOverviewDetailCacheKey = "";
 let graphSwapToken = 0;
 let retainVisibleBootstrapGraph = false;
-let bibliographyPayloadsPromise = null;
 let tooltipFrame = 0;
 let tooltipMeasureFrame = 0;
 let pendingTooltipPoint = null;
@@ -1155,25 +1154,6 @@ function currentDetailPanelProfile() {
   return detailPanelProfileForKey(currentEntityViewKey() || "clinical_default");
 }
 
-function entityKindsForViewOption(option) {
-  if (!option) return [];
-  return Array.isArray(option.kinds) && option.kinds.length ? option.kinds : [option.key];
-}
-
-function entityDomainsForViewOption(option) {
-  if (!option) return [];
-  return Array.isArray(option.domains) ? option.domains : [];
-}
-
-function entityLabelsForViewOption(option) {
-  if (!option) return [];
-  return Array.isArray(option.labels) ? option.labels : [];
-}
-
-function currentEntityViewKinds() {
-  return entityKindsForViewOption(currentEntityViewOption());
-}
-
 function claimMatchesEntityViewOption(claim, option) {
   const spec = ENTITY_CATEGORY_OPTION_SPECS.get(option?.key);
   if (!spec) return false;
@@ -1579,13 +1559,6 @@ function estimateLabelWidth(label) {
   return Math.max(40, Math.ceil(text.length * 6.8));
 }
 
-function truncateLabel(label, maxChars) {
-  const text = (label || "").toString();
-  if (text.length <= maxChars) return text;
-  if (maxChars <= 1) return text.slice(0, 1);
-  return `${text.slice(0, Math.max(1, maxChars - 3))}...`;
-}
-
 function measureLabelWidth(text) {
   if (!textMeasureContext) {
     return estimateLabelWidth(text);
@@ -1723,10 +1696,6 @@ function setWrappedSvgLabel(textNode, fullLabel, maxWidthPx, x, centerY, maxLine
 
 function studyId(claim) {
   return claim.study_doi || claim.openalex_id || "unknown";
-}
-
-function countStudies(items) {
-  return new Set(items.map(studyId)).size;
 }
 
 function labelFromSlug(value) {
@@ -1970,14 +1939,6 @@ function reviewRelationshipTypeFacetLabel(claim) {
 function reviewCoverageFocusFacetLabel(claim) {
   return meaningfulText(claim.coverage_focus_normalized) ||
     controlledCategoryLabel(claim.coverage_focus, REVIEW_COVERAGE_FOCUS_LABELS);
-}
-
-function openAccessFacetLabel(claim) {
-  const isOpen = normalizeValue(claim.open_access_is_oa || claim.unpaywall_is_oa);
-  const status = normalizeValue(claim.open_access_status || claim.unpaywall_oa_status);
-  if (isOpen === "true" || ["gold", "green", "hybrid", "bronze", "diamond"].includes(status)) return "Open access";
-  if (isOpen || status) return "Paywalled";
-  return "";
 }
 
 function controlledCategoryLabel(value, labels) {
@@ -3027,15 +2988,6 @@ function mechanisticAssayFamilyFacetLabel(claim) {
   return refined;
 }
 
-function assayFamilySummaryLabel(claim) {
-  const refined = assayFamilyFromText(assayFamilyText(claim));
-  if (refined && refined !== "Other") return refined;
-  const normalized = meaningfulText(claim.assay_family_normalized || claim.normalized_assay_family);
-  if (normalized) return ASSAY_FAMILY_DISPLAY_LABELS[normalizeValue(normalized)] || normalized;
-  const raw = meaningfulText(claim.assay_family);
-  return raw ? ASSAY_FAMILY_DISPLAY_LABELS[normalizeValue(raw)] || cleanDisplayText(raw) : "";
-}
-
 function brainMeasureText(claim) {
   return [
     claim.readout,
@@ -3357,11 +3309,6 @@ function chipHtml(kind, label, token = label) {
   return `<span class="badge ${kind} ${classToken(token)}">${escapeHtml(label)}</span>`;
 }
 
-function paperTypeBadgeHtml(paperType) {
-  const normalized = normalizeValue(paperType) || "other";
-  return chipHtml("paper-type", paperTypeLabel(normalized), normalized);
-}
-
 function literatureTypeLabel(claim) {
   const text = [
     claim.paper_type,
@@ -3402,17 +3349,6 @@ function systemBadgeHtml(system) {
   const normalized = normalizeValue(system);
   if (!normalized || ["unknown", "not_applicable", "not applicable"].includes(normalized)) return "";
   return chipHtml("system", displayFieldLabel(normalized), normalized);
-}
-
-function supportLabel(support) {
-  const normalized = normalizeValue(support);
-  if (normalized === "not_supported") return "not supported";
-  if (!normalized) return "support unknown";
-  return labelFromSlug(normalized);
-}
-
-function supportBadgeHtml(support) {
-  return chipHtml("support", supportLabel(support), support || "unknown");
 }
 
 function claimBadgeHtml(claim) {
@@ -3724,11 +3660,6 @@ function buildAuthorRoleAliasMap(items) {
     }
   });
   return aliases;
-}
-
-function authorRoleLabelFilterValue(label) {
-  const labelKey = authorRoleLabelKey(label);
-  return labelKey ? `${AUTHOR_LABEL_FILTER_PREFIX}${labelKey}` : "";
 }
 
 function authorRoleLabelFromFilterValue(value) {
@@ -4327,11 +4258,6 @@ function normalizeBibliographyPaper(item, index = 0) {
   return entry;
 }
 
-function bibliographyFromPayload(payload) {
-  const papers = Array.isArray(payload?.papers) ? payload.papers : [];
-  return papers.map((paper, index) => normalizeBibliographyPaper(paper, index));
-}
-
 function bibliographyLookup() {
   const rows = bibliographyBySource.all || [];
   const byDoi = new Map();
@@ -4765,28 +4691,8 @@ function sampleSizeText(claim) {
   return meaningfulText(claim.sample_size_total) || meaningfulText(claim.sample_size_by_arm);
 }
 
-function secondaryCoverageText(claim) {
-  const notes = normalizeValue(claim.notes);
-  const literatureType = literatureTypeLabel(claim);
-  if (notes.includes("coverage_type=meta_analyzes") || literatureType === "Meta-analysis") {
-    return "Synthesizes literature on relationship";
-  }
-  if (notes.includes("coverage_type=summarizes") || literatureType === "Systematic review") {
-    return "Summarizes literature on relationship";
-  }
-  return "Discusses relationship";
-}
-
 function literatureMainFindingLabel(claim) {
   return isMetaAnalysisClaim(claim) ? "Result" : "Summary";
-}
-
-function evidenceLocationText(claim) {
-  const location = meaningfulText(claim.evidence_location);
-  if (location) return displayFieldLabel(location);
-  const locator = meaningfulText(claim.evidence_locator);
-  if (!locator) return "";
-  return locator.replace(/^(abstract|full text|metadata\/title)\s+snippet:\s*/i, "$1").trim();
 }
 
 function compactUniqueParts(values) {
@@ -4900,12 +4806,6 @@ function parseSampleSize(value) {
   return Math.round(Math.max(...numbers));
 }
 
-function sampleSizeBucket(value, bins = DEFAULT_SAMPLE_SIZE_BINS) {
-  const size = parseSampleSize(value);
-  if (size === null) return "";
-  return bins.find((bin) => size >= bin.min && size <= bin.max)?.label || "";
-}
-
 function sampleSizeBinForSize(size, bins = DEFAULT_SAMPLE_SIZE_BINS) {
   if (!Number.isFinite(size) || size < 1) return null;
   return bins.find((bin) => size >= bin.min && size <= bin.max) || null;
@@ -4996,25 +4896,6 @@ function evidenceCountTooltipHtml(items) {
   } · ${formatCompactNumber(recordCount)} ${escapeHtml(recordLabel)}</span>`;
 }
 
-function yearStats(items) {
-  const years = uniqueStudyEntries(items)
-    .map((entry) => entry.year)
-    .filter((year) => year !== null)
-    .sort((a, b) => a - b);
-
-  if (!years.length) {
-    return { first: null, last: null, spanLabel: "No publication years" };
-  }
-
-  const first = years[0];
-  const last = years[years.length - 1];
-  return {
-    first,
-    last,
-    spanLabel: first === last ? String(first) : `${first}-${last}`,
-  };
-}
-
 function buildYearBuckets(items) {
   const entries = uniqueStudyEntries(items).filter((entry) => entry.year !== null);
   if (!entries.length) return [];
@@ -5050,71 +4931,6 @@ function buildYearBuckets(items) {
     ...bucket,
     label: bucket.start === bucket.end ? String(bucket.start) : `${bucket.start}-${bucket.end}`,
   }));
-}
-
-function summarizeConnectionEvidence(items, key) {
-  const map = new Map();
-
-  items.forEach((claim, index) => {
-    const label = key === "compound" ? compoundGraphLabelForClaim(claim) : graphLabel(claim[key]);
-    if (!label) return;
-    const entry = map.get(label) || { label, claims: 0, studies: new Set() };
-    entry.claims += 1;
-    entry.studies.add(studyKey(claim, index));
-    map.set(label, entry);
-  });
-
-  return Array.from(map.values())
-    .map((entry) => ({
-      label: entry.label,
-      claims: entry.claims,
-      studies: entry.studies.size,
-    }))
-    .sort((a, b) => {
-      const byStudies = b.studies - a.studies;
-      if (byStudies !== 0) return byStudies;
-      const byClaims = b.claims - a.claims;
-      if (byClaims !== 0) return byClaims;
-      return a.label.localeCompare(b.label);
-    });
-}
-
-function summarizeFieldEvidence(items, field, options = {}) {
-  const map = new Map();
-  const seen = new Set();
-
-  items.forEach((claim, index) => {
-    const labels = options.splitValues
-      ? splitNormalizedOutcomeMeasures(claim[field])
-      : [meaningfulText(claim[field])].filter(Boolean);
-    if (!labels.length) return;
-    const study = studyKey(claim, index);
-    labels.forEach((label) => {
-      const seenKey = options.uniqueStudies ? `${study}|${label}` : "";
-      if (seenKey) {
-        if (seen.has(seenKey)) return;
-        seen.add(seenKey);
-      }
-      const entry = map.get(label) || { label, count: 0, studies: new Set() };
-      entry.count += 1;
-      entry.studies.add(study);
-      map.set(label, entry);
-    });
-  });
-
-  return Array.from(map.values())
-    .map((entry) => ({
-      label: entry.label,
-      count: entry.count,
-      studies: entry.studies.size,
-    }))
-    .sort((a, b) => {
-      const byCount = b.count - a.count;
-      if (byCount !== 0) return byCount;
-      const byStudies = b.studies - a.studies;
-      if (byStudies !== 0) return byStudies;
-      return a.label.localeCompare(b.label);
-    });
 }
 
 function summarizeFacetEvidence(items, valueForClaim) {
@@ -5828,22 +5644,6 @@ function aggregateSparseOutcomeScaleEntries(entries, maxStudiesForOther = 3) {
   ];
 }
 
-function summarizeSampleSizeBuckets(items) {
-  const bins = sampleSizeBinsForItems(items);
-  const bucketOrder = bins.map((bin) => bin.label);
-  const buckets = new Map(bucketOrder.map((label) => [label, new Set()]));
-
-  items.forEach((claim, index) => {
-    const bucket = sampleSizeBucket(claim.sample_size_total, bins);
-    if (!bucket) return;
-    buckets.get(bucket)?.add(studyKey(claim, index));
-  });
-
-  return bucketOrder
-    .map((label) => ({ label, count: buckets.get(label)?.size || 0 }))
-    .filter((entry) => entry.count > 0);
-}
-
 function sampleSizeStudyEntries(items) {
   const byStudy = new Map();
   items.forEach((claim, index) => {
@@ -6434,10 +6234,6 @@ function horizontalBarTooltipHtml(target) {
   `;
 }
 
-function claimsForStudyKey(studyKeyValue, items = activeDetailItems) {
-  return items.filter((claim, index) => studyKey(claim, index) === studyKeyValue);
-}
-
 function claimsForFieldValue(field, value, items = activeDetailItems) {
   if (!field || !value) return [];
   const normalizedValue = normalizeValue(value);
@@ -6579,77 +6375,6 @@ function restoreCurrentDetailPanel() {
     return;
   }
   renderOverviewDetail(filtered, allAccessFiltered);
-}
-
-function renderStudyDetail(studyKeyValue) {
-  const studyClaims = claimsForStudyKey(studyKeyValue);
-  if (!studyClaims.length) return;
-  const allAccessStudyClaims = claimsForStudyKey(
-    studyKeyValue,
-    activeDetailAllAccessItems.length ? activeDetailAllAccessItems : activeDetailItems
-  );
-
-  activeDetailItems = studyClaims;
-  activeDetailAllAccessItems = allAccessStudyClaims;
-  setDetailGraphFilter(studyClaims);
-  const firstClaim = studyClaims[0];
-  const rightKey = rightEntityKey();
-  const title = cleanDisplayText(firstClaim.study_title) || "Study detail";
-  const year = parseYearValue(firstClaim.study_year);
-  const doiHref = doiUrl(firstClaim.study_doi);
-  const source = doiHref
-    ? `<a class="doi-link" href="${escapeHtml(doiHref)}" target="_blank" rel="noopener noreferrer">${escapeHtml(firstClaim.study_doi)}</a>`
-    : firstClaim.openalex_id
-      ? `<a href="${escapeHtml(openAlexUrl(firstClaim.openalex_id))}" target="_blank" rel="noopener noreferrer">${escapeHtml(
-          firstClaim.openalex_id
-        )}</a>`
-      : "";
-  const context = [
-    year ? String(year) : "",
-    cleanDisplayText(firstClaim.study_journal),
-    cleanDisplayText(firstClaim.study_design),
-  ]
-    .filter(Boolean)
-    .join(" · ");
-  const sample = sampleSizeText(firstClaim);
-  const funders = meaningfulText(firstClaim.funders).replace(/\s*\|\s*/g, ", ");
-  const grantIds = meaningfulText(firstClaim.grant_ids).replace(/\s*\|\s*/g, ", ");
-  const fundingProviders = meaningfulText(firstClaim.funding_providers).replace(/\s*\|\s*/g, ", ");
-  const fundingStatus = normalizeValue(firstClaim.funding_metadata_status);
-  const fundingStatusLabel =
-    fundingStatus === "not_reported_by_queried_providers"
-      ? "No funding metadata found in queried providers"
-      : fundingStatus === "not_enriched"
-        ? "Funding metadata not queried"
-        : "";
-
-  setDetailHeader(title);
-  detailBody.innerHTML = `
-    <div class="trend-dashboard">
-      <div class="study-detail-actions">
-        <button class="ghost small" type="button" data-detail-action="restore">Back</button>
-      </div>
-      ${renderTrendStats(studyClaims, [
-        {
-          label: "Compounds",
-          value: formatCompactNumber(unique(studyClaims.map((claim) => compoundGraphLabelForClaim(claim)).filter(Boolean)).length),
-        },
-        {
-          label: rightEntityLabel(true),
-          value: formatCompactNumber(unique(studyClaims.map(graphRightLabelForClaim).filter(Boolean)).length),
-        },
-      ])}
-      <section class="study-detail-note">
-        ${context ? `<div>${escapeHtml(context)}</div>` : ""}
-        ${sample ? `<div>Sample: ${escapeHtml(sample)}</div>` : ""}
-        ${funders ? `<div>Funders: ${escapeHtml(funders)}</div>` : ""}
-        ${grantIds ? `<div>Grant IDs: ${escapeHtml(grantIds)}</div>` : ""}
-        ${fundingStatusLabel ? `<div>Funding metadata: ${escapeHtml(fundingStatusLabel)}</div>` : ""}
-        ${fundingProviders ? `<div>Funding sources: ${escapeHtml(fundingProviders)}</div>` : ""}
-        ${source ? `<div>${source}</div>` : ""}
-      </section>
-    </div>
-  `;
 }
 
 function renderFieldValueDetail(field, value, labelValue = value, paletteColor = "") {
@@ -6912,12 +6637,6 @@ function clearOverviewDetailCacheForSource(sourceKey) {
     if (key.startsWith(`${sourceKey}|`)) overviewDetailPrewarmScheduled.delete(key);
   });
   if (activeOverviewDetailCacheKey.startsWith(`${sourceKey}|`)) activeOverviewDetailCacheKey = "";
-}
-
-function clearOverviewDetailCache() {
-  overviewDetailCache.clear();
-  overviewDetailPrewarmScheduled.clear();
-  activeOverviewDetailCacheKey = "";
 }
 
 function rekeyActiveOverviewDetail() {
@@ -8203,10 +7922,6 @@ function renderLoadError(messages) {
   }
 }
 
-async function loadBibliographyPayloads() {
-  bibliographyBySource.all = bibliographyBySource.all || [];
-}
-
 const normalizedSourceLoaded = {
   primary: false,
   meta_analyses: false,
@@ -8254,28 +7969,6 @@ function renderDataLoading() {
 
 function bibliographyPayloadsLoaded() {
   return Object.values(bibliographyBySource).some((rows) => Array.isArray(rows) && rows.length);
-}
-
-function enrichAllLoadedClaimsWithBibliography() {
-  Object.keys(claimStores).forEach((layer) => {
-    const store = claimStores[layer];
-    if (store.bySource) {
-      Object.keys(store.bySource).forEach((sourceKey) => {
-        store.bySource[sourceKey] = enrichClaimsWithBibliographyMetadata(store.bySource[sourceKey] || []);
-      });
-      store.all = Object.values(store.bySource).flat();
-      return;
-    }
-    store.all = enrichClaimsWithBibliographyMetadata(store.all || []);
-  });
-  Object.values(normalizedViewClaimsBySource).forEach((sourceViews) => {
-    Object.keys(sourceViews).forEach((viewKey) => {
-      sourceViews[viewKey] = enrichClaimsWithBibliographyMetadata(sourceViews[viewKey] || []);
-    });
-  });
-  clearOverviewDetailCache();
-  activeClaimsMemo = null;
-  entityCategoryCountsMemo = null;
 }
 
 function activeGraphBootstrapPath(config, sourceKey) {

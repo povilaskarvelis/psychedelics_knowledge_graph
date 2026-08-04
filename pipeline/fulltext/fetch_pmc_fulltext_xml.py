@@ -20,7 +20,6 @@ if str(ROOT) not in sys.path:
 from pipeline.extract.build_extraction_routes import (  # noqa: E402
     DEFAULT_CANDIDATE_TABLE,
     DEFAULT_MANUAL_ROUTE_OVERRIDES,
-    DEFAULT_METADATA_TABLE,
     DEFAULT_OUTPUT_TABLE,
     DEFAULT_PAPER_ROOT,
     DEFAULT_PRESCREEN_TABLE,

@@ -682,7 +682,7 @@ def test_in_text_and_doi_links_share_one_muted_teal_family() -> None:
     assert source.count("color: var(--link-color-hover);") >= 9
     assert "color: var(--doi-link-color);" in source
     assert "color: var(--doi-link-color-hover);" in source
-    assert app_source.count('class="doi-link"') >= 3
+    assert app_source.count('class="doi-link"') >= 2
     assert 'class="doi-link"' in methods_source
     assert "#b8fff7" not in source
     assert "#a9f7ef" not in source

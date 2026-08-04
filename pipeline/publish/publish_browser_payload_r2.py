@@ -8,7 +8,6 @@ is replaced only after every file in the release is readable from R2.
 from __future__ import annotations
 
 import argparse
-import json
 import os
 import sys
 from dataclasses import replace
@@ -21,7 +20,6 @@ if str(ROOT) not in sys.path:
 
 from pipeline.publish.publish_query_api_r2 import (  # noqa: E402
     ACTIVE_CACHE_CONTROL,
-    IMMUTABLE_CACHE_CONTROL,
     LocalReleaseFile,
     now_utc,
     read_json_object,

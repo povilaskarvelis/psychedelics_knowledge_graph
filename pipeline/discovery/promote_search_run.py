@@ -6,8 +6,6 @@ from __future__ import annotations
 import argparse
 from collections import defaultdict
 from difflib import SequenceMatcher
-import hashlib
-import json
 from pathlib import Path
 import re
 import shutil
@@ -349,42 +347,6 @@ def merge_candidates(
         candidates = candidates.drop(columns=["_doi_key"])
     candidates = candidates.sort_values("doi").reset_index(drop=True)
     return candidates, sorted(set(new_dois)), sorted(set(rediscovered_dois))
-
-
-def context_id(doi: str, compound: str, entity: str, entity_type: str) -> str:
-    parts = [normalize_doi(doi), normalized_key(compound), normalized_key(entity), normalized_key(entity_type)]
-    return "|".join(parts)
-
-
-def contexts_from_hits(hits: pd.DataFrame, doi_by_provider_record: dict[str, str], run_artifact: str) -> list[dict]:
-    rows: dict[str, dict] = {}
-    for hit in hits.to_dict("records"):
-        doi = normalize_doi(hit.get("doi")) or doi_by_provider_record.get(clean(hit.get("provider_record_id")), "")
-        compound = clean(hit.get("compound"))
-        entity = clean(hit.get("entity"))
-        entity_type = clean(hit.get("entity_type"))
-        if not doi or (not compound and not entity):
-            continue
-        identifier = context_id(doi, compound, entity, entity_type)
-        row = rows.setdefault(
-            identifier,
-            {
-                "context_id": identifier,
-                "doi": doi,
-                "compound": compound,
-                "entity": entity,
-                "entity_type": entity_type,
-                "search_ids": set(),
-                "source_artifacts": {run_artifact},
-            },
-        )
-        row["search_ids"].add(clean(hit.get("search_id")))
-    out: list[dict] = []
-    for row in rows.values():
-        row["search_ids"] = join_values(row["search_ids"])
-        row["source_artifacts"] = join_values(row["source_artifacts"])
-        out.append(row)
-    return out
 
 
 def merge_contexts(existing: pd.DataFrame, additions: list[dict]) -> pd.DataFrame:

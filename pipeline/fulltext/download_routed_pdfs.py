@@ -41,10 +41,8 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
 try:
     from pipeline.ingest.metadata_utils import (
         RateLimitedHttpClient,
-        download_pdf_candidates,
         is_probable_pdf_url,
         join_candidates,
-        normalize,
         normalize_doi,
         pdf_filename_for_doi,
         rank_pdf_candidates,
@@ -54,10 +52,8 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.ingest.metadata_utils import (
         RateLimitedHttpClient,
-        download_pdf_candidates,
         is_probable_pdf_url,
         join_candidates,
-        normalize,
         normalize_doi,
         pdf_filename_for_doi,
         rank_pdf_candidates,
@@ -207,11 +203,6 @@ def add_candidates(values: list[str], raw: object) -> None:
 
 def probable_pdf_candidates(values: Iterable[str]) -> list[str]:
     return rank_pdf_candidates(value for value in values if is_probable_pdf_url(value))
-
-
-def weak_pdf_candidates(values: Iterable[str]) -> list[str]:
-    probable = set(probable_pdf_candidates(values))
-    return [value for value in rank_pdf_candidates(values) if value not in probable]
 
 
 def pdf_url_quality(values: Iterable[str]) -> str:
@@ -871,17 +862,6 @@ def apply_results_to_candidate_parquet(
             writer.close()
         temporary.unlink(missing_ok=True)
     return len(changed_dois)
-
-
-def wait_for_host_cooldown(candidates: list[str], cooldown_until_by_host: dict[str, float]) -> None:
-    waits: list[float] = []
-    now = time.monotonic()
-    for host in hosts_from_candidates(join_candidates(candidates)):
-        until = cooldown_until_by_host.get(host, 0.0)
-        if until > now:
-            waits.append(until - now)
-    if waits:
-        time.sleep(max(waits))
 
 
 def update_rate_limit_cooldowns(

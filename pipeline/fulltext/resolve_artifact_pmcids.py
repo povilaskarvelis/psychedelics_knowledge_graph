@@ -9,7 +9,6 @@ import csv
 import json
 from pathlib import Path
 import sys
-import time
 
 import pandas as pd
 

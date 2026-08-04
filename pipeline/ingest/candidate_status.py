@@ -35,14 +35,6 @@ def normalize_doi(value: object) -> str:
     return doi.strip().rstrip(".")
 
 
-def values_equal(left: object, right: object) -> bool:
-    if pd.isna(left) and pd.isna(right):
-        return True
-    if isinstance(left, bool) or isinstance(right, bool):
-        return bool(left) == bool(right)
-    return clean(left) == clean(right)
-
-
 def apply_candidate_updates(
     *,
     candidate_table: Path = DEFAULT_CANDIDATE_TABLE,

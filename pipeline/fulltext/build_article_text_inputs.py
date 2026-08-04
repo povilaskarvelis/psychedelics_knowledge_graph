@@ -7,7 +7,6 @@ import argparse
 from collections import Counter
 import csv
 import datetime as dt
-import json
 from pathlib import Path
 import sys
 
@@ -26,7 +25,6 @@ try:
         command_section_selection_strategy,
     )
     from pipeline.fulltext.audit_article_text_inputs import (
-        AUDIT_FIELDS,
         audit_queue_row,
         split_values,
         write_csv,
@@ -49,7 +47,6 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         command_section_selection_strategy,
     )
     from pipeline.fulltext.audit_article_text_inputs import (
-        AUDIT_FIELDS,
         audit_queue_row,
         split_values,
         write_csv,

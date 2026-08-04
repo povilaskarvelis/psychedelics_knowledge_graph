@@ -67,7 +67,6 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     from pipeline.review.build_gemini_domain_routing_batch_queue import DEFAULT_QUEUE_JSON
 
 
-ACTIVE_STATES = {"JOB_STATE_PENDING", "JOB_STATE_RUNNING", "JOB_STATE_QUEUED"}
 DEFAULT_MANUAL_REVIEW_JSON = ""
 
 

@@ -476,17 +476,6 @@ def date_from_crossref_date(*values: object) -> str:
     return ""
 
 
-def bool_text(value: object) -> str:
-    if isinstance(value, bool):
-        return "true" if value else "false"
-    text = normalize(value).lower()
-    if text in {"true", "yes", "1"}:
-        return "true"
-    if text in {"false", "no", "0"}:
-        return "false"
-    return ""
-
-
 def publication_date_from_pubmed_date_element(element: Optional[ET.Element]) -> str:
     if element is None:
         return ""
@@ -2247,10 +2236,6 @@ def download_error_is_transient_host_failure(status: str, error: str) -> bool:
         or "timed out" in text
         or "timeout" in text
     )
-
-
-def download_error_is_rate_limited(status: str, error: str) -> bool:
-    return download_error_is_transient_host_failure(status, error)
 
 
 def ready_pdf_candidates(candidates: List[str], cooldown_until_by_host: Optional[Dict[str, float]]) -> List[str]:

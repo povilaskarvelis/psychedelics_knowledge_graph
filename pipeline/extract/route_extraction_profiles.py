@@ -79,10 +79,6 @@ class RouteExtractionProfile:
         return (self.prompt_profile, self.schema_profile)
 
     @property
-    def is_terminal(self) -> bool:
-        return self.status == PROFILE_STATUS_TERMINAL_NO_MODEL
-
-    @property
     def has_model_contract(self) -> bool:
         has_schema = self.schema_path is not None or self.schema_profile in {
             "meta_analysis_evidence_schema",
@@ -299,11 +295,6 @@ def profile_for_key(prompt_profile: str, schema_profile: str) -> RouteExtraction
 def profile_for_task(task: dict) -> RouteExtractionProfile:
     prompt_profile, schema_profile = profile_key_for_task(task)
     return profile_for_key(prompt_profile, schema_profile)
-
-
-def task_has_supported_profile(task: dict) -> bool:
-    key = profile_key_for_task(task)
-    return key in ROUTE_EXTRACTION_PROFILES and ROUTE_EXTRACTION_PROFILES[key].status == PROFILE_STATUS_RUNNABLE
 
 
 def task_has_registered_profile(task: dict) -> bool:

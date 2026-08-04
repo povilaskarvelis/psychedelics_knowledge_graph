@@ -11,22 +11,6 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     from io_utils import normalize
 
 
-FOLLOW_UP_WINDOW_ORDER = (
-    "Acute / same day",
-    "Early follow-up (1-7 days)",
-    "Short follow-up (1-4 weeks)",
-    "Medium follow-up (1-3 months)",
-    "Long follow-up (4-12 months)",
-    "Extended follow-up (>12 months)",
-    "During treatment",
-    "Treatment endpoint",
-    "Baseline / pre-treatment",
-    "Retrospective / lifetime",
-    "Follow-up not reported",
-    "Not applicable",
-    "Other / mixed follow-up",
-)
-
 NOT_REPORTED_VALUES = {"", "not_reported", "not reported", "unknown", "uncertain"}
 NOT_APPLICABLE_VALUES = {"not_applicable", "not applicable", "n/a", "na"}
 NUMBER_WORDS = {

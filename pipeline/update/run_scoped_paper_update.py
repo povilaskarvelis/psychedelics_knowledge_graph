@@ -53,7 +53,6 @@ DEFAULT_ROUTES = PROCESSED_DIR / "corpus" / "paper_extraction_routes.parquet"
 DOI_RE = re.compile(r"^10\.\d{4,9}/\S+$", re.IGNORECASE)
 RUN_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 READY_STATUS = "ready_for_model"
-POINTER_SCHEMA_VERSION = "active_routed_extraction_run_v1"
 UPDATE_SCHEMA_VERSION = "scoped_paper_update_v1"
 
 

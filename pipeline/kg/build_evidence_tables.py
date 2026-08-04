@@ -121,7 +121,6 @@ ROUTED_GRAPH_SOURCES = {
 GRAPH_SOURCE_PRESETS = {
     "routed": ROUTED_GRAPH_SOURCES,
 }
-GRAPH_SOURCES = ROUTED_GRAPH_SOURCES
 ROUTED_SOURCE_NAMES = {"routed_extractions", "routed_clinical_endpoints"}
 
 OUTCOME_MEASURE_PATTERNS = [
@@ -776,22 +775,6 @@ PUBLIC_HEALTH_TOPIC_RULES = (
     ),
 )
 PUBLIC_HEALTH_TOPIC_LABELS = {label for label, _pattern in PUBLIC_HEALTH_TOPIC_RULES}
-PUBLIC_HEALTH_LEGACY_AXIS_LABEL_KEYS = {
-    "microdosing",
-    "recreational use",
-    "self treatment",
-    "ceremonial retreat use",
-    "polysubstance use",
-    "clinical treatment",
-    "prevalence and trends",
-    "problematic use",
-    "drug checking and adulteration",
-    "emergency toxicology reports",
-    "wastewater and market signals",
-    "access to services",
-    "legal criminal justice",
-    "other naturalistic topic",
-}
 PUBLIC_HEALTH_LEGACY_TOPIC_FALLBACKS = {
     "microdosing": "Use patterns & practices",
     "recreational use": "Use patterns & practices",
@@ -4815,13 +4798,6 @@ READOUT_EVIDENCE_RE = re.compile(
     r")\b",
     re.IGNORECASE,
 )
-PATHWAY_EVIDENCE_RE = re.compile(
-    r"\b("
-    r"pathway|signaling|cascade|neuroplasticity|synaptogenesis|inflammation|inflammasome|"
-    r"microbiota|transduction|activation readout|mediated|mechanism|mechanistic"
-    r")\b",
-    re.IGNORECASE,
-)
 READOUT_MRNA_RE = re.compile(r"\b(mrna|rna|transcript|gene expression|qpcr|rt[- ]?pcr)\b", re.IGNORECASE)
 READOUT_EXPRESSION_RE = re.compile(r"\b(expression|immunoreactivity|immunostaining|positive fibers?|positive cells?)\b", re.IGNORECASE)
 READOUT_LEVEL_RE = re.compile(r"\b(levels?|concentration|content|abundance|plasma|serum|csf|tissue)\b", re.IGNORECASE)
@@ -6122,7 +6098,6 @@ INTERVENTION_TOPIC_RULES = (
         ),
     ),
 )
-INTERVENTION_TOPIC_LABELS = {label for label, _pattern in INTERVENTION_TOPIC_RULES}
 INTERVENTION_REFINABLE_TOPIC_LABELS = {"Psychotherapy", "Psychological support"}
 
 GENERAL_TOPIC_COVERAGE_LABELS = {
@@ -6658,24 +6633,6 @@ SAFETY_PHYSIOLOGY_TERMS = {
     "toxicity",
     "toxic",
 }
-SYMPTOM_ROLE_VALUES = {"symptom_or_problem"}
-ALWAYS_SYMPTOM_LABELS = {
-    "Anxiety",
-    "Depression",
-    "Pain",
-    "Demoralization",
-    "Anhedonia",
-    "Psychosis",
-    "Complicated grief",
-}
-BROAD_SYMPTOM_OUTCOME_LABELS = {
-    "Anxiety",
-    "Depression",
-    "Pain",
-    "Somatization",
-    "Stress",
-}
-
 SAFETY_ENDPOINT_PATTERNS = (
     (
         re.compile(r"\b(serotonin(?:[- ]like)? syndrome)\b", re.IGNORECASE),

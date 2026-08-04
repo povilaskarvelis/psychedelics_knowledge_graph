@@ -332,15 +332,6 @@ GENERIC_SOFTWARE_RE = re.compile(
     re.IGNORECASE,
 )
 
-BIBLIOGRAPHIC_MARKERS = (
-    "<biblstruct",
-    "<mixed-citation",
-    "citation-string",
-    "<ref-list",
-    "<listbibl",
-)
-
-
 def now_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
 

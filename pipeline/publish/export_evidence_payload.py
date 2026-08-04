@@ -1206,11 +1206,6 @@ def load_selected_candidate_study_key_sets(
     return keys_by_source
 
 
-def load_candidate_study_keys(kg_dir: Path) -> set[str] | None:
-    key_sets = load_candidate_study_key_sets(kg_dir)
-    return None if key_sets is None else key_sets["all"]
-
-
 def value_counts(findings: Iterable[dict], field: str) -> dict[str, int]:
     counts: dict[str, int] = {}
     for finding in findings:

@@ -73,7 +73,6 @@ CATEGORY_DEFINITIONS = (
         "domains": {"pharmacokinetics_exposure"},
     },
 )
-CATEGORY_BY_KEY = {item["key"]: item for item in CATEGORY_DEFINITIONS}
 FIELD_NAMES = (
     "domain",
     "compound",

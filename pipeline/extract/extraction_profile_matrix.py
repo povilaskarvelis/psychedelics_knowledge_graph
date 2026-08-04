@@ -79,10 +79,6 @@ class ExtractionProfileSpec:
     extract: bool
 
 
-def primary_prompt_path(domain_route: str) -> Path:
-    return ROOT / "docs" / "extraction_profiles" / "primary" / f"{domain_route}.md"
-
-
 def primary_schema_path(domain_route: str) -> Path:
     return ROOT / "schema" / "extraction_profiles" / "primary" / f"{domain_route}.schema.json"
 

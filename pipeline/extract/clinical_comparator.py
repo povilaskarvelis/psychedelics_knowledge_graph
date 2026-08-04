@@ -11,20 +11,6 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     from io_utils import normalize
 
 
-COMPARATOR_ORDER = (
-    "Placebo",
-    "Active placebo",
-    "Baseline",
-    "No comparator",
-    "Dose or route comparison",
-    "Active treatment",
-    "Standard care",
-    "Observational controls",
-    "Not reported",
-    "Not applicable",
-    "Other",
-)
-
 NOT_REPORTED_VALUES = {"", "not_reported", "not reported", "unknown", "uncertain"}
 NOT_APPLICABLE_VALUES = {"not_applicable", "not applicable", "n/a", "na"}
 

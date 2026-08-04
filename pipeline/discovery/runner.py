@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from dataclasses import asdict
 import datetime as dt
 import json
 import math
@@ -274,58 +273,6 @@ def _execution_report_rows(plan: list[SearchExecution], state: dict) -> list[dic
             }
         )
     return rows
-
-
-def _first_nonempty(values: Iterable[object]) -> object:
-    for value in values:
-        if value is not None and str(value).strip() and str(value).lower() not in {"nan", "none"}:
-            return value
-    return ""
-
-
-def _join_unique(values: Iterable[object]) -> str:
-    unique = sorted({str(value).strip() for value in values if value is not None and str(value).strip()})
-    return " | ".join(unique)
-
-
-def records_from_hits(hits: pd.DataFrame) -> pd.DataFrame:
-    records: list[dict] = []
-    if hits.empty:
-        return pd.DataFrame()
-    record_columns = [
-        "provider",
-        "provider_record_id",
-        "pmid",
-        "pmcid",
-        "doi",
-        "openalex_id",
-        "semantic_scholar_id",
-        "title",
-        "authors",
-        "publication_year",
-        "publication_date",
-        "journal",
-        "publication_type",
-        "language",
-        "abstract",
-    ]
-    for (_provider, _record_id), group in hits.groupby(["provider", "provider_record_id"], sort=True):
-        row = {column: _first_nonempty(group[column].tolist()) for column in record_columns}
-        row.update(
-            {
-                "discovery_execution_count": int(group["execution_id"].nunique()),
-                "discovery_execution_ids": _join_unique(group["execution_id"]),
-                "discovery_search_ids": _join_unique(group["search_id"]),
-                "discovery_datasets": _join_unique(group["dataset"]),
-                "discovery_layers": _join_unique(group["layer"]),
-                "discovery_compounds": _join_unique(group["compound"]),
-                "discovery_entities": _join_unique(group["entity"]),
-                "first_retrieved_at_utc": min(group["retrieved_at_utc"]),
-                "last_retrieved_at_utc": max(group["retrieved_at_utc"]),
-            }
-        )
-        records.append(row)
-    return pd.DataFrame(records)
 
 
 def materialize_artifacts(run_dir: Path, plan: list[SearchExecution], state: dict, manifest: dict) -> dict:

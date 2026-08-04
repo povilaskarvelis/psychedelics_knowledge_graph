@@ -66,13 +66,6 @@ READY_ROUTE_ACTIONS = {
     "extract_from_full_text",
     "extract_from_abstract_only",
 }
-SKIP_ROUTE_ACTIONS = {
-    "exclude_after_model_screen",
-    "skip_or_context_only",
-    "hold_until_text_available",
-    "download_pdf_then_extract",
-    "convert_local_pdf_then_extract",
-}
 TERMINAL_SCHEMA_PROFILES = {
     "context_only_schema",
     "no_extraction_schema",

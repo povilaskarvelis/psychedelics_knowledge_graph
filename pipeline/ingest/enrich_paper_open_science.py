@@ -45,7 +45,7 @@ from pipeline.ingest.http_safety import (  # noqa: E402
     read_bounded_response,
     validate_public_http_url,
 )
-from pipeline.ingest.metadata_utils import normalize, normalize_doi  # noqa: E402
+from pipeline.ingest.metadata_utils import normalize  # noqa: E402
 from pipeline.ingest.open_science_features import (  # noqa: E402
     ASSERTION_COLUMNS,
     FEATURE_OPEN_DATA,
