@@ -2,7 +2,6 @@
 index.html
 favicon.ico
 favicon.svg
-favicon-search.png
 apple-touch-icon.png
 about
 api
