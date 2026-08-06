@@ -140,6 +140,13 @@ def test_compound_page_is_a_restrained_research_matrix(tmp_path: Path) -> None:
 
     assert html.count("<h1>") == 1
     assert "<h1>Psilocybin</h1>" in html
+    assert "<title>Psilocybin | Psychedelics Knowledge Graph</title>" in html
+    assert "Psilocybin research map | Psychedelics Knowledge Graph" not in html
+    assert (
+        'content="Explore research on Psilocybin across clinical, safety, behavioral, '
+        'brain, molecular, and real-world evidence."' in html
+    )
+    assert '<a href="/about/#citation">Cite this project</a>' in html
     assert "Research map" in html
     assert "Counts are unique source papers" in html
     assert 'id="compoundGraph"' in html

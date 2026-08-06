@@ -56,21 +56,36 @@ def parse_page(path: Path) -> HeadMetadataParser:
 
 def test_indexable_html_pages_have_complete_unique_metadata() -> None:
     pages = {
-        "index.html": "https://psychedelicskg.com/",
-        "about/index.html": "https://psychedelicskg.com/about/",
-        "methods/index.html": "https://psychedelicskg.com/methods/",
-        "api/index.html": "https://psychedelicskg.com/api/",
-        "compounds/psilocybin/index.html": "https://psychedelicskg.com/compounds/psilocybin/",
-        "feedback/index.html": "https://psychedelicskg.com/feedback/",
+        "index.html": ("https://psychedelicskg.com/", "Psychedelics Knowledge Graph"),
+        "about/index.html": (
+            "https://psychedelicskg.com/about/",
+            "About | Psychedelics Knowledge Graph",
+        ),
+        "methods/index.html": (
+            "https://psychedelicskg.com/methods/",
+            "Methods | Psychedelics Knowledge Graph",
+        ),
+        "api/index.html": (
+            "https://psychedelicskg.com/api/",
+            "API | Psychedelics Knowledge Graph",
+        ),
+        "compounds/psilocybin/index.html": (
+            "https://psychedelicskg.com/compounds/psilocybin/",
+            "Psilocybin | Psychedelics Knowledge Graph",
+        ),
+        "feedback/index.html": (
+            "https://psychedelicskg.com/feedback/",
+            "Leave feedback | Psychedelics Knowledge Graph",
+        ),
     }
     titles: set[str] = set()
     descriptions: set[str] = set()
 
-    for relative_path, canonical_url in pages.items():
+    for relative_path, (canonical_url, expected_title) in pages.items():
         metadata = parse_page(ROOT / relative_path)
         description = metadata.meta["description"]
 
-        assert metadata.title
+        assert metadata.title == expected_title
         assert len(metadata.canonicals) == 1
         assert metadata.canonicals[0] == canonical_url
         assert metadata.meta["og:title"] == metadata.title

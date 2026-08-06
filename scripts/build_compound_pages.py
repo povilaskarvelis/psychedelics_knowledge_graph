@@ -451,11 +451,10 @@ def render_category_rows(payload: dict[str, Any]) -> str:
 def render_compound_page(payload: dict[str, Any]) -> str:
     compound = payload["compound"]["label"]
     slug = payload["compound"]["slug"]
-    title = f"{compound} research map | Psychedelics Knowledge Graph"
+    title = f"{compound} | Psychedelics Knowledge Graph"
     description = (
-        f"Explore research connected to {compound} across conditions, safety, "
-        "cognition, subjective effects, treatment context, brain systems, "
-        "molecular effects, targets, real-world evidence, and pharmacokinetics."
+        f"Explore research on {compound} across clinical, safety, behavioral, "
+        "brain, molecular, and real-world evidence."
     )
     return f"""<!doctype html>
 <html lang="en">
@@ -637,7 +636,7 @@ def render_compound_page(payload: dict[str, Any]) -> str:
       <div class="footer-inner">
         <nav class="footer-links" aria-label="Project information">
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">GitHub</a>
-          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/CITATION.cff" target="_blank" rel="noopener noreferrer">Cite this project</a>
+          <a href="/about/#citation">Cite this project</a>
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/LICENSES.md" target="_blank" rel="noopener noreferrer">Licenses</a>
         </nav>
         <div class="footer-identity">
