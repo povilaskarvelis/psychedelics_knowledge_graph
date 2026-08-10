@@ -38,11 +38,16 @@ const SAMPLE_YEAR_TARGET_BUCKET_COUNT = 14;
 /** Chunk size for progressive rendering (IntersectionObserver loads more while scrolling). */
 const LIST_CHUNK_SIZE = 120;
 const FINDING_SEARCH_DEBOUNCE_MS = 70;
+const BIBLIOGRAPHY_SEARCH_DEBOUNCE_MS = 80;
 const GRAPH_VIEW_CONTRACT_PATH = "schema/graph_view_contract.json";
 const GRAPH_VIEW_CONTRACT_SCHEMA_VERSION = "psychedelics_kg_graph_view_contract_v1";
 
 let cardsLoadObserver = null;
 let bibliographyLoadObserver = null;
+let bibliographySearchTimer = 0;
+let bibliographySearchRenderToken = 0;
+let bibliographySearchWarmupToken = 0;
+let bibliographyRowsForRenderedView = null;
 const GRAPH_COLOR_STOPS = [
   { r: 67, g: 187, b: 166 },
   { r: 119, g: 217, b: 141 },
@@ -522,6 +527,7 @@ function unique(values) {
 const rawSearchTextCache = new WeakMap();
 const rawClaimSearchTextCache = new WeakMap();
 const claimSearchTextCache = new WeakMap();
+const bibliographySearchTextCache = new WeakMap();
 const graphOverviewSubjectsCache = new WeakMap();
 const graphUseContextProjectionsCache = new WeakMap();
 
@@ -4350,10 +4356,11 @@ function bibliographyRowsFromClaims(data) {
         publication_date: claim.publication_date,
         publisher: claim.publisher,
         trial_registry_ids: claim.trial_registry_ids,
+        keywords: claim.keywords,
+        mesh_terms: claim.mesh_terms,
       },
       index
     );
-    baseEntry.searchText = normalizeSearchText([baseEntry.searchText, claimSearchHaystack(claim)].join(" "));
     addBibliographyContext(baseEntry, compoundGraphLabelForClaim(claim), graphRightLabelForClaim(claim) || claim[rightKey]);
     const id = bibliographyEntryId(baseEntry, index);
     const existing = studies.get(id);
@@ -4362,12 +4369,11 @@ function bibliographyRowsFromClaims(data) {
       return;
     }
 
-    ["doi", "openalexId", "title", "authors", "year", "journal", "publicationDate", "publicationType", "publisher", "trialRegistryIds"].forEach(
+    ["doi", "openalexId", "title", "authors", "year", "journal", "publicationDate", "publicationType", "publisher", "trialRegistryIds", "keywords", "meshTerms"].forEach(
       (field) => {
         if (!existing[field] && baseEntry[field]) existing[field] = baseEntry[field];
       }
     );
-    existing.searchText = normalizeSearchText([existing.searchText, baseEntry.searchText].join(" "));
     baseEntry.contexts.forEach((context) => addBibliographyContext(existing, context.compound, context.entity));
   });
 
@@ -4427,10 +4433,13 @@ function bibliographyRowsForCurrentView(data) {
 }
 
 function bibliographyHaystack(entry) {
+  const cached = bibliographySearchTextCache.get(entry);
+  if (cached !== undefined) return cached;
+
   const contextText = (entry.contexts || [])
     .map((context) => `${context.compound} ${context.entity}`)
     .join(" ");
-  return normalizeSearchText(
+  const searchText = normalizeSearchText(
     [
       entry.searchText,
       entry.title,
@@ -4448,6 +4457,8 @@ function bibliographyHaystack(entry) {
       contextText,
     ].join(" ")
   );
+  bibliographySearchTextCache.set(entry, searchText);
+  return searchText;
 }
 
 function bibliographyCitationHtml(entry) {
@@ -4472,11 +4483,50 @@ function bibliographyCitationHtml(entry) {
   `;
 }
 
-function renderBibliography(data) {
-  if (!studyListEl) return;
+function scheduleBibliographySearchIndexWarmup(rows) {
+  const token = ++bibliographySearchWarmupToken;
+  let index = 0;
+  if (!rows.length) return;
 
-  const rows = bibliographyRowsForCurrentView(data);
+  function warmChunk(deadline) {
+    if (token !== bibliographySearchWarmupToken || rows !== bibliographyRowsForRenderedView) return;
+    const started = window.performance?.now?.() ?? Date.now();
+    do {
+      bibliographyHaystack(rows[index]);
+      index += 1;
+    } while (
+      index < rows.length &&
+      (window.performance?.now?.() ?? Date.now()) - started < 8 &&
+      (!deadline || deadline.didTimeout || deadline.timeRemaining() > 1)
+    );
+
+    if (index < rows.length) scheduleIdleTask(warmChunk);
+  }
+
+  scheduleIdleTask(warmChunk, 220);
+}
+
+function cancelPendingBibliographySearchRender() {
+  bibliographySearchRenderToken += 1;
+  if (bibliographySearchTimer) {
+    window.clearTimeout(bibliographySearchTimer);
+    bibliographySearchTimer = 0;
+  }
+  studyListEl?.removeAttribute("aria-busy");
+}
+
+function renderBibliography(data = null) {
+  if (!studyListEl) return;
+  cancelPendingBibliographySearchRender();
+
+  if (Array.isArray(data)) {
+    bibliographyRowsForRenderedView = bibliographyRowsForCurrentView(data);
+  }
+  const rows = bibliographyRowsForRenderedView || [];
   const bibliographyQuery = normalizeSearchText(bibliographySearchInput?.value);
+  if (Array.isArray(data) && !bibliographyQuery) {
+    scheduleBibliographySearchIndexWarmup(rows);
+  }
   const filteredRows = !bibliographyQuery
     ? rows
     : rows.filter((entry) => bibliographyHaystack(entry).includes(bibliographyQuery));
@@ -4536,6 +4586,19 @@ function renderBibliography(data) {
 
   appendBibliographyChunk();
   attachBibliographySentinelIfNeeded();
+}
+
+function scheduleBibliographySearchRender() {
+  const token = ++bibliographySearchRenderToken;
+  if (bibliographySearchTimer) window.clearTimeout(bibliographySearchTimer);
+  studyListEl?.setAttribute("aria-busy", "true");
+  bibliographySearchTimer = window.setTimeout(() => {
+    bibliographySearchTimer = 0;
+    window.requestAnimationFrame(() => {
+      if (token !== bibliographySearchRenderToken) return;
+      renderBibliography();
+    });
+  }, BIBLIOGRAPHY_SEARCH_DEBOUNCE_MS);
 }
 
 function summarizeConnections(items, key) {
@@ -8638,7 +8701,7 @@ if (searchInput) {
 }
 if (bibliographySearchInput) {
   bibliographySearchInput.addEventListener("input", () => {
-    renderBibliography(applyFilters({ ignoreSearch: true }));
+    scheduleBibliographySearchRender();
   });
 }
 if (detailBody) {

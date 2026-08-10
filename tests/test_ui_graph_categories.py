@@ -335,6 +335,32 @@ def test_findings_search_does_not_rerender_the_graph_or_dashboard() -> None:
     assert "renderBibliography(" not in search_render
 
 
+def test_bibliography_search_reuses_the_rendered_rows_and_cached_index() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    rows_from_claims = source.split("function bibliographyRowsFromClaims", 1)[1].split(
+        "function currentBibliographyYearRange", 1
+    )[0]
+    search_index = source.split("function bibliographyHaystack", 1)[1].split(
+        "function bibliographyCitationHtml", 1
+    )[0]
+    search_render = source.split("function scheduleBibliographySearchIndexWarmup", 1)[1].split(
+        "function summarizeConnections", 1
+    )[0]
+    search_listener = source.split('if (bibliographySearchInput) {', 1)[1].split(
+        'if (detailBody)', 1
+    )[0]
+
+    assert "claimSearchHaystack" not in rows_from_claims
+    assert "bibliographySearchTextCache.get(entry)" in search_index
+    assert "bibliographySearchTextCache.set(entry, searchText)" in search_index
+    assert "scheduleBibliographySearchIndexWarmup(rows)" in search_render
+    assert "started < 8" in search_render
+    assert "BIBLIOGRAPHY_SEARCH_DEBOUNCE_MS" in search_render
+    assert "renderBibliography()" in search_render
+    assert "scheduleBibliographySearchRender()" in search_listener
+    assert "applyFilters(" not in search_listener
+
+
 def test_full_graph_does_not_promote_detail_only_findings() -> None:
     source = APP_JS.read_text(encoding="utf-8")
     admission = source.split("function isMainGraphAdmitted", 1)[1].split("function unique", 1)[0]
@@ -567,7 +593,7 @@ def test_versioned_static_assets_are_browser_immutable() -> None:
     assert headers["/ui/*.js"]["Cache-Control"] == "public, max-age=31536000, immutable"
     assert headers["/ui/*.css"]["Cache-Control"] == "public, max-age=31536000, immutable"
     assert 'styles.css?v=20260729-wide-header-v1' in html_source
-    assert 'app.js?v=20260729-responsive-graph-v2' in html_source
+    assert 'app.js?v=20260810-bibliography-search-v1' in html_source
     assert 'rel="canonical" href="https://psychedelicskg.com/"' in html_source
     assert '"@type": "Dataset"' in html_source
 
