@@ -3736,6 +3736,10 @@ button.primary:hover {
   box-shadow: inset 0 0 0 1px rgba(238, 240, 235, 0.035);
 }
 
+.trend-card.bar-thin .trend-bar-track {
+  height: 5px;
+}
+
 .trend-bar-track span {
   display: block;
   width: var(--bar-width);

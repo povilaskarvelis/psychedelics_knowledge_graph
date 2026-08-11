@@ -669,17 +669,27 @@ def test_publication_year_hover_regions_do_not_overlap_at_chart_edges() -> None:
     assert "clampNumber(x - (hitWidth - barWidth) / 2" not in chart_source
 
 
-def test_right_detail_panel_exposes_expandable_leading_funders_without_coverage_subtitle() -> None:
+def test_right_detail_panel_exposes_expandable_funders_without_coverage_subtitle() -> None:
     source = APP_JS.read_text(encoding="utf-8")
 
     assert "function renderFundingCharts(items)" in source
-    assert '"Leading funders"' in source
+    assert 'renderHorizontalBarChart(funders, "Funders"' in source
     assert 'filterField: "funding_funder_facet"' in source
     assert "renderFundingCharts(items)" in source
     assert "funding-summary-grid" not in source
     assert '"funding_status_facet"' not in source
     assert "Funding metadata found for ${formatCompactNumber(metadataFound)} of" not in source
     assert 'expandKey: "funders"' in source
+
+
+def test_journal_and_funder_bars_use_the_thin_variant() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    styles = STYLES_CSS.read_text(encoding="utf-8")
+
+    assert 'extraClass: "bar-tone-gray bar-thin funding-funders-card"' in source
+    assert 'extraClass: "bar-tone-stone bar-thin"' in source
+    assert ".trend-card.bar-thin .trend-bar-track" in styles
+    assert "height: 5px;" in styles.split(".trend-card.bar-thin .trend-bar-track", 1)[1].split("}", 1)[0]
 
 
 def test_ranked_detail_lists_offer_incremental_expansion_only() -> None:

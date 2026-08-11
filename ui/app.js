@@ -5325,15 +5325,15 @@ function renderMetadataFacetCharts(items) {
 
 function renderFundingCharts(items) {
   const funders = summarizeMultiFacetEvidence(items, fundingFunderFacetValues);
-  const leadingFunders = funders.length
-    ? renderHorizontalBarChart(funders, "Leading funders", "", {
+  const fundersChart = funders.length
+    ? renderHorizontalBarChart(funders, "Funders", "", {
         filterField: "funding_funder_facet",
         maxEntries: 10,
         expandKey: "funders",
-        extraClass: "bar-tone-gray funding-funders-card",
+        extraClass: "bar-tone-gray bar-thin funding-funders-card",
       })
     : "";
-  return leadingFunders;
+  return fundersChart;
 }
 
 function renderAuthorRoleChart(items) {
@@ -5390,7 +5390,7 @@ function renderJournalChart(items) {
     emptyText: "No journal metadata in this selection.",
     expandKey: "journals",
     maxEntries: 10,
-    extraClass: "bar-tone-stone",
+    extraClass: "bar-tone-stone bar-thin",
   });
 }
 
