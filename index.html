@@ -148,21 +148,34 @@
           <div class="graph-column">
             <div class="graph-toolbar">
               <div class="graph-header-controls">
-                <div class="toolbar-main-row">
-                  <div
-                    class="segmented-toggle entity-kind-toggle category-toggle"
-                    data-entity-kind-toggle
-                    role="tablist"
-                    aria-label="Graph category"
-                  ></div>
-                </div>
-                <div class="toolbar-filter-row">
+                <div class="explorer-primary-row">
+                  <div class="explorer-lens-row">
+                    <div
+                      class="segmented-toggle explorer-lens-toggle"
+                      data-explorer-lens-toggle
+                      role="tablist"
+                      aria-label="Exploration lens"
+                    >
+                      <button class="ghost small active" type="button" data-explorer-lens="domain" role="tab" aria-selected="true">
+                        Research area
+                      </button>
+                      <button class="ghost small" type="button" data-explorer-lens="compound" role="tab" aria-selected="false">
+                        Compound
+                      </button>
+                      <button class="ghost small" type="button" data-explorer-lens="author" role="tab" aria-selected="false">
+                        Author
+                      </button>
+                      <button class="ghost small" type="button" data-explorer-lens="journal" role="tab" aria-selected="false">
+                        Journal
+                      </button>
+                    </div>
+                  </div>
                   <div class="filter-center-controls">
                     <div class="segmented-toggle evidence-view-toggle" role="tablist" aria-label="Evidence view">
-                      <button class="ghost small active" data-evidence-view="primary" role="tab" aria-selected="true">
+                      <button class="ghost small active" data-evidence-view="primary" role="tab" aria-selected="true" aria-label="Primary studies" title="Primary studies">
                         Primary studies
                       </button>
-                      <button class="ghost small" data-evidence-view="meta_analyses" role="tab" aria-selected="false">
+                      <button class="ghost small" data-evidence-view="meta_analyses" role="tab" aria-selected="false" aria-label="Meta-analyses" title="Meta-analyses">
                         Meta-analyses
                       </button>
                       <button class="ghost small" data-evidence-view="reviews" role="tab" aria-selected="false">
@@ -187,6 +200,18 @@
                       </div>
                     </div>
                   </div>
+                </div>
+                <div class="toolbar-main-row">
+                  <div
+                    class="segmented-toggle entity-kind-toggle category-toggle"
+                    data-entity-kind-toggle
+                    role="tablist"
+                    aria-label="Graph category"
+                  ></div>
+                  <label class="explorer-search" id="explorerContext" hidden>
+                    <span class="sr-only" id="explorerSearchLabel">Search this overview</span>
+                    <input id="explorerSearchInput" type="search" placeholder="Search compounds" aria-labelledby="explorerSearchLabel" />
+                  </label>
                 </div>
               </div>
               <div

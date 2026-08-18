@@ -7,11 +7,17 @@ const yearStepButtons = document.querySelectorAll(".year-step");
 const searchInput = document.getElementById("searchInput");
 const bibliographySearchInput = document.getElementById("bibliographySearchInput");
 const tooltip = document.getElementById("tooltip");
+const graphDetail = document.getElementById("graphDetail");
 const detailTitle = document.querySelector("#graphDetail h3");
 const detailBody = document.getElementById("detailBody");
 const claimLayerButtons = document.querySelectorAll("[data-claim-layer]");
 const evidenceViewButtons = document.querySelectorAll("[data-evidence-view]");
 const entityKindToggle = document.querySelector("[data-entity-kind-toggle]");
+const explorerLensToggle = document.querySelector("[data-explorer-lens-toggle]");
+const explorerLensButtons = document.querySelectorAll("[data-explorer-lens]");
+const explorerContext = document.getElementById("explorerContext");
+const explorerSearchInput = document.getElementById("explorerSearchInput");
+const explorerSearchLabel = document.getElementById("explorerSearchLabel");
 const studyListEl = document.getElementById("studyList");
 const dataFetchOptions =
   ["", "localhost", "127.0.0.1", "::1"].includes(window.location.hostname) ? { cache: "no-store" } : {};
@@ -41,6 +47,21 @@ const FINDING_SEARCH_DEBOUNCE_MS = 70;
 const BIBLIOGRAPHY_SEARCH_DEBOUNCE_MS = 80;
 const GRAPH_VIEW_CONTRACT_PATH = "schema/graph_view_contract.json";
 const GRAPH_VIEW_CONTRACT_SCHEMA_VERSION = "psychedelics_kg_graph_view_contract_v1";
+const EXPLORER_LENSES = new Set(["domain", "compound", "author", "journal"]);
+const EXPLORER_INITIAL_ROW_LIMIT = 24;
+const EXPLORER_ROW_EXPANSION_STEP = 24;
+const EXPLORER_AREA_COLORS = Object.freeze({
+  condition_indication: "#82a9d8",
+  safety_adverse_event: "#d6a84f",
+  cognitive_behavioral_construct: "#a88bd1",
+  behavioral_effect: "#d27694",
+  subjective_experience_construct: "#55b7ab",
+  intervention_component: "#d1846f",
+  public_health_measure: "#9bab62",
+  brain_system: "#5f9eb5",
+  pathway_readout: "#72a77c",
+  target_system: "#b779ad",
+});
 
 let cardsLoadObserver = null;
 let bibliographyLoadObserver = null;
@@ -401,6 +422,12 @@ const REVIEW_SOURCE_TYPES = new Set([
   "umbrella_review",
 ]);
 let entityViewKey = "condition_indication";
+let explorerLens = "domain";
+let explorerFocus = null;
+let explorerAreaKey = "";
+let explorerVisibleRowCount = EXPLORER_INITIAL_ROW_LIMIT;
+let explorerRenderToken = 0;
+let explorerMatrixMemo = null;
 let renderScheduled = false;
 let findingSearchTimer = 0;
 let findingSearchRenderToken = 0;
@@ -1439,7 +1466,7 @@ function yearBoundsFromClaims(data) {
 
 function syncYearFilterControls(data, forceReset = false) {
   if (!yearMinFilter || !yearMaxFilter) return;
-  const filterKey = currentEntityViewKey();
+  const filterKey = currentYearFilterKey();
 
   const bounds = yearBoundsFromClaims(data);
   if (!bounds) {
@@ -1499,7 +1526,7 @@ function activeYearRange(data) {
 
   yearMinFilter.value = String(minYear);
   yearMaxFilter.value = String(maxYear);
-  yearFilterState[currentEntityViewKey()] = { min: String(minYear), max: String(maxYear) };
+  yearFilterState[currentYearFilterKey()] = { min: String(minYear), max: String(maxYear) };
 
   const constrained = minYear > bounds.min || maxYear < bounds.max;
   return {
@@ -3380,6 +3407,7 @@ function stashActiveOverviewDetail() {
 
 function setDetailHeader(title) {
   stashActiveOverviewDetail();
+  if (graphDetail) graphDetail.hidden = false;
   detailTitle.textContent = title;
 }
 
@@ -6880,6 +6908,512 @@ function crossfadeCompleteGraph(previousSvg, nextSvg) {
   }, 220);
 }
 
+function currentYearFilterKey() {
+  return explorerLens === "domain" ? currentEntityViewKey() : `explorer:${explorerLens}`;
+}
+
+function explorerLensMeta(lens = explorerLens) {
+  const meta = {
+    compound: {
+      singular: "compound",
+      plural: "compounds",
+      searchPlaceholder: "Search compounds",
+    },
+    author: {
+      singular: "author",
+      plural: "authors",
+      searchPlaceholder: "Search authors",
+    },
+    journal: {
+      singular: "journal",
+      plural: "journals",
+      searchPlaceholder: "Search journals",
+    },
+  };
+  return meta[lens] || meta.compound;
+}
+
+function explorerAreaColor(areaKey) {
+  return EXPLORER_AREA_COLORS[areaKey] || "#82a9d8";
+}
+
+function explorerSourceClaims() {
+  const sourceClaims = claimStores.normalized.bySource[currentSourceKey()] || [];
+  return sourceClaims.filter((claim) => !isHiddenMainGraphItem(claim));
+}
+
+function explorerFilteredClaims(options = {}) {
+  const sourceClaims = explorerSourceClaims();
+  if (!sourceClaims.length) return [];
+  const yearRange = activeYearRange(sourceClaims);
+  return applyFiltersToClaims(sourceClaims, yearRange, {
+    ignoreSearch: true,
+    ignoreAccess: Boolean(options.ignoreAccess),
+  }).filter(isMainGraphAdmitted);
+}
+
+function explorerEntityValuesForClaim(claim, authorAliases = null) {
+  if (explorerLens === "compound") {
+    const label = compoundGraphLabelForClaim(claim);
+    return label ? [{ value: normalizeValue(label), label }] : [];
+  }
+  if (explorerLens === "author") {
+    const values = [
+      authorFacetValueForRole(claim, "first", authorAliases),
+      authorFacetValueForRole(claim, "last", authorAliases),
+    ].filter(Boolean);
+    const seen = new Set();
+    return values.filter((value) => {
+      const key = normalizeValue(value.value || value.label);
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+  if (explorerLens === "journal") {
+    const value = journalFacetValue(claim);
+    return value ? [value] : [];
+  }
+  return [];
+}
+
+function buildExplorerMatrix(items) {
+  const yearRange = activeYearRange(items);
+  const memoKey = [
+    currentSourceKey(),
+    claimArrayId(items),
+    explorerLens,
+    accessView,
+    yearRange.constrained ? `${yearRange.min}-${yearRange.max}` : "all-years",
+  ].join("|");
+  if (explorerMatrixMemo?.key === memoKey) return explorerMatrixMemo.value;
+
+  const rows = new Map();
+  const authorAliases = explorerLens === "author" ? buildAuthorRoleAliasMap(items) : null;
+  items.forEach((claim, index) => {
+    const areas = ENTITY_CATEGORY_OPTIONS.filter((option) => claimMatchesEntityViewOption(claim, option));
+    if (!areas.length) return;
+    const study = studyKey(claim, index);
+    explorerEntityValuesForClaim(claim, authorAliases).forEach((entity) => {
+      const key = cleanDisplayText(entity.value || entity.label);
+      const label = cleanDisplayText(entity.label || entity.value);
+      if (!key || !label) return;
+      const row = rows.get(key) || {
+        key,
+        label,
+        studies: new Set(),
+        claims: [],
+        areas: new Map(),
+      };
+      row.label = preferredFacetLabel(row.label, label);
+      row.studies.add(study);
+      row.claims.push(claim);
+      areas.forEach((area) => {
+        const bucket = row.areas.get(area.key) || { studies: new Set(), claims: [] };
+        bucket.studies.add(study);
+        bucket.claims.push(claim);
+        row.areas.set(area.key, bucket);
+      });
+      rows.set(key, row);
+    });
+  });
+
+  const entries = Array.from(rows.values())
+    .map((row) => ({
+      ...row,
+      studyCount: row.studies.size,
+      areaCount: row.areas.size,
+    }))
+    .sort((a, b) => {
+      const byStudies = b.studyCount - a.studyCount;
+      if (byStudies) return byStudies;
+      const byBreadth = b.areaCount - a.areaCount;
+      if (byBreadth) return byBreadth;
+      return a.label.localeCompare(b.label);
+    });
+
+  const maxCellCount = Math.max(
+    1,
+    ...entries.flatMap((entry) =>
+      ENTITY_CATEGORY_OPTIONS.map((area) => entry.areas.get(area.key)?.studies.size || 0)
+    )
+  );
+  const value = { entries, maxCellCount };
+  explorerMatrixMemo = { key: memoKey, value };
+  return value;
+}
+
+function explorerRowForFocus(matrix) {
+  if (!explorerFocus) return null;
+  return matrix.entries.find((entry) => entry.key === explorerFocus.key) || null;
+}
+
+function updateExplorerUrlState() {
+  const url = new URL(window.location.href);
+  if (explorerLens === "domain") {
+    url.searchParams.delete("lens");
+    url.searchParams.delete("focus");
+    url.searchParams.delete("area");
+  } else {
+    url.searchParams.set("lens", explorerLens);
+    if (explorerFocus?.key) url.searchParams.set("focus", explorerFocus.key);
+    else url.searchParams.delete("focus");
+    if (explorerAreaKey) url.searchParams.set("area", explorerAreaKey);
+    else url.searchParams.delete("area");
+  }
+  window.history.replaceState(null, "", url);
+}
+
+function updateExplorerControls() {
+  const inExplorer = explorerLens !== "domain";
+  const meta = explorerLensMeta();
+  explorerLensButtons.forEach((button) => {
+    const active = button.dataset.explorerLens === explorerLens;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-selected", active ? "true" : "false");
+  });
+  if (entityKindToggle) entityKindToggle.hidden = inExplorer || claimLayer !== "normalized";
+  if (explorerContext) explorerContext.hidden = !inExplorer;
+  if (graphDetail && !inExplorer) graphDetail.hidden = false;
+  if (!inExplorer) return;
+  if (explorerSearchInput) {
+    explorerSearchInput.placeholder = meta.searchPlaceholder;
+    explorerSearchInput.hidden = false;
+  }
+  if (explorerSearchLabel) explorerSearchLabel.textContent = `Search ${meta.plural}`;
+}
+
+function setExplorerWorkspaceHeight(height) {
+  const graphGrid = graphEl.closest(".graph-grid");
+  const graphToolbar = graphEl.closest(".graph-column")?.querySelector(".graph-toolbar");
+  const defaultWorkspaceHeight =
+    Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--kg-workspace-height")) || 1030;
+  const workspaceHeight = Math.ceil(Math.max(defaultWorkspaceHeight, height + (graphToolbar?.offsetHeight || 0)));
+  graphEl.style.setProperty("--kg-graph-height", `${height}px`);
+  graphGrid?.style.setProperty("--kg-dynamic-workspace-height", `${workspaceHeight}px`);
+}
+
+function renderExplorerOverviewDetail(items, allAccessItems = items) {
+  if (explorerLens === "domain") {
+    if (graphDetail) graphDetail.hidden = false;
+    return;
+  }
+  const meta = explorerLensMeta();
+  activeDetailItems = items;
+  activeDetailAllAccessItems = allAccessItems;
+  setDetailHeader(`All ${meta.plural}`);
+  if (!items.length && !allAccessItems.length) {
+    detailBody.innerHTML = `<div class="detail-empty">No ${escapeHtml(meta.plural)} match the current filters.</div>`;
+  } else {
+    detailBody.innerHTML = `
+      <div class="trend-dashboard">
+        ${renderTrendStats(items, [], allAccessItems)}
+        ${renderAnnualPublicationChart(items)}
+        ${renderEvidenceDetailGroup(items)}
+        ${renderMetadataFacetCharts(items)}
+      </div>
+    `;
+  }
+  cardsEl.replaceChildren();
+  if (studyListEl) studyListEl.replaceChildren();
+}
+
+function renderExplorerMatrix(matrix, items, allAccessItems) {
+  const meta = explorerLensMeta();
+  const query = normalizeSearchText(explorerSearchInput?.value || "");
+  const matchingEntries = query
+    ? matrix.entries.filter((entry) => normalizeSearchText(entry.label).includes(query))
+    : matrix.entries;
+  const visibleEntries = matchingEntries.slice(0, explorerVisibleRowCount);
+  const header = `
+    <div class="explorer-matrix-corner">${escapeHtml(meta.singular)}</div>
+    <div class="explorer-matrix-total-heading">Total</div>
+    ${ENTITY_CATEGORY_OPTIONS.map(
+      (area) => `<div class="explorer-matrix-area-heading" style="--area-color:${explorerAreaColor(area.key)}">${escapeHtml(area.label)}</div>`
+    ).join("")}
+  `;
+  const rows = visibleEntries
+    .map((entry) => {
+      const cells = ENTITY_CATEGORY_OPTIONS.map((area) => {
+        const count = entry.areas.get(area.key)?.studies.size || 0;
+        const strength = count ? Math.max(0.08, Math.sqrt(count / matrix.maxCellCount)) : 0;
+        return `
+          <button
+            class="explorer-matrix-cell ${count ? "" : "is-empty"}"
+            type="button"
+            data-explorer-row-key="${escapeHtml(entry.key)}"
+            data-explorer-area-key="${escapeHtml(area.key)}"
+            data-study-count="${count}"
+            style="--area-color:${explorerAreaColor(area.key)};--cell-strength:${strength.toFixed(3)}"
+            aria-label="${escapeHtml(`${entry.label}, ${area.label}: ${count} source ${count === 1 ? "paper" : "papers"}`)}"
+          >${count ? formatCompactNumber(count) : "—"}</button>`;
+      }).join("");
+      return `
+        <button class="explorer-matrix-row-button" type="button" data-explorer-row-key="${escapeHtml(entry.key)}" aria-label="Explore ${escapeHtml(entry.label)} across all research areas">
+          <span>${escapeHtml(entry.label)}</span><span aria-hidden="true">›</span>
+        </button>
+        <div class="explorer-matrix-total" data-explorer-row-key="${escapeHtml(entry.key)}">${formatCompactNumber(entry.studyCount)}</div>
+        ${cells}
+      `;
+    })
+    .join("");
+  const remaining = Math.max(0, matchingEntries.length - visibleEntries.length);
+  graphEl.innerHTML = `
+    <div class="explorer-matrix-shell">
+      ${visibleEntries.length ? `<div class="explorer-matrix-scroll"><div class="explorer-matrix" style="--explorer-area-count:${ENTITY_CATEGORY_OPTIONS.length}">${header}${rows}</div></div>` : `<div class="explorer-empty">No ${escapeHtml(meta.plural)} match this search.</div>`}
+      ${remaining ? `<button class="ghost small explorer-show-more" type="button" data-explorer-show-more>Show ${formatCompactNumber(Math.min(EXPLORER_ROW_EXPANSION_STEP, remaining))} more</button>` : ""}
+    </div>
+  `;
+  const height = Math.max(GRAPH_BASE_HEIGHT_PX, 92 + visibleEntries.length * 44 + (remaining ? 58 : 0));
+  setExplorerWorkspaceHeight(height);
+  renderExplorerOverviewDetail(items, allAccessItems);
+}
+
+function explorerSvgElement(tag, attributes = {}) {
+  const element = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, String(value)));
+  return element;
+}
+
+function explorerCurve(x1, y1, x2, y2) {
+  const offset = Math.max(60, (x2 - x1) * 0.42);
+  return `M ${x1} ${y1} C ${x1 + offset} ${y1}, ${x2 - offset} ${y2}, ${x2} ${y2}`;
+}
+
+function bindExplorerFocusedNode(group, tooltipHtml, click) {
+  group.setAttribute("tabindex", "0");
+  group.setAttribute("role", "button");
+  const enter = (event) => showTooltip(tooltipHtml, event);
+  group.addEventListener("mouseenter", enter);
+  group.addEventListener("mousemove", moveTooltip);
+  group.addEventListener("mouseleave", hideTooltip);
+  group.addEventListener("focus", () => showTooltipForElement(tooltipHtml, group));
+  group.addEventListener("blur", hideTooltip);
+  group.addEventListener("click", click);
+  group.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    click(event);
+  });
+}
+
+function summarizeExplorerDetails(claims, limit = 14) {
+  const map = new Map();
+  claims.forEach((claim, index) => {
+    const label = explorerLens === "compound" ? graphRightLabelForClaim(claim) : compoundGraphLabelForClaim(claim);
+    if (!label) return;
+    const key = normalizeValue(label);
+    const entry = map.get(key) || { key, label, studies: new Set(), claims: [] };
+    entry.studies.add(studyKey(claim, index));
+    entry.claims.push(claim);
+    map.set(key, entry);
+  });
+  return Array.from(map.values())
+    .map((entry) => ({ ...entry, studyCount: entry.studies.size }))
+    .sort((a, b) => b.studyCount - a.studyCount || a.label.localeCompare(b.label))
+    .slice(0, limit);
+}
+
+function renderExplorerSelectionDetail(title, items, allAccessItems = items) {
+  activeDetailItems = items;
+  activeDetailAllAccessItems = allAccessItems;
+  setDetailHeader(title);
+  detailBody.innerHTML = `
+    <div class="trend-dashboard">
+      ${renderTrendStats(items, [], allAccessItems)}
+      ${renderAnnualPublicationChart(items)}
+      ${renderEvidenceDetailGroup(items)}
+      ${renderMetadataFacetCharts(items)}
+    </div>
+  `;
+  renderCards(items);
+  renderBibliography(items);
+}
+
+function renderExplorerFocused(row, allAccessRow = row) {
+  const areas = ENTITY_CATEGORY_OPTIONS.map((area) => {
+    const bucket = row.areas.get(area.key) || { studies: new Set(), claims: [] };
+    return { ...area, bucket, studyCount: bucket.studies.size };
+  }).filter((area) => area.studyCount > 0);
+  const previousAreaKey = explorerAreaKey;
+  const selectedArea =
+    areas.find((area) => area.key === explorerAreaKey) ||
+    [...areas].sort((a, b) => b.studyCount - a.studyCount)[0] ||
+    null;
+  explorerAreaKey = selectedArea?.key || "";
+  if (explorerAreaKey !== previousAreaKey) updateExplorerUrlState();
+  const details = summarizeExplorerDetails(selectedArea?.bucket.claims || []);
+  const allAccessAreaBucket = allAccessRow?.areas.get(selectedArea?.key) || selectedArea?.bucket || { claims: [] };
+  const allAccessDetails = new Map(
+    summarizeExplorerDetails(allAccessAreaBucket.claims || [], Number.POSITIVE_INFINITY).map((detail) => [detail.key, detail])
+  );
+  const width = 960;
+  const height = Math.max(760, 100 + Math.max(areas.length * 62, details.length * 46));
+  const rootX = 95;
+  const areaX = 385;
+  const detailX = 735;
+  const rootY = height / 2;
+  const areaTop = 48;
+  const areaStep = areas.length > 1 ? (height - 96) / (areas.length - 1) : 0;
+  const detailTop = 48;
+  const detailStep = details.length > 1 ? (height - 96) / (details.length - 1) : 0;
+  const svg = explorerSvgElement("svg", { viewBox: `0 0 ${width} ${height}`, role: "group", "aria-label": `${row.label} across research areas` });
+  const edgeLayer = explorerSvgElement("g");
+  const nodeLayer = explorerSvgElement("g");
+  svg.append(edgeLayer, nodeLayer);
+  const maxAreaCount = Math.max(1, ...areas.map((area) => area.studyCount));
+  const maxDetailCount = Math.max(1, ...details.map((detail) => detail.studyCount));
+
+  const root = explorerSvgElement("g", { class: "explorer-focused-node", style: "--node-color:#69a196" });
+  root.appendChild(explorerSvgElement("circle", { cx: rootX, cy: rootY, r: 12 }));
+  const rootLabel = explorerSvgElement("text", { x: rootX, y: rootY - 25, class: "explorer-focused-root-label" });
+  setWrappedSvgLabel(rootLabel, row.label, 170, rootX, rootY - 25, 3);
+  root.appendChild(rootLabel);
+  bindExplorerFocusedNode(root, `<strong>${escapeHtml(row.label)}</strong><br/><span class="tooltip-meta">${formatCompactNumber(row.studyCount)} source papers · ${formatCompactNumber(row.areaCount)} research areas</span>`, () => {
+    explorerFocus = null;
+    explorerAreaKey = "";
+    updateExplorerUrlState();
+    updateExplorerControls();
+    renderExplorerSurface();
+  });
+  nodeLayer.appendChild(root);
+
+  areas.forEach((area, index) => {
+    const y = areas.length === 1 ? height / 2 : areaTop + areaStep * index;
+    const color = explorerAreaColor(area.key);
+    const edge = explorerSvgElement("path", {
+      d: explorerCurve(rootX + 12, rootY, areaX - 10, y),
+      class: `explorer-focused-edge area-edge ${area.key === selectedArea?.key ? "is-selected" : ""}`,
+      stroke: color,
+      "stroke-width": 1.2 + 7 * Math.sqrt(area.studyCount / maxAreaCount),
+      style: `--area-color:${color}`,
+    });
+    edgeLayer.appendChild(edge);
+    const group = explorerSvgElement("g", {
+      class: `explorer-focused-node ${area.key === selectedArea?.key ? "is-selected" : ""}`,
+      style: `--node-color:${color}`,
+    });
+    group.appendChild(explorerSvgElement("circle", { cx: areaX, cy: y, r: 5 + 5 * Math.sqrt(area.studyCount / maxAreaCount) }));
+    const label = explorerSvgElement("text", { x: areaX + 18, y, class: "explorer-focused-label" });
+    setWrappedSvgLabel(label, area.label, 178, areaX + 18, y, 2);
+    group.appendChild(label);
+    bindExplorerFocusedNode(group, `<strong>${escapeHtml(area.label)}</strong><br/><span class="tooltip-meta">${formatCompactNumber(area.studyCount)} source papers</span>`, () => {
+      explorerAreaKey = area.key;
+      updateExplorerUrlState();
+      renderExplorerSurface();
+    });
+    nodeLayer.appendChild(group);
+  });
+
+  details.forEach((detail, index) => {
+    const y = details.length === 1 ? height / 2 : detailTop + detailStep * index;
+    const color = explorerAreaColor(selectedArea?.key || "");
+    const selectedAreaY = areas.length === 1
+      ? height / 2
+      : areaTop + areaStep * Math.max(0, areas.findIndex((area) => area.key === selectedArea?.key));
+    edgeLayer.appendChild(explorerSvgElement("path", {
+      d: explorerCurve(areaX + 10, selectedAreaY, detailX - 9, y),
+      class: "explorer-focused-edge detail-edge",
+      stroke: color,
+      "stroke-width": 1 + 5 * Math.sqrt(detail.studyCount / maxDetailCount),
+      style: `--area-color:${color}`,
+    }));
+    const group = explorerSvgElement("g", { class: "explorer-focused-node", style: `--node-color:${color}` });
+    group.appendChild(explorerSvgElement("circle", { cx: detailX, cy: y, r: 4 + 4.5 * Math.sqrt(detail.studyCount / maxDetailCount) }));
+    const label = explorerSvgElement("text", { x: detailX + 16, y, class: "explorer-focused-label" });
+    setWrappedSvgLabel(label, detail.label, 195, detailX + 16, y, 2);
+    group.appendChild(label);
+    bindExplorerFocusedNode(group, `<strong>${escapeHtml(detail.label)}</strong><br/><span class="tooltip-meta">${formatCompactNumber(detail.studyCount)} source papers</span>`, () => {
+      renderExplorerSelectionDetail(
+        detail.label,
+        detail.claims,
+        allAccessDetails.get(detail.key)?.claims || detail.claims
+      );
+    });
+    nodeLayer.appendChild(group);
+  });
+
+  const shell = document.createElement("div");
+  shell.className = "explorer-focused-shell";
+  shell.appendChild(svg);
+  graphEl.replaceChildren(shell);
+  setExplorerWorkspaceHeight(Math.max(GRAPH_BASE_HEIGHT_PX, height));
+  renderExplorerSelectionDetail(
+    selectedArea ? `${row.label} · ${selectedArea.label}` : row.label,
+    selectedArea?.bucket.claims.length ? selectedArea.bucket.claims : row.claims,
+    allAccessAreaBucket.claims?.length ? allAccessAreaBucket.claims : allAccessRow?.claims || row.claims
+  );
+}
+
+function renderExplorerSurface() {
+  if (explorerLens === "domain") return;
+  hideTooltip();
+  const items = explorerFilteredClaims();
+  const allAccessItems = explorerFilteredClaims({ ignoreAccess: true });
+  const matrix = buildExplorerMatrix(items);
+  if (explorerFocus) {
+    const row = explorerRowForFocus(matrix);
+    if (row) {
+      const allAccessMatrix = buildExplorerMatrix(allAccessItems);
+      const allAccessRow = explorerRowForFocus(allAccessMatrix) || row;
+      explorerFocus = { key: row.key, label: row.label };
+      updateExplorerControls();
+      renderExplorerFocused(row, allAccessRow);
+      return;
+    }
+    explorerFocus = null;
+    explorerAreaKey = "";
+    updateExplorerControls();
+    updateExplorerUrlState();
+  }
+  renderExplorerMatrix(matrix, items, allAccessItems);
+}
+
+async function loadExplorerLensAndRender({ resetYears = false } = {}) {
+  const token = ++explorerRenderToken;
+  graphEl.innerHTML = '<div class="explorer-loading">Preparing the cross-area view…</div>';
+  setExplorerWorkspaceHeight(GRAPH_BASE_HEIGHT_PX);
+  clearDetailForTransition();
+  cardsEl.innerHTML = "";
+  if (studyListEl) studyListEl.innerHTML = "";
+  try {
+    await loadNormalizedClaimSource(currentSourceKey());
+  } catch (error) {
+    if (token === explorerRenderToken) renderLoadError([`Explorer data: ${error.message}`]);
+    return;
+  }
+  if (token !== explorerRenderToken || explorerLens === "domain") return;
+  applyClaimLayerStore();
+  const sourceClaims = explorerSourceClaims();
+  syncYearFilterControls(sourceClaims, resetYears);
+  explorerMatrixMemo = null;
+  updateModeUI();
+  renderExplorerSurface();
+}
+
+function switchExplorerLens(nextLens) {
+  if (!EXPLORER_LENSES.has(nextLens) || explorerLens === nextLens) return;
+  explorerRenderToken += 1;
+  explorerLens = nextLens;
+  explorerFocus = null;
+  explorerAreaKey = "";
+  explorerVisibleRowCount = EXPLORER_INITIAL_ROW_LIMIT;
+  explorerMatrixMemo = null;
+  hideTooltip();
+  resetGraphSelectionState();
+  detailGraphFilter = null;
+  clearSelectedStyles();
+  if (explorerSearchInput) explorerSearchInput.value = "";
+  updateExplorerControls();
+  updateExplorerUrlState();
+  if (explorerLens === "domain") {
+    syncYearFilterControls(activeClaimsForMode(), true);
+    loadCurrentClaimsAndRender({ showLoading: false, resetDetail: true, showGraphBootstrap: true });
+    return;
+  }
+  loadExplorerLensAndRender({ resetYears: true });
+}
+
 function buildGraph(data) {
   hideTooltip();
   const graphHasDetailBootstrap = data.some((claim) => claim?.__detail_bootstrap);
@@ -7525,6 +8059,12 @@ function buildGraph(data) {
 
 function render() {
   cancelPendingFindingSearchRender();
+  if (explorerLens !== "domain") {
+    explorerMatrixMemo = null;
+    renderExplorerSurface();
+    return;
+  }
+  if (graphDetail) graphDetail.hidden = false;
   let graphFiltered = applyFilters({ ignoreSearch: true }).filter(isMainGraphAdmitted);
   let allAccessGraphFiltered = applyFilters({ ignoreAccess: true, ignoreSearch: true }).filter(
     isMainGraphAdmitted
@@ -7784,6 +8324,7 @@ function updateModeUI() {
     btn.setAttribute("aria-selected", isActive ? "true" : "false");
   });
   updateEntityKindToggle();
+  updateExplorerControls();
   updateSearchPlaceholder();
 }
 
@@ -7807,6 +8348,18 @@ function switchClaimLayer(nextLayer) {
 
 function switchEvidenceView(nextView) {
   if (!EVIDENCE_VIEW_KEYS.includes(nextView) || evidenceView === nextView) return;
+  if (explorerLens !== "domain") {
+    evidenceView = nextView;
+    explorerAreaKey = "";
+    explorerVisibleRowCount = EXPLORER_INITIAL_ROW_LIMIT;
+    explorerMatrixMemo = null;
+    resetGraphSelectionState();
+    detailGraphFilter = null;
+    clearSelectedStyles();
+    updateModeUI();
+    loadExplorerLensAndRender({ resetYears: true });
+    return;
+  }
   const focusToRestore = cloneGraphSelection(selected || evidenceSelectionIntent);
   retainVisibleBootstrapGraph = false;
   evidenceView = nextView;
@@ -8664,6 +9217,17 @@ async function init() {
     return;
   }
   loadGraphManifestStats();
+  const params = new URLSearchParams(window.location.search);
+  const requestedLens = params.get("lens") || "domain";
+  if (EXPLORER_LENSES.has(requestedLens)) explorerLens = requestedLens;
+  if (explorerLens !== "domain") {
+    const focusKey = cleanDisplayText(params.get("focus") || "");
+    explorerFocus = focusKey ? { key: focusKey, label: focusKey } : null;
+    explorerAreaKey = cleanDisplayText(params.get("area") || "");
+    updateModeUI();
+    await loadExplorerLensAndRender({ resetYears: true });
+    return;
+  }
   await loadCurrentClaimsAndRender({ showLoading: true, resetDetail: true, showGraphBootstrap: true });
 }
 
@@ -8915,9 +9479,58 @@ if (detailBody) {
   });
 }
 graphEl.addEventListener("click", (event) => {
-  if (event.target === graphEl || event.target.tagName?.toLowerCase() === "svg") {
-    clearSelection();
+  if (explorerLens !== "domain") {
+    const showMore = event.target.closest?.("[data-explorer-show-more]");
+    if (showMore && graphEl.contains(showMore)) {
+      explorerVisibleRowCount += EXPLORER_ROW_EXPANSION_STEP;
+      renderExplorerSurface();
+      return;
+    }
+    const cell = event.target.closest?.(".explorer-matrix-cell[data-explorer-row-key]");
+    const rowButton = event.target.closest?.(".explorer-matrix-row-button[data-explorer-row-key]");
+    const target = cell || rowButton;
+    if (target && graphEl.contains(target)) {
+      const matrix = buildExplorerMatrix(explorerFilteredClaims());
+      const row = matrix.entries.find((entry) => entry.key === target.dataset.explorerRowKey);
+      if (!row) return;
+      explorerFocus = { key: row.key, label: row.label };
+      explorerAreaKey = cell?.dataset.explorerAreaKey || "";
+      updateExplorerControls();
+      updateExplorerUrlState();
+      renderExplorerSurface();
+    }
+    return;
   }
+  if (event.target === graphEl || event.target.tagName?.toLowerCase() === "svg") clearSelection();
+});
+graphEl.addEventListener("mouseover", (event) => {
+  if (explorerLens === "domain") return;
+  const target = event.target.closest?.("[data-explorer-row-key]");
+  if (!target || !graphEl.contains(target)) return;
+  if (event.relatedTarget && target.contains(event.relatedTarget)) return;
+  const key = target.dataset.explorerRowKey;
+  graphEl.querySelectorAll("[data-explorer-row-key]").forEach((element) => {
+    element.classList.toggle("hovered", element.dataset.explorerRowKey === key);
+  });
+  if (target.matches(".explorer-matrix-cell")) {
+    const rowLabel = graphEl.querySelector(`.explorer-matrix-row-button[data-explorer-row-key="${CSS.escape(key)}"] span`)?.textContent || "";
+    const area = ENTITY_CATEGORY_OPTIONS.find((option) => option.key === target.dataset.explorerAreaKey);
+    showTooltip(
+      `<strong>${escapeHtml(rowLabel)} · ${escapeHtml(area?.label || "Research area")}</strong><br/><span class="tooltip-meta">${formatCompactNumber(Number(target.dataset.studyCount || 0))} source papers</span>`,
+      event
+    );
+  }
+});
+graphEl.addEventListener("mousemove", (event) => {
+  if (explorerLens !== "domain" && event.target.closest?.(".explorer-matrix-cell")) moveTooltip(event);
+});
+graphEl.addEventListener("mouseout", (event) => {
+  if (explorerLens === "domain") return;
+  const target = event.target.closest?.("[data-explorer-row-key]");
+  if (!target || !graphEl.contains(target)) return;
+  if (event.relatedTarget?.closest?.(`[data-explorer-row-key="${CSS.escape(target.dataset.explorerRowKey || "")}"]`)) return;
+  graphEl.querySelectorAll("[data-explorer-row-key].hovered").forEach((element) => element.classList.remove("hovered"));
+  hideTooltip();
 });
 claimLayerButtons.forEach((button) => {
   button.addEventListener("click", () => {
@@ -8929,8 +9542,29 @@ evidenceViewButtons.forEach((button) => {
     switchEvidenceView(button.dataset.evidenceView);
   });
 });
+if (explorerLensToggle) {
+  explorerLensToggle.addEventListener("click", (event) => {
+    const button = event.target.closest?.("[data-explorer-lens]");
+    if (!button || !explorerLensToggle.contains(button)) return;
+    switchExplorerLens(button.dataset.explorerLens || "domain");
+  });
+}
+if (explorerSearchInput) {
+  explorerSearchInput.addEventListener("input", () => {
+    if (explorerLens === "domain") return;
+    if (explorerFocus) {
+      explorerFocus = null;
+      explorerAreaKey = "";
+      updateExplorerControls();
+      updateExplorerUrlState();
+    }
+    explorerVisibleRowCount = EXPLORER_INITIAL_ROW_LIMIT;
+    renderExplorerSurface();
+  });
+}
 if (entityKindToggle) {
   const prepareEntityView = (event) => {
+    if (explorerLens !== "domain") return;
     const button = event.target.closest?.("[data-entity-view]");
     if (!button || !entityKindToggle.contains(button)) return;
     const viewKey = button.dataset.entityView || "";
@@ -8942,6 +9576,7 @@ if (entityKindToggle) {
   entityKindToggle.addEventListener("pointerover", prepareEntityView);
   entityKindToggle.addEventListener("focusin", prepareEntityView);
   entityKindToggle.addEventListener("click", (event) => {
+    if (explorerLens !== "domain") return;
     const button = event.target.closest?.("[data-entity-view]");
     if (!button || !entityKindToggle.contains(button)) return;
     switchEntityView(button.dataset.entityView || "");
