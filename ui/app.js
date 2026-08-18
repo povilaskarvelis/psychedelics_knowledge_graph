@@ -3991,12 +3991,13 @@ function paperFindingContextListHtml(siblingClaims) {
     .join("");
 }
 
-function claimCardInnerHtml(claim, referenceClass = "card-reference", siblingCount = 0) {
+function claimCardInnerHtml(claim, referenceClass = "card-reference", siblingCount = 0, selectionContext = null) {
   const secondary = isSecondaryLiteratureClaim(claim);
   const metaAnalysis = isMetaAnalysisClaim(claim);
   const badges = claimBadgeHtml(claim);
 
-  const relation = claimRelationText(claim);
+  const relationCompound = claimRelationCompoundText(claim, selectionContext);
+  const relation = claimRelationText(claim, selectionContext, relationCompound);
   const doseRouteSummary = administrationSummaryText(claim);
   const pkAnalyte = compactUniqueParts([claim.metabolite_or_analyte, claim.compound_or_analyte]).join(" • ");
   const pkMatrix = compactUniqueParts([claim.matrix, claim.matrix_or_sample_type]).join(" • ");
@@ -4010,9 +4011,8 @@ function claimCardInnerHtml(claim, referenceClass = "card-reference", siblingCou
     ? `<div class="card-main-finding"><span class="card-field-label">${escapeHtml(mainFindingLabel)}:</span> ${escapeHtml(mainFinding)}</div>`
     : "";
   const exactExposure = meaningfulText(claim.graph_subject_label);
-  const overviewExposure = meaningfulText(claim.graph_overview_subject_label || claim.compound);
   const exactExposureLine =
-    exactExposure && normalizeValue(exactExposure) !== normalizeValue(overviewExposure)
+    exactExposure && normalizeValue(exactExposure) !== normalizeValue(relationCompound)
       ? claimFieldLineFromValue("Exact exposure", exactExposure)
       : "";
   const specificEntityLine = claimSpecificEntityLine(claim);
@@ -4093,10 +4093,10 @@ function claimCardInnerHtml(claim, referenceClass = "card-reference", siblingCou
     `;
 }
 
-function createClaimCardElement(claim, siblingClaims = []) {
+function createClaimCardElement(claim, siblingClaims = [], selectionContext = null) {
   const card = document.createElement("div");
   card.className = "card";
-  card.innerHTML = claimCardInnerHtml(claim, "card-reference", siblingClaims.length);
+  card.innerHTML = claimCardInnerHtml(claim, "card-reference", siblingClaims.length, selectionContext);
 
   const paperContext = card.querySelector(".paper-findings-context");
   if (paperContext) {
@@ -4165,6 +4165,7 @@ function appendCardToMasonryColumn(columns, card, index) {
 
 function renderCards(data) {
   const cardData = data;
+  const cardSelectionContext = cloneGraphSelection(selected);
 
   disconnectCardsLoadObserver();
   cardsEl.innerHTML = "";
@@ -4186,7 +4187,11 @@ function renderCards(data) {
       const siblingClaims = paperKey
         ? (contextClaimsByStudy.get(paperKey) || []).filter((candidate) => candidate !== claim)
         : [];
-      appendCardToMasonryColumn(cardColumns, createClaimCardElement(claim, siblingClaims), i);
+      appendCardToMasonryColumn(
+        cardColumns,
+        createClaimCardElement(claim, siblingClaims, cardSelectionContext),
+        i
+      );
     }
     rendered = end;
   }
@@ -4338,8 +4343,28 @@ function addBibliographyContext(entry, compound, entity) {
   if (!exists) entry.contexts.push({ compound: compoundText, entity: entityText });
 }
 
+function bibliographyGraphContextsForClaim(claim) {
+  const entity = graphRightLabelForClaim(claim) || claim[rightEntityKey()];
+  const subjects = graphOverviewSubjectsForClaim(claim);
+  const compoundLabels = subjects.length
+    ? subjects.map((subject) => subject.label)
+    : [compoundGraphLabelForClaim(claim)];
+  const seen = new Set();
+  return compoundLabels
+    .map((compound) => ({
+      compound: meaningfulText(compound),
+      entity: meaningfulText(entity),
+    }))
+    .filter(({ compound, entity: contextEntity }) => {
+      if (!compound && !contextEntity) return false;
+      const key = `${normalizeValue(compound)}|${normalizeValue(contextEntity)}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
+
 function bibliographyRowsFromClaims(data) {
-  const rightKey = rightEntityKey();
   const studies = new Map();
 
   data.forEach((claim, index) => {
@@ -4361,7 +4386,9 @@ function bibliographyRowsFromClaims(data) {
       },
       index
     );
-    addBibliographyContext(baseEntry, compoundGraphLabelForClaim(claim), graphRightLabelForClaim(claim) || claim[rightKey]);
+    bibliographyGraphContextsForClaim(claim).forEach(({ compound, entity }) => {
+      addBibliographyContext(baseEntry, compound, entity);
+    });
     const id = bibliographyEntryId(baseEntry, index);
     const existing = studies.get(id);
     if (!existing) {
@@ -4708,8 +4735,32 @@ function studyReferenceHtml(claim, className = "card-reference") {
   return citation ? `<div class="${className}">${citation}</div>` : "";
 }
 
-function claimRelationText(claim) {
-  const compound = meaningfulText(claim.compound) || "Unknown compound";
+function graphSelectionCompoundForClaim(claim, selectionContext = null) {
+  const selectedCompound =
+    selectionContext?.type === "edge"
+      ? meaningfulText(selectionContext.compound)
+      : selectionContext?.type === "compound"
+        ? meaningfulText(selectionContext.name)
+        : "";
+  if (!selectedCompound || !claimMatchesGraphCompound(claim, selectedCompound)) return "";
+  return selectedCompound;
+}
+
+function claimRelationCompoundText(claim, selectionContext = null) {
+  const selectedCompound = graphSelectionCompoundForClaim(claim, selectionContext);
+  if (selectedCompound) return selectedCompound;
+
+  const subjects = graphOverviewSubjectsForClaim(claim);
+  if (subjects.length > 1) {
+    const exactExposure = meaningfulText(claim.graph_subject_label);
+    if (exactExposure) return exactExposure;
+    return subjects.map((subject) => subject.label).filter(Boolean).join(" / ");
+  }
+  return meaningfulText(subjects[0]?.label) || meaningfulText(claim.compound) || "Unknown compound";
+}
+
+function claimRelationText(claim, selectionContext = null, relationCompound = "") {
+  const compound = meaningfulText(relationCompound) || claimRelationCompoundText(claim, selectionContext);
   const graphEntity =
     meaningfulText(graphRightLabelForClaim(claim)) ||
     meaningfulText(claim.raw_entity_label) ||
