@@ -101,6 +101,18 @@ def test_indexable_html_pages_have_complete_unique_metadata() -> None:
     assert len(descriptions) == len(pages)
 
 
+def test_homepage_metadata_matches_landing_page_summary() -> None:
+    metadata = parse_page(ROOT / "index.html")
+    expected = (
+        "A living map of psychedelic research, built to keep scientific knowledge "
+        "organized, connected, and easily explorable."
+    )
+
+    assert metadata.meta["description"] == expected
+    assert metadata.meta["og:description"] == expected
+    assert metadata.meta["twitter:description"] == expected
+
+
 def test_feedback_confirmation_is_not_indexable() -> None:
     metadata = parse_page(ROOT / "feedback/sent/index.html")
 
