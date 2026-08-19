@@ -87,7 +87,7 @@
       type="application/json"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="styles.css?v=20260819-raised-workspace-switch-v35" />
+    <link rel="stylesheet" href="styles.css?v=20260819-analysis-access-v44" />
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>
@@ -206,7 +206,7 @@
                   <div class="explorer-context" id="explorerContext" hidden>
                     <div class="analysis-query-builder" aria-label="Analysis scope">
                       <label class="analysis-query-field analysis-query-entity">
-                        <span>Analyze</span>
+                        <span class="sr-only">Analyze</span>
                         <select id="explorerEntitySelect" aria-label="Choose what to analyze">
                           <option value="all">All</option>
                           <option value="compound">Compounds</option>
@@ -241,19 +241,19 @@
                         </nav>
                       </div>
                       <label class="analysis-query-field">
-                        <span>Within</span>
+                        <span class="sr-only">Within</span>
                         <select id="explorerScopeAreaSelect" aria-label="Filter analysis by research area">
                           <option value="">All research areas</option>
                         </select>
                       </label>
                       <label class="analysis-query-field analysis-query-concept">
-                        <span>Focused on</span>
+                        <span class="sr-only">Focused on</span>
                         <select id="explorerScopeConceptSelect" aria-label="Filter analysis by concept" disabled>
                           <option value="">Choose a research area first</option>
                         </select>
                       </label>
                       <label class="analysis-query-field analysis-query-evidence">
-                        <span>Papers</span>
+                        <span class="sr-only">Papers</span>
                         <select id="explorerEvidenceSelect" aria-label="Filter analysis by paper type">
                           <option value="all">All papers</option>
                           <option value="primary">Primary studies</option>
@@ -261,8 +261,15 @@
                           <option value="reviews">Reviews</option>
                         </select>
                       </label>
+                      <label class="analysis-query-field analysis-query-access">
+                        <span class="sr-only">Access</span>
+                        <select id="explorerAccessSelect" aria-label="Filter analysis by access availability">
+                          <option value="all">All access</option>
+                          <option value="open">Open access</option>
+                        </select>
+                      </label>
                       <div class="analysis-query-field analysis-query-years">
-                        <span>Years</span>
+                        <span class="sr-only">Years</span>
                         <div id="analysisYearRangeSlot"></div>
                       </div>
                       <button class="analysis-scope-clear" id="explorerScopeClear" type="button" hidden>Clear scope</button>
@@ -337,6 +344,6 @@
     </footer>
 
     <script src="/ui/site-nav.js?v=20260720-local-data-preview-v1"></script>
-    <script src="app.js?v=20260819-analysis-index-v33"></script>
+    <script src="app.js?v=20260819-analysis-access-v39"></script>
   </body>
 </html>

@@ -54,6 +54,8 @@ def test_analysis_index_deduplicates_studies_and_indexes_every_filter_axis() -> 
     )
 
     assert payload["study_count"] == 2
+    assert payload["studies"][0][3] == 1
+    assert payload["studies"][1][3] == 0
     psilocybin = entity(payload, "compound", "psilocybin")
     assert psilocybin[2] == [0]
     assert psilocybin[3] == {

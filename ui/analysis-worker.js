@@ -155,7 +155,6 @@ function countMembership(ids, mask) {
 function scopeOptions(params) {
   const baseMask = baseStudyMask(params, {
     ignoreScope: true,
-    ignoreAccess: params.lens === "all",
   });
   const areas = areaEntries
     .map((area) => ({ key: area.key, label: area.label, count: countMembership(area.ids, baseMask) }))
@@ -311,7 +310,7 @@ function runQuery(params) {
     studyKeys: studyIds.map((id) => studies[id].key),
     allAccessStudyKeys: allAccessStudyIds.map((id) => studies[id].key),
     scope: scopeOptions(params),
-    matrix: matrixForQuery(params, params.lens === "all" ? allAccessMask : mask),
+    matrix: matrixForQuery(params, mask),
     evidenceRows: evidenceRowsForMask(mask),
     allAccessEvidenceRows: evidenceRowsForMask(allAccessMask),
   };
