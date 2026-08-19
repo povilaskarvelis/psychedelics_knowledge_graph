@@ -19,4 +19,5 @@ ui/styles.css
 ui/methods.html
 ui/methods.js
 ui/site-nav.js
+ui/workspace-nav-demos.html
 ui/assets/gui-screenshot.png

@@ -12,12 +12,30 @@ const detailTitle = document.querySelector("#graphDetail h3");
 const detailBody = document.getElementById("detailBody");
 const claimLayerButtons = document.querySelectorAll("[data-claim-layer]");
 const evidenceViewButtons = document.querySelectorAll("[data-evidence-view]");
+const allEvidenceViewButton = document.querySelector('[data-evidence-view="all"]');
+const evidenceViewToggle = document.getElementById("evidenceViewToggle");
 const entityKindToggle = document.querySelector("[data-entity-kind-toggle]");
-const explorerLensToggle = document.querySelector("[data-explorer-lens-toggle]");
-const explorerLensButtons = document.querySelectorAll("[data-explorer-lens]");
+const explorerWorkspace = document.querySelector("[data-explorer-workspace]");
+const explorerModeToggle = document.querySelector("[data-explorer-mode-toggle]");
+const explorerModeButtons = document.querySelectorAll("[data-explorer-mode]");
+const explorerEntityToggle = document.querySelector("[data-explorer-entity-toggle]");
+const explorerEntityButtons = document.querySelectorAll("[data-explorer-entity]");
 const explorerContext = document.getElementById("explorerContext");
+const explorerEntitySelect = document.getElementById("explorerEntitySelect");
+const explorerScopeAreaSelect = document.getElementById("explorerScopeAreaSelect");
+const explorerScopeConceptSelect = document.getElementById("explorerScopeConceptSelect");
+const explorerEvidenceSelect = document.getElementById("explorerEvidenceSelect");
+const explorerScopeClear = document.getElementById("explorerScopeClear");
 const explorerSearchInput = document.getElementById("explorerSearchInput");
 const explorerSearchLabel = document.getElementById("explorerSearchLabel");
+const explorerSearchOptions = document.getElementById("explorerSearchOptions");
+const explorerFocusPath = document.getElementById("explorerFocusPath");
+const explorerFocusBack = document.getElementById("explorerFocusBack");
+const explorerFocusParent = document.getElementById("explorerFocusParent");
+const explorerFocusCurrent = document.getElementById("explorerFocusCurrent");
+const compareContext = document.getElementById("compareContext");
+const compareKindToggle = document.querySelector("[data-compare-kind-toggle]");
+const compareKindButtons = document.querySelectorAll("[data-compare-kind]");
 const studyListEl = document.getElementById("studyList");
 const dataFetchOptions =
   ["", "localhost", "127.0.0.1", "::1"].includes(window.location.hostname) ? { cache: "no-store" } : {};
@@ -45,11 +63,37 @@ const SAMPLE_YEAR_TARGET_BUCKET_COUNT = 14;
 const LIST_CHUNK_SIZE = 120;
 const FINDING_SEARCH_DEBOUNCE_MS = 70;
 const BIBLIOGRAPHY_SEARCH_DEBOUNCE_MS = 80;
+const EXPLORER_SEARCH_DEBOUNCE_MS = 90;
+const EXPLORER_SEARCH_SUGGESTION_LIMIT = 9;
+const EXPLORER_MOMENTUM_MIN_YEARS = 2;
+const EXPLORER_MOMENTUM_MAX_YEARS = 15;
 const GRAPH_VIEW_CONTRACT_PATH = "schema/graph_view_contract.json";
 const GRAPH_VIEW_CONTRACT_SCHEMA_VERSION = "psychedelics_kg_graph_view_contract_v1";
-const EXPLORER_LENSES = new Set(["domain", "compound", "author", "journal"]);
+const EXPLORER_MODES = new Set(["overview", "analysis"]);
+const EXPLORER_ENTITY_LENSES = new Set(["compound", "author", "journal"]);
+const ANALYSIS_SECTIONS = new Set(["all", ...EXPLORER_ENTITY_LENSES]);
+const EXPLORER_LENSES = new Set(["domain", ...EXPLORER_ENTITY_LENSES]);
+const COMPARE_KINDS = new Set(["evidence", "compounds"]);
+const COMPARE_EVIDENCE_SOURCES = Object.freeze([
+  { key: "primary", label: "Primary studies" },
+  { key: "meta_analyses", label: "Meta-analyses" },
+  { key: "reviews", label: "Reviews" },
+]);
+const ANALYSIS_EVIDENCE_COLORS = Object.freeze({
+  primary: "#55b7ab",
+  meta_analyses: "#a88bd1",
+  reviews: "#82a9d8",
+});
+const ANALYSIS_COMPARISON_COLORS = Object.freeze([
+  "#55b7ab",
+  "#82a9d8",
+  "#a88bd1",
+  "#5f9eb5",
+  "#b779ad",
+]);
 const EXPLORER_INITIAL_ROW_LIMIT = 24;
 const EXPLORER_ROW_EXPANSION_STEP = 24;
+const COMPARE_COMPOUND_LIMIT = 12;
 const EXPLORER_AREA_COLORS = Object.freeze({
   condition_indication: "#82a9d8",
   safety_adverse_event: "#d6a84f",
@@ -408,7 +452,7 @@ let evidenceSelectionIntent = null;
 let evidenceSelectionRestorePending = false;
 let claimLayer = "normalized";
 let evidenceView = "primary";
-const EVIDENCE_VIEW_KEYS = ["primary", "meta_analyses", "reviews", "secondary"];
+const EVIDENCE_VIEW_KEYS = ["all", "primary", "meta_analyses", "reviews", "secondary"];
 const SECONDARY_EVIDENCE_VIEW_KEYS = new Set(["meta_analyses", "reviews", "secondary"]);
 const META_ANALYSIS_SOURCE_KEYS = new Set(["meta_analyses"]);
 const REVIEW_SOURCE_KEYS = new Set(["reviews", "secondary"]);
@@ -422,12 +466,32 @@ const REVIEW_SOURCE_TYPES = new Set([
   "umbrella_review",
 ]);
 let entityViewKey = "condition_indication";
+let explorerMode = "overview";
 let explorerLens = "domain";
+let explorerLastEntityLens = "compound";
+let explorerLastAnalysisLens = "all";
 let explorerFocus = null;
 let explorerAreaKey = "";
+let explorerScopeAreaKey = "";
+let explorerScopeConceptKey = "";
 let explorerVisibleRowCount = EXPLORER_INITIAL_ROW_LIMIT;
 let explorerRenderToken = 0;
 let explorerMatrixMemo = null;
+let explorerSearchMatrix = null;
+let explorerSearchTimer = 0;
+let explorerSearchRenderToken = 0;
+let explorerSearchActiveIndex = -1;
+let explorerSearchCurrentMatches = [];
+let explorerMomentumWindowYears = 5;
+let explorerMomentumItems = [];
+let explorerMomentumRenderFrame = 0;
+let explorerWorkspaceResizeObserver = null;
+let explorerWorkspaceResizeFrame = 0;
+let compareKind = "evidence";
+let compareSelection = null;
+let analysisPublicationMode = "volume";
+let analysisPublicationCompoundKey = "";
+let analysisPublicationAreaKey = "";
 let renderScheduled = false;
 let findingSearchTimer = 0;
 let findingSearchRenderToken = 0;
@@ -476,6 +540,7 @@ const yearFilterState = {};
 const COMPOUND_CLASS_LABEL_RE =
   /\b(classic(?:al)? psychedelics?|serotonergic psychedelics?|psychedelic(?: assisted)? (?:medicines?|drugs?|substances?|compounds?|therap(?:y|ies))|psychedelics?|hallucinogenic drugs?|hallucinogens?|arylcyclohexylamines?|synthetic cathinones?|iboga alkaloids?|nbome drugs?|5[- ]*ht2a?r? agonists?)\b/;
 const COMPOUND_LIST_LABEL_RE = /\b(?:and|or)\b|[;&]/;
+const ANALYSIS_SPECIFIC_COMPOUND_KINDS = new Set(["atomic_compound", "compound_combination"]);
 const REFERENCE_COMPOUND_LABEL_RE =
   /\b(5 ht|5 hydroxytryptamine|8 oh dpat|clozapine|d serine|ifenprodil|ketanserin|m100907|memantine|methysergide|mk 801|pcp|phencyclidine|ritanserin|serotonin|way100635)\b/;
 const DEFAULT_SAMPLE_SIZE_BINS = [
@@ -556,6 +621,7 @@ const rawClaimSearchTextCache = new WeakMap();
 const claimSearchTextCache = new WeakMap();
 const bibliographySearchTextCache = new WeakMap();
 const graphOverviewSubjectsCache = new WeakMap();
+const analysisCompoundSubjectsCache = new WeakMap();
 const graphUseContextProjectionsCache = new WeakMap();
 
 function normalizeSearchText(value) {
@@ -750,6 +816,35 @@ function graphOverviewSubjectsForClaim(claim) {
     : [];
   if (claim && typeof claim === "object") graphOverviewSubjectsCache.set(claim, subjects);
   return subjects;
+}
+
+function analysisCompoundSubjectsForClaim(claim) {
+  if (claim && typeof claim === "object") {
+    const cached = analysisCompoundSubjectsCache.get(claim);
+    if (cached) return cached;
+  }
+  const seen = new Set();
+  const subjects = graphOverviewSubjectsForClaim(claim)
+    .map((subject) => {
+      const kind = normalizeValue(subject.kind).replace(/[\s-]+/g, "_");
+      const label = compoundGraphLabel(subject.label);
+      const key = normalizeValue(label);
+      if (!ANALYSIS_SPECIFIC_COMPOUND_KINDS.has(kind) || !label || !key || seen.has(key)) return null;
+      seen.add(key);
+      return { ...subject, kind, key, label };
+    })
+    .filter(Boolean);
+  if (claim && typeof claim === "object") analysisCompoundSubjectsCache.set(claim, subjects);
+  return subjects;
+}
+
+function claimHasAnalysisCompound(claim) {
+  return analysisCompoundSubjectsForClaim(claim).length > 0;
+}
+
+function claimMatchesAnalysisCompound(claim, compound) {
+  const key = normalizeValue(compound);
+  return Boolean(key) && analysisCompoundSubjectsForClaim(claim).some((subject) => subject.key === key);
 }
 
 function graphUseContextProjectionsForClaim(claim) {
@@ -1399,6 +1494,15 @@ function isReviewEvidenceView(view = evidenceView) {
 }
 
 function recordLabelsForItems(items = []) {
+  if (evidenceView === "all") {
+    return {
+      summary: "Papers",
+      section: "Papers",
+      empty: "No papers in this selection.",
+      lowerSingular: "paper",
+      lowerPlural: "papers",
+    };
+  }
   const metaAnalyses =
     items.length > 0 ? items.every(isMetaAnalysisClaim) : META_ANALYSIS_SOURCE_KEYS.has(evidenceView);
   if (metaAnalyses) {
@@ -1431,6 +1535,7 @@ function recordLabelsForItems(items = []) {
 
 function graphViewClaims(baseClaims) {
   const visibleClaims = baseClaims.filter((claim) => !isHiddenMainGraphItem(claim));
+  if (evidenceView === "all") return visibleClaims;
   if (isSecondaryEvidenceView()) return secondaryLiteratureClaims(visibleClaims, evidenceView);
   return primaryEvidenceClaims(visibleClaims);
 }
@@ -3407,7 +3512,7 @@ function stashActiveOverviewDetail() {
 
 function setDetailHeader(title) {
   stashActiveOverviewDetail();
-  if (graphDetail) graphDetail.hidden = false;
+  if (graphDetail) graphDetail.hidden = explorerMode !== "overview";
   detailTitle.textContent = title;
 }
 
@@ -5915,6 +6020,9 @@ function trendCardHtml(title, subtitle, body, extraClass = "") {
 }
 
 function accessSummaryLabels() {
+  if (evidenceView === "all") {
+    return { all: "All papers", plural: "papers" };
+  }
   if (evidenceView === "meta_analyses") {
     return { all: "All meta-analyses", plural: "meta-analyses" };
   }
@@ -5927,13 +6035,14 @@ function accessSummaryLabels() {
 function renderTrendStats(
   items,
   extraStats = [],
-  allAccessItems = activeDetailAllAccessItems.length ? activeDetailAllAccessItems : items
+  allAccessItems = activeDetailAllAccessItems.length ? activeDetailAllAccessItems : items,
+  labelOverride = null
 ) {
   const allItems = allAccessItems;
   const allStudyCount = uniqueStudyCount(allItems);
   const openAccessStudyCount = uniqueStudyCount(allItems.filter(isOpenAccessClaim));
   const openAccessPercent = allStudyCount ? Math.round((openAccessStudyCount / allStudyCount) * 100) : 0;
-  const labels = accessSummaryLabels();
+  const labels = labelOverride || accessSummaryLabels();
   const stats = extraStats;
 
   return `
@@ -5975,13 +6084,13 @@ function renderTrendStats(
   `;
 }
 
-function renderAnnualPublicationChart(items) {
+function renderAnnualPublicationChart(items, options = {}) {
   const buckets = buildYearBuckets(items);
   if (!buckets.length) {
     return trendCardHtml("Publications per year", "", '<div class="trend-empty">No publication years available.</div>');
   }
 
-  const recordLabels = recordLabelsForItems(items);
+  const recordLabels = options.recordLabels || recordLabelsForItems(items);
   const width = 280;
   const height = 132;
   const margin = { top: 12, right: 10, bottom: 24, left: 10 };
@@ -6010,9 +6119,15 @@ function renderAnnualPublicationChart(items) {
         : Math.min(width - margin.right, x + barWidth + 5);
       const hitWidth = hitRight - hitX;
       const ariaRecordLabel = bucket.claims === 1 ? recordLabels.lowerSingular : recordLabels.lowerPlural;
-      const aria = `${bucket.label}. ${bucket.count} studies. Open ${bucket.claims} ${ariaRecordLabel}.`;
+      const countLabel = evidenceView === "all"
+        ? bucket.count === 1 ? "paper" : "papers"
+        : bucket.count === 1 ? "study" : "studies";
+      const aria = `${bucket.label}. ${bucket.count} ${countLabel}. ${bucket.claims} ${ariaRecordLabel}.`;
+      const interactionAttributes = options.interactive === false
+        ? ""
+        : `class="publication-year-target" tabindex="0" role="button" focusable="true"`;
       return `
-        <g class="publication-year-target" tabindex="0" role="button" focusable="true"
+        <g ${interactionAttributes}
           aria-label="${escapeHtml(aria)}"
           data-year-start="${escapeHtml(String(bucket.start))}"
           data-year-end="${escapeHtml(String(bucket.end))}"
@@ -6909,11 +7024,33 @@ function crossfadeCompleteGraph(previousSvg, nextSvg) {
 }
 
 function currentYearFilterKey() {
-  return explorerLens === "domain" ? currentEntityViewKey() : `explorer:${explorerLens}`;
+  if (explorerMode === "analysis") return `analysis:${explorerLens}:${evidenceView}`;
+  return currentEntityViewKey();
+}
+
+function isAnalysisSummary() {
+  return explorerMode === "analysis" && explorerLens === "summary";
+}
+
+function isAnalysisAllSection() {
+  return explorerMode === "analysis" && explorerLens === "all";
+}
+
+function isAnalysisEntitySection() {
+  return explorerMode === "analysis" && EXPLORER_ENTITY_LENSES.has(explorerLens);
+}
+
+function isAnalysisCompoundSection() {
+  return explorerMode === "analysis" && explorerLens === "compound";
 }
 
 function explorerLensMeta(lens = explorerLens) {
   const meta = {
+    all: {
+      singular: "literature",
+      plural: "literature",
+      searchPlaceholder: "",
+    },
     compound: {
       singular: "compound",
       plural: "compounds",
@@ -6933,8 +7070,226 @@ function explorerLensMeta(lens = explorerLens) {
   return meta[lens] || meta.compound;
 }
 
+function cancelExplorerSearchRender() {
+  explorerSearchRenderToken += 1;
+  if (explorerSearchTimer) {
+    window.clearTimeout(explorerSearchTimer);
+    explorerSearchTimer = 0;
+  }
+}
+
+function closeExplorerSearchOptions() {
+  explorerSearchActiveIndex = -1;
+  explorerSearchCurrentMatches = [];
+  if (explorerSearchOptions) {
+    explorerSearchOptions.hidden = true;
+    explorerSearchOptions.innerHTML = "";
+  }
+  if (explorerSearchInput) {
+    explorerSearchInput.setAttribute("aria-expanded", "false");
+    explorerSearchInput.removeAttribute("aria-activedescendant");
+  }
+}
+
+function explorerSearchMatches(query = explorerSearchInput?.value || "") {
+  const normalizedQuery = normalizeSearchText(query);
+  if (!normalizedQuery || !explorerSearchMatrix?.entries?.length) return [];
+  return explorerSearchMatrix.entries
+    .map((entry) => {
+      const searchLabel = entry.searchLabel || normalizeSearchText(entry.label);
+      if (!searchLabel.includes(normalizedQuery)) return null;
+      const rank = searchLabel.startsWith(normalizedQuery)
+        ? 0
+        : searchLabel.includes(` ${normalizedQuery}`)
+          ? 1
+          : 2;
+      return { entry, rank };
+    })
+    .filter(Boolean)
+    .sort(
+      (left, right) =>
+        left.rank - right.rank ||
+        right.entry.studyCount - left.entry.studyCount ||
+        left.entry.label.localeCompare(right.entry.label)
+    )
+    .slice(0, EXPLORER_SEARCH_SUGGESTION_LIMIT)
+    .map(({ entry }) => entry);
+}
+
+function updateExplorerSearchActiveOption(nextIndex) {
+  if (!explorerSearchCurrentMatches.length || !explorerSearchOptions) return;
+  explorerSearchActiveIndex = Math.max(0, Math.min(nextIndex, explorerSearchCurrentMatches.length - 1));
+  const options = Array.from(explorerSearchOptions.querySelectorAll("[data-explorer-search-key]"));
+  options.forEach((option, index) => {
+    const active = index === explorerSearchActiveIndex;
+    option.classList.toggle("is-active", active);
+    option.setAttribute("aria-selected", active ? "true" : "false");
+    if (active) {
+      explorerSearchInput?.setAttribute("aria-activedescendant", option.id);
+      option.scrollIntoView({ block: "nearest" });
+    }
+  });
+}
+
+function renderExplorerSearchOptions({ preserveActive = false } = {}) {
+  if (!explorerSearchOptions || !explorerSearchInput || !isAnalysisEntitySection() || explorerFocus) {
+    closeExplorerSearchOptions();
+    return;
+  }
+  const query = normalizeSearchText(explorerSearchInput.value);
+  if (!query) {
+    closeExplorerSearchOptions();
+    return;
+  }
+  const previousActive = preserveActive ? explorerSearchActiveIndex : -1;
+  explorerSearchCurrentMatches = explorerSearchMatches(query);
+  explorerSearchActiveIndex = -1;
+  const meta = explorerLensMeta();
+  explorerSearchOptions.innerHTML = explorerSearchCurrentMatches.length
+    ? explorerSearchCurrentMatches
+        .map(
+          (entry, index) => `
+            <button
+              class="explorer-search-option"
+              id="explorerSearchOption${index}"
+              type="button"
+              role="option"
+              aria-selected="false"
+              data-explorer-search-key="${escapeHtml(entry.key)}"
+            >
+              <span class="explorer-search-option-label">${escapeHtml(entry.label)}</span>
+              <span class="explorer-search-option-meta">${formatCompactNumber(entry.studyCount)} ${entry.studyCount === 1 ? "paper" : "papers"} · ${formatCompactNumber(entry.breadthCount)} ${explorerScopeAreaKey ? entry.breadthCount === 1 ? "concept" : "concepts" : entry.areaCount === 1 ? "area" : "areas"}</span>
+            </button>
+          `
+        )
+        .join("")
+    : `<div class="explorer-search-empty">No matching ${escapeHtml(meta.plural)}.</div>`;
+  explorerSearchOptions.hidden = false;
+  explorerSearchInput.setAttribute("aria-expanded", "true");
+  if (previousActive >= 0 && explorerSearchCurrentMatches.length) {
+    updateExplorerSearchActiveOption(Math.min(previousActive, explorerSearchCurrentMatches.length - 1));
+  }
+}
+
+function selectExplorerSearchEntry(entry) {
+  if (!entry || !isAnalysisEntitySection()) return;
+  cancelExplorerSearchRender();
+  closeExplorerSearchOptions();
+  explorerFocus = { key: entry.key, label: entry.label };
+  explorerAreaKey = explorerScopeAreaKey || "";
+  compareSelection = null;
+  updateExplorerControls();
+  updateExplorerUrlState();
+  renderAnalysisSurface();
+}
+
+function scheduleExplorerSearchCoverageRender() {
+  const token = ++explorerSearchRenderToken;
+  if (explorerSearchTimer) window.clearTimeout(explorerSearchTimer);
+  explorerSearchTimer = window.setTimeout(() => {
+    explorerSearchTimer = 0;
+    window.requestAnimationFrame(() => {
+      if (token !== explorerSearchRenderToken || !isAnalysisEntitySection() || explorerFocus) return;
+      renderExplorerCoverage();
+    });
+  }, EXPLORER_SEARCH_DEBOUNCE_MS);
+}
+
 function explorerAreaColor(areaKey) {
   return EXPLORER_AREA_COLORS[areaKey] || "#82a9d8";
+}
+
+function analysisConceptLabelForClaim(claim, areaKey = explorerScopeAreaKey) {
+  const right = graphLabel(graphRightRawLabel(claim));
+  if (!right) return "";
+  if (areaKey === "pathway_readout") return pathwayReadoutFamilyForClaim(claim) || right;
+  if (areaKey === "brain_system" || areaKey === "intervention_component") {
+    return graphLabel(claim?.graph_parent_label) || right;
+  }
+  if (areaKey === "condition_indication") {
+    return CONDITION_GRAPH_LABEL_OVERRIDES.get(normalizeValue(right)) || right;
+  }
+  if (areaKey === "target_system") {
+    return TARGET_GRAPH_LABEL_OVERRIDES.get(normalizeValue(right)) || right;
+  }
+  return right;
+}
+
+function analysisClaimsWithinScope(items, { ignoreConcept = false } = {}) {
+  if (!explorerScopeAreaKey) return items;
+  const area = ENTITY_CATEGORY_OPTIONS.find((option) => option.key === explorerScopeAreaKey);
+  if (!area) return items;
+  return items.filter((claim) => {
+    if (!claimMatchesEntityViewOption(claim, area)) return false;
+    if (ignoreConcept || !explorerScopeConceptKey) return true;
+    return normalizeValue(analysisConceptLabelForClaim(claim, area.key)) === explorerScopeConceptKey;
+  });
+}
+
+function analysisAreaOptions(items) {
+  return ENTITY_CATEGORY_OPTIONS.map((area) => {
+    const areaItems = items.filter((claim) => claimMatchesEntityViewOption(claim, area));
+    return { ...area, count: uniqueStudyCount(areaItems) };
+  }).filter((area) => area.count > 0);
+}
+
+function analysisConceptOptions(items) {
+  if (!explorerScopeAreaKey) return [];
+  const scopedItems = analysisClaimsWithinScope(items, { ignoreConcept: true });
+  const concepts = new Map();
+  scopedItems.forEach((claim, index) => {
+    const label = analysisConceptLabelForClaim(claim, explorerScopeAreaKey);
+    const key = normalizeValue(label);
+    if (!key || !label) return;
+    const entry = concepts.get(key) || { key, label, studies: new Set() };
+    entry.label = preferredFacetLabel(entry.label, label);
+    entry.studies.add(studyKey(claim, index));
+    concepts.set(key, entry);
+  });
+  return Array.from(concepts.values())
+    .map((entry) => ({ key: entry.key, label: entry.label, count: entry.studies.size }))
+    .filter((entry) => entry.count > 0)
+    .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label));
+}
+
+function analysisScopeLabel() {
+  const area = ENTITY_CATEGORY_OPTIONS.find((option) => option.key === explorerScopeAreaKey);
+  const concept = analysisConceptOptions(
+    explorerBaseFilteredClaims({ ignoreAccess: isAnalysisAllSection() })
+  ).find(
+    (option) => option.key === explorerScopeConceptKey
+  );
+  return [area?.label, concept?.label].filter(Boolean).join(" · ") || "All research areas";
+}
+
+function syncAnalysisScopeControls() {
+  if (explorerMode !== "analysis" || !ANALYSIS_SECTIONS.has(explorerLens)) return;
+  const baseItems = explorerBaseFilteredClaims({ ignoreAccess: isAnalysisAllSection() });
+  const areas = analysisAreaOptions(baseItems);
+  if (explorerScopeAreaKey && !areas.some((area) => area.key === explorerScopeAreaKey)) {
+    explorerScopeAreaKey = "";
+    explorerScopeConceptKey = "";
+  }
+  const concepts = analysisConceptOptions(baseItems);
+  if (explorerScopeConceptKey && !concepts.some((concept) => concept.key === explorerScopeConceptKey)) {
+    explorerScopeConceptKey = "";
+  }
+  if (explorerEntitySelect) explorerEntitySelect.value = explorerLens;
+  if (explorerScopeAreaSelect) {
+    explorerScopeAreaSelect.innerHTML = `
+      <option value="">All research areas</option>
+      ${areas.map((area) => `<option value="${escapeHtml(area.key)}">${escapeHtml(`${area.label} (${formatCompactNumber(area.count)})`)}</option>`).join("")}
+    `;
+    explorerScopeAreaSelect.value = explorerScopeAreaKey;
+  }
+  if (explorerScopeConceptSelect) {
+    explorerScopeConceptSelect.disabled = !explorerScopeAreaKey;
+    explorerScopeConceptSelect.innerHTML = explorerScopeAreaKey
+      ? `<option value="">All concepts</option>${concepts.map((concept) => `<option value="${escapeHtml(concept.key)}">${escapeHtml(`${concept.label} (${formatCompactNumber(concept.count)})`)}</option>`).join("")}`
+      : '<option value="">Choose a research area first</option>';
+    explorerScopeConceptSelect.value = explorerScopeConceptKey;
+  }
+  if (explorerScopeClear) explorerScopeClear.hidden = !explorerScopeAreaKey && !explorerScopeConceptKey;
 }
 
 function explorerSourceClaims() {
@@ -6942,22 +7297,27 @@ function explorerSourceClaims() {
   return sourceClaims.filter((claim) => !isHiddenMainGraphItem(claim));
 }
 
-function explorerFilteredClaims(options = {}) {
+function explorerBaseFilteredClaims(options = {}) {
   const sourceClaims = explorerSourceClaims();
   if (!sourceClaims.length) return [];
   const yearRange = activeYearRange(sourceClaims);
-  return applyFiltersToClaims(sourceClaims, yearRange, {
+  const filteredClaims = applyFiltersToClaims(sourceClaims, yearRange, {
     ignoreSearch: true,
     ignoreAccess: Boolean(options.ignoreAccess),
   }).filter(isMainGraphAdmitted);
+  const entityClaims = explorerLens === "compound" ? filteredClaims.filter(claimHasAnalysisCompound) : filteredClaims;
+  return analysisClaimsWithCurrentEntity(entityClaims);
 }
 
-function explorerEntityValuesForClaim(claim, authorAliases = null) {
-  if (explorerLens === "compound") {
-    const label = compoundGraphLabelForClaim(claim);
-    return label ? [{ value: normalizeValue(label), label }] : [];
+function explorerFilteredClaims(options = {}) {
+  return analysisClaimsWithinScope(explorerBaseFilteredClaims(options));
+}
+
+function explorerEntityValuesForClaim(claim, authorAliases = null, lens = explorerLens) {
+  if (lens === "compound") {
+    return analysisCompoundSubjectsForClaim(claim).map((subject) => ({ value: subject.key, label: subject.label }));
   }
-  if (explorerLens === "author") {
+  if (lens === "author") {
     const values = [
       authorFacetValueForRole(claim, "first", authorAliases),
       authorFacetValueForRole(claim, "last", authorAliases),
@@ -6970,11 +7330,17 @@ function explorerEntityValuesForClaim(claim, authorAliases = null) {
       return true;
     });
   }
-  if (explorerLens === "journal") {
+  if (lens === "journal") {
     const value = journalFacetValue(claim);
     return value ? [value] : [];
   }
   return [];
+}
+
+function analysisClaimsWithCurrentEntity(items) {
+  if (explorerLens === "all") return items;
+  const authorAliases = explorerLens === "author" ? buildAuthorRoleAliasMap(items) : null;
+  return items.filter((claim) => explorerEntityValuesForClaim(claim, authorAliases).length > 0);
 }
 
 function buildExplorerMatrix(items) {
@@ -6983,6 +7349,8 @@ function buildExplorerMatrix(items) {
     currentSourceKey(),
     claimArrayId(items),
     explorerLens,
+    explorerScopeAreaKey || "all-areas",
+    explorerScopeConceptKey || "all-concepts",
     accessView,
     yearRange.constrained ? `${yearRange.min}-${yearRange.max}` : "all-years",
   ].join("|");
@@ -7004,6 +7372,7 @@ function buildExplorerMatrix(items) {
         studies: new Set(),
         claims: [],
         areas: new Map(),
+        concepts: new Map(),
       };
       row.label = preferredFacetLabel(row.label, label);
       row.studies.add(study);
@@ -7014,6 +7383,22 @@ function buildExplorerMatrix(items) {
         bucket.claims.push(claim);
         row.areas.set(area.key, bucket);
       });
+      if (explorerScopeAreaKey) {
+        const conceptLabel = analysisConceptLabelForClaim(claim, explorerScopeAreaKey);
+        const conceptKey = normalizeValue(conceptLabel);
+        if (conceptKey && conceptLabel) {
+          const bucket = row.concepts.get(conceptKey) || {
+            key: conceptKey,
+            label: conceptLabel,
+            studies: new Set(),
+            claims: [],
+          };
+          bucket.label = preferredFacetLabel(bucket.label, conceptLabel);
+          bucket.studies.add(study);
+          bucket.claims.push(claim);
+          row.concepts.set(conceptKey, bucket);
+        }
+      }
       rows.set(key, row);
     });
   });
@@ -7021,24 +7406,48 @@ function buildExplorerMatrix(items) {
   const entries = Array.from(rows.values())
     .map((row) => ({
       ...row,
+      searchLabel: normalizeSearchText(row.label),
+      studyYears: analyticsStudyYears(row.claims),
       studyCount: row.studies.size,
       areaCount: row.areas.size,
+      conceptCount: row.concepts.size,
+      breadthCount: explorerScopeAreaKey ? row.concepts.size : row.areas.size,
     }))
     .sort((a, b) => {
       const byStudies = b.studyCount - a.studyCount;
       if (byStudies) return byStudies;
-      const byBreadth = b.areaCount - a.areaCount;
+      const byBreadth = b.breadthCount - a.breadthCount;
       if (byBreadth) return byBreadth;
       return a.label.localeCompare(b.label);
     });
 
-  const maxCellCount = Math.max(
-    1,
-    ...entries.flatMap((entry) =>
-      ENTITY_CATEGORY_OPTIONS.map((area) => entry.areas.get(area.key)?.studies.size || 0)
-    )
-  );
-  const value = { entries, maxCellCount };
+  const columns = explorerScopeAreaKey
+    ? analysisConceptOptions(items).map((concept) => ({
+        key: concept.key,
+        label: concept.label,
+        color: explorerAreaColor(explorerScopeAreaKey),
+        type: "concept",
+      }))
+    : ENTITY_CATEGORY_OPTIONS.map((area) => ({
+        key: area.key,
+        label: area.label,
+        color: explorerAreaColor(area.key),
+        type: "area",
+      }));
+  let maxCellCount = 1;
+  entries.forEach((entry) => {
+    columns.forEach((column) => {
+      const bucket = column.type === "concept" ? entry.concepts.get(column.key) : entry.areas.get(column.key);
+      maxCellCount = Math.max(maxCellCount, bucket?.studies.size || 0);
+    });
+  });
+  const value = {
+    entries,
+    columns,
+    maxCellCount,
+    breadthLabel: explorerScopeAreaKey ? "concept breadth" : "research-area breadth",
+    breadthUnit: explorerScopeAreaKey ? "concepts" : "research areas",
+  };
   explorerMatrixMemo = { key: memoKey, value };
   return value;
 }
@@ -7050,37 +7459,83 @@ function explorerRowForFocus(matrix) {
 
 function updateExplorerUrlState() {
   const url = new URL(window.location.href);
-  if (explorerLens === "domain") {
+  if (explorerMode === "overview") {
+    url.searchParams.delete("mode");
+    url.searchParams.delete("section");
     url.searchParams.delete("lens");
     url.searchParams.delete("focus");
     url.searchParams.delete("area");
+    url.searchParams.delete("scope-area");
+    url.searchParams.delete("concept");
+    url.searchParams.delete("papers");
+    url.searchParams.delete("compare");
+    url.searchParams.delete("view");
   } else {
-    url.searchParams.set("lens", explorerLens);
+    url.searchParams.set("mode", "analysis");
+    url.searchParams.set("section", explorerLens);
+    url.searchParams.delete("lens");
     if (explorerFocus?.key) url.searchParams.set("focus", explorerFocus.key);
     else url.searchParams.delete("focus");
     if (explorerAreaKey) url.searchParams.set("area", explorerAreaKey);
     else url.searchParams.delete("area");
+    if (explorerScopeAreaKey) url.searchParams.set("scope-area", explorerScopeAreaKey);
+    else url.searchParams.delete("scope-area");
+    if (explorerScopeConceptKey) url.searchParams.set("concept", explorerScopeConceptKey);
+    else url.searchParams.delete("concept");
+    if (evidenceView !== "all") url.searchParams.set("papers", evidenceView);
+    else url.searchParams.delete("papers");
+    url.searchParams.delete("compare");
+    url.searchParams.delete("view");
   }
   window.history.replaceState(null, "", url);
 }
 
 function updateExplorerControls() {
-  const inExplorer = explorerLens !== "domain";
+  const inAnalysis = explorerMode === "analysis";
+  const inEntitySection = isAnalysisEntitySection();
+  const hasEntityFocus = inEntitySection && Boolean(explorerFocus?.key);
   const meta = explorerLensMeta();
-  explorerLensButtons.forEach((button) => {
-    const active = button.dataset.explorerLens === explorerLens;
+  const entityCollectionLabel = `${meta.plural[0].toUpperCase()}${meta.plural.slice(1)}`;
+  explorerModeButtons.forEach((button) => {
+    const active = button.dataset.explorerMode === explorerMode;
     button.classList.toggle("active", active);
     button.setAttribute("aria-selected", active ? "true" : "false");
   });
-  if (entityKindToggle) entityKindToggle.hidden = inExplorer || claimLayer !== "normalized";
-  if (explorerContext) explorerContext.hidden = !inExplorer;
-  if (graphDetail && !inExplorer) graphDetail.hidden = false;
-  if (!inExplorer) return;
+  explorerEntityButtons.forEach((button) => {
+    const active = button.dataset.explorerEntity === explorerLens;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-selected", active ? "true" : "false");
+  });
+  if (entityKindToggle) entityKindToggle.hidden = explorerMode !== "overview" || claimLayer !== "normalized";
+  if (explorerContext) {
+    explorerContext.hidden = !inAnalysis;
+    explorerContext.dataset.navigationState = hasEntityFocus ? "focus" : "index";
+  }
+  if (compareContext) compareContext.hidden = true;
+  if (evidenceViewToggle) evidenceViewToggle.hidden = inAnalysis;
+  if (allEvidenceViewButton) allEvidenceViewButton.hidden = true;
+  if (explorerWorkspace) explorerWorkspace.dataset.workspaceMode = explorerMode;
+  if (graphDetail) graphDetail.hidden = explorerMode !== "overview";
+  if (!inAnalysis || !inEntitySection || hasEntityFocus) closeExplorerSearchOptions();
+  if (!inAnalysis) return;
+  if (explorerEntitySelect) explorerEntitySelect.value = explorerLens;
+  if (explorerEvidenceSelect) explorerEvidenceSelect.value = evidenceView;
   if (explorerSearchInput) {
     explorerSearchInput.placeholder = meta.searchPlaceholder;
-    explorerSearchInput.hidden = false;
+    explorerSearchInput.hidden = !inEntitySection || hasEntityFocus;
   }
-  if (explorerSearchLabel) explorerSearchLabel.textContent = `Search ${meta.plural}`;
+  const explorerSearch = explorerSearchInput?.closest(".explorer-search");
+  if (explorerSearch) explorerSearch.hidden = !inEntitySection || hasEntityFocus;
+  if (explorerSearchLabel) explorerSearchLabel.textContent = inEntitySection ? `Search ${meta.plural}` : "Search analysis";
+  if (explorerFocusPath) explorerFocusPath.hidden = !hasEntityFocus;
+  if (hasEntityFocus) {
+    if (explorerFocusParent) explorerFocusParent.textContent = entityCollectionLabel;
+    if (explorerFocusCurrent) {
+      explorerFocusCurrent.textContent = explorerFocus.label || explorerFocus.key;
+      explorerFocusCurrent.title = explorerFocus.label || explorerFocus.key;
+    }
+    if (explorerFocusBack) explorerFocusBack.setAttribute("aria-label", `Back to all ${meta.plural}`);
+  }
 }
 
 function setExplorerWorkspaceHeight(height) {
@@ -7093,24 +7548,97 @@ function setExplorerWorkspaceHeight(height) {
   graphGrid?.style.setProperty("--kg-dynamic-workspace-height", `${workspaceHeight}px`);
 }
 
-function renderExplorerOverviewDetail(items, allAccessItems = items) {
-  if (explorerLens === "domain") {
-    if (graphDetail) graphDetail.hidden = false;
+function stopExplorerWorkspaceAutosize() {
+  explorerWorkspaceResizeObserver?.disconnect();
+  explorerWorkspaceResizeObserver = null;
+  if (explorerWorkspaceResizeFrame) {
+    window.cancelAnimationFrame(explorerWorkspaceResizeFrame);
+    explorerWorkspaceResizeFrame = 0;
+  }
+}
+
+function autosizeExplorerWorkspace(content, minimumHeight = GRAPH_BASE_HEIGHT_PX) {
+  stopExplorerWorkspaceAutosize();
+  if (!content) {
+    setExplorerWorkspaceHeight(minimumHeight);
     return;
   }
+
+  const measure = () => {
+    explorerWorkspaceResizeFrame = 0;
+    if (!content.isConnected) return;
+    const renderedHeight = Math.ceil(
+      Math.max(content.scrollHeight, content.getBoundingClientRect().height)
+    );
+    setExplorerWorkspaceHeight(Math.max(minimumHeight, renderedHeight + 2));
+  };
+  const scheduleMeasure = () => {
+    if (explorerWorkspaceResizeFrame) return;
+    explorerWorkspaceResizeFrame = window.requestAnimationFrame(measure);
+  };
+
+  measure();
+  scheduleMeasure();
+  if ("ResizeObserver" in window) {
+    explorerWorkspaceResizeObserver = new ResizeObserver(scheduleMeasure);
+    explorerWorkspaceResizeObserver.observe(content);
+  }
+}
+
+function explorerClaimsForArea(items, areaKey) {
+  if (!areaKey) return items;
+  const area = ENTITY_CATEGORY_OPTIONS.find((option) => option.key === areaKey);
+  return area ? items.filter((claim) => claimMatchesEntityViewOption(claim, area)) : items;
+}
+
+function renderExplorerAreaDistribution(items) {
+  const entries = ENTITY_CATEGORY_OPTIONS.map((area) => {
+    const areaItems = explorerClaimsForArea(items, area.key);
+    return { ...area, count: uniqueStudyCount(areaItems) };
+  }).filter((area) => area.count > 0);
+  if (!entries.length) return "";
+  const maxCount = Math.max(1, ...entries.map((area) => area.count));
+  return `
+    <section class="trend-card explorer-area-summary">
+      <div class="trend-card-header"><h4>Research areas</h4></div>
+      <div class="explorer-area-bars">
+        ${entries.map((area) => {
+          const active = explorerAreaKey === area.key;
+          return `
+            <button
+              class="explorer-area-bar ${active ? "active" : ""}"
+              type="button"
+              data-explorer-area-filter="${escapeHtml(area.key)}"
+              aria-pressed="${active ? "true" : "false"}"
+              style="--area-color:${explorerAreaColor(area.key)};--area-strength:${(area.count / maxCount).toFixed(3)}"
+            >
+              <span>${escapeHtml(area.label)}</span>
+              <strong>${formatCompactNumber(area.count)}</strong>
+            </button>
+          `;
+        }).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderExplorerOverviewDetail(items, allAccessItems = items) {
+  if (!isAnalysisEntitySection()) return;
   const meta = explorerLensMeta();
-  activeDetailItems = items;
-  activeDetailAllAccessItems = allAccessItems;
-  setDetailHeader(`All ${meta.plural}`);
-  if (!items.length && !allAccessItems.length) {
+  const area = ENTITY_CATEGORY_OPTIONS.find((option) => option.key === explorerAreaKey);
+  const scopedItems = explorerClaimsForArea(items, explorerAreaKey);
+  const scopedAllAccessItems = explorerClaimsForArea(allAccessItems, explorerAreaKey);
+  activeDetailItems = scopedItems;
+  activeDetailAllAccessItems = scopedAllAccessItems;
+  setDetailHeader(area ? `${meta.plural[0].toUpperCase()}${meta.plural.slice(1)} · ${area.label}` : `${meta.plural[0].toUpperCase()}${meta.plural.slice(1)}`);
+  if (!scopedItems.length && !scopedAllAccessItems.length) {
     detailBody.innerHTML = `<div class="detail-empty">No ${escapeHtml(meta.plural)} match the current filters.</div>`;
   } else {
     detailBody.innerHTML = `
       <div class="trend-dashboard">
-        ${renderTrendStats(items, [], allAccessItems)}
-        ${renderAnnualPublicationChart(items)}
-        ${renderEvidenceDetailGroup(items)}
-        ${renderMetadataFacetCharts(items)}
+        ${renderTrendStats(scopedItems, [], scopedAllAccessItems)}
+        ${renderAnnualPublicationChart(scopedItems, { interactive: false })}
+        ${renderExplorerAreaDistribution(items)}
       </div>
     `;
   }
@@ -7118,34 +7646,335 @@ function renderExplorerOverviewDetail(items, allAccessItems = items) {
   if (studyListEl) studyListEl.replaceChildren();
 }
 
-function renderExplorerMatrix(matrix, items, allAccessItems) {
+function analyticsStudyYears(items) {
+  return uniqueStudyEntries(items)
+    .map((entry) => entry.year)
+    .filter((year) => Number.isFinite(year));
+}
+
+function analyticsLatestYear(items) {
+  const years = analyticsStudyYears(items);
+  return years.length ? Math.max(...years) : new Date().getFullYear();
+}
+
+function analyticsYearCounts(items, minYear, maxYear) {
+  const counts = new Map();
+  uniqueStudyEntries(items).forEach((entry) => {
+    if (!Number.isFinite(entry.year) || entry.year < minYear || entry.year > maxYear) return;
+    counts.set(entry.year, (counts.get(entry.year) || 0) + 1);
+  });
+  return Array.from({ length: Math.max(0, maxYear - minYear + 1) }, (_value, index) => counts.get(minYear + index) || 0);
+}
+
+function renderAnalyticsGroupedYearHistogram(series, options = {}) {
+  const activeSeries = series.filter((entry) => entry?.items?.length);
+  const years = analyticsStudyYears(activeSeries.flatMap((entry) => entry.items));
+  if (!years.length || !activeSeries.length) {
+    return '<div class="analytics-empty compact">No publication years available.</div>';
+  }
+  const minYear = Math.min(...years);
+  const maxYear = Math.max(...years);
+  const yearCount = Math.max(1, maxYear - minYear + 1);
+  const width = 760;
+  const height = 318;
+  const margin = { top: 18, right: 24, bottom: 68, left: 46 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
+  const slotWidth = plotWidth / yearCount;
+  const clusterWidth = Math.max(1, slotWidth * 0.76);
+  const barWidth = Math.max(0.65, clusterWidth / activeSeries.length);
+  const seriesWithValues = activeSeries.map((entry) => ({
+    ...entry,
+    values: analyticsYearCounts(entry.items, minYear, maxYear),
+  }));
+  const maxCount = Math.max(1, ...seriesWithValues.flatMap((entry) => entry.values));
+  const bars = seriesWithValues.map((entry, seriesIndex) =>
+    entry.values.map((value, yearIndex) => {
+      if (!value) return "";
+      const year = minYear + yearIndex;
+      const x = margin.left + yearIndex * slotWidth + (slotWidth - clusterWidth) / 2 + seriesIndex * barWidth;
+      const barHeight = (value / maxCount) * plotHeight;
+      const y = margin.top + plotHeight - barHeight;
+      const dataAttributes = entry.dataAttributes || "";
+      return `<rect class="analytics-histogram-bar ${entry.key === options.selectedKey ? "is-selected" : ""}" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${Math.max(0.65, barWidth - 0.35).toFixed(2)}" height="${barHeight.toFixed(2)}" rx="0.7" style="--series-color:${entry.color}" ${dataAttributes}><title>${escapeHtml(`${entry.label}, ${year}: ${value} unique ${value === 1 ? "paper" : "papers"}`)}</title></rect>`;
+    }).join("")
+  ).join("");
+  const yGrid = [0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+    const y = margin.top + plotHeight - ratio * plotHeight;
+    return `<line x1="${margin.left}" x2="${width - margin.right}" y1="${y}" y2="${y}" class="analytics-gridline"></line><text x="${margin.left - 8}" y="${y + 3}" class="analytics-axis-label" text-anchor="end">${formatCompactNumber(Math.round(maxCount * ratio))}</text>`;
+  }).join("");
+  const xTicks = [minYear, Math.round(minYear + (maxYear - minYear) * 0.25), Math.round((minYear + maxYear) / 2), Math.round(minYear + (maxYear - minYear) * 0.75), maxYear]
+    .filter((year, index, array) => array.indexOf(year) === index)
+    .map((year) => {
+      const x = margin.left + (year - minYear + 0.5) * slotWidth;
+      const baselineY = margin.top + plotHeight;
+      return `<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${baselineY}" y2="${baselineY + 6}" class="analytics-year-tick"></line><text x="${x.toFixed(1)}" y="${baselineY + 20}" class="analytics-axis-label analytics-year-label" text-anchor="middle">${year}</text>`;
+    }).join("");
+  const baselineY = margin.top + plotHeight;
+  const xAxis = `<line x1="${margin.left}" x2="${width - margin.right}" y1="${baselineY}" y2="${baselineY}" class="analytics-year-axis"></line>${xTicks}<text x="${margin.left + plotWidth / 2}" y="${height - 8}" class="analytics-axis-title analytics-year-axis-title" text-anchor="middle">Publication year</text>`;
+  return `
+    <div class="analytics-chart-legend compare-series-legend">
+      ${seriesWithValues.map((entry) => `<span style="--series-color:${entry.color}"><i></i>${escapeHtml(entry.label)}</span>`).join("")}
+    </div>
+    <svg class="analytics-timeline-svg analytics-histogram-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(options.ariaLabel || "Publications per year")}">${yGrid}${bars}${xAxis}</svg>
+  `;
+}
+
+function analyticsSparkline(values, color = "#49d6c8", splitIndex = 0) {
+  const width = 132;
+  const height = 30;
+  const maxValue = Math.max(1, ...values);
+  const step = values.length > 1 ? width / (values.length - 1) : width;
+  const splitX = splitIndex > 0 && splitIndex < values.length
+    ? Math.max(0, Math.min(width, (splitIndex - 0.5) * step))
+    : 0;
+  const points = values
+    .map((value, index) => `${(index * step).toFixed(1)},${(height - 2 - (value / maxValue) * (height - 6)).toFixed(1)}`)
+    .join(" ");
+  return `
+    <svg class="analytics-sparkline" viewBox="0 0 ${width} ${height}" aria-hidden="true">
+      ${splitX ? `<rect x="${splitX.toFixed(1)}" y="0" width="${(width - splitX).toFixed(1)}" height="${height}" class="analytics-sparkline-current-window"></rect><path d="M${splitX.toFixed(1)} 2 V${height - 2}" class="analytics-sparkline-divider"></path>` : ""}
+      <path d="M0 ${height - 2} H${width}" class="analytics-sparkline-baseline"></path>
+      <polyline points="${points}" style="--series-color:${color}"></polyline>
+    </svg>
+  `;
+}
+
+function explorerDominantArea(entry) {
+  if (explorerScopeAreaKey) {
+    return ENTITY_CATEGORY_OPTIONS.find((area) => area.key === explorerScopeAreaKey) || ENTITY_CATEGORY_OPTIONS[0];
+  }
+  return ENTITY_CATEGORY_OPTIONS
+    .map((area) => ({ area, count: entry.areas.get(area.key)?.studies.size || 0 }))
+    .sort((left, right) => right.count - left.count)[0]?.area || ENTITY_CATEGORY_OPTIONS[0];
+}
+
+function explorerEntryMomentum(entry, latestYear, windowYears = 5) {
+  const years = entry.studyYears || analyticsStudyYears(entry.claims);
+  const recentStart = latestYear - windowYears + 1;
+  const previousStart = latestYear - windowYears * 2 + 1;
+  const recent = years.filter((year) => year >= recentStart && year <= latestYear).length;
+  const previous = years.filter((year) => year >= previousStart && year < recentStart).length;
+  const change = recent - previous;
+  const annualizedChange = change / windowYears;
+  const score = annualizedChange + (recent / windowYears) * 0.15 + Math.log1p(entry.studyCount) * 0.1;
+  return { recent, previous, change, score };
+}
+
+function renderExplorerLandscape(matrix, items) {
+  const entries = matrix.entries.filter((entry) => entry.studyCount > 1).slice(0, 36);
+  if (!entries.length) return '<div class="analytics-empty">No landscape data for the current filters.</div>';
+  const width = 760;
+  const height = 318;
+  const margin = { top: 22, right: 24, bottom: 42, left: 48 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
+  const maxStudies = Math.max(1, ...entries.map((entry) => entry.studyCount));
+  const maxBreadth = Math.max(1, ...entries.map((entry) => entry.breadthCount || 1));
+  const latestYear = analyticsLatestYear(items);
+  const momentum = new Map(entries.map((entry) => [entry.key, explorerEntryMomentum(entry, latestYear)]));
+  const maxRecent = Math.max(1, ...entries.map((entry) => momentum.get(entry.key)?.recent || 0));
+  const xFor = (entry) => {
+    const base = maxBreadth === 1
+      ? margin.left + plotWidth / 2
+      : margin.left + ((Math.max(1, entry.breadthCount) - 1) / (maxBreadth - 1)) * plotWidth;
+    const hash = Array.from(entry.key).reduce((sum, character) => sum + character.codePointAt(0), 0);
+    const jitter = ((hash % 13) - 6) * 1.35;
+    return clampNumber(base + jitter, margin.left, width - margin.right);
+  };
+  const yFor = (entry) => margin.top + plotHeight - (Math.log1p(entry.studyCount) / Math.log1p(maxStudies)) * plotHeight;
+  const grid = [1, Math.round(1 + (maxBreadth - 1) * 0.25), Math.round(1 + (maxBreadth - 1) * 0.5), Math.round(1 + (maxBreadth - 1) * 0.75), maxBreadth]
+    .filter((value, index, array) => value <= maxBreadth && array.indexOf(value) === index)
+    .map((value) => {
+      const x = maxBreadth === 1
+        ? margin.left + plotWidth / 2
+        : margin.left + ((value - 1) / (maxBreadth - 1)) * plotWidth;
+      return `<line x1="${x}" x2="${x}" y1="${margin.top}" y2="${margin.top + plotHeight}" class="analytics-gridline"></line><text x="${x}" y="${height - 15}" class="analytics-axis-label" text-anchor="middle">${value}</text>`;
+    })
+    .join("");
+  const yTicks = [0.25, 0.5, 0.75, 1]
+    .map((ratio) => {
+      const y = margin.top + plotHeight - ratio * plotHeight;
+      const value = Math.max(1, Math.round(Math.expm1(Math.log1p(maxStudies) * ratio)));
+      return `<line x1="${margin.left}" x2="${width - margin.right}" y1="${y}" y2="${y}" class="analytics-gridline"></line><text x="${margin.left - 9}" y="${y + 3}" class="analytics-axis-label" text-anchor="end">${formatCompactNumber(value)}</text>`;
+    })
+    .join("");
+  const labelledKeys = new Set(entries.slice(0, 8).map((entry) => entry.key));
+  const points = [...entries]
+    .reverse()
+    .map((entry) => {
+      const dominant = explorerDominantArea(entry);
+      const recent = momentum.get(entry.key)?.recent || 0;
+      const radius = 4 + 9 * Math.sqrt(recent / maxRecent);
+      const x = xFor(entry);
+      const y = yFor(entry);
+      const labelOnLeft = x > width - margin.right - 115;
+      const label = labelledKeys.has(entry.key)
+        ? `<text x="${labelOnLeft ? x - radius - 4 : x + radius + 4}" y="${y + 3}" class="analytics-point-label" text-anchor="${labelOnLeft ? "end" : "start"}">${escapeHtml(entry.label)}</text>`
+        : "";
+      return `
+        <g class="analytics-landscape-point" tabindex="0" role="button"
+          data-explorer-entity-key="${escapeHtml(entry.key)}"
+          data-explorer-row-key="${escapeHtml(entry.key)}"
+          data-entity-label="${escapeHtml(entry.label)}"
+          data-study-count="${entry.studyCount}"
+          data-area-count="${entry.areaCount}"
+          data-breadth-count="${entry.breadthCount}"
+          data-breadth-label="${escapeHtml(matrix.breadthUnit)}"
+          data-recent-count="${recent}"
+          aria-label="${escapeHtml(`${entry.label}: ${entry.studyCount} source papers across ${entry.breadthCount} ${matrix.breadthUnit}; ${recent} in the latest five years`)}">
+          <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${radius.toFixed(1)}" style="--point-color:${explorerAreaColor(dominant.key)}"></circle>
+          ${label}
+        </g>
+      `;
+    })
+    .join("");
+  return `
+    <svg class="analytics-landscape-svg" viewBox="0 0 ${width} ${height}" role="group" aria-label="Entity breadth, publication volume, and recent activity">
+      ${grid}${yTicks}${points}
+      <text x="${margin.left + plotWidth / 2}" y="${height - 1}" class="analytics-axis-title" text-anchor="middle">${escapeHtml(matrix.breadthLabel)}</text>
+      <text x="13" y="${margin.top + plotHeight / 2}" class="analytics-axis-title" text-anchor="middle" transform="rotate(-90 13 ${margin.top + plotHeight / 2})">source papers</text>
+    </svg>
+  `;
+}
+
+function renderExplorerMomentum(matrix, items, windowYears = explorerMomentumWindowYears, options = {}) {
+  const latestYear = analyticsLatestYear(items);
+  const startYear = latestYear - windowYears * 2 + 1;
+  const entries = matrix.entries
+    .map((entry) => ({ entry, momentum: explorerEntryMomentum(entry, latestYear, windowYears) }))
+    .filter(({ momentum }) => momentum.recent > 0)
+    .sort((left, right) => right.momentum.score - left.momentum.score || right.entry.studyCount - left.entry.studyCount)
+    .slice(0, 8);
+  if (!entries.length) return '<div class="analytics-empty">No recent publication data.</div>';
+  return `
+    <div class="analytics-momentum-list">
+      ${entries.map(({ entry, momentum }) => {
+        const dominant = explorerDominantArea(entry);
+        const deltaLabel = `Δ ${momentum.change > 0 ? "+" : ""}${formatCompactNumber(momentum.change)}`;
+        return `
+          <button class="analytics-momentum-row" type="button" ${options.mode === "area" ? `data-analysis-scope-area="${escapeHtml(entry.key)}"` : options.mode === "concept" ? `data-analysis-scope-concept="${escapeHtml(entry.key)}"` : `data-explorer-entity-key="${escapeHtml(entry.key)}"`}>
+            <span class="analytics-momentum-copy"><strong>${escapeHtml(entry.label)}</strong><small>${formatCompactNumber(momentum.recent)} latest · ${formatCompactNumber(momentum.previous)} prior · ${deltaLabel}</small></span>
+            ${analyticsSparkline(analyticsYearCounts(entry.claims, startYear, latestYear), explorerAreaColor(dominant.key), windowYears)}
+          </button>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function explorerMomentumRangeProgress(windowYears = explorerMomentumWindowYears) {
+  return ((windowYears - EXPLORER_MOMENTUM_MIN_YEARS) /
+    (EXPLORER_MOMENTUM_MAX_YEARS - EXPLORER_MOMENTUM_MIN_YEARS)) * 100;
+}
+
+function renderExplorerMomentumPanel(matrix, items, options = {}) {
+  const latestYear = analyticsLatestYear(items);
+  return `
+    <section class="analytics-panel analytics-momentum-panel" data-momentum-mode="${escapeHtml(options.mode || "entity")}">
+      <div class="analytics-panel-heading">
+        <h3>${escapeHtml(options.title || "Momentum")}</h3>
+        <span data-explorer-momentum-meta>last ${explorerMomentumWindowYears} years vs prior ${explorerMomentumWindowYears} · through ${latestYear}</span>
+      </div>
+      <div class="analytics-momentum-window">
+        <div class="analytics-momentum-window-copy">
+          <label for="explorerMomentumWindow">Comparison window</label>
+          <output for="explorerMomentumWindow" data-explorer-momentum-output>${explorerMomentumWindowYears} years</output>
+        </div>
+        <div class="analytics-momentum-range-row">
+          <span>${EXPLORER_MOMENTUM_MIN_YEARS}y</span>
+          <input
+            id="explorerMomentumWindow"
+            type="range"
+            min="${EXPLORER_MOMENTUM_MIN_YEARS}"
+            max="${EXPLORER_MOMENTUM_MAX_YEARS}"
+            step="1"
+            value="${explorerMomentumWindowYears}"
+            data-explorer-momentum-window
+            aria-label="Momentum comparison window in years"
+            style="--range-progress:${explorerMomentumRangeProgress().toFixed(2)}%"
+          />
+          <span>${EXPLORER_MOMENTUM_MAX_YEARS}y</span>
+        </div>
+      </div>
+      <div data-explorer-momentum-content>${renderExplorerMomentum(matrix, items, explorerMomentumWindowYears, options)}</div>
+    </section>
+  `;
+}
+
+function updateExplorerMomentumPanel() {
+  if (!explorerSearchMatrix || !explorerMomentumItems.length) return;
+  const panel = graphEl.querySelector(".analytics-momentum-panel");
+  if (!panel) return;
+  const latestYear = analyticsLatestYear(explorerMomentumItems);
+  const input = panel.querySelector("[data-explorer-momentum-window]");
+  const output = panel.querySelector("[data-explorer-momentum-output]");
+  const meta = panel.querySelector("[data-explorer-momentum-meta]");
+  const content = panel.querySelector("[data-explorer-momentum-content]");
+  const mode = panel.dataset.momentumMode || "entity";
+  if (input) input.style.setProperty("--range-progress", `${explorerMomentumRangeProgress().toFixed(2)}%`);
+  if (output) output.textContent = `${explorerMomentumWindowYears} years`;
+  if (meta) meta.textContent = `last ${explorerMomentumWindowYears} years vs prior ${explorerMomentumWindowYears} · through ${latestYear}`;
+  if (content) content.innerHTML = renderExplorerMomentum(
+    explorerSearchMatrix,
+    explorerMomentumItems,
+    explorerMomentumWindowYears,
+    { mode }
+  );
+}
+
+function scheduleExplorerMomentumPanelUpdate() {
+  if (explorerMomentumRenderFrame) window.cancelAnimationFrame(explorerMomentumRenderFrame);
+  explorerMomentumRenderFrame = window.requestAnimationFrame(() => {
+    explorerMomentumRenderFrame = 0;
+    updateExplorerMomentumPanel();
+  });
+}
+
+function renderAnalyticsPanel(title, meta, body, extraClass = "") {
+  return `
+    <section class="analytics-panel ${extraClass}">
+      <div class="analytics-panel-heading"><h3>${escapeHtml(title)}</h3>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}</div>
+      ${body}
+    </section>
+  `;
+}
+
+function explorerCoveragePanel(matrix) {
   const meta = explorerLensMeta();
   const query = normalizeSearchText(explorerSearchInput?.value || "");
   const matchingEntries = query
-    ? matrix.entries.filter((entry) => normalizeSearchText(entry.label).includes(query))
+    ? matrix.entries.filter((entry) => (entry.searchLabel || normalizeSearchText(entry.label)).includes(query))
     : matrix.entries;
   const visibleEntries = matchingEntries.slice(0, explorerVisibleRowCount);
   const header = `
     <div class="explorer-matrix-corner">${escapeHtml(meta.singular)}</div>
     <div class="explorer-matrix-total-heading">Total</div>
-    ${ENTITY_CATEGORY_OPTIONS.map(
-      (area) => `<div class="explorer-matrix-area-heading" style="--area-color:${explorerAreaColor(area.key)}">${escapeHtml(area.label)}</div>`
+    ${matrix.columns.map(
+      (column) => `<div class="explorer-matrix-area-heading ${column.key === explorerScopeConceptKey ? "is-selected" : ""}" style="--area-color:${column.color}">${escapeHtml(column.label)}</div>`
     ).join("")}
   `;
   const rows = visibleEntries
     .map((entry) => {
-      const cells = ENTITY_CATEGORY_OPTIONS.map((area) => {
-        const count = entry.areas.get(area.key)?.studies.size || 0;
+      const cells = matrix.columns.map((column) => {
+        const bucket = column.type === "concept" ? entry.concepts.get(column.key) : entry.areas.get(column.key);
+        const count = bucket?.studies.size || 0;
         const strength = count ? Math.max(0.08, Math.sqrt(count / matrix.maxCellCount)) : 0;
+        const selected = column.type === "concept"
+          ? column.key === explorerScopeConceptKey
+          : column.key === explorerAreaKey;
+        const dimensionLabel = column.type === "concept" ? "concept" : "research area";
         return `
           <button
-            class="explorer-matrix-cell ${count ? "" : "is-empty"}"
+            class="explorer-matrix-cell ${count ? "" : "is-empty"} ${selected ? "is-selected-area" : ""}"
             type="button"
             data-explorer-row-key="${escapeHtml(entry.key)}"
-            data-explorer-area-key="${escapeHtml(area.key)}"
+            data-explorer-area-key="${escapeHtml(column.type === "concept" ? explorerScopeAreaKey : column.key)}"
+            ${column.type === "concept" ? `data-explorer-concept-key="${escapeHtml(column.key)}"` : ""}
+            data-explorer-dimension-label="${escapeHtml(column.label)}"
             data-study-count="${count}"
-            style="--area-color:${explorerAreaColor(area.key)};--cell-strength:${strength.toFixed(3)}"
-            aria-label="${escapeHtml(`${entry.label}, ${area.label}: ${count} source ${count === 1 ? "paper" : "papers"}`)}"
+            style="--area-color:${column.color};--cell-strength:${strength.toFixed(3)}"
+            aria-label="${escapeHtml(`${entry.label}, ${column.label} ${dimensionLabel}: ${count} source ${count === 1 ? "paper" : "papers"}`)}"
           >${count ? formatCompactNumber(count) : "—"}</button>`;
       }).join("");
       return `
@@ -7158,15 +7987,51 @@ function renderExplorerMatrix(matrix, items, allAccessItems) {
     })
     .join("");
   const remaining = Math.max(0, matchingEntries.length - visibleEntries.length);
+  const dimensionMeta = explorerScopeAreaKey
+    ? `${meta.plural} × concepts in ${ENTITY_CATEGORY_OPTIONS.find((area) => area.key === explorerScopeAreaKey)?.label || "selected area"}`
+    : `${meta.plural} × research areas`;
+  return {
+    html: renderAnalyticsPanel("Coverage", dimensionMeta, `
+      <div class="explorer-matrix-shell">
+        ${visibleEntries.length && matrix.columns.length ? `<div class="explorer-matrix-scroll"><div class="explorer-matrix ${explorerScopeAreaKey ? "is-concept-matrix" : ""}" style="--explorer-area-count:${matrix.columns.length}">${header}${rows}</div></div>` : `<div class="explorer-empty">No ${escapeHtml(meta.plural)} match the current analysis scope.</div>`}
+        ${remaining ? `<button class="ghost small explorer-show-more" type="button" data-explorer-show-more>Show ${formatCompactNumber(Math.min(EXPLORER_ROW_EXPANSION_STEP, remaining))} more</button>` : ""}
+      </div>
+    `, "analytics-coverage-panel"),
+    height: Math.max(1260, 620 + visibleEntries.length * 44 + (remaining ? 58 : 0)),
+  };
+}
+
+function renderExplorerCoverage() {
+  if (!explorerSearchMatrix) return;
+  const currentPanel = graphEl.querySelector(".analytics-coverage-panel");
+  if (!currentPanel) return;
+  const coverage = explorerCoveragePanel(explorerSearchMatrix);
+  const template = document.createElement("template");
+  template.innerHTML = coverage.html.trim();
+  const nextPanel = template.content.firstElementChild;
+  if (nextPanel) currentPanel.replaceWith(nextPanel);
+}
+
+function renderExplorerMatrix(matrix, items, allAccessItems) {
+  explorerSearchMatrix = matrix;
+  explorerMomentumItems = items;
+  const coverage = explorerCoveragePanel(matrix);
+  const landscapeMeta = explorerScopeAreaKey
+    ? "concept breadth × volume × recent activity"
+    : "research-area breadth × volume × recent activity";
   graphEl.innerHTML = `
-    <div class="explorer-matrix-shell">
-      ${visibleEntries.length ? `<div class="explorer-matrix-scroll"><div class="explorer-matrix" style="--explorer-area-count:${ENTITY_CATEGORY_OPTIONS.length}">${header}${rows}</div></div>` : `<div class="explorer-empty">No ${escapeHtml(meta.plural)} match this search.</div>`}
-      ${remaining ? `<button class="ghost small explorer-show-more" type="button" data-explorer-show-more>Show ${formatCompactNumber(Math.min(EXPLORER_ROW_EXPANSION_STEP, remaining))} more</button>` : ""}
+    <div class="analytics-workspace explorer-analytics-workspace">
+      ${renderAnalysisEvidenceProfilePanel()}
+      <div class="analytics-top-grid">
+        ${renderAnalyticsPanel("Landscape", landscapeMeta, renderExplorerLandscape(matrix, items), "analytics-landscape-panel")}
+        ${renderExplorerMomentumPanel(matrix, items)}
+      </div>
+      ${coverage.html}
     </div>
   `;
-  const height = Math.max(GRAPH_BASE_HEIGHT_PX, 92 + visibleEntries.length * 44 + (remaining ? 58 : 0));
-  setExplorerWorkspaceHeight(height);
+  autosizeExplorerWorkspace(graphEl.firstElementChild, coverage.height);
   renderExplorerOverviewDetail(items, allAccessItems);
+  if (document.activeElement === explorerSearchInput) renderExplorerSearchOptions({ preserveActive: true });
 }
 
 function explorerSvgElement(tag, attributes = {}) {
@@ -7214,20 +8079,120 @@ function summarizeExplorerDetails(claims, limit = 14) {
     .slice(0, limit);
 }
 
-function renderExplorerSelectionDetail(title, items, allAccessItems = items) {
+function renderExplorerSelectionDetail(
+  title,
+  items,
+  allAccessItems = items,
+  contextItems = items
+) {
   activeDetailItems = items;
   activeDetailAllAccessItems = allAccessItems;
   setDetailHeader(title);
   detailBody.innerHTML = `
     <div class="trend-dashboard">
       ${renderTrendStats(items, [], allAccessItems)}
-      ${renderAnnualPublicationChart(items)}
-      ${renderEvidenceDetailGroup(items)}
-      ${renderMetadataFacetCharts(items)}
+      ${renderAnnualPublicationChart(items, { interactive: false })}
+      ${renderExplorerAreaDistribution(contextItems)}
     </div>
   `;
   renderCards(items);
   renderBibliography(items);
+}
+
+function renderExplorerFocusAreaProfile(row, selectedArea) {
+  const entries = ENTITY_CATEGORY_OPTIONS.map((area) => ({
+    ...area,
+    count: row.areas.get(area.key)?.studies.size || 0,
+  }))
+    .filter((area) => area.count > 0)
+    .sort((left, right) => right.count - left.count);
+  const maxCount = Math.max(1, ...entries.map((entry) => entry.count));
+  return `
+    <div class="analytics-profile-bars">
+      ${entries.map((area) => `
+        <button class="analytics-profile-row ${selectedArea?.key === area.key ? "is-selected" : ""}" type="button"
+          data-explorer-focus-area="${escapeHtml(area.key)}"
+          style="--area-color:${explorerAreaColor(area.key)};--profile-width:${((area.count / maxCount) * 100).toFixed(2)}%">
+          <span><strong>${escapeHtml(area.label)}</strong><em>${formatCompactNumber(area.count)}</em></span>
+          <i></i>
+        </button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderExplorerTimelineChart(row, selectedArea) {
+  const availableAreas = ENTITY_CATEGORY_OPTIONS.map((area) => ({
+    ...area,
+    items: row.areas.get(area.key)?.claims || [],
+    count: row.areas.get(area.key)?.studies.size || 0,
+  }))
+    .filter((area) => area.count > 0)
+    .sort((left, right) => right.count - left.count);
+  const selected = selectedArea ? availableAreas.find((area) => area.key === selectedArea.key) : null;
+  const series = [selected, ...availableAreas]
+    .filter(Boolean)
+    .filter((area, index, array) => array.findIndex((candidate) => candidate.key === area.key) === index)
+    .slice(0, 5);
+  return renderAnalyticsGroupedYearHistogram(
+    series.map((area) => ({
+      key: area.key,
+      label: area.label,
+      color: explorerAreaColor(area.key),
+      items: area.items,
+    })),
+    {
+      selectedKey: selectedArea?.key || "",
+      ariaLabel: `${row.label} publications per year by research area`,
+    }
+  );
+}
+
+function renderExplorerAreaOverlap(row, selectedArea, options = {}) {
+  const interactive = options.interactive !== false;
+  const areas = ENTITY_CATEGORY_OPTIONS.map((area) => ({
+    ...area,
+    studies: row.areas.get(area.key)?.studies || new Set(),
+  })).filter((area) => area.studies.size > 0);
+  if (!areas.length) return '<div class="analytics-empty compact">No cross-area overlap available.</div>';
+  const cellValues = [];
+  areas.forEach((left, rowIndex) => {
+    areas.forEach((right, columnIndex) => {
+      if (columnIndex > rowIndex) return;
+      const shared = columnIndex === rowIndex
+        ? left.studies.size
+        : Array.from(left.studies).filter((study) => right.studies.has(study)).length;
+      const denominator = Math.max(1, Math.min(left.studies.size, right.studies.size));
+      cellValues.push({ left, right, rowIndex, columnIndex, shared, ratio: shared / denominator });
+    });
+  });
+  return `
+    <div class="analytics-overlap-scroll">
+      <div class="analytics-overlap-grid" style="--overlap-count:${areas.length}">
+        <div class="analytics-overlap-corner"></div>
+        ${areas.map((area) => `<div class="analytics-overlap-column" style="--area-color:${explorerAreaColor(area.key)}"><span>${escapeHtml(area.label)}</span></div>`).join("")}
+        ${areas.map((area, rowIndex) => {
+          const cells = areas.map((column, columnIndex) => {
+            if (columnIndex > rowIndex) return '<span class="analytics-overlap-blank"></span>';
+            const cell = cellValues.find((entry) => entry.rowIndex === rowIndex && entry.columnIndex === columnIndex);
+            const active = selectedArea?.key === area.key || selectedArea?.key === column.key;
+            const aria = rowIndex === columnIndex
+              ? `${area.label}: ${cell.shared} source papers`
+              : `${area.label} and ${column.label}: ${cell.shared} shared source papers`;
+            const tag = interactive ? "button" : "div";
+            return `
+              <${tag} class="analytics-overlap-cell ${rowIndex === columnIndex ? "is-diagonal" : ""} ${active ? "is-related" : ""}" ${interactive ? `type="button" data-explorer-overlap-a="${escapeHtml(area.key)}" data-explorer-overlap-b="${escapeHtml(column.key)}"` : `role="img" title="${escapeHtml(aria)}"`}
+                style="--overlap:${cell.ratio.toFixed(3)};--area-color:${explorerAreaColor(area.key)}"
+                aria-label="${escapeHtml(aria)}">
+                ${formatCompactNumber(cell.shared)}
+              </${tag}>
+            `;
+          }).join("");
+          return `<div class="analytics-overlap-row-label" style="--area-color:${explorerAreaColor(area.key)}">${escapeHtml(area.label)}</div>${cells}`;
+        }).join("")}
+      </div>
+    </div>
+  `;
 }
 
 function renderExplorerFocused(row, allAccessRow = row) {
@@ -7238,6 +8203,7 @@ function renderExplorerFocused(row, allAccessRow = row) {
   const previousAreaKey = explorerAreaKey;
   const selectedArea =
     areas.find((area) => area.key === explorerAreaKey) ||
+    areas.find((area) => area.key === explorerScopeAreaKey) ||
     [...areas].sort((a, b) => b.studyCount - a.studyCount)[0] ||
     null;
   explorerAreaKey = selectedArea?.key || "";
@@ -7261,31 +8227,45 @@ function renderExplorerFocused(row, allAccessRow = row) {
   const edgeLayer = explorerSvgElement("g");
   const nodeLayer = explorerSvgElement("g");
   svg.append(edgeLayer, nodeLayer);
-  const maxAreaCount = Math.max(1, ...areas.map((area) => area.studyCount));
-  const maxDetailCount = Math.max(1, ...details.map((detail) => detail.studyCount));
+  const maxNodeCount = Math.max(
+    1,
+    row.studyCount,
+    ...areas.map((area) => area.studyCount),
+    ...details.map((detail) => detail.studyCount)
+  );
+  const maxConnectionCount = Math.max(
+    1,
+    ...areas.map((area) => area.studyCount),
+    ...details.map((detail) => detail.studyCount)
+  );
+  const nodeRadius = (studyCount) => 18 * Math.sqrt(Math.max(0, studyCount) / maxNodeCount);
+  const connectionWidth = (studyCount) => Math.max(0.45, 8 * Math.max(0, studyCount) / maxConnectionCount);
+  const rootRadius = nodeRadius(row.studyCount);
 
   const root = explorerSvgElement("g", { class: "explorer-focused-node", style: "--node-color:#69a196" });
-  root.appendChild(explorerSvgElement("circle", { cx: rootX, cy: rootY, r: 12 }));
-  const rootLabel = explorerSvgElement("text", { x: rootX, y: rootY - 25, class: "explorer-focused-root-label" });
-  setWrappedSvgLabel(rootLabel, row.label, 170, rootX, rootY - 25, 3);
+  root.appendChild(explorerSvgElement("circle", { cx: rootX, cy: rootY, r: rootRadius.toFixed(2) }));
+  const rootLabelY = rootY - rootRadius - 13;
+  const rootLabel = explorerSvgElement("text", { x: rootX, y: rootLabelY, class: "explorer-focused-root-label" });
+  setWrappedSvgLabel(rootLabel, row.label, 170, rootX, rootLabelY, 3);
   root.appendChild(rootLabel);
   bindExplorerFocusedNode(root, `<strong>${escapeHtml(row.label)}</strong><br/><span class="tooltip-meta">${formatCompactNumber(row.studyCount)} source papers · ${formatCompactNumber(row.areaCount)} research areas</span>`, () => {
     explorerFocus = null;
     explorerAreaKey = "";
     updateExplorerUrlState();
     updateExplorerControls();
-    renderExplorerSurface();
+    renderAnalysisSurface();
   });
   nodeLayer.appendChild(root);
 
   areas.forEach((area, index) => {
     const y = areas.length === 1 ? height / 2 : areaTop + areaStep * index;
     const color = explorerAreaColor(area.key);
+    const radius = nodeRadius(area.studyCount);
     const edge = explorerSvgElement("path", {
-      d: explorerCurve(rootX + 12, rootY, areaX - 10, y),
+      d: explorerCurve(rootX + rootRadius, rootY, areaX - radius, y),
       class: `explorer-focused-edge area-edge ${area.key === selectedArea?.key ? "is-selected" : ""}`,
       stroke: color,
-      "stroke-width": 1.2 + 7 * Math.sqrt(area.studyCount / maxAreaCount),
+      "stroke-width": connectionWidth(area.studyCount).toFixed(2),
       style: `--area-color:${color}`,
     });
     edgeLayer.appendChild(edge);
@@ -7293,14 +8273,15 @@ function renderExplorerFocused(row, allAccessRow = row) {
       class: `explorer-focused-node ${area.key === selectedArea?.key ? "is-selected" : ""}`,
       style: `--node-color:${color}`,
     });
-    group.appendChild(explorerSvgElement("circle", { cx: areaX, cy: y, r: 5 + 5 * Math.sqrt(area.studyCount / maxAreaCount) }));
-    const label = explorerSvgElement("text", { x: areaX + 18, y, class: "explorer-focused-label" });
-    setWrappedSvgLabel(label, area.label, 178, areaX + 18, y, 2);
+    group.appendChild(explorerSvgElement("circle", { cx: areaX, cy: y, r: radius.toFixed(2) }));
+    const labelX = areaX + Math.max(12, radius + 8);
+    const label = explorerSvgElement("text", { x: labelX, y, class: "explorer-focused-label" });
+    setWrappedSvgLabel(label, area.label, 178, labelX, y, 2);
     group.appendChild(label);
     bindExplorerFocusedNode(group, `<strong>${escapeHtml(area.label)}</strong><br/><span class="tooltip-meta">${formatCompactNumber(area.studyCount)} source papers</span>`, () => {
       explorerAreaKey = area.key;
       updateExplorerUrlState();
-      renderExplorerSurface();
+      renderAnalysisSurface();
     });
     nodeLayer.appendChild(group);
   });
@@ -7308,49 +8289,84 @@ function renderExplorerFocused(row, allAccessRow = row) {
   details.forEach((detail, index) => {
     const y = details.length === 1 ? height / 2 : detailTop + detailStep * index;
     const color = explorerAreaColor(selectedArea?.key || "");
+    const radius = nodeRadius(detail.studyCount);
+    const selectedAreaRadius = nodeRadius(selectedArea?.studyCount || 0);
     const selectedAreaY = areas.length === 1
       ? height / 2
       : areaTop + areaStep * Math.max(0, areas.findIndex((area) => area.key === selectedArea?.key));
     edgeLayer.appendChild(explorerSvgElement("path", {
-      d: explorerCurve(areaX + 10, selectedAreaY, detailX - 9, y),
+      d: explorerCurve(areaX + selectedAreaRadius, selectedAreaY, detailX - radius, y),
       class: "explorer-focused-edge detail-edge",
       stroke: color,
-      "stroke-width": 1 + 5 * Math.sqrt(detail.studyCount / maxDetailCount),
+      "stroke-width": connectionWidth(detail.studyCount).toFixed(2),
       style: `--area-color:${color}`,
     }));
     const group = explorerSvgElement("g", { class: "explorer-focused-node", style: `--node-color:${color}` });
-    group.appendChild(explorerSvgElement("circle", { cx: detailX, cy: y, r: 4 + 4.5 * Math.sqrt(detail.studyCount / maxDetailCount) }));
-    const label = explorerSvgElement("text", { x: detailX + 16, y, class: "explorer-focused-label" });
-    setWrappedSvgLabel(label, detail.label, 195, detailX + 16, y, 2);
+    group.appendChild(explorerSvgElement("circle", { cx: detailX, cy: y, r: radius.toFixed(2) }));
+    const labelX = detailX + Math.max(12, radius + 8);
+    const label = explorerSvgElement("text", { x: labelX, y, class: "explorer-focused-label" });
+    setWrappedSvgLabel(label, detail.label, 195, labelX, y, 2);
     group.appendChild(label);
     bindExplorerFocusedNode(group, `<strong>${escapeHtml(detail.label)}</strong><br/><span class="tooltip-meta">${formatCompactNumber(detail.studyCount)} source papers</span>`, () => {
       renderExplorerSelectionDetail(
         detail.label,
         detail.claims,
-        allAccessDetails.get(detail.key)?.claims || detail.claims
+        allAccessDetails.get(detail.key)?.claims || detail.claims,
+        row.claims
       );
     });
     nodeLayer.appendChild(group);
   });
 
+  const dashboard = document.createElement("div");
+  dashboard.className = "analytics-workspace explorer-focused-dashboard";
+  const evidencePanelWrap = document.createElement("div");
+  evidencePanelWrap.innerHTML = renderAnalysisEvidenceProfilePanel();
+  const topGrid = document.createElement("div");
+  topGrid.className = "analytics-focus-top-grid";
+  topGrid.innerHTML = `
+    ${renderAnalyticsPanel("Area profile", "unique source papers", renderExplorerFocusAreaProfile(row, selectedArea), "analytics-profile-panel")}
+    ${renderAnalyticsPanel("Publication history", "leading research areas per year", renderExplorerTimelineChart(row, selectedArea), "analytics-focus-timeline-panel")}
+  `;
+  const networkPanel = document.createElement("section");
+  networkPanel.className = "analytics-panel analytics-network-panel";
+  networkPanel.innerHTML = `<div class="analytics-panel-heading"><h3>Connections</h3><span>${escapeHtml(selectedArea?.label || "research areas")}</span></div>`;
   const shell = document.createElement("div");
   shell.className = "explorer-focused-shell";
   shell.appendChild(svg);
-  graphEl.replaceChildren(shell);
-  setExplorerWorkspaceHeight(Math.max(GRAPH_BASE_HEIGHT_PX, height));
+  networkPanel.appendChild(shell);
+  const overlapWrap = document.createElement("div");
+  if (explorerScopeAreaKey) {
+    const areaScopedClaims = analysisClaimsWithinScope(
+      explorerBaseFilteredClaims({ ignoreAccess: true }),
+      { ignoreConcept: true }
+    );
+    overlapWrap.innerHTML = renderAnalysisConceptOverlapPanel(
+      analysisClaimsForFocusedEntity(areaScopedClaims, row.key)
+    );
+  } else {
+    overlapWrap.innerHTML = renderAnalyticsPanel("Cross-domain overlap", "shared source papers", renderExplorerAreaOverlap(row, selectedArea), "analytics-overlap-panel");
+  }
+  const dashboardSections = [evidencePanelWrap.firstElementChild, topGrid, networkPanel];
+  if (overlapWrap.firstElementChild) dashboardSections.push(overlapWrap.firstElementChild);
+  dashboard.append(...dashboardSections);
+  graphEl.replaceChildren(dashboard);
+  autosizeExplorerWorkspace(dashboard, Math.max(1900, height + 980));
   renderExplorerSelectionDetail(
     selectedArea ? `${row.label} · ${selectedArea.label}` : row.label,
     selectedArea?.bucket.claims.length ? selectedArea.bucket.claims : row.claims,
-    allAccessAreaBucket.claims?.length ? allAccessAreaBucket.claims : allAccessRow?.claims || row.claims
+    allAccessAreaBucket.claims?.length ? allAccessAreaBucket.claims : allAccessRow?.claims || row.claims,
+    row.claims
   );
 }
 
 function renderExplorerSurface() {
-  if (explorerLens === "domain") return;
+  if (!isAnalysisEntitySection()) return;
   hideTooltip();
   const items = explorerFilteredClaims();
   const allAccessItems = explorerFilteredClaims({ ignoreAccess: true });
   const matrix = buildExplorerMatrix(items);
+  explorerSearchMatrix = matrix;
   if (explorerFocus) {
     const row = explorerRowForFocus(matrix);
     if (row) {
@@ -7369,36 +8385,1073 @@ function renderExplorerSurface() {
   renderExplorerMatrix(matrix, items, allAccessItems);
 }
 
-async function loadExplorerLensAndRender({ resetYears = false } = {}) {
+function compareRawClaims() {
+  return COMPARE_EVIDENCE_SOURCES.flatMap(({ key }) =>
+    (claimStores.normalized.bySource[key] || []).filter((claim) => !isHiddenMainGraphItem(claim))
+  );
+}
+
+function compareFilteredClaimsForSource(sourceKey, yearRange, options = {}) {
+  const sourceClaims = (claimStores.normalized.bySource[sourceKey] || []).filter(
+    (claim) => !isHiddenMainGraphItem(claim)
+  );
+  return applyFiltersToClaims(sourceClaims, yearRange, {
+    ignoreSearch: true,
+    ignoreAccess: Boolean(options.ignoreAccess),
+  }).filter(isMainGraphAdmitted);
+}
+
+function compareEvidenceRows(options = {}) {
+  const rawClaims = compareRawClaims();
+  const yearRange = activeYearRange(rawClaims);
+  return COMPARE_EVIDENCE_SOURCES.map((source) => {
+    const items = compareFilteredClaimsForSource(source.key, yearRange, options);
+    const areas = new Map(
+      ENTITY_CATEGORY_OPTIONS.map((area) => {
+        const areaItems = items.filter((claim) => claimMatchesEntityViewOption(claim, area));
+        return [area.key, { items: areaItems, count: uniqueStudyCount(areaItems) }];
+      })
+    );
+    return {
+      ...source,
+      items,
+      areas,
+      count: uniqueStudyCount(items),
+      maxAreaCount: Math.max(1, ...Array.from(areas.values()).map((area) => area.count)),
+    };
+  });
+}
+
+function analysisClaimMatchesFocus(claim, items, authorAliases = null) {
+  if (!explorerFocus?.key) return true;
+  return explorerEntityValuesForClaim(claim, authorAliases).some(
+    (entity) => cleanDisplayText(entity.value || entity.label) === explorerFocus.key
+  );
+}
+
+function analysisEvidenceRows(options = {}) {
+  const { respectEvidenceView = false, ...filterOptions } = options;
+  const yearRange = activeYearRange(compareRawClaims());
+  const sources = respectEvidenceView && evidenceView !== "all"
+    ? COMPARE_EVIDENCE_SOURCES.filter((source) => source.key === currentSourceKey())
+    : COMPARE_EVIDENCE_SOURCES;
+  return sources.map((source) => {
+    let items = compareFilteredClaimsForSource(source.key, yearRange, filterOptions);
+    if (explorerLens === "compound") items = items.filter(claimHasAnalysisCompound);
+    items = analysisClaimsWithCurrentEntity(items);
+    items = analysisClaimsWithinScope(items);
+    const authorAliases = explorerLens === "author" ? buildAuthorRoleAliasMap(items) : null;
+    if (explorerFocus?.key) {
+      items = items.filter((claim) => analysisClaimMatchesFocus(claim, items, authorAliases));
+    }
+    const areas = new Map(
+      ENTITY_CATEGORY_OPTIONS.map((area) => {
+        const areaItems = items.filter((claim) => claimMatchesEntityViewOption(claim, area));
+        return [area.key, { items: areaItems, count: uniqueStudyCount(areaItems) }];
+      })
+    );
+    return {
+      ...source,
+      items,
+      areas,
+      count: uniqueStudyCount(items),
+      maxAreaCount: Math.max(1, ...Array.from(areas.values()).map((area) => area.count)),
+    };
+  });
+}
+
+function renderAnalysisEvidenceProfilePanel(providedRows = null) {
+  const rows = providedRows || analysisEvidenceRows({ respectEvidenceView: true });
+  const scope = analysisScopeLabel();
+  const meta = explorerFocus?.label ? `${explorerFocus.label} · ${scope}` : scope;
+  const comparingPaperTypes = evidenceView === "all";
+  const selectedRow = rows[0];
+  const coverageBody = explorerScopeAreaKey && selectedRow?.items?.length
+    ? renderAnalysisScopeProfile(buildAnalysisDimensionMatrix(selectedRow.items))
+    : renderEvidenceComposition(rows);
+  return renderAnalyticsPanel(
+    comparingPaperTypes ? "Evidence profile" : `${selectedRow?.label || "Selected papers"} coverage`,
+    comparingPaperTypes ? `coverage by paper type · ${meta}` : meta,
+    rows.some((row) => row.count > 0)
+      ? coverageBody
+      : '<div class="analytics-empty compact">No evidence matches the current analysis scope.</div>',
+    `analytics-evidence-profile-panel analysis-scope-evidence-panel ${comparingPaperTypes ? "is-comparative" : "is-single-paper-type"}`
+  );
+}
+
+function buildAnalysisDimensionMatrix(items) {
+  const entries = [];
+  if (!explorerScopeAreaKey) {
+    ENTITY_CATEGORY_OPTIONS.forEach((area) => {
+      const claims = items.filter((claim) => claimMatchesEntityViewOption(claim, area));
+      const studyCount = uniqueStudyCount(claims);
+      if (!studyCount) return;
+      entries.push({
+        key: area.key,
+        label: area.label,
+        claims,
+        studies: new Set(claims.map((claim, index) => studyKey(claim, index))),
+        studyCount,
+        areaCount: 1,
+        breadthCount: 1,
+        areas: new Map([[area.key, { claims, studies: new Set(claims.map((claim, index) => studyKey(claim, index))) }]]),
+      });
+    });
+  } else {
+    const concepts = new Map();
+    items.forEach((claim, index) => {
+      const label = analysisConceptLabelForClaim(claim, explorerScopeAreaKey);
+      const key = normalizeValue(label);
+      if (!key || !label) return;
+      const entry = concepts.get(key) || { key, label, claims: [], studies: new Set() };
+      entry.label = preferredFacetLabel(entry.label, label);
+      entry.claims.push(claim);
+      entry.studies.add(studyKey(claim, index));
+      concepts.set(key, entry);
+    });
+    concepts.forEach((entry) => {
+      entries.push({
+        ...entry,
+        studyCount: entry.studies.size,
+        areaCount: 1,
+        breadthCount: 1,
+        areas: new Map([[explorerScopeAreaKey, { claims: entry.claims, studies: entry.studies }]]),
+      });
+    });
+  }
+  entries.sort((left, right) => right.studyCount - left.studyCount || left.label.localeCompare(right.label));
+  return { entries };
+}
+
+function renderAnalysisScopeProfile(matrix) {
+  const entries = matrix.entries.slice(0, 14);
+  if (!entries.length) return '<div class="analytics-empty compact">No research-area profile is available.</div>';
+  const maxCount = Math.max(1, ...entries.map((entry) => entry.studyCount));
+  const mode = explorerScopeAreaKey ? "concept" : "area";
+  return `
+    <div class="analytics-profile-bars analysis-scope-profile-bars">
+      ${entries.map((entry) => {
+        const color = explorerScopeAreaKey ? explorerAreaColor(explorerScopeAreaKey) : explorerAreaColor(entry.key);
+        return `
+          <button class="analytics-profile-row" type="button" ${mode === "concept" ? `data-analysis-scope-concept="${escapeHtml(entry.key)}"` : `data-analysis-scope-area="${escapeHtml(entry.key)}"`} style="--area-color:${color};--profile-width:${((entry.studyCount / maxCount) * 100).toFixed(2)}%">
+            <span><strong>${escapeHtml(entry.label)}</strong><em>${formatCompactNumber(entry.studyCount)}</em></span>
+            <i></i>
+          </button>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function analysisOverlapRow(items, baseItems = items) {
+  let overlapItems = items;
+  if (explorerScopeAreaKey) {
+    const selectedStudies = new Set(items.map((claim, index) => studyKey(claim, index)));
+    overlapItems = baseItems.filter((claim, index) => selectedStudies.has(studyKey(claim, index)));
+  }
+  const areas = new Map();
+  ENTITY_CATEGORY_OPTIONS.forEach((area) => {
+    const claims = overlapItems.filter((claim) => claimMatchesEntityViewOption(claim, area));
+    areas.set(area.key, {
+      claims,
+      studies: new Set(claims.map((claim, index) => studyKey(claim, index))),
+    });
+  });
+  return { areas };
+}
+
+function analysisClaimsForFocusedEntity(items, focusKey = explorerFocus?.key || "") {
+  if (!focusKey || !EXPLORER_ENTITY_LENSES.has(explorerLens)) return items;
+  const authorAliases = explorerLens === "author" ? buildAuthorRoleAliasMap(items) : null;
+  return items.filter((claim) => explorerEntityValuesForClaim(claim, authorAliases).some(
+    (entity) => cleanDisplayText(entity.value || entity.label) === focusKey
+  ));
+}
+
+function buildAnalysisConceptOverlap(items, areaKey, selectedConceptKey = explorerScopeConceptKey, limit = 18) {
+  const area = ENTITY_CATEGORY_OPTIONS.find((option) => option.key === areaKey);
+  if (!area) return { area: null, entries: [], total: 0, selectedLabel: "" };
+  const concepts = new Map();
+  items.forEach((claim, index) => {
+    if (!claimMatchesEntityViewOption(claim, area)) return;
+    const label = analysisConceptLabelForClaim(claim, areaKey);
+    const key = normalizeValue(label);
+    if (!key || !label) return;
+    const entry = concepts.get(key) || { key, label, studies: new Set() };
+    entry.label = preferredFacetLabel(entry.label, label);
+    entry.studies.add(studyKey(claim, index));
+    concepts.set(key, entry);
+  });
+  const selectedStudies = concepts.get(selectedConceptKey)?.studies || null;
+  let entries = Array.from(concepts.values()).map((entry) => ({
+    ...entry,
+    studies: selectedStudies
+      ? new Set(Array.from(entry.studies).filter((study) => selectedStudies.has(study)))
+      : entry.studies,
+  })).filter((entry) => entry.studies.size > 0);
+  entries.sort((left, right) => right.studies.size - left.studies.size || left.label.localeCompare(right.label));
+  const total = entries.length;
+  if (selectedStudies && entries.some((entry) => entry.key === selectedConceptKey)) {
+    const selectedEntry = entries.find((entry) => entry.key === selectedConceptKey);
+    entries = [selectedEntry, ...entries.filter((entry) => entry.key !== selectedConceptKey)].slice(0, limit);
+  } else {
+    entries = entries.slice(0, limit);
+  }
+  return {
+    area,
+    entries,
+    total,
+    selectedLabel: concepts.get(selectedConceptKey)?.label || "",
+  };
+}
+
+function renderAnalysisConceptOverlap(overlap) {
+  const { area, entries } = overlap;
+  if (!area || entries.length < 2) return "";
+  const color = explorerAreaColor(area.key);
+  return `
+    <div class="analytics-overlap-scroll">
+      <div class="analytics-overlap-grid analysis-concept-overlap-grid" style="--overlap-count:${entries.length}">
+        <div class="analytics-overlap-corner"></div>
+        ${entries.map((entry) => `<div class="analytics-overlap-column" style="--area-color:${color}"><span>${escapeHtml(entry.label)}</span></div>`).join("")}
+        ${entries.map((left, rowIndex) => {
+          const cells = entries.map((right, columnIndex) => {
+            if (columnIndex > rowIndex) return '<span class="analytics-overlap-blank"></span>';
+            const shared = columnIndex === rowIndex
+              ? left.studies.size
+              : Array.from(left.studies).filter((study) => right.studies.has(study)).length;
+            const denominator = Math.max(1, Math.min(left.studies.size, right.studies.size));
+            const ratio = shared / denominator;
+            const related = explorerScopeConceptKey && (
+              left.key === explorerScopeConceptKey || right.key === explorerScopeConceptKey
+            );
+            const aria = columnIndex === rowIndex
+              ? `${left.label}: ${shared} source papers`
+              : `${left.label} and ${right.label}: ${shared} shared source papers`;
+            return `
+              <div class="analytics-overlap-cell ${columnIndex === rowIndex ? "is-diagonal" : ""} ${related ? "is-related" : ""}" role="img" title="${escapeHtml(aria)}" aria-label="${escapeHtml(aria)}" style="--overlap:${ratio.toFixed(3)};--area-color:${color}">
+                ${formatCompactNumber(shared)}
+              </div>
+            `;
+          }).join("");
+          return `<div class="analytics-overlap-row-label" style="--area-color:${color}">${escapeHtml(left.label)}</div>${cells}`;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderAnalysisConceptOverlapPanel(items) {
+  if (!explorerScopeAreaKey) return "";
+  const overlap = buildAnalysisConceptOverlap(items, explorerScopeAreaKey);
+  const body = renderAnalysisConceptOverlap(overlap);
+  if (!body) return "";
+  const shownMeta = overlap.total > overlap.entries.length
+    ? `leading ${overlap.entries.length} of ${overlap.total} concepts`
+    : "shared source papers";
+  const scopeMeta = overlap.selectedLabel
+    ? `${shownMeta} · papers mentioning ${overlap.selectedLabel}`
+    : shownMeta;
+  return renderAnalyticsPanel(
+    `${overlap.area.singular} overlap`,
+    scopeMeta,
+    body,
+    "analytics-overlap-panel analysis-concept-overlap-panel"
+  );
+}
+
+function analysisFacetEntries(items, lens, limit = 9) {
+  const rows = new Map();
+  const authorAliases = lens === "author" ? buildAuthorRoleAliasMap(items) : null;
+  items.forEach((claim, index) => {
+    explorerEntityValuesForClaim(claim, authorAliases, lens).forEach((entity) => {
+      const key = cleanDisplayText(entity.value || entity.label);
+      const label = cleanDisplayText(entity.label || entity.value);
+      if (!key || !label) return;
+      const row = rows.get(key) || { key, label, studies: new Set() };
+      row.label = preferredFacetLabel(row.label, label);
+      row.studies.add(studyKey(claim, index));
+      rows.set(key, row);
+    });
+  });
+  return Array.from(rows.values())
+    .map((row) => ({ ...row, studyCount: row.studies.size }))
+    .sort((left, right) => right.studyCount - left.studyCount || left.label.localeCompare(right.label))
+    .slice(0, limit);
+}
+
+function renderAnalysisFacetRankings(items) {
+  const facets = [
+    { key: "compound", label: "Compounds" },
+    { key: "author", label: "Authors" },
+    { key: "journal", label: "Journals" },
+  ].map((facet) => ({ ...facet, entries: analysisFacetEntries(items, facet.key) }));
+  return `
+    <div class="analysis-facet-grid">
+      ${facets.map((facet) => {
+        const maxCount = Math.max(1, ...facet.entries.map((entry) => entry.studyCount));
+        return `
+          <section class="analysis-facet-column">
+            <h4>${escapeHtml(facet.label)}</h4>
+            <div>
+              ${facet.entries.length ? facet.entries.map((entry) => `
+                <button class="analysis-facet-row" type="button" data-analysis-facet-lens="${escapeHtml(facet.key)}" data-analysis-facet-key="${escapeHtml(entry.key)}" data-analysis-facet-label="${escapeHtml(entry.label)}" style="--facet-width:${((entry.studyCount / maxCount) * 100).toFixed(2)}%">
+                  <i></i><span>${escapeHtml(entry.label)}</span><strong>${formatCompactNumber(entry.studyCount)}</strong>
+                </button>
+              `).join("") : '<div class="analytics-empty compact">No data</div>'}
+            </div>
+          </section>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function renderAllAnalysis() {
+  const rows = analysisEvidenceRows({ ignoreAccess: true, respectEvidenceView: true });
+  const items = compareCombinedItems(rows);
+  const comparingPaperTypes = evidenceView === "all";
+  const selectedPaperLabel = rows[0]?.label || "Selected papers";
+  const baseItems = explorerBaseFilteredClaims({ ignoreAccess: true });
+  const dimensionMatrix = buildAnalysisDimensionMatrix(items);
+  explorerSearchMatrix = dimensionMatrix;
+  explorerMomentumItems = items;
+  const scopeProfileTitle = explorerScopeAreaKey ? "Concept profile" : "Research-area profile";
+  const overlapRow = analysisOverlapRow(items, baseItems);
+  const overlapPanel = explorerScopeAreaKey
+    ? renderAnalysisConceptOverlapPanel(analysisClaimsWithinScope(baseItems, { ignoreConcept: true }))
+    : renderAnalyticsPanel(
+        "Cross-domain overlap",
+        "shared source papers",
+        renderExplorerAreaOverlap(overlapRow, null, { interactive: false }),
+        "analytics-overlap-panel"
+      );
+  const momentumPanel = renderExplorerMomentumPanel(dimensionMatrix, items, {
+    title: explorerScopeAreaKey ? "Concept momentum" : "Research-area momentum",
+    mode: explorerScopeAreaKey ? "concept" : "area",
+  });
+  const primaryPanels = comparingPaperTypes
+    ? `
+        ${renderAnalyticsPanel("Publication history", "unique papers per year", renderEvidenceTrajectory(rows, { embedded: true }), "analytics-evidence-timeline-panel")}
+        ${renderAnalyticsPanel(scopeProfileTitle, "unique source papers", renderAnalysisScopeProfile(dimensionMatrix), "analytics-profile-panel")}
+      `
+    : `
+        ${renderAnalyticsPanel("Publication history", `${selectedPaperLabel.toLowerCase()} per year`, renderEvidenceTrajectory(rows, { embedded: true }), "analytics-evidence-timeline-panel")}
+        ${momentumPanel}
+      `;
+  const comparativePanels = comparingPaperTypes
+    ? `<div class="analytics-top-grid all-analysis-secondary-grid">
+        ${renderAnalyticsPanel("Evidence maturity", "primary literature × synthesis coverage", renderSynthesisGap(rows), "analytics-synthesis-gap-panel")}
+        ${momentumPanel}
+      </div>`
+    : "";
+  graphEl.innerHTML = `
+    <div class="analytics-workspace all-analysis-workspace">
+      ${renderAnalysisEvidenceProfilePanel(rows)}
+      <div class="analytics-top-grid all-analysis-primary-grid">
+        ${primaryPanels}
+      </div>
+      ${comparativePanels}
+      ${overlapPanel}
+      ${renderAnalyticsPanel("Literature by entity", "leading entities in the current scope", renderAnalysisFacetRankings(items), "analysis-facet-panel")}
+    </div>
+  `;
+  autosizeExplorerWorkspace(graphEl.firstElementChild, 2450);
+  renderCompareDetail("All literature", items, items);
+}
+
+function compareCombinedItems(rows) {
+  return rows.flatMap((row) => row.items);
+}
+
+function renderCompareDetail(title, items, allAccessItems = items, { showRecords = false } = {}) {
+  activeDetailItems = items;
+  activeDetailAllAccessItems = allAccessItems;
+  setDetailHeader(title);
+  const paperLabels = {
+    all: "All papers",
+    plural: "papers",
+  };
+  const recordLabels = {
+    summary: "Papers",
+    section: "Papers",
+    empty: "No papers in this selection.",
+    lowerSingular: "paper",
+    lowerPlural: "papers",
+  };
+  detailBody.innerHTML = `
+    <div class="trend-dashboard">
+      ${renderTrendStats(items, [], allAccessItems, paperLabels)}
+      ${renderAnnualPublicationChart(items, { interactive: false, recordLabels })}
+    </div>
+  `;
+  if (showRecords) {
+    renderCards(items);
+    renderBibliography(items);
+  } else {
+    cardsEl.replaceChildren();
+    if (studyListEl) studyListEl.replaceChildren();
+  }
+}
+
+function renderEvidenceComposition(rows) {
+  return `
+    <div class="compare-composition-list">
+      ${rows.map((row) => {
+        const totalAssignments = ENTITY_CATEGORY_OPTIONS.reduce((sum, area) => sum + (row.areas.get(area.key)?.count || 0), 0) || 1;
+        return `
+          <div class="compare-composition-row">
+            <div class="compare-composition-label"><strong>${escapeHtml(row.label)}</strong><span>${formatCompactNumber(row.count)}</span></div>
+            <div class="compare-composition-bar">
+              ${ENTITY_CATEGORY_OPTIONS.map((area) => {
+                const count = row.areas.get(area.key)?.count || 0;
+                if (!count) return "";
+                const share = (count / totalAssignments) * 100;
+                return `<button type="button" class="compare-composition-segment" data-compare-source-key="${escapeHtml(row.key)}" data-compare-area-key="${escapeHtml(area.key)}" style="--segment-color:${explorerAreaColor(area.key)};--segment-share:${share.toFixed(3)}%" aria-label="${escapeHtml(`${row.label}, ${area.label}: ${count} papers, ${Math.round(share)}% of area assignments`)}"></button>`;
+              }).join("")}
+            </div>
+          </div>
+        `;
+      }).join("")}
+      <div class="compare-composition-legend">
+        ${ENTITY_CATEGORY_OPTIONS.map((area) => `<span style="--series-color:${explorerAreaColor(area.key)}"><i></i>${escapeHtml(area.label)}</span>`).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function analysisPublicationCompoundOptions(rows) {
+  const compounds = new Map();
+  compareCombinedItems(rows).forEach((claim) => {
+    analysisCompoundSubjectsForClaim(claim).forEach((subject) => {
+      const entry = compounds.get(subject.key) || { key: subject.key, label: subject.label, items: [] };
+      entry.label = preferredFacetLabel(entry.label, subject.label);
+      entry.items.push(claim);
+      compounds.set(subject.key, entry);
+    });
+  });
+  return Array.from(compounds.values())
+    .map((entry) => ({ ...entry, count: uniqueStudyCount(entry.items) }))
+    .sort((left, right) => left.label.localeCompare(right.label));
+}
+
+function analysisPublicationFilteredRows(rows) {
+  const area = ENTITY_CATEGORY_OPTIONS.find((option) => option.key === analysisPublicationAreaKey);
+  return rows.map((row) => ({
+    ...row,
+    items: row.items.filter((claim) => {
+      if (analysisPublicationCompoundKey && !claimMatchesAnalysisCompound(claim, analysisPublicationCompoundKey)) return false;
+      if (area && !claimMatchesEntityViewOption(claim, area)) return false;
+      return true;
+    }),
+  }));
+}
+
+function renderEvidenceTrajectory(rows, options = {}) {
+  const embedded = options.embedded === true;
+  const compoundOptions = embedded ? [] : analysisPublicationCompoundOptions(rows);
+  const selectedCompound = embedded
+    ? null
+    : compoundOptions.find((option) => option.key === analysisPublicationCompoundKey);
+  if (!embedded && analysisPublicationCompoundKey && !selectedCompound) analysisPublicationCompoundKey = "";
+  if (!embedded && analysisPublicationAreaKey && !ENTITY_CATEGORY_OPTIONS.some((area) => area.key === analysisPublicationAreaKey)) {
+    analysisPublicationAreaKey = "";
+  }
+  const filteredRows = embedded ? rows : analysisPublicationFilteredRows(rows);
+  const allItems = compareCombinedItems(filteredRows);
+  const years = analyticsStudyYears(allItems);
+  const selectedArea = embedded ? null : ENTITY_CATEGORY_OPTIONS.find((area) => area.key === analysisPublicationAreaKey);
+  const displayMode = embedded ? "volume" : analysisPublicationMode;
+  const controls = embedded ? "" : `
+    <div class="analysis-publication-controls">
+      <label class="analysis-publication-field">
+        <span>Compound</span>
+        <input type="search" list="analysisPublicationCompoundOptions" value="${escapeHtml(selectedCompound?.label || "")}" placeholder="All compounds" data-analysis-publication-compound aria-label="Filter publication history by compound" autocomplete="off" />
+        <datalist id="analysisPublicationCompoundOptions">
+          ${compoundOptions.map((option) => `<option value="${escapeHtml(option.label)}">${escapeHtml(`${formatCompactNumber(option.count)} papers`)}</option>`).join("")}
+        </datalist>
+      </label>
+      <label class="analysis-publication-field">
+        <span>Research area</span>
+        <select data-analysis-publication-area aria-label="Filter publication history by research area">
+          <option value="">All research areas</option>
+          ${ENTITY_CATEGORY_OPTIONS.map((area) => `<option value="${escapeHtml(area.key)}" ${area.key === analysisPublicationAreaKey ? "selected" : ""}>${escapeHtml(area.label)}</option>`).join("")}
+        </select>
+      </label>
+      <div class="analysis-publication-mode" role="group" aria-label="Publication histogram display">
+        <button type="button" class="${analysisPublicationMode === "volume" ? "active" : ""}" data-analysis-publication-mode="volume" aria-pressed="${analysisPublicationMode === "volume"}">Volume</button>
+        <button type="button" class="${analysisPublicationMode === "mix" ? "active" : ""}" data-analysis-publication-mode="mix" aria-pressed="${analysisPublicationMode === "mix"}">Mix</button>
+      </div>
+    </div>
+  `;
+  if (!years.length) {
+    return `${controls}<div class="analytics-empty compact">No publication years match these filters.</div>`;
+  }
+  const minYear = Math.min(...years);
+  const maxYear = Math.max(...years);
+  const yearCount = Math.max(1, maxYear - minYear + 1);
+  const width = 760;
+  const height = 330;
+  const margin = { top: 18, right: 24, bottom: 70, left: 48 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
+  const slotWidth = plotWidth / yearCount;
+  const barWidth = Math.max(1.5, Math.min(14, slotWidth * 0.72));
+  const rowsByKey = new Map(filteredRows.map((row) => [row.key, row]));
+  const series = ["primary", "reviews", "meta_analyses"]
+    .map((key) => rowsByKey.get(key))
+    .filter(Boolean)
+    .map((row) => ({
+      key: row.key,
+      label: row.label,
+      color: ANALYSIS_EVIDENCE_COLORS[row.key],
+      values: analyticsYearCounts(row.items, minYear, maxYear),
+    }));
+  const totals = Array.from({ length: yearCount }, (_value, index) =>
+    series.reduce((sum, entry) => sum + (entry.values[index] || 0), 0)
+  );
+  const maxTotal = Math.max(1, ...totals);
+  const baselineY = margin.top + plotHeight;
+  const bars = totals.map((total, yearIndex) => {
+    if (!total) return "";
+    const year = minYear + yearIndex;
+    const x = margin.left + yearIndex * slotWidth + (slotWidth - barWidth) / 2;
+    let stackedHeight = 0;
+    const segments = series.map((entry) => {
+      const count = entry.values[yearIndex] || 0;
+      if (!count) return "";
+      const heightRatio = displayMode === "mix" ? count / total : count / maxTotal;
+      const segmentHeight = heightRatio * plotHeight;
+      const y = baselineY - stackedHeight - segmentHeight;
+      stackedHeight += segmentHeight;
+      return `<rect class="analysis-publication-segment analysis-publication-segment-${escapeHtml(entry.key)}" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${segmentHeight.toFixed(2)}" style="--series-color:${entry.color}"></rect>`;
+    }).join("");
+    const countsByKey = new Map(series.map((entry) => [entry.key, entry.values[yearIndex] || 0]));
+    const aria = `${year}: ${total} unique ${total === 1 ? "paper" : "papers"}; ${countsByKey.get("primary") || 0} primary studies, ${countsByKey.get("reviews") || 0} reviews, ${countsByKey.get("meta_analyses") || 0} meta-analyses`;
+    return `
+      <g class="analysis-publication-year ${embedded ? "is-static" : ""}" ${embedded ? 'role="img"' : 'tabindex="0" role="button"'} aria-label="${escapeHtml(aria)}" data-analysis-publication-year="${year}" data-total-count="${total}" data-primary-count="${countsByKey.get("primary") || 0}" data-review-count="${countsByKey.get("reviews") || 0}" data-meta-count="${countsByKey.get("meta_analyses") || 0}">
+        ${embedded ? `<title>${escapeHtml(aria)}</title>` : ""}
+        <rect class="analysis-publication-hit" x="${(margin.left + yearIndex * slotWidth).toFixed(2)}" y="${margin.top}" width="${slotWidth.toFixed(2)}" height="${plotHeight}"></rect>
+        ${segments}
+      </g>
+    `;
+  }).join("");
+  const yGrid = [0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+    const y = margin.top + plotHeight - ratio * plotHeight;
+    const label = displayMode === "mix" ? `${Math.round(ratio * 100)}%` : formatCompactNumber(Math.round(maxTotal * ratio));
+    return `<line x1="${margin.left}" x2="${width - margin.right}" y1="${y}" y2="${y}" class="analytics-gridline"></line><text x="${margin.left - 8}" y="${y + 3}" class="analytics-axis-label" text-anchor="end">${label}</text>`;
+  }).join("");
+  const xTicks = [minYear, Math.round(minYear + (maxYear - minYear) * 0.25), Math.round((minYear + maxYear) / 2), Math.round(minYear + (maxYear - minYear) * 0.75), maxYear]
+    .filter((year, index, array) => array.indexOf(year) === index)
+    .map((year) => {
+      const x = margin.left + (year - minYear + 0.5) * slotWidth;
+      return `<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${baselineY}" y2="${baselineY + 6}" class="analytics-year-tick"></line><text x="${x.toFixed(1)}" y="${baselineY + 20}" class="analytics-axis-label analytics-year-label" text-anchor="middle">${year}</text>`;
+    }).join("");
+  const xAxis = `<line x1="${margin.left}" x2="${width - margin.right}" y1="${baselineY}" y2="${baselineY}" class="analytics-year-axis"></line>${xTicks}<text x="${margin.left + plotWidth / 2}" y="${height - 8}" class="analytics-axis-title analytics-year-axis-title" text-anchor="middle">Publication year</text>`;
+  const scope = embedded
+    ? analysisScopeLabel()
+    : [selectedCompound?.label, selectedArea?.label].filter(Boolean).join(" · ");
+  return `
+    ${controls}
+    <div class="analytics-chart-legend compare-series-legend analysis-publication-legend">
+      ${series.map((entry) => `<span style="--series-color:${entry.color}"><i></i>${escapeHtml(entry.label)}</span>`).join("")}
+      <small>${escapeHtml(scope || "All papers")}</small>
+    </div>
+    <svg class="analytics-timeline-svg analysis-publication-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Publication history by evidence type">${yGrid}${bars}${xAxis}</svg>
+  `;
+}
+
+function renderSynthesisGap(rows) {
+  const primary = rows.find((row) => row.key === "primary");
+  const meta = rows.find((row) => row.key === "meta_analyses");
+  const reviews = rows.find((row) => row.key === "reviews");
+  if (!primary) return '<div class="analytics-empty compact">No primary-study coverage available.</div>';
+  const points = ENTITY_CATEGORY_OPTIONS.map((area) => ({
+    area,
+    primary: primary.areas.get(area.key)?.count || 0,
+    synthesis: (meta?.areas.get(area.key)?.count || 0) + (reviews?.areas.get(area.key)?.count || 0),
+  }));
+  const width = 640;
+  const height = 332;
+  const margin = { top: 22, right: 36, bottom: 48, left: 54 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
+  const maxValue = Math.max(1, ...points.flatMap((point) => [point.primary, point.synthesis]));
+  const logMax = Math.log1p(maxValue);
+  const xFor = (value) => margin.left + (Math.log1p(value) / logMax) * plotWidth;
+  const yFor = (value) => margin.top + plotHeight - (Math.log1p(value) / logMax) * plotHeight;
+  const guide = `<line x1="${margin.left}" y1="${margin.top + plotHeight}" x2="${margin.left + plotWidth}" y2="${margin.top}" class="analytics-balance-guide"></line>`;
+  const ticks = [0, 0.33, 0.66, 1].map((ratio) => {
+    const value = Math.max(0, Math.round(Math.expm1(logMax * ratio)));
+    const x = margin.left + ratio * plotWidth;
+    const y = margin.top + plotHeight - ratio * plotHeight;
+    return `<line x1="${x}" x2="${x}" y1="${margin.top}" y2="${margin.top + plotHeight}" class="analytics-gridline"></line><line x1="${margin.left}" x2="${margin.left + plotWidth}" y1="${y}" y2="${y}" class="analytics-gridline"></line><text x="${x}" y="${height - 17}" class="analytics-axis-label" text-anchor="middle">${formatCompactNumber(value)}</text><text x="${margin.left - 10}" y="${y + 3}" class="analytics-axis-label" text-anchor="end">${formatCompactNumber(value)}</text>`;
+  }).join("");
+  const marks = points.map(({ area, primary: primaryCount, synthesis }, index) => {
+    const x = xFor(primaryCount);
+    const y = yFor(synthesis);
+    const labelOnLeft = x > width - 150;
+    const labelX = labelOnLeft ? x - 12 : x + 12;
+    const labelY = clampNumber(y + ((index % 5) - 2) * 12, margin.top + 8, margin.top + plotHeight - 4);
+    return `
+      <g class="analytics-gap-point" tabindex="0" role="button" data-compare-source-key="primary" data-compare-area-key="${escapeHtml(area.key)}" aria-label="${escapeHtml(`${area.label}: ${primaryCount} primary papers and ${synthesis} synthesis papers`)}">
+        <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="7" style="--point-color:${explorerAreaColor(area.key)}"></circle>
+        <line x1="${x.toFixed(1)}" y1="${y.toFixed(1)}" x2="${labelX.toFixed(1)}" y2="${labelY.toFixed(1)}" class="analytics-point-leader" style="--point-color:${explorerAreaColor(area.key)}"></line>
+        <text x="${labelX.toFixed(1)}" y="${(labelY + 3).toFixed(1)}" class="analytics-point-label" text-anchor="${labelOnLeft ? "end" : "start"}">${escapeHtml(area.label)}</text>
+      </g>
+    `;
+  }).join("");
+  return `
+    <svg class="analytics-gap-svg" viewBox="0 0 ${width} ${height}" role="group" aria-label="Primary-study volume against synthesis coverage by research area">
+      ${ticks}${guide}${marks}
+      <text x="${margin.left + plotWidth / 2}" y="${height - 1}" class="analytics-axis-title" text-anchor="middle">primary studies</text>
+      <text x="14" y="${margin.top + plotHeight / 2}" class="analytics-axis-title" text-anchor="middle" transform="rotate(-90 14 ${margin.top + plotHeight / 2})">meta-analyses + reviews</text>
+    </svg>
+  `;
+}
+
+function renderEvidenceComparison() {
+  const rows = compareEvidenceRows();
+  const allAccessRows = compareEvidenceRows({ ignoreAccess: true });
+  const rowByKey = new Map(rows.map((row) => [row.key, row]));
+  const allAccessRowByKey = new Map(allAccessRows.map((row) => [row.key, row]));
+  const header = `
+    <div class="explorer-matrix-corner">Evidence</div>
+    <div class="explorer-matrix-total-heading">Total</div>
+    ${ENTITY_CATEGORY_OPTIONS.map(
+      (area) => `<div class="explorer-matrix-area-heading" style="--area-color:${explorerAreaColor(area.key)}">${escapeHtml(area.label)}</div>`
+    ).join("")}
+  `;
+  const body = rows
+    .map((row) => {
+      const cells = ENTITY_CATEGORY_OPTIONS.map((area) => {
+        const bucket = row.areas.get(area.key) || { items: [], count: 0 };
+        const strength = bucket.count ? Math.max(0.1, Math.sqrt(bucket.count / row.maxAreaCount)) : 0;
+        const selected =
+          compareSelection?.type === "evidence" &&
+          compareSelection.sourceKey === row.key &&
+          compareSelection.areaKey === area.key;
+        const percent = row.count ? Math.round((bucket.count / row.count) * 100) : 0;
+        return `
+          <button
+            class="explorer-matrix-cell compare-evidence-cell ${bucket.count ? "" : "is-empty"} ${selected ? "is-compare-selected" : ""}"
+            type="button"
+            data-compare-source-key="${escapeHtml(row.key)}"
+            data-compare-area-key="${escapeHtml(area.key)}"
+            data-paper-count="${bucket.count}"
+            data-row-percent="${percent}"
+            style="--area-color:${explorerAreaColor(area.key)};--cell-strength:${strength.toFixed(3)}"
+            aria-label="${escapeHtml(`${row.label}, ${area.label}: ${bucket.count} papers, ${percent}% of ${row.label.toLowerCase()}`)}"
+          >${bucket.count ? formatCompactNumber(bucket.count) : "—"}</button>
+        `;
+      }).join("");
+      const selected = compareSelection?.type === "evidence" && compareSelection.sourceKey === row.key && !compareSelection.areaKey;
+      return `
+        <button class="explorer-matrix-row-button compare-evidence-row ${selected ? "is-compare-selected" : ""}" type="button" data-compare-source-key="${escapeHtml(row.key)}">
+          <span>${escapeHtml(row.label)}</span><span aria-hidden="true">›</span>
+        </button>
+        <div class="explorer-matrix-total">${formatCompactNumber(row.count)}</div>
+        ${cells}
+      `;
+    })
+    .join("");
+  graphEl.innerHTML = `
+    <div class="analytics-workspace compare-analytics-workspace">
+      <div class="analytics-compare-top-grid">
+        ${renderAnalyticsPanel("Evidence profile", "relative distribution across research areas", renderEvidenceComposition(rows), "analytics-evidence-profile-panel")}
+        ${renderAnalyticsPanel("Publication history", "stacked unique papers per year", renderEvidenceTrajectory(allAccessRows), "analytics-evidence-timeline-panel")}
+      </div>
+      ${renderAnalyticsPanel("Synthesis coverage", "primary volume × meta-analysis and review coverage", renderSynthesisGap(rows), "analytics-synthesis-gap-panel")}
+      ${renderAnalyticsPanel("Area detail", "unique source papers", `
+        <div class="explorer-matrix-shell compare-evidence-shell">
+          <div class="explorer-matrix-scroll">
+            <div class="explorer-matrix compare-evidence-matrix" style="--explorer-area-count:${ENTITY_CATEGORY_OPTIONS.length}">${header}${body}</div>
+          </div>
+        </div>
+      `, "analytics-evidence-matrix-panel")}
+    </div>
+  `;
+  autosizeExplorerWorkspace(graphEl.firstElementChild, 1740);
+
+  if (compareSelection?.type === "publication_history" && Number.isFinite(compareSelection.year)) {
+    const selectedYear = compareSelection.year;
+    const selectedAllAccessRows = analysisPublicationFilteredRows(allAccessRows);
+    const inYear = (claim) => parseYearValue(claim.study_year) === selectedYear;
+    const allAccessItems = compareCombinedItems(selectedAllAccessRows).filter(inYear);
+    const compound = analysisPublicationCompoundOptions(allAccessRows).find(
+      (option) => option.key === analysisPublicationCompoundKey
+    );
+    const area = ENTITY_CATEGORY_OPTIONS.find((option) => option.key === analysisPublicationAreaKey);
+    const scope = [compound?.label, area?.label].filter(Boolean).join(" · ");
+    renderCompareDetail(scope ? `${selectedYear} · ${scope}` : String(selectedYear), allAccessItems, allAccessItems, { showRecords: true });
+    return;
+  }
+  if (compareSelection?.type === "evidence") {
+    const row = rowByKey.get(compareSelection.sourceKey);
+    const allAccessRow = allAccessRowByKey.get(compareSelection.sourceKey);
+    if (row) {
+      const area = ENTITY_CATEGORY_OPTIONS.find((option) => option.key === compareSelection.areaKey);
+      const items = area ? row.areas.get(area.key)?.items || [] : row.items;
+      const allAccessItems = area ? allAccessRow?.areas.get(area.key)?.items || [] : allAccessRow?.items || row.items;
+      renderCompareDetail(area ? `${row.label} · ${area.label}` : row.label, items, allAccessItems, { showRecords: true });
+      return;
+    }
+  }
+  renderCompareDetail(
+    "All evidence",
+    compareCombinedItems(rows),
+    compareCombinedItems(allAccessRows)
+  );
+}
+
+function buildCompoundComparisonProfiles(items) {
+  const profiles = new Map();
+  items.forEach((claim, index) => {
+    analysisCompoundSubjectsForClaim(claim).forEach((subject) => {
+      const profile = profiles.get(subject.key) || {
+        key: subject.key,
+        label: subject.label,
+        claims: [],
+        studies: new Set(),
+        areas: new Map(ENTITY_CATEGORY_OPTIONS.map((area) => [area.key, new Set()])),
+      };
+      profile.label = preferredFacetLabel(profile.label, subject.label);
+      profile.claims.push(claim);
+      profile.studies.add(studyKey(claim, index));
+      ENTITY_CATEGORY_OPTIONS.forEach((area) => {
+        if (claimMatchesEntityViewOption(claim, area)) {
+          profile.areas.get(area.key).add(studyKey(claim, index));
+        }
+      });
+      profiles.set(subject.key, profile);
+    });
+  });
+  return Array.from(profiles.values())
+    .map((profile) => ({
+      ...profile,
+      studyCount: profile.studies.size,
+      vector: ENTITY_CATEGORY_OPTIONS.map((area) => profile.areas.get(area.key)?.size || 0),
+    }))
+    .sort((a, b) => b.studyCount - a.studyCount || a.label.localeCompare(b.label))
+    .slice(0, COMPARE_COMPOUND_LIMIT);
+}
+
+function compoundSharedPaperCount(left, right) {
+  if (!left?.studies || !right?.studies) return 0;
+  const [smaller, larger] = left.studies.size <= right.studies.size
+    ? [left.studies, right.studies]
+    : [right.studies, left.studies];
+  let count = 0;
+  smaller.forEach((paperKey) => {
+    if (larger.has(paperKey)) count += 1;
+  });
+  return count;
+}
+
+function claimsForCompoundKeys(items, keys, { requireAll = false } = {}) {
+  const wanted = new Set(keys.filter(Boolean));
+  if (!requireAll || wanted.size < 2) {
+    return items.filter((claim) => analysisCompoundSubjectsForClaim(claim).some((subject) => wanted.has(subject.key)));
+  }
+
+  const compoundsByPaper = new Map();
+  items.forEach((claim, index) => {
+    const compoundKeys = analysisCompoundSubjectsForClaim(claim)
+      .map((subject) => subject.key)
+      .filter((key) => wanted.has(key));
+    if (!compoundKeys.length) return;
+    const paperKey = studyKey(claim, index);
+    const compounds = compoundsByPaper.get(paperKey) || new Set();
+    compoundKeys.forEach((key) => compounds.add(key));
+    compoundsByPaper.set(paperKey, compounds);
+  });
+  const sharedPapers = new Set(
+    Array.from(compoundsByPaper.entries())
+      .filter(([, compounds]) => Array.from(wanted).every((key) => compounds.has(key)))
+      .map(([paperKey]) => paperKey)
+  );
+  return items.filter((claim, index) =>
+    sharedPapers.has(studyKey(claim, index)) &&
+    analysisCompoundSubjectsForClaim(claim).some((subject) => wanted.has(subject.key))
+  );
+}
+
+function renderCompoundProfileOverview(profiles) {
+  const entries = profiles.slice(0, 8);
+  return `
+    <div class="compound-profile-list">
+      ${entries.map((profile) => {
+        const total = profile.vector.reduce((sum, value) => sum + value, 0) || 1;
+        const breadth = profile.vector.filter((value) => value > 0).length;
+        return `
+          <button class="compound-profile-row" type="button" data-compare-left-key="${escapeHtml(profile.key)}" data-compare-left-label="${escapeHtml(profile.label)}">
+            <span class="compound-profile-label"><strong>${escapeHtml(profile.label)}</strong><small>${breadth} areas · ${formatCompactNumber(profile.studyCount)} papers</small></span>
+            <span class="compound-profile-stack">
+              ${ENTITY_CATEGORY_OPTIONS.map((area, index) => {
+                const value = profile.vector[index] || 0;
+                if (!value) return "";
+                return `<i style="--segment-color:${explorerAreaColor(area.key)};--segment-share:${((value / total) * 100).toFixed(3)}%" title="${escapeHtml(`${area.label}: ${value}`)}"></i>`;
+              }).join("")}
+            </span>
+          </button>
+        `;
+      }).join("")}
+      <div class="compare-composition-legend compound-profile-legend">
+        ${ENTITY_CATEGORY_OPTIONS.map((area) => `<span style="--series-color:${explorerAreaColor(area.key)}"><i></i>${escapeHtml(area.label)}</span>`).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderCompoundTrajectory(profiles, selectedProfiles = []) {
+  const seriesProfiles = (selectedProfiles.length ? selectedProfiles : profiles.slice(0, 5)).filter(Boolean);
+  return renderAnalyticsGroupedYearHistogram(
+    seriesProfiles.map((profile, index) => ({
+      key: profile.key,
+      label: profile.label,
+      color: ANALYSIS_COMPARISON_COLORS[index % ANALYSIS_COMPARISON_COLORS.length],
+      items: profile.claims,
+      dataAttributes: `data-compare-left-key="${escapeHtml(profile.key)}"`,
+    })),
+    {
+      selectedKey: selectedProfiles.length === 1 ? selectedProfiles[0].key : "",
+      ariaLabel: "Compound publications per year",
+    }
+  );
+}
+
+function renderCompoundHeadToHead(left, right) {
+  if (!left) return '<div class="analytics-empty compact">Select a compound from the similarity matrix.</div>';
+  const maxCount = Math.max(1, ...left.vector, ...(right?.vector || []));
+  return `
+    <div class="compound-head-to-head ${right ? "is-pair" : "is-single"}">
+      <div class="compound-head-to-head-header"><strong>${escapeHtml(left.label)}</strong><span>research area</span>${right ? `<strong>${escapeHtml(right.label)}</strong>` : ""}</div>
+      ${ENTITY_CATEGORY_OPTIONS.map((area, index) => {
+        const leftValue = left.vector[index] || 0;
+        const rightValue = right?.vector[index] || 0;
+        return `
+          <div class="compound-contrast-row" style="--area-color:${explorerAreaColor(area.key)}">
+            <div class="compound-contrast-left"><span style="--contrast-width:${((leftValue / maxCount) * 100).toFixed(2)}%"></span><strong>${formatCompactNumber(leftValue)}</strong></div>
+            <div class="compound-contrast-label">${escapeHtml(area.label)}</div>
+            ${right ? `<div class="compound-contrast-right"><span style="--contrast-width:${((rightValue / maxCount) * 100).toFixed(2)}%"></span><strong>${formatCompactNumber(rightValue)}</strong></div>` : ""}
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function compoundEvidenceCounts(profileKey, yearRange) {
+  return new Map(COMPARE_EVIDENCE_SOURCES.map((source) => {
+    const items = analysisClaimsWithinScope(compareFilteredClaimsForSource(source.key, yearRange)).filter(
+      (claim) => claimMatchesAnalysisCompound(claim, profileKey)
+    );
+    return [source.key, uniqueStudyCount(items)];
+  }));
+}
+
+function renderCompoundEvidenceMix(profiles, yearRange) {
+  if (!profiles.length) return '<div class="analytics-empty compact">Select one or two compounds.</div>';
+  const entries = profiles.map((profile) => ({ profile, counts: compoundEvidenceCounts(profile.key, yearRange) }));
+  const maxCount = Math.max(1, ...entries.flatMap((entry) => Array.from(entry.counts.values())));
+  const colors = ANALYSIS_COMPARISON_COLORS;
+  return `
+    <div class="compound-evidence-mix">
+      ${COMPARE_EVIDENCE_SOURCES.map((source) => `
+        <div class="compound-evidence-mix-row">
+          <span>${escapeHtml(source.label)}</span>
+          <div>
+            ${entries.map((entry, index) => {
+              const count = entry.counts.get(source.key) || 0;
+              return `<i style="--mix-color:${colors[index % colors.length]};--mix-width:${((count / maxCount) * 100).toFixed(2)}%"><strong>${formatCompactNumber(count)}</strong></i>`;
+            }).join("")}
+          </div>
+        </div>
+      `).join("")}
+      <div class="analytics-chart-legend compound-mix-legend">
+        ${entries.map((entry, index) => `<span style="--series-color:${colors[index % colors.length]}"><i></i>${escapeHtml(entry.profile.label)}</span>`).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderCompoundComparison(options = {}) {
+  const rawClaims = (options.rawClaims || compareRawClaims()).filter(claimHasAnalysisCompound);
+  const yearRange = activeYearRange(rawClaims);
+  const items = (options.items || COMPARE_EVIDENCE_SOURCES.flatMap(({ key }) =>
+    compareFilteredClaimsForSource(key, yearRange)
+  )).filter(claimHasAnalysisCompound);
+  const allAccessItems = (options.allAccessItems || COMPARE_EVIDENCE_SOURCES.flatMap(({ key }) =>
+    compareFilteredClaimsForSource(key, yearRange, { ignoreAccess: true })
+  )).filter(claimHasAnalysisCompound);
+  const profiles = buildCompoundComparisonProfiles(items);
+  const selectedLeft = profiles.find((profile) => profile.key === compareSelection?.leftKey);
+  const selectedRight = profiles.find((profile) => profile.key === compareSelection?.rightKey);
+  const selectedProfiles = [selectedLeft, selectedRight].filter(Boolean);
+  const comparingPaperTypes = evidenceView === "all";
+  const header = profiles
+    .map((profile) => `<div class="compare-similarity-column-label" title="${escapeHtml(profile.label)}"><span>${escapeHtml(profile.label)}</span></div>`)
+    .join("");
+  const maxSharedPaperCount = Math.max(
+    1,
+    ...profiles.flatMap((left, leftIndex) =>
+      profiles.slice(leftIndex + 1).map((right) => compoundSharedPaperCount(left, right))
+    )
+  );
+  const rows = profiles
+    .map((left) => {
+      const cells = profiles
+        .map((right) => {
+          const isDiagonal = left.key === right.key;
+          const sharedPaperCount = isDiagonal ? 0 : compoundSharedPaperCount(left, right);
+          const strength = sharedPaperCount / maxSharedPaperCount;
+          const selected =
+            compareSelection?.type === "compounds" &&
+            ((compareSelection.leftKey === left.key && compareSelection.rightKey === right.key) ||
+              (compareSelection.leftKey === right.key && compareSelection.rightKey === left.key));
+          return `
+            <button
+              class="compare-similarity-cell ${isDiagonal ? "is-diagonal" : ""} ${selected ? "is-compare-selected" : ""}"
+              type="button"
+              data-compare-left-key="${escapeHtml(left.key)}"
+              data-compare-right-key="${escapeHtml(right.key)}"
+              data-compare-left-label="${escapeHtml(left.label)}"
+              data-compare-right-label="${escapeHtml(right.label)}"
+              data-shared-paper-count="${sharedPaperCount}"
+              style="--co-study-strength:${strength.toFixed(3)}"
+              aria-label="${escapeHtml(isDiagonal ? left.label : `${left.label} and ${right.label}: ${sharedPaperCount} unique ${sharedPaperCount === 1 ? "paper mentions" : "papers mention"} both compounds`)}"
+            >${isDiagonal ? "—" : formatCompactNumber(sharedPaperCount)}</button>
+          `;
+        })
+        .join("");
+      const selected = compareSelection?.type === "compounds" && compareSelection.leftKey === left.key && !compareSelection.rightKey;
+      return `
+        <button class="compare-similarity-row-label ${selected ? "is-compare-selected" : ""}" type="button" data-compare-left-key="${escapeHtml(left.key)}" data-compare-left-label="${escapeHtml(left.label)}">
+          <span>${escapeHtml(left.label)}</span><strong>${formatCompactNumber(left.studyCount)}</strong>
+        </button>
+        ${cells}
+      `;
+    })
+    .join("");
+  graphEl.innerHTML = `
+    <div class="analytics-workspace compare-analytics-workspace compound-compare-workspace">
+      ${selectedLeft
+        ? comparingPaperTypes
+          ? `<div class="analytics-compare-top-grid compound-selection-grid">
+              ${renderAnalyticsPanel("Research-area contrast", selectedRight ? "head-to-head profile" : "selected compound profile", renderCompoundHeadToHead(selectedLeft, selectedRight), "analytics-compound-contrast-panel")}
+              ${renderAnalyticsPanel("Evidence mix", "primary studies, meta-analyses, and reviews", renderCompoundEvidenceMix(selectedProfiles, yearRange), "analytics-compound-evidence-panel")}
+            </div>`
+          : renderAnalyticsPanel("Research-area contrast", selectedRight ? "head-to-head profile" : "selected compound profile", renderCompoundHeadToHead(selectedLeft, selectedRight), "analytics-compound-contrast-panel")
+        : renderAnalyticsPanel("Research profiles", "relative distribution across research areas", renderCompoundProfileOverview(profiles), "analytics-compound-profiles-panel")}
+      ${renderAnalyticsPanel("Publication history", selectedProfiles.length ? "selected compounds" : "leading compounds", renderCompoundTrajectory(profiles, selectedProfiles), "analytics-compound-timeline-panel")}
+      ${renderAnalyticsPanel("Studied together", "unique papers mentioning both compounds", `
+        <div class="compare-similarity-shell">
+          <div class="compare-similarity-scroll">
+            <div class="compare-similarity-grid" style="--compare-compound-count:${profiles.length}">
+              <div class="compare-similarity-corner">Compound</div>
+              ${header}
+              ${rows}
+            </div>
+          </div>
+        </div>
+      `, "analytics-similarity-panel")}
+    </div>
+  `;
+  autosizeExplorerWorkspace(graphEl.firstElementChild, selectedLeft ? 1860 : 1760);
+
+  if (compareSelection?.type === "compounds") {
+    const keys = [compareSelection.leftKey, compareSelection.rightKey].filter(Boolean);
+    const requireAll = keys.length > 1;
+    const selectedItems = claimsForCompoundKeys(items, keys, { requireAll });
+    const selectedAllAccessItems = claimsForCompoundKeys(allAccessItems, keys, { requireAll });
+    const left = selectedLeft;
+    const right = selectedRight;
+    if (left) {
+      renderCompareDetail(right ? `${left.label} ↔ ${right.label}` : left.label, selectedItems, selectedAllAccessItems, { showRecords: true });
+      return;
+    }
+  }
+  renderCompareDetail("Compound profiles", items, allAccessItems);
+}
+
+function renderCompoundAnalysis() {
+  if (explorerFocus) {
+    renderExplorerSurface();
+    return;
+  }
+  const items = explorerFilteredClaims();
+  const allAccessItems = explorerFilteredClaims({ ignoreAccess: true });
+  const matrix = buildExplorerMatrix(items);
+  renderExplorerMatrix(matrix, items, allAccessItems);
+  const exploratorySections = Array.from(graphEl.firstElementChild?.children || []);
+  renderCompoundComparison({
+    rawClaims: explorerSourceClaims().filter(claimHasAnalysisCompound),
+    items,
+    allAccessItems,
+  });
+  const workspace = graphEl.firstElementChild;
+  workspace?.prepend(...exploratorySections);
+  autosizeExplorerWorkspace(workspace, 2600);
+}
+
+function renderAnalysisSurface() {
+  if (explorerMode !== "analysis") return;
+  hideTooltip();
+  syncAnalysisScopeControls();
+  updateExplorerUrlState();
+  if (explorerLens === "all") {
+    renderAllAnalysis();
+    return;
+  }
+  if (explorerLens === "compound") {
+    renderCompoundAnalysis();
+    return;
+  }
+  renderExplorerSurface();
+}
+
+async function loadAnalysisAndRender({ resetYears = false } = {}) {
   const token = ++explorerRenderToken;
-  graphEl.innerHTML = '<div class="explorer-loading">Preparing the cross-area view…</div>';
+  cancelExplorerSearchRender();
+  closeExplorerSearchOptions();
+  explorerSearchMatrix = null;
+  stopExplorerWorkspaceAutosize();
+  graphEl.innerHTML = '<div class="explorer-loading">Preparing the analysis…</div>';
   setExplorerWorkspaceHeight(GRAPH_BASE_HEIGHT_PX);
   clearDetailForTransition();
   cardsEl.innerHTML = "";
   if (studyListEl) studyListEl.innerHTML = "";
   try {
-    await loadNormalizedClaimSource(currentSourceKey());
+    await loadNormalizedClaimSource("all");
   } catch (error) {
-    if (token === explorerRenderToken) renderLoadError([`Explorer data: ${error.message}`]);
+    if (token === explorerRenderToken) renderLoadError([`Analysis data: ${error.message}`]);
     return;
   }
-  if (token !== explorerRenderToken || explorerLens === "domain") return;
+  if (token !== explorerRenderToken || explorerMode !== "analysis") return;
   applyClaimLayerStore();
-  const sourceClaims = explorerSourceClaims();
+  const sourceClaims = isAnalysisCompoundSection()
+    ? explorerSourceClaims().filter(claimHasAnalysisCompound)
+    : explorerSourceClaims();
   syncYearFilterControls(sourceClaims, resetYears);
   explorerMatrixMemo = null;
   updateModeUI();
-  renderExplorerSurface();
+  renderAnalysisSurface();
 }
 
-function switchExplorerLens(nextLens) {
-  if (!EXPLORER_LENSES.has(nextLens) || explorerLens === nextLens) return;
+function switchExplorerLens(nextLens, options = {}) {
+  if (!ANALYSIS_SECTIONS.has(nextLens) || (explorerLens === nextLens && !options.focus)) return;
   explorerRenderToken += 1;
   explorerLens = nextLens;
-  explorerFocus = null;
-  explorerAreaKey = "";
+  explorerLastAnalysisLens = nextLens;
+  if (EXPLORER_ENTITY_LENSES.has(nextLens)) explorerLastEntityLens = nextLens;
+  explorerFocus = options.focus || null;
+  explorerAreaKey = explorerFocus && explorerScopeAreaKey ? explorerScopeAreaKey : "";
+  compareSelection = null;
   explorerVisibleRowCount = EXPLORER_INITIAL_ROW_LIMIT;
   explorerMatrixMemo = null;
+  explorerSearchMatrix = null;
+  cancelExplorerSearchRender();
+  closeExplorerSearchOptions();
   hideTooltip();
   resetGraphSelectionState();
   detailGraphFilter = null;
@@ -7406,12 +9459,67 @@ function switchExplorerLens(nextLens) {
   if (explorerSearchInput) explorerSearchInput.value = "";
   updateExplorerControls();
   updateExplorerUrlState();
-  if (explorerLens === "domain") {
+  loadAnalysisAndRender({ resetYears: true });
+}
+
+function refreshAnalysisScope() {
+  if (explorerMode !== "analysis" || !ANALYSIS_SECTIONS.has(explorerLens)) return;
+  explorerAreaKey = explorerFocus && explorerScopeAreaKey ? explorerScopeAreaKey : "";
+  compareSelection = null;
+  explorerVisibleRowCount = EXPLORER_INITIAL_ROW_LIMIT;
+  explorerMatrixMemo = null;
+  explorerSearchMatrix = null;
+  cancelExplorerSearchRender();
+  closeExplorerSearchOptions();
+  hideTooltip();
+  updateExplorerControls();
+  updateExplorerUrlState();
+  renderAnalysisSurface();
+}
+
+function resetExplorerTransitionState() {
+  explorerRenderToken += 1;
+  cancelExplorerSearchRender();
+  closeExplorerSearchOptions();
+  explorerSearchMatrix = null;
+  stopExplorerWorkspaceAutosize();
+  hideTooltip();
+  resetGraphSelectionState();
+  detailGraphFilter = null;
+  clearSelectedStyles();
+}
+
+function switchExplorerMode(nextMode) {
+  if (!EXPLORER_MODES.has(nextMode) || explorerMode === nextMode) return;
+  if (explorerMode === "analysis" && ANALYSIS_SECTIONS.has(explorerLens)) {
+    explorerLastAnalysisLens = explorerLens;
+    if (EXPLORER_ENTITY_LENSES.has(explorerLens)) explorerLastEntityLens = explorerLens;
+  }
+  resetExplorerTransitionState();
+  explorerMode = nextMode;
+  compareSelection = null;
+  if (nextMode === "overview") {
+    explorerLens = "domain";
+    evidenceView = "primary";
+  } else {
+    explorerLens = ANALYSIS_SECTIONS.has(explorerLastAnalysisLens) ? explorerLastAnalysisLens : "all";
+    evidenceView = "all";
+  }
+  updateExplorerControls();
+  updateExplorerUrlState();
+  if (nextMode === "overview") {
+    applyClaimLayerStore();
     syncYearFilterControls(activeClaimsForMode(), true);
     loadCurrentClaimsAndRender({ showLoading: false, resetDetail: true, showGraphBootstrap: true });
     return;
   }
-  loadExplorerLensAndRender({ resetYears: true });
+  loadAnalysisAndRender({ resetYears: true });
+}
+
+function switchCompareKind(nextKind) {
+  if (!COMPARE_KINDS.has(nextKind) || compareKind === nextKind) return;
+  compareKind = nextKind;
+  switchExplorerLens(nextKind === "compounds" ? "compound" : "all");
 }
 
 function buildGraph(data) {
@@ -8059,9 +10167,10 @@ function buildGraph(data) {
 
 function render() {
   cancelPendingFindingSearchRender();
-  if (explorerLens !== "domain") {
+  stopExplorerWorkspaceAutosize();
+  if (explorerMode === "analysis") {
     explorerMatrixMemo = null;
-    renderExplorerSurface();
+    renderAnalysisSurface();
     return;
   }
   if (graphDetail) graphDetail.hidden = false;
@@ -8284,7 +10393,7 @@ function entityCategoryCounts() {
 
 function updateEntityKindToggle() {
   if (!entityKindToggle) return;
-  const isAvailable = claimLayer === "normalized";
+  const isAvailable = claimLayer === "normalized" && explorerMode === "overview";
   entityKindToggle.hidden = !isAvailable;
   if (!isAvailable) {
     entityKindToggle.innerHTML = "";
@@ -8348,7 +10457,8 @@ function switchClaimLayer(nextLayer) {
 
 function switchEvidenceView(nextView) {
   if (!EVIDENCE_VIEW_KEYS.includes(nextView) || evidenceView === nextView) return;
-  if (explorerLens !== "domain") {
+  if (isAnalysisSummary()) return;
+  if (explorerMode === "analysis" && ANALYSIS_SECTIONS.has(explorerLens)) {
     evidenceView = nextView;
     explorerAreaKey = "";
     explorerVisibleRowCount = EXPLORER_INITIAL_ROW_LIMIT;
@@ -8357,7 +10467,7 @@ function switchEvidenceView(nextView) {
     detailGraphFilter = null;
     clearSelectedStyles();
     updateModeUI();
-    loadExplorerLensAndRender({ resetYears: true });
+    loadAnalysisAndRender({ resetYears: true });
     return;
   }
   const focusToRestore = cloneGraphSelection(selected || evidenceSelectionIntent);
@@ -8539,36 +10649,42 @@ function renderLoadError(messages) {
 }
 
 const normalizedSourceLoaded = {
+  all: false,
   primary: false,
   meta_analyses: false,
   reviews: false,
 };
 
 const dashboardSourceReady = {
+  all: false,
   primary: false,
   meta_analyses: false,
   reviews: false,
 };
 
 const normalizedSourceTasks = {
+  all: null,
   primary: null,
   meta_analyses: null,
   reviews: null,
 };
 
 const normalizedViewClaimsBySource = {
+  all: {},
   primary: {},
   meta_analyses: {},
   reviews: {},
 };
 
 const normalizedViewLoaded = {
+  all: {},
   primary: {},
   meta_analyses: {},
   reviews: {},
 };
 
 const normalizedViewTasks = {
+  all: {},
   primary: {},
   meta_analyses: {},
   reviews: {},
@@ -8844,7 +10960,9 @@ async function loadRouteNativeEvidenceSource(sourceKey) {
   // The routed detail payload is already canonical. Client-side legacy deduplication
   // collapsed distinct entities from the same paper and changed overview counts.
   claimStores.normalized.bySource[sourceKey] = enrichedItems;
-  claimStores.normalized.all = Object.values(claimStores.normalized.bySource).flat();
+  claimStores.normalized.all = ["primary", "meta_analyses", "reviews"].flatMap(
+    (key) => claimStores.normalized.bySource[key] || []
+  );
   normalizedSourceLoaded[sourceKey] = true;
   normalizedViewClaimsBySource[sourceKey] = {};
   normalizedViewLoaded[sourceKey] = {};
@@ -8886,12 +11004,14 @@ async function loadRouteNativeEvidenceView(sourceKey, viewKey) {
 }
 
 function currentSourceKey() {
+  if (evidenceView === "all") return "all";
   if (evidenceView === "meta_analyses") return "meta_analyses";
   if (evidenceView === "reviews" || evidenceView === "secondary") return "reviews";
   return "primary";
 }
 
 function evidenceViewForSourceKey(sourceKey) {
+  if (sourceKey === "all") return "all";
   if (sourceKey === "meta_analyses") return "meta_analyses";
   if (sourceKey === "reviews") return "reviews";
   return "primary";
@@ -9016,6 +11136,25 @@ async function loadNormalizedClaimSource(sourceKey) {
   if (normalizedSourceLoaded[sourceKey]) return;
   if (normalizedSourceTasks[sourceKey]) {
     await normalizedSourceTasks[sourceKey];
+    return;
+  }
+
+  if (sourceKey === "all") {
+    normalizedSourceTasks.all = (async () => {
+      await Promise.all(["primary", "meta_analyses", "reviews"].map(loadNormalizedClaimSource));
+      claimStores.normalized.bySource.all = ["primary", "meta_analyses", "reviews"].flatMap(
+        (key) => claimStores.normalized.bySource[key] || []
+      );
+      claimStores.normalized.all = claimStores.normalized.bySource.all;
+      normalizedSourceLoaded.all = true;
+      activeClaimsMemo = null;
+      entityCategoryCountsMemo = null;
+    })();
+    try {
+      await normalizedSourceTasks.all;
+    } finally {
+      normalizedSourceTasks.all = null;
+    }
     return;
   }
 
@@ -9218,16 +11357,43 @@ async function init() {
   }
   loadGraphManifestStats();
   const params = new URLSearchParams(window.location.search);
+  const requestedMode = params.get("mode") || "";
   const requestedLens = params.get("lens") || "domain";
-  if (EXPLORER_LENSES.has(requestedLens)) explorerLens = requestedLens;
-  if (explorerLens !== "domain") {
+  const requestedSection = params.get("section") || "";
+  const requestedPaperView = params.get("papers") || "all";
+  if (
+    requestedMode === "analysis" ||
+    requestedMode === "compare" ||
+    requestedMode === "explore" ||
+    EXPLORER_ENTITY_LENSES.has(requestedLens)
+  ) {
+    explorerMode = "analysis";
+    if (requestedMode === "compare") {
+      explorerLens = "compound";
+    } else if (ANALYSIS_SECTIONS.has(requestedSection)) {
+      explorerLens = requestedSection;
+    } else if (EXPLORER_ENTITY_LENSES.has(requestedLens)) {
+      explorerLens = requestedLens;
+    } else {
+      explorerLens = "all";
+    }
+    explorerLastAnalysisLens = explorerLens;
+    if (EXPLORER_ENTITY_LENSES.has(explorerLens)) explorerLastEntityLens = explorerLens;
+    evidenceView = ["all", "primary", "meta_analyses", "reviews"].includes(requestedPaperView)
+      ? requestedPaperView
+      : "all";
     const focusKey = cleanDisplayText(params.get("focus") || "");
-    explorerFocus = focusKey ? { key: focusKey, label: focusKey } : null;
+    explorerFocus = focusKey && EXPLORER_ENTITY_LENSES.has(explorerLens) ? { key: focusKey, label: focusKey } : null;
     explorerAreaKey = cleanDisplayText(params.get("area") || "");
+    explorerScopeAreaKey = cleanDisplayText(params.get("scope-area") || "");
+    explorerScopeConceptKey = normalizeValue(params.get("concept") || "");
     updateModeUI();
-    await loadExplorerLensAndRender({ resetYears: true });
+    updateExplorerUrlState();
+    await loadAnalysisAndRender({ resetYears: true });
     return;
   }
+  explorerMode = "overview";
+  explorerLens = "domain";
   await loadCurrentClaimsAndRender({ showLoading: true, resetDetail: true, showGraphBootstrap: true });
 }
 
@@ -9269,6 +11435,15 @@ if (bibliographySearchInput) {
   });
 }
 if (detailBody) {
+  detailBody.addEventListener("click", (event) => {
+    const areaButton = event.target.closest?.("[data-explorer-area-filter]");
+    if (!areaButton || !detailBody.contains(areaButton) || !isAnalysisEntitySection()) return;
+    event.preventDefault();
+    const areaKey = areaButton.dataset.explorerAreaFilter || "";
+    explorerAreaKey = explorerAreaKey === areaKey ? "" : areaKey;
+    updateExplorerUrlState();
+    renderAnalysisSurface();
+  });
   detailBody.addEventListener("click", (event) => {
     const accessCard = event.target.closest?.("[data-access-view]");
     if (!accessCard || !detailBody.contains(accessCard)) return;
@@ -9478,12 +11653,173 @@ if (detailBody) {
     renderFieldValueDetail(target.dataset.filterField || "", target.dataset.filterValue || "", target.dataset.filterLabel || "");
   });
 }
+graphEl.addEventListener("input", (event) => {
+  const momentumInput = event.target.closest?.("[data-explorer-momentum-window]");
+  if (momentumInput && graphEl.contains(momentumInput) && explorerMode === "analysis") {
+    const requestedWindow = Math.round(Number(momentumInput.value));
+    explorerMomentumWindowYears = Math.max(
+      EXPLORER_MOMENTUM_MIN_YEARS,
+      Math.min(EXPLORER_MOMENTUM_MAX_YEARS, requestedWindow || 5)
+    );
+    scheduleExplorerMomentumPanelUpdate();
+    return;
+  }
+  if (!isAnalysisSummary()) return;
+  const compoundInput = event.target.closest?.("[data-analysis-publication-compound]");
+  if (!compoundInput || !graphEl.contains(compoundInput)) return;
+  const requestedKey = normalizeValue(compoundInput.value);
+  const hasOption = Array.from(compoundInput.list?.options || []).some(
+    (option) => normalizeValue(option.value) === requestedKey
+  );
+  if (requestedKey && !hasOption) return;
+  analysisPublicationCompoundKey = requestedKey;
+  compareSelection = null;
+  renderAnalysisSurface();
+});
+graphEl.addEventListener("change", (event) => {
+  if (!isAnalysisSummary()) return;
+  const compoundInput = event.target.closest?.("[data-analysis-publication-compound]");
+  if (compoundInput && graphEl.contains(compoundInput)) {
+    const requestedKey = normalizeValue(compoundInput.value);
+    const hasOption = Array.from(compoundInput.list?.options || []).some(
+      (option) => normalizeValue(option.value) === requestedKey
+    );
+    analysisPublicationCompoundKey = requestedKey && hasOption ? requestedKey : "";
+    compareSelection = null;
+    renderAnalysisSurface();
+    return;
+  }
+  const areaSelect = event.target.closest?.("[data-analysis-publication-area]");
+  if (areaSelect && graphEl.contains(areaSelect)) {
+    const requestedKey = areaSelect.value || "";
+    analysisPublicationAreaKey = ENTITY_CATEGORY_OPTIONS.some((area) => area.key === requestedKey) ? requestedKey : "";
+    compareSelection = null;
+    renderAnalysisSurface();
+  }
+});
 graphEl.addEventListener("click", (event) => {
-  if (explorerLens !== "domain") {
+  if (explorerMode === "analysis") {
+    const publicationModeTarget = event.target.closest?.("[data-analysis-publication-mode]");
+    if (publicationModeTarget && graphEl.contains(publicationModeTarget) && isAnalysisSummary()) {
+      const nextMode = publicationModeTarget.dataset.analysisPublicationMode;
+      if (["volume", "mix"].includes(nextMode) && analysisPublicationMode !== nextMode) {
+        analysisPublicationMode = nextMode;
+        renderAnalysisSurface();
+      }
+      return;
+    }
+    const publicationYearTarget = event.target.closest?.("[data-analysis-publication-year]");
+    if (publicationYearTarget && graphEl.contains(publicationYearTarget) && isAnalysisSummary()) {
+      compareSelection = {
+        type: "publication_history",
+        year: Number(publicationYearTarget.dataset.analysisPublicationYear),
+      };
+      renderAnalysisSurface();
+      return;
+    }
+    const evidenceTarget = event.target.closest?.("[data-compare-source-key]");
+    if (evidenceTarget && graphEl.contains(evidenceTarget)) {
+      if (isAnalysisSummary()) {
+        compareSelection = {
+          type: "evidence",
+          sourceKey: evidenceTarget.dataset.compareSourceKey || "",
+          areaKey: evidenceTarget.dataset.compareAreaKey || "",
+        };
+        renderAnalysisSurface();
+        return;
+      }
+      if (explorerMode === "analysis" && ANALYSIS_SECTIONS.has(explorerLens)) {
+        const sourceKey = evidenceTarget.dataset.compareSourceKey || "";
+        const areaKey = evidenceTarget.dataset.compareAreaKey || "";
+        if (ENTITY_CATEGORY_OPTIONS.some((area) => area.key === areaKey)) {
+          explorerScopeAreaKey = areaKey;
+          explorerScopeConceptKey = "";
+        }
+        const nextEvidenceView = evidenceViewForSourceKey(sourceKey);
+        if (nextEvidenceView !== evidenceView) {
+          switchEvidenceView(nextEvidenceView);
+        } else {
+          refreshAnalysisScope();
+        }
+        return;
+      }
+    }
+    const compoundTarget = event.target.closest?.("[data-compare-left-key]");
+    if (compoundTarget && graphEl.contains(compoundTarget) && isAnalysisCompoundSection()) {
+      const leftKey = compoundTarget.dataset.compareLeftKey || "";
+      const rightCandidate = compoundTarget.dataset.compareRightKey || "";
+      compareSelection = {
+        type: "compounds",
+        leftKey,
+        rightKey: rightCandidate && rightCandidate !== leftKey ? rightCandidate : "",
+      };
+      renderAnalysisSurface();
+      return;
+    }
+    const analysisAreaScope = event.target.closest?.("[data-analysis-scope-area]");
+    if (analysisAreaScope && graphEl.contains(analysisAreaScope) && ANALYSIS_SECTIONS.has(explorerLens)) {
+      const areaKey = analysisAreaScope.dataset.analysisScopeArea || "";
+      if (ENTITY_CATEGORY_OPTIONS.some((area) => area.key === areaKey)) {
+        explorerScopeAreaKey = areaKey;
+        explorerScopeConceptKey = "";
+        refreshAnalysisScope();
+      }
+      return;
+    }
+    const analysisConceptScope = event.target.closest?.("[data-analysis-scope-concept]");
+    if (analysisConceptScope && graphEl.contains(analysisConceptScope) && explorerScopeAreaKey) {
+      explorerScopeConceptKey = normalizeValue(analysisConceptScope.dataset.analysisScopeConcept || "");
+      refreshAnalysisScope();
+      return;
+    }
+    const analysisFacet = event.target.closest?.("[data-analysis-facet-lens][data-analysis-facet-key]");
+    if (analysisFacet && graphEl.contains(analysisFacet)) {
+      const lens = analysisFacet.dataset.analysisFacetLens || "";
+      const key = analysisFacet.dataset.analysisFacetKey || "";
+      const label = analysisFacet.dataset.analysisFacetLabel || key;
+      if (EXPLORER_ENTITY_LENSES.has(lens) && key) {
+        switchExplorerLens(lens, { focus: { key, label } });
+      }
+      return;
+    }
+    if (!isAnalysisEntitySection()) return;
+    const focusArea = event.target.closest?.("[data-explorer-focus-area]");
+    if (focusArea && graphEl.contains(focusArea) && explorerFocus) {
+      explorerAreaKey = focusArea.dataset.explorerFocusArea || "";
+      updateExplorerUrlState();
+      renderAnalysisSurface();
+      return;
+    }
+    const overlapCell = event.target.closest?.("[data-explorer-overlap-a]");
+    if (overlapCell && graphEl.contains(overlapCell) && explorerFocus) {
+      const matrix = buildExplorerMatrix(explorerFilteredClaims());
+      const row = explorerRowForFocus(matrix);
+      const areaA = ENTITY_CATEGORY_OPTIONS.find((area) => area.key === overlapCell.dataset.explorerOverlapA);
+      const areaB = ENTITY_CATEGORY_OPTIONS.find((area) => area.key === overlapCell.dataset.explorerOverlapB);
+      if (!row || !areaA || !areaB) return;
+      const selectedItems = row.claims.filter(
+        (claim) => claimMatchesEntityViewOption(claim, areaA) && claimMatchesEntityViewOption(claim, areaB)
+      );
+      const title = areaA.key === areaB.key ? `${row.label} · ${areaA.label}` : `${row.label} · ${areaA.label} × ${areaB.label}`;
+      renderExplorerSelectionDetail(title, selectedItems, selectedItems, row.claims);
+      return;
+    }
     const showMore = event.target.closest?.("[data-explorer-show-more]");
     if (showMore && graphEl.contains(showMore)) {
       explorerVisibleRowCount += EXPLORER_ROW_EXPANSION_STEP;
-      renderExplorerSurface();
+      renderExplorerCoverage();
+      return;
+    }
+    const analyticEntity = event.target.closest?.("[data-explorer-entity-key]");
+    if (analyticEntity && graphEl.contains(analyticEntity)) {
+      const matrix = buildExplorerMatrix(explorerFilteredClaims());
+      const row = matrix.entries.find((entry) => entry.key === analyticEntity.dataset.explorerEntityKey);
+      if (!row) return;
+      explorerFocus = { key: row.key, label: row.label };
+      explorerAreaKey = explorerScopeAreaKey || "";
+      updateExplorerControls();
+      updateExplorerUrlState();
+      renderAnalysisSurface();
       return;
     }
     const cell = event.target.closest?.(".explorer-matrix-cell[data-explorer-row-key]");
@@ -9495,16 +11831,66 @@ graphEl.addEventListener("click", (event) => {
       if (!row) return;
       explorerFocus = { key: row.key, label: row.label };
       explorerAreaKey = cell?.dataset.explorerAreaKey || "";
+      if (cell?.dataset.explorerConceptKey) {
+        explorerScopeConceptKey = cell.dataset.explorerConceptKey;
+        explorerMatrixMemo = null;
+      }
       updateExplorerControls();
       updateExplorerUrlState();
-      renderExplorerSurface();
+      renderAnalysisSurface();
     }
     return;
   }
   if (event.target === graphEl || event.target.tagName?.toLowerCase() === "svg") clearSelection();
 });
 graphEl.addEventListener("mouseover", (event) => {
-  if (explorerLens === "domain") return;
+  if (explorerMode === "analysis") {
+    const publicationYear = event.target.closest?.(".analysis-publication-year");
+    if (publicationYear && graphEl.contains(publicationYear) && isAnalysisSummary()) {
+      const year = publicationYear.dataset.analysisPublicationYear || "Year";
+      const total = Number(publicationYear.dataset.totalCount || 0);
+      const primary = Number(publicationYear.dataset.primaryCount || 0);
+      const reviews = Number(publicationYear.dataset.reviewCount || 0);
+      const meta = Number(publicationYear.dataset.metaCount || 0);
+      showTooltip(
+        `<strong>${escapeHtml(year)}</strong><br/><span class="tooltip-meta">${formatCompactNumber(total)} unique ${total === 1 ? "paper" : "papers"} · ${formatCompactNumber(primary)} primary · ${formatCompactNumber(reviews)} reviews · ${formatCompactNumber(meta)} meta-analyses</span><span class="tooltip-action">Click to view papers</span>`,
+        event
+      );
+      return;
+    }
+    const evidenceCell = event.target.closest?.(".compare-evidence-cell");
+    if (evidenceCell && graphEl.contains(evidenceCell) && isAnalysisSummary()) {
+      const source = COMPARE_EVIDENCE_SOURCES.find((entry) => entry.key === evidenceCell.dataset.compareSourceKey);
+      const area = ENTITY_CATEGORY_OPTIONS.find((entry) => entry.key === evidenceCell.dataset.compareAreaKey);
+      const paperCount = Number(evidenceCell.dataset.paperCount || 0);
+      const rowPercent = Number(evidenceCell.dataset.rowPercent || 0);
+      showTooltip(
+        `<strong>${escapeHtml(source?.label || "Evidence")} · ${escapeHtml(area?.label || "Research area")}</strong><br/><span class="tooltip-meta">${formatCompactNumber(paperCount)} unique papers${rowPercent ? ` · ${formatCompactNumber(rowPercent)}% of this evidence type` : ""}</span>`,
+        event
+      );
+      return;
+    }
+    const similarityCell = event.target.closest?.(".compare-similarity-cell");
+    if (similarityCell && graphEl.contains(similarityCell) && isAnalysisCompoundSection()) {
+      const sharedPaperCount = Number(similarityCell.dataset.sharedPaperCount || 0);
+      showTooltip(
+        `<strong>${escapeHtml(similarityCell.dataset.compareLeftLabel || "Compound")} ↔ ${escapeHtml(similarityCell.dataset.compareRightLabel || "Compound")}</strong><br/><span class="tooltip-meta">${formatCompactNumber(sharedPaperCount)} unique ${sharedPaperCount === 1 ? "paper mentions" : "papers mention"} both compounds</span>`,
+        event
+      );
+      return;
+    }
+  }
+  if (!isAnalysisEntitySection()) return;
+  const landscapePoint = event.target.closest?.(".analytics-landscape-point");
+  if (landscapePoint && graphEl.contains(landscapePoint)) {
+    const breadthCount = Number(landscapePoint.dataset.breadthCount || landscapePoint.dataset.areaCount || 0);
+    const breadthLabel = landscapePoint.dataset.breadthLabel || "research areas";
+    showTooltip(
+      `<strong>${escapeHtml(landscapePoint.dataset.entityLabel || "Entity")}</strong><br/><span class="tooltip-meta">${formatCompactNumber(Number(landscapePoint.dataset.studyCount || 0))} source papers · ${formatCompactNumber(breadthCount)} ${escapeHtml(breadthLabel)} · ${formatCompactNumber(Number(landscapePoint.dataset.recentCount || 0))} in the latest 5 years</span>`,
+      event
+    );
+    return;
+  }
   const target = event.target.closest?.("[data-explorer-row-key]");
   if (!target || !graphEl.contains(target)) return;
   if (event.relatedTarget && target.contains(event.relatedTarget)) return;
@@ -9515,22 +11901,54 @@ graphEl.addEventListener("mouseover", (event) => {
   if (target.matches(".explorer-matrix-cell")) {
     const rowLabel = graphEl.querySelector(`.explorer-matrix-row-button[data-explorer-row-key="${CSS.escape(key)}"] span`)?.textContent || "";
     const area = ENTITY_CATEGORY_OPTIONS.find((option) => option.key === target.dataset.explorerAreaKey);
+    const dimensionLabel = target.dataset.explorerDimensionLabel || area?.label || "Research area";
     showTooltip(
-      `<strong>${escapeHtml(rowLabel)} · ${escapeHtml(area?.label || "Research area")}</strong><br/><span class="tooltip-meta">${formatCompactNumber(Number(target.dataset.studyCount || 0))} source papers</span>`,
+      `<strong>${escapeHtml(rowLabel)} · ${escapeHtml(dimensionLabel)}</strong><br/><span class="tooltip-meta">${formatCompactNumber(Number(target.dataset.studyCount || 0))} source papers</span>`,
       event
     );
   }
 });
 graphEl.addEventListener("mousemove", (event) => {
-  if (explorerLens !== "domain" && event.target.closest?.(".explorer-matrix-cell")) moveTooltip(event);
+  if (explorerMode === "analysis" && event.target.closest?.(".analysis-publication-year, .compare-evidence-cell, .compare-similarity-cell")) {
+    moveTooltip(event);
+    return;
+  }
+  if (isAnalysisEntitySection() && event.target.closest?.(".explorer-matrix-cell, .analytics-landscape-point")) moveTooltip(event);
 });
 graphEl.addEventListener("mouseout", (event) => {
-  if (explorerLens === "domain") return;
+  if (explorerMode === "analysis") {
+    const analysisTarget = event.target.closest?.(".analysis-publication-year, .compare-evidence-cell, .compare-similarity-cell");
+    if (analysisTarget && graphEl.contains(analysisTarget)) {
+      if (event.relatedTarget && analysisTarget.contains(event.relatedTarget)) return;
+      hideTooltip();
+      return;
+    }
+  }
+  if (!isAnalysisEntitySection()) return;
+  const landscapePoint = event.target.closest?.(".analytics-landscape-point");
+  if (landscapePoint && graphEl.contains(landscapePoint)) {
+    if (event.relatedTarget && landscapePoint.contains(event.relatedTarget)) return;
+    hideTooltip();
+    return;
+  }
   const target = event.target.closest?.("[data-explorer-row-key]");
   if (!target || !graphEl.contains(target)) return;
   if (event.relatedTarget?.closest?.(`[data-explorer-row-key="${CSS.escape(target.dataset.explorerRowKey || "")}"]`)) return;
   graphEl.querySelectorAll("[data-explorer-row-key].hovered").forEach((element) => element.classList.remove("hovered"));
   hideTooltip();
+});
+graphEl.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  const publicationYear = event.target.closest?.("[data-analysis-publication-year]");
+  if (publicationYear && graphEl.contains(publicationYear) && isAnalysisSummary()) {
+    event.preventDefault();
+    publicationYear.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    return;
+  }
+  const target = event.target.closest?.("[data-explorer-entity-key]");
+  if (!target || !graphEl.contains(target) || !isAnalysisEntitySection()) return;
+  event.preventDefault();
+  target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 });
 claimLayerButtons.forEach((button) => {
   button.addEventListener("click", () => {
@@ -9542,29 +11960,120 @@ evidenceViewButtons.forEach((button) => {
     switchEvidenceView(button.dataset.evidenceView);
   });
 });
-if (explorerLensToggle) {
-  explorerLensToggle.addEventListener("click", (event) => {
-    const button = event.target.closest?.("[data-explorer-lens]");
-    if (!button || !explorerLensToggle.contains(button)) return;
-    switchExplorerLens(button.dataset.explorerLens || "domain");
+if (explorerModeToggle) {
+  explorerModeToggle.addEventListener("click", (event) => {
+    const button = event.target.closest?.("[data-explorer-mode]");
+    if (!button || !explorerModeToggle.contains(button)) return;
+    switchExplorerMode(button.dataset.explorerMode || "overview");
+  });
+}
+if (explorerEntityToggle) {
+  explorerEntityToggle.addEventListener("click", (event) => {
+    const button = event.target.closest?.("[data-explorer-entity]");
+    if (!button || !explorerEntityToggle.contains(button) || explorerMode !== "analysis") return;
+    switchExplorerLens(button.dataset.explorerEntity || "compound");
+  });
+}
+if (explorerEntitySelect) {
+  explorerEntitySelect.addEventListener("change", () => {
+    if (explorerMode !== "analysis") return;
+    switchExplorerLens(explorerEntitySelect.value || "compound");
+  });
+}
+if (explorerScopeAreaSelect) {
+  explorerScopeAreaSelect.addEventListener("change", () => {
+    if (explorerMode !== "analysis" || !ANALYSIS_SECTIONS.has(explorerLens)) return;
+    explorerScopeAreaKey = ENTITY_CATEGORY_OPTIONS.some(
+      (area) => area.key === explorerScopeAreaSelect.value
+    ) ? explorerScopeAreaSelect.value : "";
+    explorerScopeConceptKey = "";
+    refreshAnalysisScope();
+  });
+}
+if (explorerScopeConceptSelect) {
+  explorerScopeConceptSelect.addEventListener("change", () => {
+    if (explorerMode !== "analysis" || !ANALYSIS_SECTIONS.has(explorerLens) || !explorerScopeAreaKey) return;
+    explorerScopeConceptKey = normalizeValue(explorerScopeConceptSelect.value || "");
+    refreshAnalysisScope();
+  });
+}
+if (explorerEvidenceSelect) {
+  explorerEvidenceSelect.addEventListener("change", () => {
+    if (explorerMode !== "analysis" || !ANALYSIS_SECTIONS.has(explorerLens)) return;
+    switchEvidenceView(explorerEvidenceSelect.value || "all");
+  });
+}
+if (explorerScopeClear) {
+  explorerScopeClear.addEventListener("click", () => {
+    if (explorerMode !== "analysis" || !ANALYSIS_SECTIONS.has(explorerLens)) return;
+    explorerScopeAreaKey = "";
+    explorerScopeConceptKey = "";
+    refreshAnalysisScope();
+  });
+}
+if (explorerFocusBack) {
+  explorerFocusBack.addEventListener("click", () => {
+    if (!isAnalysisEntitySection() || !explorerFocus) return;
+    explorerFocus = null;
+    explorerAreaKey = "";
+    compareSelection = null;
+    updateExplorerControls();
+    updateExplorerUrlState();
+    renderAnalysisSurface();
+    explorerSearchInput?.focus({ preventScroll: true });
   });
 }
 if (explorerSearchInput) {
   explorerSearchInput.addEventListener("input", () => {
-    if (explorerLens === "domain") return;
-    if (explorerFocus) {
-      explorerFocus = null;
-      explorerAreaKey = "";
-      updateExplorerControls();
-      updateExplorerUrlState();
-    }
+    if (!isAnalysisEntitySection()) return;
     explorerVisibleRowCount = EXPLORER_INITIAL_ROW_LIMIT;
-    renderExplorerSurface();
+    renderExplorerSearchOptions();
+    scheduleExplorerSearchCoverageRender();
+  });
+  explorerSearchInput.addEventListener("keydown", (event) => {
+    if (!isAnalysisEntitySection()) return;
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      if (!normalizeSearchText(explorerSearchInput.value)) return;
+      event.preventDefault();
+      if (explorerSearchOptions?.hidden) renderExplorerSearchOptions();
+      if (!explorerSearchCurrentMatches.length) return;
+      const direction = event.key === "ArrowDown" ? 1 : -1;
+      const nextIndex = explorerSearchActiveIndex < 0
+        ? direction > 0 ? 0 : explorerSearchCurrentMatches.length - 1
+        : (explorerSearchActiveIndex + direction + explorerSearchCurrentMatches.length) % explorerSearchCurrentMatches.length;
+      updateExplorerSearchActiveOption(nextIndex);
+      return;
+    }
+    if (event.key === "Escape") {
+      closeExplorerSearchOptions();
+      return;
+    }
+    if (event.key === "Tab") {
+      closeExplorerSearchOptions();
+      return;
+    }
+    if (event.key !== "Enter") return;
+    if (explorerSearchOptions?.hidden) renderExplorerSearchOptions();
+    const entry = explorerSearchCurrentMatches[explorerSearchActiveIndex >= 0 ? explorerSearchActiveIndex : 0];
+    if (!entry) return;
+    event.preventDefault();
+    selectExplorerSearchEntry(entry);
+  });
+  explorerSearchInput.addEventListener("focus", () => renderExplorerSearchOptions({ preserveActive: true }));
+  explorerSearchInput.addEventListener("blur", closeExplorerSearchOptions);
+}
+if (explorerSearchOptions) {
+  explorerSearchOptions.addEventListener("mousedown", (event) => event.preventDefault());
+  explorerSearchOptions.addEventListener("click", (event) => {
+    const option = event.target.closest?.("[data-explorer-search-key]");
+    if (!option || !explorerSearchOptions.contains(option)) return;
+    const entry = explorerSearchMatrix?.entries.find((candidate) => candidate.key === option.dataset.explorerSearchKey);
+    selectExplorerSearchEntry(entry);
   });
 }
 if (entityKindToggle) {
   const prepareEntityView = (event) => {
-    if (explorerLens !== "domain") return;
+    if (explorerMode !== "overview") return;
     const button = event.target.closest?.("[data-entity-view]");
     if (!button || !entityKindToggle.contains(button)) return;
     const viewKey = button.dataset.entityView || "";
@@ -9576,7 +12085,7 @@ if (entityKindToggle) {
   entityKindToggle.addEventListener("pointerover", prepareEntityView);
   entityKindToggle.addEventListener("focusin", prepareEntityView);
   entityKindToggle.addEventListener("click", (event) => {
-    if (explorerLens !== "domain") return;
+    if (explorerMode !== "overview") return;
     const button = event.target.closest?.("[data-entity-view]");
     if (!button || !entityKindToggle.contains(button)) return;
     switchEntityView(button.dataset.entityView || "");

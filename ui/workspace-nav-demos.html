@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Explore / Analyze navigation study</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #080a0b;
+        --surface: #0c0f10;
+        --surface-2: #111516;
+        --surface-3: #171c1d;
+        --fg: #e8ece8;
+        --muted: #aeb5b4;
+        --line: rgba(188, 200, 201, 0.16);
+        --line-strong: rgba(188, 200, 201, 0.25);
+        --teal: #49d6c8;
+        --blue: #82a9d8;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        color: var(--fg);
+        background:
+          radial-gradient(circle at 16% 0%, rgba(73, 214, 200, 0.055), transparent 28rem),
+          radial-gradient(circle at 88% 18%, rgba(130, 169, 216, 0.045), transparent 26rem),
+          var(--bg);
+        font-family: "IBM Plex Sans", sans-serif;
+      }
+
+      button, a { font: inherit; }
+
+      .page {
+        width: min(1380px, calc(100% - 36px));
+        margin: 0 auto;
+        padding: 44px 0 72px;
+      }
+
+      .page-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 30px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .page-head h1 {
+        margin: 0 0 8px;
+        font: 600 clamp(1.55rem, 3vw, 2.35rem)/1.1 "Space Grotesk", sans-serif;
+        letter-spacing: -0.025em;
+      }
+
+      .page-head p {
+        max-width: 720px;
+        margin: 0;
+        color: rgba(174, 181, 180, 0.72);
+        font-size: 0.92rem;
+        line-height: 1.55;
+      }
+
+      .back {
+        flex: 0 0 auto;
+        padding: 9px 12px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        color: rgba(232, 236, 232, 0.78);
+        text-decoration: none;
+        font: 600 0.76rem/1 "Space Grotesk", sans-serif;
+      }
+
+      .back:hover { border-color: var(--line-strong); color: var(--fg); }
+
+      .studies {
+        display: grid;
+        gap: 42px;
+        padding-top: 38px;
+      }
+
+      .study-copy {
+        display: grid;
+        grid-template-columns: minmax(220px, 0.42fr) minmax(0, 1fr);
+        gap: 28px;
+        align-items: end;
+        margin-bottom: 14px;
+      }
+
+      .study-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .study-title h2 {
+        margin: 0;
+        font: 600 1rem/1.2 "Space Grotesk", sans-serif;
+      }
+
+      .tag {
+        padding: 4px 7px;
+        border: 1px solid rgba(73, 214, 200, 0.2);
+        border-radius: 999px;
+        color: rgba(132, 204, 191, 0.88);
+        background: rgba(73, 214, 200, 0.055);
+        font: 600 0.59rem/1 "Space Grotesk", sans-serif;
+        letter-spacing: 0.045em;
+        text-transform: uppercase;
+      }
+
+      .study-copy p {
+        max-width: 720px;
+        margin: 0;
+        color: rgba(174, 181, 180, 0.67);
+        font-size: 0.78rem;
+        line-height: 1.5;
+      }
+
+      .demo-stage {
+        position: relative;
+        min-height: 430px;
+        padding: 22px;
+        border: 1px solid rgba(188, 200, 201, 0.12);
+        border-radius: 15px;
+        background: rgba(10, 13, 14, 0.72);
+        box-shadow: inset 0 1px rgba(255, 255, 255, 0.018), 0 24px 58px rgba(0, 0, 0, 0.18);
+      }
+
+      .demo-panel {
+        position: relative;
+        min-height: 380px;
+        overflow: hidden;
+        border: 1px solid rgba(188, 200, 201, 0.2);
+        border-radius: 12px;
+        background: var(--surface);
+      }
+
+      .demo-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        min-height: 70px;
+        padding: 14px 18px;
+        border-bottom: 1px solid rgba(188, 200, 201, 0.08);
+      }
+
+      .filters { display: flex; align-items: center; gap: 8px; min-width: 0; }
+
+      .filter {
+        height: 36px;
+        padding: 0 12px;
+        border: 1px solid rgba(188, 200, 201, 0.14);
+        border-radius: 10px;
+        color: rgba(232, 236, 232, 0.72);
+        background: rgba(7, 9, 10, 0.45);
+        font: 600 0.7rem/36px "Space Grotesk", sans-serif;
+        white-space: nowrap;
+      }
+
+      .filter.wide { width: 170px; }
+
+      .search {
+        width: 190px;
+        height: 36px;
+        border: 1px solid rgba(188, 200, 201, 0.14);
+        border-radius: 10px;
+        background: rgba(7, 9, 10, 0.45);
+      }
+
+      .mock-graph {
+        position: relative;
+        min-height: 308px;
+        background:
+          linear-gradient(rgba(188, 200, 201, 0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(188, 200, 201, 0.035) 1px, transparent 1px);
+        background-size: 48px 48px;
+      }
+
+      .node {
+        position: absolute;
+        width: var(--size);
+        height: var(--size);
+        border: 1px solid color-mix(in srgb, var(--color) 54%, transparent);
+        border-radius: 50%;
+        background: color-mix(in srgb, var(--color) 20%, #0c0f10);
+        box-shadow: 0 0 25px color-mix(in srgb, var(--color) 9%, transparent);
+      }
+
+      .node::after {
+        position: absolute;
+        top: 50%;
+        left: calc(100% + 8px);
+        width: 90px;
+        color: rgba(174, 181, 180, 0.56);
+        content: attr(data-label);
+        font: 500 0.66rem/1.25 "Space Grotesk", sans-serif;
+        transform: translateY(-50%);
+      }
+
+      .link {
+        position: absolute;
+        left: var(--x);
+        top: var(--y);
+        width: var(--length);
+        height: 1px;
+        background: linear-gradient(90deg, rgba(130, 169, 216, 0.3), rgba(73, 214, 200, 0.16));
+        transform: rotate(var(--angle));
+        transform-origin: left center;
+      }
+
+      .mode button {
+        cursor: pointer;
+      }
+
+      /* A — tonal segmented control */
+      .tonal-nav {
+        position: absolute;
+        top: 16px;
+        left: 18px;
+        z-index: 3;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        width: 242px;
+        padding: 4px;
+        border: 1px solid rgba(188, 200, 201, 0.14);
+        border-radius: 12px;
+        background: rgba(7, 9, 10, 0.72);
+        box-shadow: inset 0 1px rgba(255, 255, 255, 0.018);
+      }
+
+      .tonal-nav button {
+        height: 36px;
+        border: 0;
+        border-radius: 8px;
+        color: rgba(174, 181, 180, 0.63);
+        background: transparent;
+        font: 600 0.79rem/1 "Space Grotesk", sans-serif;
+      }
+
+      .tonal-nav button.active {
+        color: rgba(238, 240, 235, 0.95);
+        background: linear-gradient(180deg, rgba(73, 214, 200, 0.13), rgba(73, 214, 200, 0.075));
+        box-shadow: inset 0 1px rgba(132, 204, 191, 0.09), 0 5px 14px rgba(0, 0, 0, 0.18);
+      }
+
+      .tonal-stage .demo-panel { padding-top: 58px; }
+
+      /* B — embedded mode bar */
+      .bar-nav {
+        display: flex;
+        align-items: stretch;
+        height: 52px;
+        padding: 0 18px;
+        border-bottom: 1px solid rgba(188, 200, 201, 0.1);
+        background: rgba(17, 21, 22, 0.6);
+      }
+
+      .bar-nav button {
+        position: relative;
+        min-width: 112px;
+        padding: 0 16px;
+        border: 0;
+        color: rgba(174, 181, 180, 0.6);
+        background: transparent;
+        font: 600 0.8rem/1 "Space Grotesk", sans-serif;
+      }
+
+      .bar-nav button.active {
+        color: rgba(238, 240, 235, 0.94);
+        background: rgba(238, 240, 235, 0.045);
+      }
+
+      .bar-nav button.active::before {
+        position: absolute;
+        right: 12px;
+        bottom: 7px;
+        left: 12px;
+        height: 5px;
+        border-radius: 999px;
+        background: rgba(73, 214, 200, 0.32);
+        filter: blur(4px);
+        content: "";
+      }
+
+      /* C — minimal text rail */
+      .rail-nav {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px;
+        border-radius: 10px;
+        background: rgba(8, 10, 11, 0.46);
+        backdrop-filter: blur(8px);
+      }
+
+      .rail-nav button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 34px;
+        padding: 0 11px;
+        border: 0;
+        border-radius: 7px;
+        color: rgba(174, 181, 180, 0.55);
+        background: transparent;
+        font: 600 0.78rem/1 "Space Grotesk", sans-serif;
+      }
+
+      .rail-nav button::before {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: rgba(174, 181, 180, 0.18);
+        content: "";
+      }
+
+      .rail-nav button.active {
+        color: rgba(238, 240, 235, 0.94);
+        background: rgba(238, 240, 235, 0.055);
+      }
+
+      .rail-nav button.active::before {
+        background: var(--teal);
+        box-shadow: 0 0 12px rgba(73, 214, 200, 0.32);
+      }
+
+      .rail-stage .demo-panel { padding-top: 60px; }
+
+      /* D — vertical side dock */
+      .side-layout { display: grid; grid-template-columns: 112px minmax(0, 1fr); min-height: 380px; }
+
+      .side-nav {
+        display: grid;
+        align-content: start;
+        gap: 7px;
+        padding: 16px 10px;
+        border-right: 1px solid rgba(188, 200, 201, 0.09);
+        background: rgba(17, 21, 22, 0.54);
+      }
+
+      .side-nav button {
+        display: grid;
+        gap: 5px;
+        min-height: 58px;
+        padding: 10px;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        color: rgba(174, 181, 180, 0.56);
+        background: transparent;
+        text-align: left;
+        font: 600 0.74rem/1.2 "Space Grotesk", sans-serif;
+      }
+
+      .side-nav button small {
+        color: rgba(174, 181, 180, 0.35);
+        font: 500 0.58rem/1.2 "IBM Plex Sans", sans-serif;
+      }
+
+      .side-nav button.active {
+        border-color: rgba(130, 169, 216, 0.14);
+        color: rgba(238, 240, 235, 0.94);
+        background: rgba(130, 169, 216, 0.075);
+      }
+
+      .side-nav button.active small { color: rgba(174, 181, 180, 0.58); }
+
+      .side-content { min-width: 0; }
+
+      @media (max-width: 780px) {
+        .page { width: min(100% - 20px, 1380px); padding-top: 26px; }
+        .page-head, .study-copy { display: grid; grid-template-columns: 1fr; align-items: start; }
+        .back { width: fit-content; }
+        .demo-stage { min-height: 380px; padding: 10px; }
+        .demo-toolbar { align-items: flex-start; flex-direction: column; }
+        .filters { width: 100%; overflow: hidden; }
+        .search { display: none; }
+        .filter:nth-child(n + 3) { display: none; }
+        .side-layout { grid-template-columns: 92px minmax(0, 1fr); }
+        .node::after { width: 58px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="page-head">
+        <div>
+          <h1>Explore / Analyze navigation study</h1>
+          <p>Four ways to make the workspace mode more legible without returning to the colored folder edge. Click either label inside any study to compare its selected state.</p>
+        </div>
+        <a class="back" href="../?data-source=local">Back to the graph</a>
+      </header>
+
+      <div class="studies">
+        <section class="study">
+          <div class="study-copy">
+            <div class="study-title"><h2>A. Tonal segmented control</h2><span class="tag">Recommended</span></div>
+            <p>A compact switch inside the workspace. The selected mode is communicated by surface depth, stronger text, and a quiet teal tint—not by an exposed edge.</p>
+          </div>
+          <div class="demo-stage tonal-stage">
+            <div class="demo-panel">
+              <div class="mode tonal-nav" data-demo-nav>
+                <button class="active" type="button" aria-pressed="true">Explore</button>
+                <button type="button" aria-pressed="false">Analyze</button>
+              </div>
+              <div class="demo-toolbar">
+                <div class="filters"><span class="filter">Primary studies</span><span class="filter wide">Conditions</span><span class="filter">2010 — 2026</span></div><span class="search"></span>
+              </div>
+              <div class="mock-graph">
+                <span class="link" style="--x:20%;--y:47%;--length:30%;--angle:-8deg"></span><span class="link" style="--x:44%;--y:45%;--length:30%;--angle:18deg"></span>
+                <span class="node" data-label="Psilocybin" style="left:17%;top:34%;--size:54px;--color:#49d6c8"></span><span class="node" data-label="Conditions" style="left:46%;top:29%;--size:72px;--color:#82a9d8"></span><span class="node" data-label="Depression" style="left:74%;top:53%;--size:42px;--color:#a88bd1"></span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="study">
+          <div class="study-copy">
+            <div class="study-title"><h2>B. Embedded mode bar</h2></div>
+            <p>The mode switch becomes part of the panel header rather than floating above it. It feels more like changing the entire workspace, but it consumes more vertical space.</p>
+          </div>
+          <div class="demo-stage">
+            <div class="demo-panel">
+              <div class="mode bar-nav" data-demo-nav>
+                <button class="active" type="button" aria-pressed="true">Explore</button>
+                <button type="button" aria-pressed="false">Analyze</button>
+              </div>
+              <div class="demo-toolbar">
+                <div class="filters"><span class="filter">Primary studies</span><span class="filter wide">Conditions</span><span class="filter">2010 — 2026</span></div><span class="search"></span>
+              </div>
+              <div class="mock-graph">
+                <span class="link" style="--x:21%;--y:48%;--length:29%;--angle:-10deg"></span><span class="link" style="--x:45%;--y:45%;--length:29%;--angle:16deg"></span>
+                <span class="node" data-label="Psilocybin" style="left:18%;top:35%;--size:54px;--color:#49d6c8"></span><span class="node" data-label="Conditions" style="left:47%;top:28%;--size:72px;--color:#82a9d8"></span><span class="node" data-label="Depression" style="left:74%;top:52%;--size:42px;--color:#a88bd1"></span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="study">
+          <div class="study-copy">
+            <div class="study-title"><h2>C. Minimal mode rail</h2></div>
+            <p>The lightest treatment: selected text, a soft neutral fill, and a small status light. It blends best with the graph, though it is less emphatic than A or B.</p>
+          </div>
+          <div class="demo-stage rail-stage">
+            <div class="demo-panel">
+              <div class="mode rail-nav" data-demo-nav>
+                <button class="active" type="button" aria-pressed="true">Explore</button>
+                <button type="button" aria-pressed="false">Analyze</button>
+              </div>
+              <div class="demo-toolbar">
+                <div class="filters"><span class="filter">Primary studies</span><span class="filter wide">Conditions</span><span class="filter">2010 — 2026</span></div><span class="search"></span>
+              </div>
+              <div class="mock-graph">
+                <span class="link" style="--x:20%;--y:46%;--length:30%;--angle:-7deg"></span><span class="link" style="--x:44%;--y:45%;--length:30%;--angle:18deg"></span>
+                <span class="node" data-label="Psilocybin" style="left:17%;top:33%;--size:54px;--color:#49d6c8"></span><span class="node" data-label="Conditions" style="left:46%;top:28%;--size:72px;--color:#82a9d8"></span><span class="node" data-label="Depression" style="left:74%;top:53%;--size:42px;--color:#a88bd1"></span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="study">
+          <div class="study-copy">
+            <div class="study-title"><h2>D. Vertical workspace dock</h2></div>
+            <p>The clearest structural break: modes live on a narrow left rail. It makes Explore and Analyze feel like separate workspaces, but changes the graph’s horizontal framing the most.</p>
+          </div>
+          <div class="demo-stage">
+            <div class="demo-panel side-layout">
+              <div class="mode side-nav" data-demo-nav>
+                <button class="active" type="button" aria-pressed="true">Explore<small>Graph view</small></button>
+                <button type="button" aria-pressed="false">Analyze<small>Plots &amp; comparisons</small></button>
+              </div>
+              <div class="side-content">
+                <div class="demo-toolbar">
+                  <div class="filters"><span class="filter">Primary studies</span><span class="filter wide">Conditions</span><span class="filter">2010 — 2026</span></div><span class="search"></span>
+                </div>
+                <div class="mock-graph">
+                  <span class="link" style="--x:18%;--y:47%;--length:31%;--angle:-9deg"></span><span class="link" style="--x:44%;--y:45%;--length:30%;--angle:17deg"></span>
+                  <span class="node" data-label="Psilocybin" style="left:15%;top:34%;--size:54px;--color:#49d6c8"></span><span class="node" data-label="Conditions" style="left:46%;top:28%;--size:72px;--color:#82a9d8"></span><span class="node" data-label="Depression" style="left:75%;top:53%;--size:42px;--color:#a88bd1"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+    <script>
+      document.querySelectorAll("[data-demo-nav]").forEach((nav) => {
+        nav.addEventListener("click", (event) => {
+          const button = event.target.closest("button");
+          if (!button || !nav.contains(button)) return;
+          nav.querySelectorAll("button").forEach((candidate) => {
+            const selected = candidate === button;
+            candidate.classList.toggle("active", selected);
+            candidate.setAttribute("aria-pressed", selected ? "true" : "false");
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

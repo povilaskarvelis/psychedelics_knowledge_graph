@@ -87,7 +87,7 @@
       type="application/json"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="styles.css?v=20260729-wide-header-v1" />
+    <link rel="stylesheet" href="styles.css?v=20260819-analysis-workspace-v23" />
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>
@@ -143,35 +143,30 @@
     </header>
 
     <main class="content">
-      <section class="panel graph-panel">
+      <section class="panel graph-panel" data-explorer-workspace data-workspace-mode="overview">
+        <div
+          class="workspace-tabs"
+          data-explorer-mode-toggle
+          role="tablist"
+          aria-label="Workspace view"
+        >
+          <button class="workspace-tab active" type="button" data-explorer-mode="overview" role="tab" aria-selected="true">
+            Explore
+          </button>
+          <button class="workspace-tab" type="button" data-explorer-mode="analysis" role="tab" aria-selected="false">
+            Analyze
+          </button>
+        </div>
         <div class="graph-grid">
           <div class="graph-column">
             <div class="graph-toolbar">
               <div class="graph-header-controls">
                 <div class="explorer-primary-row">
-                  <div class="explorer-lens-row">
-                    <div
-                      class="segmented-toggle explorer-lens-toggle"
-                      data-explorer-lens-toggle
-                      role="tablist"
-                      aria-label="Exploration lens"
-                    >
-                      <button class="ghost small active" type="button" data-explorer-lens="domain" role="tab" aria-selected="true">
-                        Research area
-                      </button>
-                      <button class="ghost small" type="button" data-explorer-lens="compound" role="tab" aria-selected="false">
-                        Compound
-                      </button>
-                      <button class="ghost small" type="button" data-explorer-lens="author" role="tab" aria-selected="false">
-                        Author
-                      </button>
-                      <button class="ghost small" type="button" data-explorer-lens="journal" role="tab" aria-selected="false">
-                        Journal
-                      </button>
-                    </div>
-                  </div>
                   <div class="filter-center-controls">
-                    <div class="segmented-toggle evidence-view-toggle" role="tablist" aria-label="Evidence view">
+                    <div class="segmented-toggle evidence-view-toggle" id="evidenceViewToggle" role="tablist" aria-label="Evidence view">
+                      <button class="ghost small" data-evidence-view="all" role="tab" aria-selected="false" hidden>
+                        All papers
+                      </button>
                       <button class="ghost small active" data-evidence-view="primary" role="tab" aria-selected="true" aria-label="Primary studies" title="Primary studies">
                         Primary studies
                       </button>
@@ -208,10 +203,67 @@
                     role="tablist"
                     aria-label="Graph category"
                   ></div>
-                  <label class="explorer-search" id="explorerContext" hidden>
-                    <span class="sr-only" id="explorerSearchLabel">Search this overview</span>
-                    <input id="explorerSearchInput" type="search" placeholder="Search compounds" aria-labelledby="explorerSearchLabel" />
-                  </label>
+                  <div class="explorer-context" id="explorerContext" hidden>
+                    <div class="analysis-query-builder" aria-label="Analysis scope">
+                      <label class="analysis-query-field analysis-query-entity">
+                        <span>Analyze</span>
+                        <select id="explorerEntitySelect" aria-label="Choose what to analyze">
+                          <option value="all">All</option>
+                          <option value="compound">Compounds</option>
+                          <option value="author">Authors</option>
+                          <option value="journal">Journals</option>
+                        </select>
+                      </label>
+                      <label class="analysis-query-field">
+                        <span>Within</span>
+                        <select id="explorerScopeAreaSelect" aria-label="Filter analysis by research area">
+                          <option value="">All research areas</option>
+                        </select>
+                      </label>
+                      <label class="analysis-query-field analysis-query-concept">
+                        <span>Focused on</span>
+                        <select id="explorerScopeConceptSelect" aria-label="Filter analysis by concept" disabled>
+                          <option value="">Choose a research area first</option>
+                        </select>
+                      </label>
+                      <label class="analysis-query-field analysis-query-evidence">
+                        <span>Papers</span>
+                        <select id="explorerEvidenceSelect" aria-label="Filter analysis by paper type">
+                          <option value="all">All papers</option>
+                          <option value="primary">Primary studies</option>
+                          <option value="meta_analyses">Meta-analyses</option>
+                          <option value="reviews">Reviews</option>
+                        </select>
+                      </label>
+                      <button class="analysis-scope-clear" id="explorerScopeClear" type="button" hidden>Clear scope</button>
+                    </div>
+                    <div class="explorer-navigation-row">
+                      <div class="explorer-search">
+                      <span class="sr-only" id="explorerSearchLabel">Search compounds</span>
+                      <input
+                        id="explorerSearchInput"
+                        type="search"
+                        placeholder="Search compounds"
+                        aria-labelledby="explorerSearchLabel"
+                        aria-autocomplete="list"
+                        aria-controls="explorerSearchOptions"
+                        aria-expanded="false"
+                        aria-haspopup="listbox"
+                        autocomplete="off"
+                        role="combobox"
+                      />
+                      <div class="explorer-search-options" id="explorerSearchOptions" role="listbox" hidden></div>
+                      </div>
+                      <nav class="explorer-focus-path" id="explorerFocusPath" aria-label="Current analysis path" hidden>
+                        <button class="explorer-focus-back" id="explorerFocusBack" type="button">
+                          <span class="explorer-focus-back-arrow" aria-hidden="true">←</span>
+                          <span id="explorerFocusParent">Compounds</span>
+                        </button>
+                        <span class="explorer-focus-separator" aria-hidden="true">/</span>
+                        <span class="explorer-focus-current" id="explorerFocusCurrent" aria-current="page"></span>
+                      </nav>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div
@@ -281,6 +333,6 @@
     </footer>
 
     <script src="/ui/site-nav.js?v=20260720-local-data-preview-v1"></script>
-    <script src="app.js?v=20260810-bibliography-search-v1"></script>
+    <script src="app.js?v=20260819-analysis-workspace-v23"></script>
   </body>
 </html>
