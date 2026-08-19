@@ -114,8 +114,9 @@ def test_local_preview_builds_one_verified_pointer_for_graph_and_methods(
     assert pointer["active_detail_bootstraps_by_view"]["primary"]["brain_system"].endswith(
         "/detail_bootstrap_primary_brain_system.json"
     )
+    assert pointer["active_analysis_index"].endswith("/analysis_index_v1.json")
     assert "/data/kg/views/methods_bibliography.json" in allowed_files
-    assert len(allowed_files) == 43
+    assert len(allowed_files) == 44
 
 
 def test_local_preview_can_select_an_unpublished_run_without_changing_active_pointer(

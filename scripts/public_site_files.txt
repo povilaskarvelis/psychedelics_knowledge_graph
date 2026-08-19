@@ -14,10 +14,10 @@ sitemap.xml
 schema/graph_view_contract.json
 ui/index.html
 ui/app.js
+ui/analysis-worker.js
 ui/compound.js
 ui/styles.css
 ui/methods.html
 ui/methods.js
 ui/site-nav.js
-ui/workspace-nav-demos.html
 ui/assets/gui-screenshot.png

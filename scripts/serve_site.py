@@ -20,6 +20,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from pipeline.kg.graph_view_contract import graph_view_ids
+from scripts.build_analysis_index import build_index, load_columnar
 
 
 DEFAULT_DIST = ROOT / "dist"
@@ -104,7 +105,8 @@ def build_local_preview(
     allowed_files: dict[str, Path] = {}
     remote_files: dict[str, dict] = {}
     expected_logical_names: set[str] = set()
-    pointer_mappings: dict[str, dict[str, str]] = {}
+    pointer_mappings: dict[str, object] = {}
+    detail_source_paths: dict[str, Path] = {}
     for manifest_key, pointer_key, logical_prefix in (
         ("graph_bootstraps", "active_graph_bootstraps", "graph"),
         ("dashboard_bootstraps", "active_dashboard_bootstraps", "dashboard"),
@@ -132,6 +134,8 @@ def build_local_preview(
             public_path = str(relative_path).lstrip("/")
             allowed_files[f"/{public_path}"] = path
             pointer_mappings[pointer_key][str(source_key)] = public_path
+            if logical_prefix == "detail":
+                detail_source_paths[str(source_key)] = path
             remote_files[logical_name] = {
                 "key": public_path,
                 "path": path.name,
@@ -176,6 +180,36 @@ def build_local_preview(
                 }
     if set(manifest.get("files") or {}) != expected_logical_names:
         raise ValueError("Graph manifest contains an unexpected file set")
+
+    analysis_index_path = run_root / "analysis_index_v1.json"
+    analysis_builder_path = repository_root / "scripts" / "build_analysis_index.py"
+    if not analysis_builder_path.is_file():
+        analysis_builder_path = ROOT / "scripts" / "build_analysis_index.py"
+    newest_analysis_input_mtime = max(
+        max(path.stat().st_mtime for path in detail_source_paths.values()),
+        analysis_builder_path.stat().st_mtime,
+    )
+    if not analysis_index_path.is_file() or analysis_index_path.stat().st_mtime < newest_analysis_input_mtime:
+        analysis_payload = build_index(
+            {
+                source_key: load_columnar(detail_source_paths[source_key])
+                for source_key in sorted(SOURCE_KEYS)
+            },
+            str(manifest.get("generated_at") or ""),
+        )
+        analysis_index_path.write_text(
+            json.dumps(analysis_payload, ensure_ascii=False, separators=(",", ":")),
+            encoding="utf-8",
+        )
+    analysis_public_path = analysis_index_path.relative_to(repository_root).as_posix()
+    allowed_files[f"/{analysis_public_path}"] = analysis_index_path
+    pointer_mappings["active_analysis_index"] = analysis_public_path
+    remote_files["analysis:index"] = {
+        "key": analysis_public_path,
+        "path": analysis_index_path.name,
+        "bytes": analysis_index_path.stat().st_size,
+        "sha256": sha256_file(analysis_index_path),
+    }
 
     manifest_relative = manifest_path.relative_to(repository_root).as_posix()
     allowed_files[f"/{manifest_relative}"] = manifest_path
@@ -246,6 +280,9 @@ def validated_published_preview(pointer: dict) -> dict[str, str]:
         if not isinstance(mapping, dict) or not mapping:
             raise ValueError(f"Published preview pointer is missing {mapping_name}")
         keys.update(str(value or "").strip("/") for value in mapping.values())
+    analysis_index = str(pointer.get("active_analysis_index") or "").strip("/")
+    if analysis_index:
+        keys.add(analysis_index)
     detail_view_mapping = pointer.get("active_detail_bootstraps_by_view")
     if detail_view_mapping is not None:
         if not isinstance(detail_view_mapping, dict) or not detail_view_mapping:
