@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 APP_JS = ROOT / "ui" / "app.js"
 INDEX_HTML = ROOT / "index.html"
 STYLES_CSS = ROOT / "ui" / "styles.css"
+ANALYSIS_WORKER_JS = ROOT / "ui" / "analysis-worker.js"
 NETLIFY_TOML = ROOT / "netlify.toml"
 GRAPH_VIEW_CONTRACT = ROOT / "schema" / "graph_view_contract.json"
 
@@ -323,6 +324,8 @@ def test_initial_card_distribution_does_not_force_layout_per_card() -> None:
 
 def test_findings_search_does_not_rerender_the_graph_or_dashboard() -> None:
     source = APP_JS.read_text(encoding="utf-8")
+    html_source = INDEX_HTML.read_text(encoding="utf-8")
+    styles = STYLES_CSS.read_text(encoding="utf-8")
     search_render = source.split("function scheduleFindingSearchRender", 1)[1].split(
         "function requestGraphCenterAfterRender", 1
     )[0]
@@ -333,6 +336,141 @@ def test_findings_search_does_not_rerender_the_graph_or_dashboard() -> None:
     assert "renderCards(" in search_render
     assert "buildGraph(" not in search_render
     assert "renderBibliography(" not in search_render
+    assert 'aria-controls="findingSearchOptions"' in html_source
+    assert 'id="findingSearchOptions" role="listbox"' in html_source
+    assert "renderFindingSearchOptions()" in search_listener
+    assert "FINDING_SEARCH_DEBOUNCE_MS = 180" in source
+    assert 'input[type="search"]:focus-visible' in styles
+    assert "box-shadow: none" in styles.split('input[type="search"]:focus-visible', 1)[1].split("}", 1)[0]
+
+
+def test_explore_and_analyze_keep_separate_dashboard_and_filter_state() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    html_source = INDEX_HTML.read_text(encoding="utf-8")
+    cache_key = source.split("function currentOverviewDetailCacheKey", 1)[1].split(
+        "function overviewDetailSnapshot", 1
+    )[0]
+    detail_header = source.split("function setDetailHeader", 1)[1].split(
+        "function clearDetailForTransition", 1
+    )[0]
+    mode_switch = source.split("function switchExplorerMode", 1)[1].split(
+        "function switchCompareKind", 1
+    )[0]
+
+    assert 'explorerMode !== "overview"' in cache_key
+    assert 'explorerMode === "overview"' in detail_header
+    assert "overviewWorkspaceFilterState = { evidenceView, accessView }" in mode_switch
+    assert "accessView = state.accessView" in source
+    assert "deferredSurfaceRenderToken += 1" in source
+    assert "syncYearFilterControls(activeClaimsForMode(), false)" in mode_switch
+    assert 'id="explorerScopeClear" type="button">Reset</button>' in html_source
+    assert "explorerScopeClear.hidden = false" in source
+
+
+def test_analysis_defaults_to_year_2000_through_latest_available_year() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    defaults = source.split("function defaultYearFilterRange", 1)[1].split(
+        "function syncYearFilterControls", 1
+    )[0]
+    sync = source.split("function syncYearFilterControls", 1)[1].split(
+        "function rememberYearFilterControls", 1
+    )[0]
+    reset = source.split('explorerScopeClear.addEventListener("click"', 1)[1].split(
+        "if (explorerFocusBack)", 1
+    )[0]
+
+    assert "ANALYSIS_DEFAULT_START_YEAR = 2000" in source
+    assert 'explorerMode === "analysis"' in defaults
+    assert "clampNumber(ANALYSIS_DEFAULT_START_YEAR, bounds.min, bounds.max)" in defaults
+    assert "max: bounds.max" in defaults
+    assert "defaultYearFilterRange(bounds)" in sync
+    assert "refreshAnalysisScope({ resetYears: true })" in reset
+
+
+def test_analysis_dropdown_menus_use_the_site_dark_theme() -> None:
+    source = STYLES_CSS.read_text(encoding="utf-8")
+    root = source.split(":root {", 1)[1].split("}", 1)[0]
+    options = source.split(
+        ".analysis-query-field select option,", 1
+    )[1].split("}", 1)[0]
+
+    assert "color-scheme: dark;" in root
+    assert ".analysis-publication-field select option" in source
+    assert "color: var(--fg);" in options
+    assert "background: var(--bg-2);" in options
+
+
+def test_analysis_section_headings_do_not_render_redundant_meta_copy() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    renderer = source.split("function renderAnalyticsPanel", 1)[1].split(
+        "function analysisExperimentalSystemFacetLabel", 1
+    )[0]
+    momentum = source.split("function renderExplorerMomentumPanel", 1)[1].split(
+        "function updateExplorerMomentumPanel", 1
+    )[0]
+    focused_dashboard = source.split("function renderExplorerFocused", 1)[1].split(
+        "function renderExplorerSurface", 1
+    )[0]
+    focused_section_order = focused_dashboard.split("const dashboardSections", 1)[1].split(
+        "dashboard.append", 1
+    )[0]
+
+    assert "${meta" not in renderer
+    assert "<span>" not in renderer
+    assert "data-explorer-momentum-meta" not in momentum
+    assert "<h3>Connections</h3><span>" not in focused_dashboard
+    assert focused_section_order.index("overlapWrap.firstElementChild") < focused_section_order.index(
+        "dashboardSections.push(networkPanel)"
+    )
+
+
+def test_analysis_chart_titles_and_axis_labels_have_safe_insets() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    styles = STYLES_CSS.read_text(encoding="utf-8")
+    landscape = source.split("function renderExplorerLandscape", 1)[1].split(
+        "function renderExplorerMomentum", 1
+    )[0]
+    grouped_history = source.split("function renderAnalyticsGroupedYearHistogram", 1)[1].split(
+        "function analyticsSparkline", 1
+    )[0]
+    publication_history = source.split("function renderEvidenceTrajectory", 1)[1].split(
+        "function renderSynthesisGap", 1
+    )[0]
+    evidence_coverage = source.split("function renderSynthesisGap", 1)[1].split(
+        "function renderEvidenceComparison", 1
+    )[0]
+
+    assert 'renderAnalyticsPanel("Research-area evidence coverage"' in source
+    assert 'renderAnalyticsPanel("Evidence maturity"' not in source
+    assert "const width = 788;" in landscape
+    assert "const height = 348;" in landscape
+    assert "bottom: 72, left: 76" in landscape
+    assert 'y="${baselineY + 18}"' in landscape
+    assert 'y="${height - 36}"' in landscape
+    assert 'x="34"' in landscape
+    assert 'y="${height - 20}"' in grouped_history
+    assert 'y="${height - 20}"' in publication_history
+    assert "const height = 348;" in evidence_coverage
+    assert "bottom: 64" in evidence_coverage
+    assert 'y="${baselineY + 12}"' in evidence_coverage
+    assert 'y="${height - 36}"' in evidence_coverage
+    assert "\n.graph > svg {\n" in styles
+    assert "\n.graph svg {\n" not in styles
+
+
+def test_cross_domain_overlap_uses_consistent_labels_and_edge_markers() -> None:
+    source = STYLES_CSS.read_text(encoding="utf-8")
+    column_label = source.split(".analytics-overlap-column span {", 1)[1].split("}", 1)[0]
+    row_label = source.split(".analytics-overlap-row-label {", 1)[1].split("}", 1)[0]
+
+    assert "color: color-mix(in srgb, var(--area-color) 60%, #e8ece8);" in column_label
+    assert "text-shadow: none;" in column_label
+    assert "color: color-mix(in srgb, var(--area-color) 60%, #e8ece8);" in row_label
+    assert "justify-content: flex-end;" in row_label
+    assert "border-right: 2px solid var(--area-color);" in row_label
+    assert "border-left" not in row_label
+    assert "text-align: right;" in row_label
+    assert "text-shadow: none;" in row_label
 
 
 def test_bibliography_search_reuses_the_rendered_rows_and_cached_index() -> None:
@@ -560,7 +698,8 @@ def test_entity_navigation_prefers_category_shards_and_keeps_full_search_fallbac
     assert "loadNormalizedClaimSource(currentSourceKey())" in search
     assert "preloadClaimsForEntityView(viewKey)" in listeners
     assert "preloadFullClaimsForCurrentSource" not in source
-    assert 'searchInput.addEventListener("focus"' not in source
+    assert 'searchInput.addEventListener("focus"' in source
+    assert "scheduleFindingSearchIndexWarmup()" in listeners
 
 
 def test_card_progressive_rendering_uses_a_real_scroll_root() -> None:
@@ -592,10 +731,65 @@ def test_versioned_static_assets_are_browser_immutable() -> None:
 
     assert headers["/ui/*.js"]["Cache-Control"] == "public, max-age=31536000, immutable"
     assert headers["/ui/*.css"]["Cache-Control"] == "public, max-age=31536000, immutable"
-    assert 'styles.css?v=20260729-wide-header-v1' in html_source
-    assert 'app.js?v=20260810-bibliography-search-v1' in html_source
+    assert 'styles.css?v=20260904-square-legend-swatches-v58' in html_source
+    assert 'app.js?v=20260904-contextual-scope-counts-v51' in html_source
     assert 'rel="canonical" href="https://psychedelicskg.com/"' in html_source
     assert '"@type": "Dataset"' in html_source
+
+
+def test_lower_level_research_areas_are_labeled_as_topics() -> None:
+    app_source = APP_JS.read_text(encoding="utf-8")
+    html_source = INDEX_HTML.read_text(encoding="utf-8")
+
+    assert 'aria-label="Filter analysis by topic"' in html_source
+    for label in (
+        "Research topic",
+        "All topics",
+        "topic breadth",
+        "Topic profile",
+        "Topic momentum",
+    ):
+        assert label in app_source
+    for old_label in (
+        "Research concept",
+        "All concepts",
+        "concept breadth",
+        "Concept profile",
+        "Concept momentum",
+    ):
+        assert old_label not in app_source
+
+    # The wording changes without breaking stored data or existing links.
+    assert 'data-analysis-scope-concept' in app_source
+    assert 'column.type === "concept"' in app_source
+
+
+def test_analysis_legends_use_large_square_color_swatches() -> None:
+    source = STYLES_CSS.read_text(encoding="utf-8")
+    swatches = source.split(
+        ".analytics-chart-legend i,\n.compare-composition-legend i {", 1
+    )[1].split("}", 1)[0]
+
+    assert "width: 12px;" in swatches
+    assert "height: 12px;" in swatches
+    assert "border-radius: 3px;" in swatches
+
+
+def test_analysis_scope_counts_follow_the_selected_entity() -> None:
+    app_source = APP_JS.read_text(encoding="utf-8")
+    worker_source = ANALYSIS_WORKER_JS.read_text(encoding="utf-8")
+    scope_controls = app_source.split("function syncAnalysisScopeControls()", 1)[1].split(
+        "function explorerSourceClaims()", 1
+    )[0]
+    base_mask = worker_source.split("function baseStudyMask", 1)[1].split(
+        "function idsFromMask", 1
+    )[0]
+
+    assert "analysisClaimsForFocusedEntity(" in scope_controls
+    assert "explorerBaseFilteredClaims" in scope_controls
+    assert "entityByLensAndKey.get(params.lens)?.get(params.focusKey)" in base_mask
+    assert "params.focusKey && !focus?.membership.has(study.id)" in base_mask
+    assert 'analysis-worker.js?v=20260904-contextual-scope-v4' in app_source
 
 
 def test_desktop_header_and_home_content_share_the_same_horizontal_gutter() -> None:
@@ -644,6 +838,41 @@ def test_stacked_bar_full_views_restart_palette_and_filtered_categories_keep_the
     assert 'paletteColor = ""' in detail
     assert "compositionFilterColor(field, value, paletteColor)" in detail
     assert source.count('target.dataset.paletteColor || ""') >= 2
+
+
+def test_analysis_hides_redundant_study_characteristics_and_transparency_panels() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    matrix_view = source.split("function renderExplorerMatrix", 1)[1].split(
+        "function explorerSvgElement", 1
+    )[0]
+    focused_view = source.split("function renderExplorerFocused", 1)[1].split(
+        "function renderExplorerSurface", 1
+    )[0]
+    all_view = source.split("function renderAllAnalysis", 1)[1].split(
+        "function compareCombinedItems", 1
+    )[0]
+
+    assert "renderAnalysisStudyDetailSections(" not in matrix_view
+    assert "renderAnalysisStudyDetailSections(" not in focused_view
+    assert "renderAnalysisStudyDetailSections(" not in all_view
+    assert source.count("renderAnalysisStudyDetailSections(") == 1
+    assert "autosizeExplorerWorkspace(dashboard);" in focused_view
+    assert "autosizeExplorerWorkspace(graphEl.firstElementChild);" in all_view
+
+
+def test_analysis_study_detail_charts_drill_into_matching_records() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    click_handler = source.split('graphEl.addEventListener("click"', 1)[1].split(
+        'graphEl.addEventListener("mouseover"', 1
+    )[0]
+
+    assert 'data-analysis-study-filter="facet"' in source
+    assert 'data-analysis-study-filter="sample-size"' in source
+    assert "function renderAnalysisStudyFilterDetail" in source
+    assert "claimsForFieldValue(field, value, items)" in source
+    assert "claimsForAnalysisSampleSizeRange(sampleItems, min, max)" in source
+    assert "renderExplorerSelectionDetail(fieldValueDetailTitle(field, label)" in source
+    assert 'event.target.closest?.("[data-analysis-study-filter]")' in click_handler
 
 
 def test_stacked_bar_palette_starts_with_blue_and_nudges_teal_toward_green() -> None:
@@ -896,6 +1125,9 @@ def test_constrained_graph_category_tabs_are_a_single_horizontal_scroll_row() ->
     assert "flex-wrap: nowrap;" in category_styles
     assert "justify-content: flex-start;" in category_styles
     assert "overflow-x: auto;" in category_styles
+    assert "border-radius: 999px;" in category_styles
+    assert "width: calc(100% - 16px);" in category_styles
+    assert "margin-inline: 0 16px;" in category_styles
 
 
 def test_year_controls_stack_when_the_graph_column_is_constrained() -> None:

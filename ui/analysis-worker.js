@@ -107,6 +107,9 @@ function baseStudyMask(params, { ignoreAccess = false, ignoreScope = false } = {
   const minYear = Number(params.yearMin) || 0;
   const maxYear = Number(params.yearMax) || 0;
   const openOnly = !ignoreAccess && params.accessView === "open";
+  const focus = params.focusKey
+    ? entityByLensAndKey.get(params.lens)?.get(params.focusKey)
+    : null;
   let lensMembership = lensMemberships.get(params.lens) || null;
   if (lensMembership && params.areaKey && !ignoreScope) {
     lensMembership = new Set();
@@ -125,6 +128,7 @@ function baseStudyMask(params, { ignoreAccess = false, ignoreScope = false } = {
     if (minYear && study.year && study.year < minYear) return;
     if (maxYear && study.year && study.year > maxYear) return;
     if (lensMembership && !lensMembership.has(study.id)) return;
+    if (params.focusKey && !focus?.membership.has(study.id)) return;
     if (area && !area.membership.has(study.id)) return;
     if (concept && !concept.membership.has(study.id)) return;
     mask[study.id] = 1;

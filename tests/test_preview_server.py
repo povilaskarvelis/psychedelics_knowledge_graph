@@ -1,6 +1,7 @@
 import hashlib
 import json
 from pathlib import Path
+import time
 
 import pytest
 
@@ -9,7 +10,10 @@ from scripts.serve_site import (
     LOCAL_POINTER_SCHEMA,
     LOCAL_PAGE_PATHS,
     PreviewRequestHandler,
+    SiteBuildWatcher,
     build_local_preview,
+    public_site_manifest_entries,
+    public_site_source_snapshot,
     validated_published_preview,
 )
 
@@ -94,6 +98,92 @@ def write_preview_fixture(root: Path) -> None:
             ),
             encoding="utf-8",
         )
+
+
+def write_site_fixture(root: Path) -> Path:
+    scripts = root / "scripts"
+    scripts.mkdir(parents=True)
+    page = root / "index.html"
+    page.write_text("first", encoding="utf-8")
+    (scripts / "public_site_files.txt").write_text("index.html\nui\n", encoding="utf-8")
+    (root / "ui").mkdir()
+    (root / "release-metadata.json").write_text("{}", encoding="utf-8")
+    for filename in ("build_site.sh", "render_release_metadata.py", "sanitize_public_json.py"):
+        (scripts / filename).write_text("", encoding="utf-8")
+    return page
+
+
+def test_public_site_manifest_entries_ignore_comments_and_blank_lines(
+    tmp_path: Path,
+) -> None:
+    scripts = tmp_path / "scripts"
+    scripts.mkdir()
+    (scripts / "public_site_files.txt").write_text(
+        "# comment\n\nindex.html # home\nui/app.js\n",
+        encoding="utf-8",
+    )
+
+    assert public_site_manifest_entries(tmp_path) == (
+        tmp_path / "index.html",
+        tmp_path / "ui/app.js",
+    )
+
+
+def test_public_site_snapshot_detects_a_source_edit(tmp_path: Path) -> None:
+    page = write_site_fixture(tmp_path)
+    before = public_site_source_snapshot(tmp_path)
+
+    page.write_text("second version", encoding="utf-8")
+
+    assert public_site_source_snapshot(tmp_path) != before
+
+
+def test_local_site_watcher_rebuilds_once_after_a_burst_of_edits(
+    tmp_path: Path,
+) -> None:
+    page = write_site_fixture(tmp_path)
+    builds: list[str] = []
+    watcher = SiteBuildWatcher(
+        tmp_path / "dist",
+        tmp_path,
+        build=lambda: builds.append(page.read_text(encoding="utf-8")),
+        poll_seconds=0.01,
+        debounce_seconds=0.04,
+    )
+    watcher.start()
+    try:
+        page.write_text("second", encoding="utf-8")
+        time.sleep(0.02)
+        page.write_text("third", encoding="utf-8")
+        deadline = time.monotonic() + 1
+        while not builds and time.monotonic() < deadline:
+            time.sleep(0.01)
+        time.sleep(0.08)
+    finally:
+        watcher.stop()
+
+    assert builds == ["third"]
+
+
+def test_preview_requests_hold_the_build_lock() -> None:
+    events: list[str] = []
+
+    class RecordingLock:
+        def __enter__(self):
+            events.append("locked")
+
+        def __exit__(self, *_args):
+            events.append("unlocked")
+
+    handler = object.__new__(PreviewRequestHandler)
+    handler.build_lock = RecordingLock()
+    handler._handle_request = lambda *, head_only: events.append(
+        f"request:{head_only}"
+    )
+
+    handler.handle_request(head_only=False)
+
+    assert events == ["locked", "request:False", "unlocked"]
 
 
 def test_local_preview_builds_one_verified_pointer_for_graph_and_methods(

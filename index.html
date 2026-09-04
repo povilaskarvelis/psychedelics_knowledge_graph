@@ -87,7 +87,7 @@
       type="application/json"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="styles.css?v=20260819-analysis-access-v44" />
+    <link rel="stylesheet" href="styles.css?v=20260904-square-legend-swatches-v58" />
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>
@@ -248,7 +248,7 @@
                       </label>
                       <label class="analysis-query-field analysis-query-concept">
                         <span class="sr-only">Focused on</span>
-                        <select id="explorerScopeConceptSelect" aria-label="Filter analysis by concept" disabled>
+                        <select id="explorerScopeConceptSelect" aria-label="Filter analysis by topic" disabled>
                           <option value="">Choose a research area first</option>
                         </select>
                       </label>
@@ -272,7 +272,7 @@
                         <span class="sr-only">Years</span>
                         <div id="analysisYearRangeSlot"></div>
                       </div>
-                      <button class="analysis-scope-clear" id="explorerScopeClear" type="button" hidden>Clear scope</button>
+                      <button class="analysis-scope-clear" id="explorerScopeClear" type="button">Reset</button>
                     </div>
                   </div>
                 </div>
@@ -303,7 +303,17 @@
               <h2 id="findingsHeading">Findings</h2>
             </div>
             <div class="search">
-              <input id="searchInput" type="search" placeholder="Search compounds, findings, methods, or source reports" />
+              <input
+                id="searchInput"
+                type="search"
+                role="combobox"
+                aria-autocomplete="list"
+                aria-controls="findingSearchOptions"
+                aria-expanded="false"
+                autocomplete="off"
+                placeholder="Search compounds, findings, methods, or source reports"
+              />
+              <div class="finding-search-options" id="findingSearchOptions" role="listbox" hidden></div>
             </div>
           </div>
           <div class="cards" id="cards"></div>
@@ -344,6 +354,6 @@
     </footer>
 
     <script src="/ui/site-nav.js?v=20260720-local-data-preview-v1"></script>
-    <script src="app.js?v=20260819-analysis-access-v39"></script>
+    <script src="app.js?v=20260904-contextual-scope-counts-v51"></script>
   </body>
 </html>

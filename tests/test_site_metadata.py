@@ -247,3 +247,11 @@ def test_compound_view_is_part_of_the_public_build() -> None:
     assert "compounds" in public_files.splitlines()
     assert "schema/graph_view_contract.json" in public_files.splitlines()
     assert "ui/compound.js" in public_files.splitlines()
+
+
+def test_site_build_keeps_the_existing_preview_available_until_ready() -> None:
+    build_script = (ROOT / "scripts/build_site.sh").read_text(encoding="utf-8")
+
+    assert 'BUILD_DIR="$(mktemp -d)"' in build_script
+    assert 'rsync -a --delete-after "${BUILD_DIR}/" "${DIST_DIR}/"' in build_script
+    assert 'rm -rf "${DIST_DIR}"' not in build_script

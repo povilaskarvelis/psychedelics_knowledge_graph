@@ -5,6 +5,7 @@ const yearMinFilter = document.getElementById("yearMinFilter");
 const yearMaxFilter = document.getElementById("yearMaxFilter");
 const yearStepButtons = document.querySelectorAll(".year-step");
 const searchInput = document.getElementById("searchInput");
+const findingSearchOptions = document.getElementById("findingSearchOptions");
 const bibliographySearchInput = document.getElementById("bibliographySearchInput");
 const tooltip = document.getElementById("tooltip");
 const graphDetail = document.getElementById("graphDetail");
@@ -69,9 +70,10 @@ const MAIN_FINDING_MAX_CHARS = 260;
 const SAMPLE_YEAR_TARGET_BUCKET_COUNT = 14;
 /** Chunk size for progressive rendering (IntersectionObserver loads more while scrolling). */
 const LIST_CHUNK_SIZE = 120;
-const FINDING_SEARCH_DEBOUNCE_MS = 70;
+const FINDING_SEARCH_DEBOUNCE_MS = 180;
 const BIBLIOGRAPHY_SEARCH_DEBOUNCE_MS = 80;
 const EXPLORER_SEARCH_DEBOUNCE_MS = 90;
+const FINDING_SEARCH_SUGGESTION_LIMIT = 10;
 const EXPLORER_SEARCH_SUGGESTION_LIMIT = 12;
 const EXPLORER_MOMENTUM_MIN_YEARS = 2;
 const EXPLORER_MOMENTUM_MAX_YEARS = 15;
@@ -102,6 +104,7 @@ const ANALYSIS_COMPARISON_COLORS = Object.freeze([
 const EXPLORER_INITIAL_ROW_LIMIT = 24;
 const EXPLORER_ROW_EXPANSION_STEP = 24;
 const COMPARE_COMPOUND_LIMIT = 12;
+const ANALYSIS_DEFAULT_START_YEAR = 2000;
 const EXPLORER_AREA_COLORS = Object.freeze({
   condition_indication: "#82a9d8",
   safety_adverse_event: "#d6a84f",
@@ -499,6 +502,7 @@ let explorerMomentumRenderFrame = 0;
 let explorerWorkspaceResizeObserver = null;
 let explorerWorkspaceResizeFrame = 0;
 let analysisWorkspaceSnapshot = null;
+let overviewWorkspaceFilterState = { evidenceView: "primary", accessView: "open" };
 let analysisIndexWorker = null;
 let analysisIndexReadyPromise = null;
 let analysisIndexRequestId = 0;
@@ -518,6 +522,8 @@ let findingSearchTimer = 0;
 let findingSearchRenderToken = 0;
 let findingSearchWarmupToken = 0;
 let findingSearchWarmupState = null;
+let findingSearchActiveIndex = -1;
+let findingSearchCurrentMatches = [];
 let centerGraphAfterRender = false;
 let centerGraphFrame = 0;
 let activeDetailItems = [];
@@ -1590,6 +1596,16 @@ function yearBoundsFromClaims(data) {
   return { min: minYear, max: maxYear };
 }
 
+function defaultYearFilterRange(bounds) {
+  return {
+    min:
+      explorerMode === "analysis"
+        ? clampNumber(ANALYSIS_DEFAULT_START_YEAR, bounds.min, bounds.max)
+        : bounds.min,
+    max: bounds.max,
+  };
+}
+
 function syncYearFilterControls(data, forceReset = false) {
   if (!yearMinFilter || !yearMaxFilter) return;
   const filterKey = currentYearFilterKey();
@@ -1611,12 +1627,13 @@ function syncYearFilterControls(data, forceReset = false) {
   yearMaxFilter.min = String(bounds.min);
   yearMaxFilter.max = String(bounds.max);
 
+  const defaultRange = defaultYearFilterRange(bounds);
   const state = yearFilterState[filterKey] || { min: "", max: "" };
   let minYear = parseYearValue(forceReset ? "" : state.min);
   let maxYear = parseYearValue(forceReset ? "" : state.max);
 
-  if (minYear === null) minYear = bounds.min;
-  if (maxYear === null) maxYear = bounds.max;
+  if (minYear === null) minYear = defaultRange.min;
+  if (maxYear === null) maxYear = defaultRange.max;
 
   minYear = clampNumber(minYear, bounds.min, bounds.max);
   maxYear = clampNumber(maxYear, bounds.min, bounds.max);
@@ -1646,11 +1663,12 @@ function activeYearRange(data) {
   if (!bounds) {
     return { constrained: false, min: null, max: null };
   }
+  const defaultRange = defaultYearFilterRange(bounds);
 
   let minYear = parseYearValue(yearMinFilter.value);
   let maxYear = parseYearValue(yearMaxFilter.value);
-  if (minYear === null) minYear = bounds.min;
-  if (maxYear === null) maxYear = bounds.max;
+  if (minYear === null) minYear = defaultRange.min;
+  if (maxYear === null) maxYear = defaultRange.max;
 
   minYear = clampNumber(minYear, bounds.min, bounds.max);
   maxYear = clampNumber(maxYear, bounds.min, bounds.max);
@@ -3540,7 +3558,8 @@ function stashActiveOverviewDetail() {
 }
 
 function setDetailHeader(title) {
-  stashActiveOverviewDetail();
+  if (explorerMode === "overview") stashActiveOverviewDetail();
+  else activeOverviewDetailCacheKey = "";
   if (graphDetail) graphDetail.hidden = explorerMode !== "overview";
   detailTitle.textContent = title;
 }
@@ -4053,6 +4072,147 @@ function globalFindingSearchClaims() {
 
 function hasFindingSearchQuery() {
   return Boolean(normalizeFindingSearchText(searchInput?.value));
+}
+
+function findingSearchContextKey() {
+  return `${claimLayer}|${evidenceView}|${currentEntityViewKey()}`;
+}
+
+function findingSearchSuggestionCandidates(claim) {
+  return [
+    { label: compoundGraphLabelForClaim(claim), meta: "Compound", priority: 0 },
+    { label: graphRightLabelForClaim(claim), meta: "Research topic", priority: 1 },
+    { label: studyDesignFacetLabel(claim), meta: "Method", priority: 2 },
+    { label: claimMainFindingText(claim), meta: "Finding", priority: 3 },
+    { label: meaningfulText(claim?.study_title), meta: "Source report", priority: 4 },
+  ]
+    .map((entry) => {
+      const label = cleanDisplayText(entry.label);
+      const searchLabel = normalizeFindingSearchText(label);
+      return label && searchLabel.length >= 2 ? { ...entry, label, searchLabel } : null;
+    })
+    .filter(Boolean);
+}
+
+function addFindingSearchSuggestions(index, claim) {
+  findingSearchSuggestionCandidates(claim).forEach((entry) => {
+    const existing = index.get(entry.searchLabel);
+    if (!existing || entry.priority < existing.priority) index.set(entry.searchLabel, entry);
+  });
+}
+
+function compareFindingSearchMatches(left, right) {
+  return (
+    left.rank - right.rank ||
+    left.entry.priority - right.entry.priority ||
+    left.entry.label.length - right.entry.label.length ||
+    left.entry.label.localeCompare(right.entry.label)
+  );
+}
+
+function findingSearchMatches(query = searchInput?.value || "") {
+  const normalizedQuery = normalizeFindingSearchText(query);
+  const state = findingSearchWarmupState;
+  if (
+    !normalizedQuery ||
+    state?.source !== claims ||
+    state?.key !== findingSearchContextKey() ||
+    !state?.suggestions?.size
+  ) {
+    return [];
+  }
+
+  const matches = [];
+  state.suggestions.forEach((entry) => {
+    if (!entry.searchLabel.includes(normalizedQuery)) return;
+    const rank = entry.searchLabel === normalizedQuery
+      ? 0
+      : entry.searchLabel.startsWith(normalizedQuery)
+        ? 1
+        : entry.searchLabel.includes(` ${normalizedQuery}`)
+          ? 2
+          : 3;
+    const candidate = { entry, rank };
+    const insertAt = matches.findIndex((match) => compareFindingSearchMatches(candidate, match) < 0);
+    if (insertAt < 0) matches.push(candidate);
+    else matches.splice(insertAt, 0, candidate);
+    if (matches.length > FINDING_SEARCH_SUGGESTION_LIMIT) matches.pop();
+  });
+  return matches.map(({ entry }) => entry);
+}
+
+function closeFindingSearchOptions() {
+  findingSearchActiveIndex = -1;
+  findingSearchCurrentMatches = [];
+  if (findingSearchOptions) {
+    findingSearchOptions.hidden = true;
+    findingSearchOptions.innerHTML = "";
+  }
+  searchInput?.setAttribute("aria-expanded", "false");
+  searchInput?.removeAttribute("aria-activedescendant");
+}
+
+function updateFindingSearchActiveOption(nextIndex) {
+  if (!findingSearchCurrentMatches.length || !findingSearchOptions) return;
+  findingSearchActiveIndex = Math.max(0, Math.min(nextIndex, findingSearchCurrentMatches.length - 1));
+  const options = Array.from(findingSearchOptions.querySelectorAll("[data-finding-search-index]"));
+  options.forEach((option, index) => {
+    const active = index === findingSearchActiveIndex;
+    option.classList.toggle("is-active", active);
+    option.setAttribute("aria-selected", active ? "true" : "false");
+    if (active) {
+      searchInput?.setAttribute("aria-activedescendant", option.id);
+      option.scrollIntoView({ block: "nearest" });
+    }
+  });
+}
+
+function renderFindingSearchOptions({ preserveActive = false } = {}) {
+  if (!findingSearchOptions || !searchInput) return;
+  const query = normalizeFindingSearchText(searchInput.value);
+  if (!query) {
+    closeFindingSearchOptions();
+    return;
+  }
+  const previousActive = preserveActive ? findingSearchActiveIndex : -1;
+  findingSearchCurrentMatches = findingSearchMatches(query);
+  findingSearchActiveIndex = -1;
+  const indexIsWarming =
+    findingSearchWarmupState?.source === claims &&
+    findingSearchWarmupState?.key === findingSearchContextKey() &&
+    findingSearchWarmupState?.status === "warming";
+  findingSearchOptions.innerHTML = findingSearchCurrentMatches.length
+    ? findingSearchCurrentMatches
+        .map(
+          (entry, index) => `
+            <button
+              class="finding-search-option"
+              id="findingSearchOption${index}"
+              type="button"
+              role="option"
+              aria-selected="false"
+              data-finding-search-index="${index}"
+            >
+              <span class="finding-search-option-label">${escapeHtml(entry.label)}</span>
+              <span class="finding-search-option-meta">${escapeHtml(entry.meta)}</span>
+            </button>
+          `
+        )
+        .join("")
+    : `<div class="finding-search-empty">${indexIsWarming ? "Finding matches are still loading…" : "No matching findings."}</div>`;
+  findingSearchOptions.hidden = false;
+  searchInput.setAttribute("aria-expanded", "true");
+  if (previousActive >= 0 && findingSearchCurrentMatches.length) {
+    updateFindingSearchActiveOption(Math.min(previousActive, findingSearchCurrentMatches.length - 1));
+  }
+}
+
+function selectFindingSearchEntry(entry) {
+  if (!entry || !searchInput) return;
+  searchInput.value = entry.label;
+  closeFindingSearchOptions();
+  scheduleFindingSearchRender();
+  searchInput.focus({ preventScroll: true });
 }
 
 function findingCardResults(graphFiltered) {
@@ -6507,6 +6667,7 @@ function fieldValueDetailTitle(field, value) {
   if (field === "specific_pathway_readout") return `Specific finding: ${value}`;
   if (field === "open_science_facet") return `Open science: ${value}`;
   if (field === "population_model_facet") return `Population: ${value}`;
+  if (field === "experimental_system_facet") return `Experimental system: ${value}`;
   if (field === "assay_family_facet") return `Assay family: ${value}`;
   if (field === "brain_measure_facet") return `Measure: ${value}`;
   if (field === "mechanistic_relationship_type_facet") return `Relationship type: ${value}`;
@@ -6535,6 +6696,7 @@ function fieldValueForClaim(claim, field) {
   if (field === "funding_funder_facet") return fundingFunderFacetValues(claim);
   if (field === "open_science_facet") return openScienceFacetValues(claim);
   if (field === "population_model_facet") return populationModelFacetLabel(claim);
+  if (field === "experimental_system_facet") return analysisExperimentalSystemFacetLabel(claim);
   if (field === "assay_family_facet") return mechanisticAssayFamilyFacetLabel(claim);
   if (field === "brain_measure_facet") return brainMeasureFacetLabels(claim);
   if (field === "mechanistic_relationship_type_facet") return mechanisticRelationshipTypeFacetLabel(claim);
@@ -6792,7 +6954,7 @@ function overviewDetailCacheKeyForContext({
 }
 
 function currentOverviewDetailCacheKey() {
-  if (claimLayer !== "normalized" || selected || detailGraphFilter) return "";
+  if (explorerMode !== "overview" || claimLayer !== "normalized" || selected || detailGraphFilter) return "";
   return overviewDetailCacheKeyForContext();
 }
 
@@ -7219,7 +7381,7 @@ function renderExplorerSearchOptions({ preserveActive = false } = {}) {
               data-explorer-search-key="${escapeHtml(entry.key)}"
             >
               <span class="explorer-search-option-label">${escapeHtml(entry.label)}</span>
-              <span class="explorer-search-option-meta">${formatCompactNumber(entry.studyCount)} ${entry.studyCount === 1 ? "paper" : "papers"} · ${formatCompactNumber(entry.breadthCount)} ${explorerScopeAreaKey ? entry.breadthCount === 1 ? "concept" : "concepts" : entry.areaCount === 1 ? "area" : "areas"}</span>
+              <span class="explorer-search-option-meta">${formatCompactNumber(entry.studyCount)} ${entry.studyCount === 1 ? "paper" : "papers"} · ${formatCompactNumber(entry.breadthCount)} ${explorerScopeAreaKey ? entry.breadthCount === 1 ? "topic" : "topics" : entry.areaCount === 1 ? "area" : "areas"}</span>
             </button>
           `
         )
@@ -7332,7 +7494,9 @@ function syncAnalysisScopeControls() {
     : null;
   const baseItems = indexedScope
     ? null
-    : explorerBaseFilteredClaims({ ignoreAccess: isAnalysisAllSection() });
+    : analysisClaimsForFocusedEntity(
+        explorerBaseFilteredClaims({ ignoreAccess: isAnalysisAllSection() })
+      );
   const areas = indexedScope?.areas || analysisAreaOptions(baseItems);
   if (explorerScopeAreaKey && !areas.some((area) => area.key === explorerScopeAreaKey)) {
     explorerScopeAreaKey = "";
@@ -7353,11 +7517,11 @@ function syncAnalysisScopeControls() {
   if (explorerScopeConceptSelect) {
     explorerScopeConceptSelect.disabled = !explorerScopeAreaKey;
     explorerScopeConceptSelect.innerHTML = explorerScopeAreaKey
-      ? `<option value="">All concepts</option>${concepts.map((concept) => `<option value="${escapeHtml(concept.key)}">${escapeHtml(`${concept.label} (${formatCompactNumber(concept.count)})`)}</option>`).join("")}`
+      ? `<option value="">All topics</option>${concepts.map((concept) => `<option value="${escapeHtml(concept.key)}">${escapeHtml(`${concept.label} (${formatCompactNumber(concept.count)})`)}</option>`).join("")}`
       : '<option value="">Choose a research area first</option>';
     explorerScopeConceptSelect.value = explorerScopeConceptKey;
   }
-  if (explorerScopeClear) explorerScopeClear.hidden = !explorerScopeAreaKey && !explorerScopeConceptKey;
+  if (explorerScopeClear) explorerScopeClear.hidden = false;
 }
 
 function explorerSourceClaims() {
@@ -7484,8 +7648,8 @@ function indexedExplorerMatrix(items) {
     entries,
     columns,
     maxCellCount: indexed.maxCellCount || 1,
-    breadthLabel: explorerScopeAreaKey ? "concept breadth" : "research-area breadth",
-    breadthUnit: explorerScopeAreaKey ? "concepts" : "research areas",
+    breadthLabel: explorerScopeAreaKey ? "topic breadth" : "research-area breadth",
+    breadthUnit: explorerScopeAreaKey ? "topics" : "research areas",
   };
 }
 
@@ -7595,8 +7759,8 @@ function buildExplorerMatrix(items, options = {}) {
     entries,
     columns,
     maxCellCount,
-    breadthLabel: explorerScopeAreaKey ? "concept breadth" : "research-area breadth",
-    breadthUnit: explorerScopeAreaKey ? "concepts" : "research areas",
+    breadthLabel: explorerScopeAreaKey ? "topic breadth" : "research-area breadth",
+    breadthUnit: explorerScopeAreaKey ? "topics" : "research areas",
   };
   explorerMatrixMemo = { key: memoKey, value };
   return value;
@@ -7887,7 +8051,7 @@ function renderAnalyticsGroupedYearHistogram(series, options = {}) {
       return `<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${baselineY}" y2="${baselineY + 6}" class="analytics-year-tick"></line><text x="${x.toFixed(1)}" y="${baselineY + 20}" class="analytics-axis-label analytics-year-label" text-anchor="middle">${year}</text>`;
     }).join("");
   const baselineY = margin.top + plotHeight;
-  const xAxis = `<line x1="${margin.left}" x2="${width - margin.right}" y1="${baselineY}" y2="${baselineY}" class="analytics-year-axis"></line>${xTicks}<text x="${margin.left + plotWidth / 2}" y="${height - 8}" class="analytics-axis-title analytics-year-axis-title" text-anchor="middle">Publication year</text>`;
+  const xAxis = `<line x1="${margin.left}" x2="${width - margin.right}" y1="${baselineY}" y2="${baselineY}" class="analytics-year-axis"></line>${xTicks}<text x="${margin.left + plotWidth / 2}" y="${height - 20}" class="analytics-axis-title analytics-year-axis-title" text-anchor="middle">Publication year</text>`;
   return `
     <div class="analytics-chart-legend compare-series-legend">
       ${seriesWithValues.map((entry) => `<span style="--series-color:${entry.color}"><i></i>${escapeHtml(entry.label)}</span>`).join("")}
@@ -7940,11 +8104,12 @@ function explorerEntryMomentum(entry, latestYear, windowYears = 5) {
 function renderExplorerLandscape(matrix, items) {
   const entries = matrix.entries.filter((entry) => entry.studyCount > 1).slice(0, 36);
   if (!entries.length) return '<div class="analytics-empty">No landscape data for the current filters.</div>';
-  const width = 760;
-  const height = 318;
-  const margin = { top: 22, right: 24, bottom: 42, left: 48 };
+  const width = 788;
+  const height = 348;
+  const margin = { top: 22, right: 24, bottom: 72, left: 76 };
   const plotWidth = width - margin.left - margin.right;
   const plotHeight = height - margin.top - margin.bottom;
+  const baselineY = margin.top + plotHeight;
   const maxStudies = Math.max(1, ...entries.map((entry) => entry.studyCount));
   const maxBreadth = Math.max(1, ...entries.map((entry) => entry.breadthCount || 1));
   const latestYear = analyticsLatestYear(items);
@@ -7965,7 +8130,7 @@ function renderExplorerLandscape(matrix, items) {
       const x = maxBreadth === 1
         ? margin.left + plotWidth / 2
         : margin.left + ((value - 1) / (maxBreadth - 1)) * plotWidth;
-      return `<line x1="${x}" x2="${x}" y1="${margin.top}" y2="${margin.top + plotHeight}" class="analytics-gridline"></line><text x="${x}" y="${height - 15}" class="analytics-axis-label" text-anchor="middle">${value}</text>`;
+      return `<line x1="${x}" x2="${x}" y1="${margin.top}" y2="${baselineY}" class="analytics-gridline"></line><text x="${x}" y="${baselineY + 18}" class="analytics-axis-label" text-anchor="middle">${value}</text>`;
     })
     .join("");
   const yTicks = [0.25, 0.5, 0.75, 1]
@@ -8008,8 +8173,8 @@ function renderExplorerLandscape(matrix, items) {
   return `
     <svg class="analytics-landscape-svg" viewBox="0 0 ${width} ${height}" role="group" aria-label="Entity breadth, publication volume, and recent activity">
       ${grid}${yTicks}${points}
-      <text x="${margin.left + plotWidth / 2}" y="${height - 1}" class="analytics-axis-title" text-anchor="middle">${escapeHtml(matrix.breadthLabel)}</text>
-      <text x="13" y="${margin.top + plotHeight / 2}" class="analytics-axis-title" text-anchor="middle" transform="rotate(-90 13 ${margin.top + plotHeight / 2})">source papers</text>
+      <text x="${margin.left + plotWidth / 2}" y="${height - 36}" class="analytics-axis-title" text-anchor="middle">${escapeHtml(matrix.breadthLabel)}</text>
+      <text x="34" y="${margin.top + plotHeight / 2}" class="analytics-axis-title" text-anchor="middle" transform="rotate(-90 34 ${margin.top + plotHeight / 2})">source papers</text>
     </svg>
   `;
 }
@@ -8048,12 +8213,10 @@ function explorerMomentumRangeProgress(windowYears = explorerMomentumWindowYears
 }
 
 function renderExplorerMomentumPanel(matrix, items, options = {}) {
-  const latestYear = analyticsLatestYear(items);
   return `
     <section class="analytics-panel analytics-momentum-panel" data-momentum-mode="${escapeHtml(options.mode || "entity")}">
       <div class="analytics-panel-heading">
         <h3>${escapeHtml(options.title || "Momentum")}</h3>
-        <span data-explorer-momentum-meta>last ${explorerMomentumWindowYears} years vs prior ${explorerMomentumWindowYears} · through ${latestYear}</span>
       </div>
       <div class="analytics-momentum-window">
         <div class="analytics-momentum-window-copy">
@@ -8085,15 +8248,12 @@ function updateExplorerMomentumPanel() {
   if (!explorerSearchMatrix || !explorerMomentumItems.length) return;
   const panel = graphEl.querySelector(".analytics-momentum-panel");
   if (!panel) return;
-  const latestYear = analyticsLatestYear(explorerMomentumItems);
   const input = panel.querySelector("[data-explorer-momentum-window]");
   const output = panel.querySelector("[data-explorer-momentum-output]");
-  const meta = panel.querySelector("[data-explorer-momentum-meta]");
   const content = panel.querySelector("[data-explorer-momentum-content]");
   const mode = panel.dataset.momentumMode || "entity";
   if (input) input.style.setProperty("--range-progress", `${explorerMomentumRangeProgress().toFixed(2)}%`);
   if (output) output.textContent = `${explorerMomentumWindowYears} years`;
-  if (meta) meta.textContent = `last ${explorerMomentumWindowYears} years vs prior ${explorerMomentumWindowYears} · through ${latestYear}`;
   if (content) content.innerHTML = renderExplorerMomentum(
     explorerSearchMatrix,
     explorerMomentumItems,
@@ -8110,13 +8270,472 @@ function scheduleExplorerMomentumPanelUpdate() {
   });
 }
 
-function renderAnalyticsPanel(title, meta, body, extraClass = "") {
+function renderAnalyticsPanel(title, _meta, body, extraClass = "") {
   return `
     <section class="analytics-panel ${extraClass}">
-      <div class="analytics-panel-heading"><h3>${escapeHtml(title)}</h3>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}</div>
+      <div class="analytics-panel-heading"><h3>${escapeHtml(title)}</h3></div>
       ${body}
     </section>
   `;
+}
+
+function analysisExperimentalSystemFacetLabel(claim) {
+  const value = meaningfulText(claim.system || claim.experimental_system || claim.model_or_system);
+  return value ? displayFieldLabel(value) : "";
+}
+
+function analysisEvidenceSubset(items, type) {
+  if (type === "primary") return items.filter((claim) => !isSecondaryLiteratureClaim(claim));
+  if (type === "meta_analyses") return items.filter(isMetaAnalysisClaim);
+  if (type === "reviews") return items.filter(isReviewLiteratureClaim);
+  return items;
+}
+
+function analysisPreparedFacetEntries(entries, options = {}) {
+  const valueKey = options.valueKey || "studies";
+  const prepared = entries
+    .map((entry) => {
+      const claims = Number(entry.claims ?? entry.count ?? 0) || 0;
+      const studies = Number(entry.studies ?? claims) || 0;
+      return {
+        label: entry.label,
+        value: entry.value || entry.label,
+        displayLabel: entry.displayLabel || entry.label,
+        count: claims,
+        studies,
+      };
+    })
+    .filter((entry) => entry.studies || entry.count);
+  const ranked = sortEntriesByValue(prepared, valueKey, options.order || []);
+  const limit = options.maxEntries || 7;
+  if (options.aggregateOther === false) return ranked.slice(0, limit);
+  return limitCompositionEntries(ranked, limit).map((entry) =>
+    entry.isAggregate ? { ...entry, displayLabel: options.aggregateLabel || "Other" } : entry
+  );
+}
+
+function renderAnalysisCharacteristicFacet(entries, title, filterField, options = {}) {
+  const valueKey = options.valueKey || "studies";
+  const visible = analysisPreparedFacetEntries(entries, options);
+  const total = visible.reduce((sum, entry) => sum + (Number(entry[valueKey]) || 0), 0);
+  if (!total) return "";
+  const palette = options.palette || CATEGORY_COLORS;
+  const colors = visible.map((entry, index) => colorForEntry(entry, index, palette, filterField));
+  const segments = visible
+    .map((entry, index) => {
+      const value = Number(entry[valueKey]) || 0;
+      const width = (value / total) * 100;
+      const label = entry.displayLabel || entry.label;
+      if (entry.isAggregate) {
+        return `<span class="analysis-characteristic-segment is-aggregate" style="width:${width.toFixed(2)}%;--characteristic-color:${colors[index]}" title="${escapeHtml(`${label}: ${formatCompactNumber(value)} papers`)}"></span>`;
+      }
+      return `
+        <button class="analysis-characteristic-segment" type="button"
+          data-analysis-study-filter="facet"
+          data-filter-field="${escapeHtml(filterField)}"
+          data-filter-value="${escapeHtml(entry.value || entry.label)}"
+          data-filter-label="${escapeHtml(label)}"
+          data-palette-color="${escapeHtml(colors[index])}"
+          style="width:${width.toFixed(2)}%;--characteristic-color:${colors[index]}"
+          aria-label="${escapeHtml(`${label}: ${formatCompactNumber(value)} papers`)}"></button>
+      `;
+    })
+    .join("");
+  const legend = visible
+    .map((entry, index) => {
+      const value = Number(entry[valueKey]) || 0;
+      const label = entry.displayLabel || entry.label;
+      if (entry.isAggregate) {
+        return `<span class="analysis-characteristic-legend-item is-aggregate" style="--characteristic-color:${colors[index]}"><i></i><span>${escapeHtml(label)}</span><strong>${formatCompactNumber(value)}</strong></span>`;
+      }
+      return `
+        <button class="analysis-characteristic-legend-item" type="button"
+          data-analysis-study-filter="facet"
+          data-filter-field="${escapeHtml(filterField)}"
+          data-filter-value="${escapeHtml(entry.value || entry.label)}"
+          data-filter-label="${escapeHtml(label)}"
+          data-palette-color="${escapeHtml(colors[index])}"
+          style="--characteristic-color:${colors[index]}">
+          <i></i><span>${escapeHtml(label)}</span><strong>${formatCompactNumber(value)}</strong>
+        </button>
+      `;
+    })
+    .join("");
+  return `
+    <section class="analysis-characteristic-block">
+      <h4>${escapeHtml(title)}</h4>
+      <div class="analysis-characteristic-stack">${segments}</div>
+      <div class="analysis-characteristic-legend">${legend}</div>
+    </section>
+  `;
+}
+
+function analysisSampleSizeStudyEntries(items) {
+  const studies = new Map();
+  items.forEach((claim, index) => {
+    const sampleSize = parseSampleSize(sampleSizeText(claim));
+    if (sampleSize === null) return;
+    const key = studyKey(claim, index);
+    const existing = studies.get(key);
+    if (!existing || sampleSize > existing.sampleSize) studies.set(key, { key, sampleSize });
+  });
+  return Array.from(studies.values()).sort((left, right) => left.sampleSize - right.sampleSize);
+}
+
+function analysisQuantile(sortedValues, quantile) {
+  if (!sortedValues.length) return null;
+  const position = (sortedValues.length - 1) * quantile;
+  const lowerIndex = Math.floor(position);
+  const upperIndex = Math.ceil(position);
+  if (lowerIndex === upperIndex) return sortedValues[lowerIndex];
+  const weight = position - lowerIndex;
+  return sortedValues[lowerIndex] * (1 - weight) + sortedValues[upperIndex] * weight;
+}
+
+function renderAnalysisSampleSizeDistribution(items, title = "Sample size") {
+  const entries = analysisSampleSizeStudyEntries(items);
+  if (!entries.length) return "";
+  const bins = sampleSizeBinsForItems(items);
+  const counts = bins.map((bin) => ({ ...bin, count: 0 }));
+  entries.forEach((entry) => {
+    const bin = sampleSizeBinForSize(entry.sampleSize, counts);
+    if (bin) bin.count += 1;
+  });
+  const maxCount = Math.max(1, ...counts.map((bin) => bin.count));
+  const values = entries.map((entry) => entry.sampleSize);
+  const median = analysisQuantile(values, 0.5);
+  const lowerQuartile = analysisQuantile(values, 0.25);
+  const upperQuartile = analysisQuantile(values, 0.75);
+  const totalStudies = uniqueStudyCount(items);
+  return `
+    <section class="analysis-characteristic-block analysis-sample-size-block">
+      <div class="analysis-characteristic-block-heading">
+        <h4>${escapeHtml(title)}</h4>
+        <span>median ${formatCompactNumber(Math.round(median))} · IQR ${formatCompactNumber(Math.round(lowerQuartile))}–${formatCompactNumber(Math.round(upperQuartile))} · ${formatCompactNumber(entries.length)} of ${formatCompactNumber(totalStudies)} studies</span>
+      </div>
+      <div class="analysis-sample-histogram" style="--sample-bin-count:${counts.length}" role="group" aria-label="Sample-size distribution">
+        ${counts.map((bin) => {
+          const height = bin.count ? Math.max(5, (bin.count / maxCount) * 100) : 0;
+          const maxValue = Number.isFinite(bin.max) ? String(bin.max) : "";
+          return `
+            <button class="analysis-sample-bin" type="button"
+              data-analysis-study-filter="sample-size"
+              data-sample-evidence="primary"
+              data-sample-min="${escapeHtml(String(bin.min))}"
+              data-sample-max="${escapeHtml(maxValue)}"
+              data-sample-label="${escapeHtml(bin.label)}"
+              ${bin.count ? "" : "disabled"}
+              aria-label="${escapeHtml(`Sample size ${bin.label}: ${bin.count} studies`)}">
+              <span>${bin.count ? formatCompactNumber(bin.count) : ""}</span>
+              <i style="--sample-bin-height:${height.toFixed(2)}%"></i>
+              <em>${escapeHtml(bin.label)}</em>
+            </button>
+          `;
+        }).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function analysisPrimaryCharacteristicBlocks(items, options = {}) {
+  if (!items.length) return [];
+  const areaKey = explorerScopeAreaKey || "";
+  const profile = detailPanelProfileForKey(areaKey || "clinical_default");
+  const blocks = [];
+  const titleFor = (title) => options.titlePrefix ? `${options.titlePrefix} · ${title}` : title;
+  const addFacet = (entries, title, filterField, chartOptions = {}) => {
+    const block = renderAnalysisCharacteristicFacet(entries, titleFor(title), filterField, chartOptions);
+    if (block) blocks.push(block);
+  };
+  const mechanisticArea = ["target_system", "pathway_readout", "brain_system", "brain_measure"].includes(areaKey);
+  if (!areaKey || profile.sampleSizes) {
+    const sampleSize = renderAnalysisSampleSizeDistribution(items, titleFor("Sample size"));
+    if (sampleSize) blocks.push(sampleSize);
+  }
+  addFacet(summarizeFacetEvidence(items, populationModelFacetLabel), "Population and model", "population_model_facet", {
+    order: POPULATION_MODEL_ORDER,
+    maxEntries: 6,
+    palette: PALETTE_SAGE_FIRST,
+  });
+  addFacet(summarizeFacetEvidence(items, studyDesignFacetLabel), "Study design", "study_design_facet", {
+    order: STUDY_DESIGN_ORDER,
+    maxEntries: 7,
+    palette: PALETTE_GOLD_FIRST,
+  });
+  if (mechanisticArea) {
+    addFacet(summarizeFacetEvidence(items, analysisExperimentalSystemFacetLabel), "Experimental system", "experimental_system_facet", {
+      maxEntries: 7,
+      palette: PALETTE_SAGE_FIRST,
+    });
+  }
+  if (profile.comparators) {
+    addFacet(summarizeFacetEvidence(items, clinicalComparatorFacetLabel), "Comparator", "comparator_facet", {
+      order: CLINICAL_COMPARATOR_ORDER,
+      maxEntries: 7,
+      palette: PALETTE_BLUE_FIRST,
+    });
+  }
+  if (profile.followUpWindows) {
+    addFacet(summarizeFacetEvidence(items, clinicalFollowUpWindowFacetLabel), "Follow-up", "follow_up_window_facet", {
+      order: CLINICAL_FOLLOW_UP_WINDOW_ORDER,
+      maxEntries: 7,
+      palette: PALETTE_TEAL_FIRST,
+    });
+  }
+  if (profile.safetyContexts) {
+    addFacet(summarizeFacetEvidence(items, safetyContextFacetLabel), "Safety context", "safety_context_facet", {
+      order: SAFETY_CONTEXT_ORDER,
+      maxEntries: 7,
+      palette: PALETTE_ROSE_FIRST,
+    });
+  }
+  if (profile.publicHealthDataSources) {
+    addFacet(summarizeFacetEvidence(items, publicHealthDataSourceFacetLabel), "Data source", "public_health_data_source_facet", {
+      order: PUBLIC_HEALTH_DATA_SOURCE_ORDER,
+      maxEntries: 7,
+      palette: PALETTE_BLUE_FIRST,
+    });
+  }
+  if (profile.publicHealthContexts) {
+    addFacet(summarizeMultiFacetEvidence(items, publicHealthUseContextFacetLabels), "Use context", "public_health_context_facet", {
+      order: PUBLIC_HEALTH_CONTEXT_ORDER,
+      maxEntries: 7,
+      palette: PALETTE_TEAL_FIRST,
+    });
+  }
+  if (profile.assayFamilies) {
+    addFacet(summarizeFacetEvidence(items, mechanisticAssayFamilyFacetLabel), "Assay family", "assay_family_facet", {
+      order: MECHANISTIC_ASSAY_FAMILY_ORDER,
+      maxEntries: 7,
+      palette: PALETTE_BLUE_FIRST,
+    });
+  }
+  if (profile.brainMeasures) {
+    addFacet(summarizeMultiFacetEvidence(items, brainMeasureFacetLabels), "Measure", "brain_measure_facet", {
+      order: BRAIN_MEASURE_ORDER,
+      maxEntries: 7,
+      palette: PALETTE_BLUE_FIRST,
+    });
+  }
+  if (profile.mechanisticRelationshipTypes) {
+    addFacet(summarizeFacetEvidence(items, mechanisticRelationshipTypeFacetLabel), "Relationship type", "mechanistic_relationship_type_facet", {
+      order: MECHANISTIC_RELATIONSHIP_TYPE_ORDER,
+      maxEntries: 7,
+      palette: PALETTE_TEAL_FIRST,
+    });
+  }
+  if (profile.doseRouteSessionContexts && blocks.length < 7) {
+    addFacet(summarizeFacetEvidence(items, administrationRouteFacetLabel), "Administration route", "administration_route_facet", {
+      order: ADMINISTRATION_ROUTE_ORDER,
+      maxEntries: 7,
+      palette: PALETTE_TEAL_FIRST,
+    });
+  }
+  if (profile.outcomeScales && blocks.length < 7) {
+    addFacet(summarizeOutcomeScaleEvidence(items), "Outcome scales", "outcome_scale_facet", {
+      maxEntries: 7,
+      palette: PALETTE_BLUE_FIRST,
+    });
+  }
+  return blocks.slice(0, 7);
+}
+
+function analysisMetaCharacteristicBlocks(items, options = {}) {
+  if (!items.length) return [];
+  const titleFor = (title) => options.titlePrefix ? `${options.titlePrefix} · ${title}` : title;
+  return [
+    renderAnalysisCharacteristicFacet(
+      summarizeFacetEvidence(items, metaAnalysisDesignFacetLabel),
+      titleFor("Synthesis design"),
+      "meta_analysis_design_facet",
+      { order: META_ANALYSIS_DESIGN_ORDER, maxEntries: 7, palette: PALETTE_GOLD_FIRST }
+    ),
+    renderAnalysisCharacteristicFacet(
+      summarizeFacetEvidence(items, metaAnalysisStudyCountFacetLabel),
+      titleFor("Studies included"),
+      "meta_analysis_study_count_facet",
+      { order: META_ANALYSIS_STUDY_COUNT_BINS.map((bin) => bin.label), maxEntries: 6, palette: PALETTE_BLUE_FIRST }
+    ),
+  ].filter(Boolean);
+}
+
+function analysisReviewCharacteristicBlocks(items, options = {}) {
+  if (!items.length) return [];
+  const titleFor = (title) => options.titlePrefix ? `${options.titlePrefix} · ${title}` : title;
+  return [
+    renderAnalysisCharacteristicFacet(
+      summarizeFacetEvidence(items, reviewDesignFacetLabel),
+      titleFor("Review approach"),
+      "review_design_facet",
+      { maxEntries: 7, palette: PALETTE_GOLD_FIRST }
+    ),
+    renderAnalysisCharacteristicFacet(
+      summarizeFacetEvidence(items, reviewEvidenceStratumFacetLabel),
+      titleFor("Evidence base"),
+      "review_evidence_stratum_facet",
+      { maxEntries: 6, palette: PALETTE_SAGE_FIRST }
+    ),
+    renderAnalysisCharacteristicFacet(
+      summarizeFacetEvidence(items, reviewContributionFacetLabel),
+      titleFor("Review focus"),
+      "review_contribution_facet",
+      { maxEntries: 7, palette: PALETTE_BLUE_FIRST }
+    ),
+  ].filter(Boolean);
+}
+
+function renderAnalysisStudyCharacteristicsPanel(items) {
+  const primaryItems = analysisEvidenceSubset(items, "primary");
+  const metaItems = analysisEvidenceSubset(items, "meta_analyses");
+  const reviewItems = analysisEvidenceSubset(items, "reviews");
+  let blocks = [];
+  if (evidenceView === "primary") blocks = analysisPrimaryCharacteristicBlocks(primaryItems);
+  else if (evidenceView === "meta_analyses") blocks = analysisMetaCharacteristicBlocks(metaItems);
+  else if (isReviewEvidenceView()) blocks = analysisReviewCharacteristicBlocks(reviewItems);
+  else {
+    blocks = [
+      ...analysisPrimaryCharacteristicBlocks(primaryItems, { titlePrefix: "Primary studies" }).slice(0, 3),
+      ...analysisMetaCharacteristicBlocks(metaItems, { titlePrefix: "Meta-analyses" }).slice(0, 2),
+      ...analysisReviewCharacteristicBlocks(reviewItems, { titlePrefix: "Reviews" }).slice(0, 1),
+    ];
+  }
+  const meta = evidenceView === "all"
+    ? "methods and populations by paper type"
+    : `${recordLabelsForItems(items).lowerPlural} in the current scope`;
+  return renderAnalyticsPanel(
+    "Study characteristics",
+    meta,
+    blocks.length
+      ? `<div class="analysis-characteristics-grid">${blocks.join("")}</div>`
+      : '<div class="analytics-empty compact">No study-characteristic metadata are available in this scope.</div>',
+    "analysis-study-characteristics-panel"
+  );
+}
+
+function analysisTransparencyStudies(items) {
+  const studies = new Map();
+  items.forEach((claim, index) => {
+    const key = studyKey(claim, index);
+    const study = studies.get(key) || { key, claims: [], facets: new Set() };
+    study.claims.push(claim);
+    openScienceFacetValues(claim).forEach((facet) => study.facets.add(facet));
+    studies.set(key, study);
+  });
+  return Array.from(studies.values());
+}
+
+function analysisTrialRegistrationEligible(study) {
+  const primaryClaims = study.claims.filter((claim) => !isSecondaryLiteratureClaim(claim));
+  if (!primaryClaims.length) return false;
+  if (primaryClaims.some((claim) => openScienceFacetValues(claim).includes("Registered trial"))) return true;
+  return primaryClaims.some((claim) =>
+    ["RCT", "Open-label trial", "Single-arm trial", "Dose-finding trial", "Clinical trial"].includes(studyDesignFacetLabel(claim))
+  );
+}
+
+function renderAnalysisTransparencyPanel(items) {
+  const studies = analysisTransparencyStudies(items);
+  const total = studies.length;
+  const trialEligible = studies.filter(analysisTrialRegistrationEligible).length;
+  const colors = [CATEGORY_COLORS[0], CATEGORY_COLORS[3], CATEGORY_COLORS[1], CATEGORY_COLORS[5]];
+  const rows = OPEN_SCIENCE_FACETS.map((facet, index) => {
+    const eligibleStudies = facet.field === "has_registered_trial"
+      ? studies.filter(analysisTrialRegistrationEligible)
+      : studies;
+    const identified = eligibleStudies.filter((study) => study.facets.has(facet.label)).length;
+    const denominator = facet.field === "has_registered_trial" ? trialEligible : total;
+    if (!denominator) return "";
+    const percent = denominator ? (identified / denominator) * 100 : 0;
+    const displayLabel = facet.field === "has_registered_trial" ? "Trial registration" : facet.label;
+    const denominatorLabel = facet.field === "has_registered_trial" ? "eligible" : "papers";
+    return `
+      <button class="analysis-transparency-row" type="button"
+        data-analysis-study-filter="facet"
+        data-filter-field="open_science_facet"
+        data-filter-value="${escapeHtml(facet.label)}"
+        data-filter-label="${escapeHtml(displayLabel)}"
+        data-palette-color="${escapeHtml(colors[index])}"
+        style="--transparency-color:${colors[index]};--transparency-width:${percent.toFixed(2)}%"
+        ${identified ? "" : "disabled"}>
+        <span><strong>${escapeHtml(displayLabel)}</strong><em>${formatCompactNumber(identified)} / ${formatCompactNumber(denominator)} ${denominatorLabel}</em></span>
+        <i><b class="${identified ? "has-value" : ""}"></b></i>
+        <small>${formatCompactNumber(percent)}%</small>
+      </button>
+    `;
+  }).filter(Boolean).join("");
+  return renderAnalyticsPanel(
+    "Transparency and reproducibility",
+    "signals identified in source metadata",
+    total
+      ? `<div class="analysis-transparency-list">${rows}<p>Unfilled portions include records where a signal was not identified; they are not treated as confirmed absences.</p></div>`
+      : '<div class="analytics-empty compact">No papers match the current scope.</div>',
+    "analysis-transparency-panel"
+  );
+}
+
+function renderAnalysisStudyDetailSections(items) {
+  return `
+    <div class="analysis-study-detail-grid">
+      ${renderAnalysisStudyCharacteristicsPanel(items)}
+      ${renderAnalysisTransparencyPanel(items)}
+    </div>
+  `;
+}
+
+function currentAnalysisDetailItems(options = {}) {
+  let items = explorerFilteredClaims(options);
+  if (explorerFocus?.key) items = analysisClaimsForFocusedEntity(items, explorerFocus.key);
+  return items;
+}
+
+function claimsForAnalysisSampleSizeRange(items, minValue, maxValue) {
+  const min = Number(minValue);
+  const max = maxValue === "" || maxValue === null || maxValue === undefined
+    ? Number.POSITIVE_INFINITY
+    : Number(maxValue);
+  if (!Number.isFinite(min) || Number.isNaN(max)) return [];
+  const matchingStudies = new Set(
+    analysisSampleSizeStudyEntries(items)
+      .filter((entry) => entry.sampleSize >= min && entry.sampleSize <= max)
+      .map((entry) => entry.key)
+  );
+  return items.filter((claim, index) => matchingStudies.has(studyKey(claim, index)));
+}
+
+function renderAnalysisStudyFilterDetail(target) {
+  const items = currentAnalysisDetailItems();
+  const allAccessItems = currentAnalysisDetailItems({ ignoreAccess: true });
+  if (target.dataset.analysisStudyFilter === "sample-size") {
+    const sampleItems = target.dataset.sampleEvidence === "primary"
+      ? analysisEvidenceSubset(items, "primary")
+      : items;
+    const sampleAllAccessItems = target.dataset.sampleEvidence === "primary"
+      ? analysisEvidenceSubset(allAccessItems, "primary")
+      : allAccessItems;
+    const min = target.dataset.sampleMin || "";
+    const max = target.dataset.sampleMax || "";
+    const filtered = claimsForAnalysisSampleSizeRange(sampleItems, min, max);
+    const allAccessFiltered = claimsForAnalysisSampleSizeRange(sampleAllAccessItems, min, max);
+    if (!filtered.length) return;
+    renderExplorerSelectionDetail(
+      `Sample size: ${target.dataset.sampleLabel || "selected range"}`,
+      filtered,
+      allAccessFiltered,
+      sampleItems
+    );
+    return;
+  }
+  const field = target.dataset.filterField || "";
+  const value = target.dataset.filterValue || "";
+  const label = target.dataset.filterLabel || value;
+  const filtered = field === "outcome_scale_facet"
+    ? claimsForOutcomeScale(value, items)
+    : claimsForFieldValue(field, value, items);
+  const allAccessFiltered = field === "outcome_scale_facet"
+    ? claimsForOutcomeScale(value, allAccessItems, { ignoreAccess: true })
+    : claimsForFieldValue(field, value, allAccessItems);
+  if (!filtered.length) return;
+  renderExplorerSelectionDetail(fieldValueDetailTitle(field, label), filtered, allAccessFiltered, items);
 }
 
 function explorerCoveragePanel(matrix) {
@@ -8142,7 +8761,7 @@ function explorerCoveragePanel(matrix) {
         const selected = column.type === "concept"
           ? column.key === explorerScopeConceptKey
           : column.key === explorerAreaKey;
-        const dimensionLabel = column.type === "concept" ? "concept" : "research area";
+        const dimensionLabel = column.type === "concept" ? "topic" : "research area";
         return `
           <button
             class="explorer-matrix-cell ${count ? "" : "is-empty"} ${selected ? "is-selected-area" : ""}"
@@ -8167,7 +8786,7 @@ function explorerCoveragePanel(matrix) {
     .join("");
   const remaining = Math.max(0, matchingEntries.length - visibleEntries.length);
   const dimensionMeta = explorerScopeAreaKey
-    ? `${meta.plural} × concepts in ${ENTITY_CATEGORY_OPTIONS.find((area) => area.key === explorerScopeAreaKey)?.label || "selected area"}`
+    ? `${meta.plural} × topics in ${ENTITY_CATEGORY_OPTIONS.find((area) => area.key === explorerScopeAreaKey)?.label || "selected area"}`
     : `${meta.plural} × research areas`;
   return {
     html: renderAnalyticsPanel("Coverage", dimensionMeta, `
@@ -8196,7 +8815,7 @@ function renderExplorerMatrix(matrix, items, allAccessItems) {
   explorerMomentumItems = items;
   const coverage = explorerCoveragePanel(matrix);
   const landscapeMeta = explorerScopeAreaKey
-    ? "concept breadth × volume × recent activity"
+    ? "topic breadth × volume × recent activity"
     : "research-area breadth × volume × recent activity";
   graphEl.innerHTML = `
     <div class="analytics-workspace explorer-analytics-workspace">
@@ -8348,7 +8967,7 @@ function summarizeExplorerRelationships(claims, limit = 12) {
     .slice(0, limit);
 }
 
-function summarizeExplorerConcepts(claims, areaKey) {
+function summarizeExplorerConcepts(claims, areaKey, limit = 14) {
   const concepts = new Map();
   claims.forEach((claim, index) => {
     const area = ENTITY_CATEGORY_OPTIONS.find((option) => option.key === areaKey);
@@ -8371,7 +8990,7 @@ function summarizeExplorerConcepts(claims, areaKey) {
   return Array.from(concepts.values())
     .map((entry) => ({ ...entry, studyCount: entry.studies.size }))
     .sort((left, right) => right.studyCount - left.studyCount || left.label.localeCompare(right.label))
-    .slice(0, 14);
+    .slice(0, limit);
 }
 
 function renderExplorerFocusRelationshipProfile(entries, relationship) {
@@ -8437,7 +9056,59 @@ function renderExplorerFocusAreaProfile(row, selectedArea) {
   `;
 }
 
+function renderExplorerFocusConceptProfile(row, area) {
+  const entries = summarizeExplorerConcepts(row.claims, area.key, Number.POSITIVE_INFINITY);
+  if (!entries.length) return "";
+  const maxCount = Math.max(1, ...entries.map((entry) => entry.studyCount));
+  return `
+    <div class="analytics-profile-bars analysis-scope-profile-bars">
+      ${entries.map((entry) => `
+        <button class="analytics-profile-row" type="button"
+          data-analysis-scope-concept="${escapeHtml(entry.key)}"
+          style="--area-color:${explorerAreaColor(area.key)};--profile-width:${((entry.studyCount / maxCount) * 100).toFixed(2)}%">
+          <span><strong>${escapeHtml(entry.label)}</strong><em>${formatCompactNumber(entry.studyCount)}</em></span>
+          <i></i>
+        </button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function explorerFocusHierarchyProfile(row, selectedArea) {
+  if (!explorerScopeAreaKey) {
+    return {
+      title: "Area profile",
+      body: renderExplorerFocusAreaProfile(row, selectedArea),
+    };
+  }
+  if (explorerScopeConceptKey) return null;
+  const area = ENTITY_CATEGORY_OPTIONS.find((option) => option.key === explorerScopeAreaKey);
+  if (!area) return null;
+  const body = renderExplorerFocusConceptProfile(row, area);
+  if (!body) return null;
+  return {
+    title: `${area.singular} profile`,
+    body,
+  };
+}
+
 function renderExplorerTimelineChart(row, selectedArea) {
+  if (explorerScopeAreaKey) {
+    const area = ENTITY_CATEGORY_OPTIONS.find((option) => option.key === explorerScopeAreaKey);
+    const concepts = area ? summarizeExplorerConcepts(row.claims, area.key).slice(0, 5) : [];
+    return renderAnalyticsGroupedYearHistogram(
+      concepts.map((concept, index) => ({
+        key: concept.key,
+        label: concept.label,
+        color: CATEGORY_COLORS[index % CATEGORY_COLORS.length],
+        items: concept.claims,
+      })),
+      {
+        selectedKey: explorerScopeConceptKey || "",
+        ariaLabel: `${row.label} publications per year by ${area?.lowerPlural || "topic"}`,
+      }
+    );
+  }
   const availableAreas = summarizeExplorerAreas(row.claims)
     .map((area) => ({ ...area, items: area.bucket.claims, count: area.studyCount }))
     .sort((left, right) => right.count - left.count);
@@ -8458,6 +9129,12 @@ function renderExplorerTimelineChart(row, selectedArea) {
       ariaLabel: `${row.label} publications per year by research area`,
     }
   );
+}
+
+function explorerFocusTimelineMeta() {
+  if (!explorerScopeAreaKey) return "leading research areas per year";
+  const area = ENTITY_CATEGORY_OPTIONS.find((option) => option.key === explorerScopeAreaKey);
+  return `leading ${area?.lowerPlural || "topics"} per year`;
 }
 
 function renderExplorerAreaOverlap(row, selectedArea, options = {}) {
@@ -8553,7 +9230,7 @@ function buildExplorerRelationshipNetwork(row, allAccessRow, relationships, rela
   const relationshipStep = relationships.length > 1 ? (height - 96) / (relationships.length - 1) : 0;
   const dimensionTop = 48;
   const dimensionStep = dimensions.length > 1 ? (height - 96) / (dimensions.length - 1) : 0;
-  const destinationLabel = conceptsVisible ? "concepts" : "research areas";
+  const destinationLabel = conceptsVisible ? "topics" : "research areas";
   const svg = explorerSvgElement("svg", {
     viewBox: `0 0 ${width} ${height}`,
     role: "group",
@@ -8793,29 +9470,25 @@ function renderExplorerFocused(row, allAccessRow = row) {
     ? buildExplorerRelationshipNetwork(row, allAccessRow, relationships, relationship)
     : null;
   const networkSvg = relationshipNetwork?.svg || svg;
-  const networkHeight = relationshipNetwork?.height || height;
-  const networkMeta = relationshipNetwork?.meta || selectedArea?.label || "research areas";
-
   const dashboard = document.createElement("div");
   dashboard.className = "analytics-workspace explorer-focused-dashboard";
   const evidencePanelWrap = document.createElement("div");
   evidencePanelWrap.innerHTML = renderAnalysisEvidenceProfilePanel();
   const topGrid = document.createElement("div");
-  topGrid.className = "analytics-focus-top-grid";
-  topGrid.innerHTML = relationshipNetworkAvailable
-    ? `
-        ${renderAnalyticsPanel("Area profile", "unique source papers", renderExplorerFocusAreaProfile(row, selectedArea), "analytics-profile-panel")}
-        ${renderAnalyticsPanel(relationship.panelTitle, "unique shared source papers", renderExplorerFocusRelationshipProfile(relationships, relationship), "analytics-profile-panel analytics-relationship-panel")}
-      `
-    : `
-        ${renderAnalyticsPanel("Area profile", "unique source papers", renderExplorerFocusAreaProfile(row, selectedArea), "analytics-profile-panel")}
-        ${renderAnalyticsPanel("Publication history", "leading research areas per year", renderExplorerTimelineChart(row, selectedArea), "analytics-focus-timeline-panel")}
-      `;
+  const hierarchyProfile = explorerFocusHierarchyProfile(row, selectedArea);
+  const hierarchyPanel = hierarchyProfile
+    ? renderAnalyticsPanel(hierarchyProfile.title, "unique source papers", hierarchyProfile.body, "analytics-profile-panel")
+    : "";
+  const adjacentPanel = relationshipNetworkAvailable
+    ? renderAnalyticsPanel(relationship.panelTitle, "unique shared source papers", renderExplorerFocusRelationshipProfile(relationships, relationship), "analytics-profile-panel analytics-relationship-panel")
+    : renderAnalyticsPanel("Publication history", explorerFocusTimelineMeta(), renderExplorerTimelineChart(row, selectedArea), "analytics-focus-timeline-panel");
+  topGrid.className = `analytics-focus-top-grid ${hierarchyPanel ? "" : "is-single"}`.trim();
+  topGrid.innerHTML = `${hierarchyPanel}${adjacentPanel}`;
   const timelineWrap = document.createElement("div");
   if (relationshipNetworkAvailable) {
     timelineWrap.innerHTML = renderAnalyticsPanel(
       "Publication history",
-      "leading research areas per year",
+      explorerFocusTimelineMeta(),
       renderExplorerTimelineChart(row, selectedArea),
       "analytics-focus-timeline-panel"
     );
@@ -8824,7 +9497,7 @@ function renderExplorerFocused(row, allAccessRow = row) {
   networkPanel.className = "analytics-panel analytics-network-panel";
   networkPanel.innerHTML = `
     <div class="analytics-panel-heading analytics-network-heading">
-      <div><h3>Connections</h3><span>${escapeHtml(networkMeta)}</span></div>
+      <h3>Connections</h3>
       ${relationshipNetworkAvailable ? `
         <div class="analytics-network-order" role="group" aria-label="Organize connection graph">
           <button type="button" class="${explorerFocusNetworkOrder === "areas" ? "active" : ""}" data-explorer-network-order="areas" aria-pressed="${explorerFocusNetworkOrder === "areas"}">Areas first</button>
@@ -8851,11 +9524,11 @@ function renderExplorerFocused(row, allAccessRow = row) {
   }
   const dashboardSections = [evidencePanelWrap.firstElementChild, topGrid];
   if (timelineWrap.firstElementChild) dashboardSections.push(timelineWrap.firstElementChild);
-  dashboardSections.push(networkPanel);
   if (overlapWrap.firstElementChild) dashboardSections.push(overlapWrap.firstElementChild);
+  dashboardSections.push(networkPanel);
   dashboard.append(...dashboardSections);
   graphEl.replaceChildren(dashboard);
-  autosizeExplorerWorkspace(dashboard, Math.max(2050, networkHeight + (relationshipNetworkAvailable ? 1320 : 980)));
+  autosizeExplorerWorkspace(dashboard);
   renderExplorerSelectionDetail(
     selectedArea ? `${row.label} · ${selectedArea.label}` : row.label,
     selectedArea?.bucket.claims.length ? selectedArea.bucket.claims : row.claims,
@@ -9213,7 +9886,7 @@ function renderAnalysisConceptOverlapPanel(items) {
   const body = renderAnalysisConceptOverlap(overlap);
   if (!body) return "";
   const shownMeta = overlap.total > overlap.entries.length
-    ? `leading ${overlap.entries.length} of ${overlap.total} concepts`
+    ? `leading ${overlap.entries.length} of ${overlap.total} topics`
     : "shared source papers";
   const scopeMeta = overlap.selectedLabel
     ? `${shownMeta} · papers mentioning ${overlap.selectedLabel}`
@@ -9286,7 +9959,7 @@ function renderAllAnalysis() {
   const dimensionMatrix = buildAnalysisDimensionMatrix(items);
   explorerSearchMatrix = dimensionMatrix;
   explorerMomentumItems = items;
-  const scopeProfileTitle = explorerScopeAreaKey ? "Concept profile" : "Research-area profile";
+  const scopeProfileTitle = explorerScopeAreaKey ? "Topic profile" : "Research-area profile";
   const overlapRow = analysisOverlapRow(items, baseItems);
   const overlapPanel = explorerScopeAreaKey
     ? renderAnalysisConceptOverlapPanel(analysisClaimsWithinScope(baseItems, { ignoreConcept: true }))
@@ -9297,7 +9970,7 @@ function renderAllAnalysis() {
         "analytics-overlap-panel"
       );
   const momentumPanel = renderExplorerMomentumPanel(dimensionMatrix, items, {
-    title: explorerScopeAreaKey ? "Concept momentum" : "Research-area momentum",
+    title: explorerScopeAreaKey ? "Topic momentum" : "Research-area momentum",
     mode: explorerScopeAreaKey ? "concept" : "area",
   });
   const primaryPanels = comparingPaperTypes
@@ -9311,7 +9984,7 @@ function renderAllAnalysis() {
       `;
   const comparativePanels = comparingPaperTypes
     ? `<div class="analytics-top-grid all-analysis-secondary-grid">
-        ${renderAnalyticsPanel("Evidence maturity", "primary literature × synthesis coverage", renderSynthesisGap(rows), "analytics-synthesis-gap-panel")}
+        ${renderAnalyticsPanel("Research-area evidence coverage", "primary literature × synthesis coverage", renderSynthesisGap(rows), "analytics-synthesis-gap-panel")}
         ${momentumPanel}
       </div>`
     : "";
@@ -9326,7 +9999,7 @@ function renderAllAnalysis() {
       ${overlapPanel}
     </div>
   `;
-  autosizeExplorerWorkspace(graphEl.firstElementChild, 2450);
+  autosizeExplorerWorkspace(graphEl.firstElementChild);
   activeDetailItems = items;
   activeDetailAllAccessItems = allAccessItems;
   cardsEl.replaceChildren();
@@ -9532,7 +10205,7 @@ function renderEvidenceTrajectory(rows, options = {}) {
       const x = margin.left + (year - minYear + 0.5) * slotWidth;
       return `<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${baselineY}" y2="${baselineY + 6}" class="analytics-year-tick"></line><text x="${x.toFixed(1)}" y="${baselineY + 20}" class="analytics-axis-label analytics-year-label" text-anchor="middle">${year}</text>`;
     }).join("");
-  const xAxis = `<line x1="${margin.left}" x2="${width - margin.right}" y1="${baselineY}" y2="${baselineY}" class="analytics-year-axis"></line>${xTicks}<text x="${margin.left + plotWidth / 2}" y="${height - 8}" class="analytics-axis-title analytics-year-axis-title" text-anchor="middle">Publication year</text>`;
+  const xAxis = `<line x1="${margin.left}" x2="${width - margin.right}" y1="${baselineY}" y2="${baselineY}" class="analytics-year-axis"></line>${xTicks}<text x="${margin.left + plotWidth / 2}" y="${height - 20}" class="analytics-axis-title analytics-year-axis-title" text-anchor="middle">Publication year</text>`;
   const scope = embedded
     ? analysisScopeLabel()
     : [selectedCompound?.label, selectedArea?.label].filter(Boolean).join(" · ");
@@ -9557,20 +10230,21 @@ function renderSynthesisGap(rows) {
     synthesis: (meta?.areas.get(area.key)?.count || 0) + (reviews?.areas.get(area.key)?.count || 0),
   }));
   const width = 640;
-  const height = 332;
-  const margin = { top: 22, right: 36, bottom: 48, left: 54 };
+  const height = 348;
+  const margin = { top: 22, right: 36, bottom: 64, left: 54 };
   const plotWidth = width - margin.left - margin.right;
   const plotHeight = height - margin.top - margin.bottom;
+  const baselineY = margin.top + plotHeight;
   const maxValue = Math.max(1, ...points.flatMap((point) => [point.primary, point.synthesis]));
   const logMax = Math.log1p(maxValue);
   const xFor = (value) => margin.left + (Math.log1p(value) / logMax) * plotWidth;
   const yFor = (value) => margin.top + plotHeight - (Math.log1p(value) / logMax) * plotHeight;
-  const guide = `<line x1="${margin.left}" y1="${margin.top + plotHeight}" x2="${margin.left + plotWidth}" y2="${margin.top}" class="analytics-balance-guide"></line>`;
+  const guide = `<line x1="${margin.left}" y1="${baselineY}" x2="${margin.left + plotWidth}" y2="${margin.top}" class="analytics-balance-guide"></line>`;
   const ticks = [0, 0.33, 0.66, 1].map((ratio) => {
     const value = Math.max(0, Math.round(Math.expm1(logMax * ratio)));
     const x = margin.left + ratio * plotWidth;
     const y = margin.top + plotHeight - ratio * plotHeight;
-    return `<line x1="${x}" x2="${x}" y1="${margin.top}" y2="${margin.top + plotHeight}" class="analytics-gridline"></line><line x1="${margin.left}" x2="${margin.left + plotWidth}" y1="${y}" y2="${y}" class="analytics-gridline"></line><text x="${x}" y="${height - 17}" class="analytics-axis-label" text-anchor="middle">${formatCompactNumber(value)}</text><text x="${margin.left - 10}" y="${y + 3}" class="analytics-axis-label" text-anchor="end">${formatCompactNumber(value)}</text>`;
+    return `<line x1="${x}" x2="${x}" y1="${margin.top}" y2="${baselineY}" class="analytics-gridline"></line><line x1="${margin.left}" x2="${margin.left + plotWidth}" y1="${y}" y2="${y}" class="analytics-gridline"></line><text x="${x}" y="${baselineY + 12}" class="analytics-axis-label" text-anchor="middle">${formatCompactNumber(value)}</text><text x="${margin.left - 10}" y="${y + 3}" class="analytics-axis-label" text-anchor="end">${formatCompactNumber(value)}</text>`;
   }).join("");
   const marks = points.map(({ area, primary: primaryCount, synthesis }, index) => {
     const x = xFor(primaryCount);
@@ -9587,10 +10261,10 @@ function renderSynthesisGap(rows) {
     `;
   }).join("");
   return `
-    <svg class="analytics-gap-svg" viewBox="0 0 ${width} ${height}" role="group" aria-label="Primary-study volume against synthesis coverage by research area">
+    <svg class="analytics-gap-svg" viewBox="0 0 ${width} ${height}" role="group" aria-label="Primary-study and synthesis publication coverage by research area">
       ${ticks}${guide}${marks}
-      <text x="${margin.left + plotWidth / 2}" y="${height - 1}" class="analytics-axis-title" text-anchor="middle">primary studies</text>
-      <text x="14" y="${margin.top + plotHeight / 2}" class="analytics-axis-title" text-anchor="middle" transform="rotate(-90 14 ${margin.top + plotHeight / 2})">meta-analyses + reviews</text>
+      <text x="${margin.left + plotWidth / 2}" y="${height - 36}" class="analytics-axis-title" text-anchor="middle">primary studies</text>
+      <text x="18" y="${margin.top + plotHeight / 2}" class="analytics-axis-title" text-anchor="middle" transform="rotate(-90 18 ${margin.top + plotHeight / 2})">meta-analyses + reviews</text>
     </svg>
   `;
 }
@@ -10065,7 +10739,7 @@ function switchExplorerLens(nextLens, options = {}) {
   loadAnalysisAndRender({ resetYears: true });
 }
 
-function refreshAnalysisScope() {
+function refreshAnalysisScope({ resetYears = false } = {}) {
   if (explorerMode !== "analysis" || !ANALYSIS_SECTIONS.has(explorerLens)) return;
   explorerAreaKey = explorerFocus && explorerScopeAreaKey ? explorerScopeAreaKey : "";
   compareSelection = null;
@@ -10077,7 +10751,7 @@ function refreshAnalysisScope() {
   hideTooltip();
   updateExplorerControls();
   updateExplorerUrlState();
-  loadAnalysisAndRender({ resetYears: false });
+  loadAnalysisAndRender({ resetYears });
 }
 
 function detachElementChildren(element) {
@@ -10161,7 +10835,7 @@ function captureAnalysisWorkspaceSnapshot() {
 function restoreAnalysisWorkspaceSnapshot() {
   const snapshot = analysisWorkspaceSnapshot;
   if (!snapshot?.graphContent?.childNodes.length) return false;
-  if (snapshot.state.claimLayer !== claimLayer || snapshot.state.accessView !== accessView) {
+  if (snapshot.state.claimLayer !== claimLayer) {
     analysisWorkspaceSnapshot = null;
     return false;
   }
@@ -10179,6 +10853,7 @@ function restoreAnalysisWorkspaceSnapshot() {
   explorerScopeConceptKey = state.explorerScopeConceptKey;
   explorerVisibleRowCount = state.explorerVisibleRowCount;
   evidenceView = state.evidenceView;
+  accessView = state.accessView;
   compareKind = state.compareKind;
   compareSelection = state.compareSelection ? { ...state.compareSelection } : null;
   analysisPublicationMode = state.analysisPublicationMode;
@@ -10246,6 +10921,9 @@ function restoreAnalysisWorkspaceSnapshot() {
 function resetExplorerTransitionState() {
   explorerRenderToken += 1;
   currentDataLoadToken += 1;
+  deferredSurfaceRenderToken += 1;
+  cancelPendingFindingSearchRender();
+  cancelPendingBibliographySearchRender();
   cancelExplorerSearchRender();
   closeExplorerSearchOptions();
   explorerSearchMatrix = null;
@@ -10258,6 +10936,10 @@ function resetExplorerTransitionState() {
 
 function switchExplorerMode(nextMode) {
   if (!EXPLORER_MODES.has(nextMode) || explorerMode === nextMode) return;
+  if (explorerMode === "overview") {
+    overviewWorkspaceFilterState = { evidenceView, accessView };
+    stashActiveOverviewDetail();
+  }
   if (explorerMode === "analysis" && ANALYSIS_SECTIONS.has(explorerLens)) {
     explorerLastAnalysisLens = explorerLens;
     if (EXPLORER_ENTITY_LENSES.has(explorerLens)) explorerLastEntityLens = explorerLens;
@@ -10268,7 +10950,8 @@ function switchExplorerMode(nextMode) {
   compareSelection = null;
   if (nextMode === "overview") {
     explorerLens = "domain";
-    evidenceView = "primary";
+    evidenceView = overviewWorkspaceFilterState.evidenceView;
+    accessView = overviewWorkspaceFilterState.accessView;
   } else if (restoreAnalysisWorkspaceSnapshot()) {
     updateModeUI();
     updateExplorerUrlState();
@@ -10276,12 +10959,13 @@ function switchExplorerMode(nextMode) {
   } else {
     explorerLens = ANALYSIS_SECTIONS.has(explorerLastAnalysisLens) ? explorerLastAnalysisLens : "all";
     evidenceView = "all";
+    accessView = "open";
   }
   updateExplorerControls();
   updateExplorerUrlState();
   if (nextMode === "overview") {
     applyClaimLayerStore();
-    syncYearFilterControls(activeClaimsForMode(), true);
+    syncYearFilterControls(activeClaimsForMode(), false);
     loadCurrentClaimsAndRender({ showLoading: false, resetDetail: true, showGraphBootstrap: true });
     return;
   }
@@ -11050,6 +11734,7 @@ function scheduleFindingSearchRender() {
       if (token !== findingSearchRenderToken) return;
       applyClaimLayerStore();
       updateModeUI();
+      scheduleFindingSearchIndexWarmup();
     }
     window.requestAnimationFrame(() => {
       if (token !== findingSearchRenderToken) return;
@@ -11060,8 +11745,8 @@ function scheduleFindingSearchRender() {
 }
 
 function scheduleFindingSearchIndexWarmup() {
-  if (!claims.length || hasFindingSearchQuery()) return;
-  const key = `${claimLayer}|${evidenceView}|${currentEntityViewKey()}`;
+  if (!claims.length) return;
+  const key = findingSearchContextKey();
   if (
     findingSearchWarmupState?.source === claims &&
     findingSearchWarmupState.key === key &&
@@ -11073,18 +11758,20 @@ function scheduleFindingSearchIndexWarmup() {
   const token = ++findingSearchWarmupToken;
   const source = claims;
   const items = globalFindingSearchClaims();
+  const suggestions = new Map();
   let index = 0;
   if (!items.length) {
-    findingSearchWarmupState = { source, key, status: "complete" };
+    findingSearchWarmupState = { source, key, status: "complete", suggestions };
     return;
   }
-  findingSearchWarmupState = { source, key, status: "warming" };
+  findingSearchWarmupState = { source, key, status: "warming", suggestions };
 
   function warmChunk(deadline) {
     if (token !== findingSearchWarmupToken || source !== claims) return;
     const started = window.performance?.now?.() ?? Date.now();
     do {
       claimSearchHaystack(items[index]);
+      addFindingSearchSuggestions(suggestions, items[index]);
       index += 1;
     } while (
       index < items.length &&
@@ -11096,7 +11783,10 @@ function scheduleFindingSearchIndexWarmup() {
       scheduleIdleTask(warmChunk);
       return;
     }
-    findingSearchWarmupState = { source, key, status: "complete" };
+    findingSearchWarmupState = { source, key, status: "complete", suggestions };
+    if (document.activeElement === searchInput && hasFindingSearchQuery()) {
+      window.requestAnimationFrame(() => renderFindingSearchOptions({ preserveActive: true }));
+    }
   }
 
   scheduleIdleTask(warmChunk, 220);
@@ -11419,7 +12109,7 @@ async function ensureAnalysisIndexReady() {
     const config = await loadGraphPayloadConfig();
     const path = cleanDisplayText(config?.active_analysis_index || "");
     if (!path) return false;
-    analysisIndexWorker = new Worker("/ui/analysis-worker.js?v=20260819-analysis-access-v3");
+    analysisIndexWorker = new Worker("/ui/analysis-worker.js?v=20260904-contextual-scope-v4");
     analysisIndexWorker.addEventListener("message", (event) => {
       const message = event.data || {};
       const pending = analysisIndexRequestQueue.get(message.requestId);
@@ -12411,7 +13101,45 @@ if (yearStepButtons.length) {
 }
 if (searchInput) {
   searchInput.addEventListener("input", () => {
+    renderFindingSearchOptions();
     scheduleFindingSearchRender();
+  });
+  searchInput.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      if (!hasFindingSearchQuery()) return;
+      event.preventDefault();
+      if (findingSearchOptions?.hidden) renderFindingSearchOptions();
+      if (!findingSearchCurrentMatches.length) return;
+      const direction = event.key === "ArrowDown" ? 1 : -1;
+      const nextIndex = findingSearchActiveIndex < 0
+        ? direction > 0 ? 0 : findingSearchCurrentMatches.length - 1
+        : (findingSearchActiveIndex + direction + findingSearchCurrentMatches.length) % findingSearchCurrentMatches.length;
+      updateFindingSearchActiveOption(nextIndex);
+      return;
+    }
+    if (event.key === "Escape" || event.key === "Tab") {
+      closeFindingSearchOptions();
+      return;
+    }
+    if (event.key !== "Enter") return;
+    if (findingSearchOptions?.hidden) renderFindingSearchOptions();
+    const entry = findingSearchCurrentMatches[findingSearchActiveIndex >= 0 ? findingSearchActiveIndex : 0];
+    if (!entry) return;
+    event.preventDefault();
+    selectFindingSearchEntry(entry);
+  });
+  searchInput.addEventListener("focus", () => {
+    scheduleFindingSearchIndexWarmup();
+    renderFindingSearchOptions({ preserveActive: true });
+  });
+  searchInput.addEventListener("blur", closeFindingSearchOptions);
+}
+if (findingSearchOptions) {
+  findingSearchOptions.addEventListener("mousedown", (event) => event.preventDefault());
+  findingSearchOptions.addEventListener("click", (event) => {
+    const option = event.target.closest?.("[data-finding-search-index]");
+    if (!option || !findingSearchOptions.contains(option)) return;
+    selectFindingSearchEntry(findingSearchCurrentMatches[Number(option.dataset.findingSearchIndex)]);
   });
 }
 if (bibliographySearchInput) {
@@ -12684,6 +13412,13 @@ graphEl.addEventListener("change", (event) => {
 });
 graphEl.addEventListener("click", (event) => {
   if (explorerMode === "analysis") {
+    const studyFilterTarget = event.target.closest?.("[data-analysis-study-filter]");
+    if (studyFilterTarget && graphEl.contains(studyFilterTarget)) {
+      event.preventDefault();
+      hideTooltip();
+      renderAnalysisStudyFilterDetail(studyFilterTarget);
+      return;
+    }
     const publicationModeTarget = event.target.closest?.("[data-analysis-publication-mode]");
     if (publicationModeTarget && graphEl.contains(publicationModeTarget) && isAnalysisSummary()) {
       const nextMode = publicationModeTarget.dataset.analysisPublicationMode;
@@ -13015,7 +13750,7 @@ if (explorerScopeClear) {
     if (explorerMode !== "analysis" || !ANALYSIS_SECTIONS.has(explorerLens)) return;
     explorerScopeAreaKey = "";
     explorerScopeConceptKey = "";
-    refreshAnalysisScope();
+    refreshAnalysisScope({ resetYears: true });
   });
 }
 if (explorerFocusBack) {

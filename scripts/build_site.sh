@@ -24,8 +24,12 @@ if [[ ! -f "${MANIFEST}" ]]; then
   exit 1
 fi
 
-rm -rf "${DIST_DIR}"
 mkdir -p "${DIST_DIR}"
+BUILD_DIR="$(mktemp -d)"
+cleanup_build_dir() {
+  rm -rf "${BUILD_DIR}"
+}
+trap cleanup_build_dir EXIT
 
 missing=0
 while IFS= read -r raw_line || [[ -n "${raw_line}" ]]; do
@@ -38,7 +42,7 @@ while IFS= read -r raw_line || [[ -n "${raw_line}" ]]; do
   fi
 
   src="${ROOT_DIR}/${item}"
-  dest="${DIST_DIR}/${item}"
+  dest="${BUILD_DIR}/${item}"
 
   if [[ ! -e "${src}" ]]; then
     echo "Missing public site file: ${item}" >&2
@@ -55,18 +59,20 @@ while IFS= read -r raw_line || [[ -n "${raw_line}" ]]; do
   fi
 done < "${MANIFEST}"
 
-find "${DIST_DIR}" -name ".DS_Store" -delete
+find "${BUILD_DIR}" -name ".DS_Store" -delete
 python3 "${ROOT_DIR}/scripts/render_release_metadata.py" \
   --metadata "${ROOT_DIR}/release-metadata.json" \
-  --site-dir "${DIST_DIR}"
+  --site-dir "${BUILD_DIR}"
 python3 "${ROOT_DIR}/scripts/sanitize_public_json.py" \
   --manifest "${MANIFEST}" \
-  --base-dir "${DIST_DIR}" \
+  --base-dir "${BUILD_DIR}" \
   --root "${ROOT_DIR}"
 
 if [[ "${missing}" -ne 0 ]]; then
   echo "Public site build failed because one or more required files were missing." >&2
   exit 1
 fi
+
+rsync -a --delete-after "${BUILD_DIR}/" "${DIST_DIR}/"
 
 echo "Built static site in ${DIST_DIR}"

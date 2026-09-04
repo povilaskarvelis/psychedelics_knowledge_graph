@@ -6,11 +6,16 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
+import subprocess
 import sys
+import threading
+import time
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from typing import Callable
 from urllib.parse import parse_qs, urlencode, urlsplit, urlunsplit
 from urllib.request import Request, urlopen
 
@@ -24,6 +29,8 @@ from scripts.build_analysis_index import build_index, load_columnar
 
 
 DEFAULT_DIST = ROOT / "dist"
+SITE_WATCH_POLL_SECONDS = 0.2
+SITE_WATCH_DEBOUNCE_SECONDS = 0.35
 LOCAL_POINTER_SCHEMA = "psychedelics_kg_local_preview_active_v1"
 PUBLIC_POINTER_SCHEMA = "psychedelics_kg_browser_r2_active_v1"
 PUBLIC_POINTER_URL = "https://data.psychedelicskg.com/browser/active.json"
@@ -38,6 +45,136 @@ METHODS_FILES = {
 }
 LOCAL_PAGE_PATHS = {"/", "/about/", "/api/", "/feedback/", "/methods/"}
 RUN_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+
+
+def public_site_manifest_entries(repository_root: Path = ROOT) -> tuple[Path, ...]:
+    manifest = repository_root / "scripts/public_site_files.txt"
+    entries: list[Path] = []
+    for raw_line in manifest.read_text(encoding="utf-8").splitlines():
+        item = raw_line.split("#", 1)[0].strip()
+        if item:
+            entries.append(repository_root / item)
+    return tuple(entries)
+
+
+def public_site_watch_paths(repository_root: Path = ROOT) -> tuple[Path, ...]:
+    build_inputs = (
+        repository_root / "release-metadata.json",
+        repository_root / "scripts/build_site.sh",
+        repository_root / "scripts/public_site_files.txt",
+        repository_root / "scripts/render_release_metadata.py",
+        repository_root / "scripts/sanitize_public_json.py",
+    )
+    return tuple(
+        dict.fromkeys((*public_site_manifest_entries(repository_root), *build_inputs))
+    )
+
+
+def public_site_source_snapshot(
+    repository_root: Path = ROOT,
+) -> tuple[tuple[str, str, int, int], ...]:
+    """Return a cheap, deterministic signature for files copied into the site build."""
+    entries: list[tuple[str, str, int, int]] = []
+    for watched_path in public_site_watch_paths(repository_root):
+        if not watched_path.exists():
+            entries.append((str(watched_path), "missing", 0, 0))
+            continue
+        paths = (
+            (watched_path,)
+            if watched_path.is_file()
+            else (watched_path, *watched_path.rglob("*"))
+        )
+        for path in paths:
+            if path.name == ".DS_Store" or "__pycache__" in path.parts:
+                continue
+            try:
+                stat = path.stat()
+            except FileNotFoundError:
+                continue
+            kind = "directory" if path.is_dir() else "file"
+            entries.append((str(path), kind, stat.st_mtime_ns, stat.st_size))
+    return tuple(sorted(entries))
+
+
+def build_public_site(
+    site_directory: Path = DEFAULT_DIST,
+    repository_root: Path = ROOT,
+) -> None:
+    environment = os.environ.copy()
+    environment["DIST_DIR"] = str(site_directory)
+    subprocess.run(
+        ["bash", str(repository_root / "scripts/build_site.sh")],
+        cwd=repository_root,
+        env=environment,
+        check=True,
+    )
+
+
+class SiteBuildWatcher:
+    """Rebuild the local site after a short quiet period following source edits."""
+
+    def __init__(
+        self,
+        site_directory: Path,
+        repository_root: Path = ROOT,
+        *,
+        build: Callable[[], None] | None = None,
+        build_lock: threading.RLock | None = None,
+        poll_seconds: float = SITE_WATCH_POLL_SECONDS,
+        debounce_seconds: float = SITE_WATCH_DEBOUNCE_SECONDS,
+    ) -> None:
+        self.site_directory = site_directory
+        self.repository_root = repository_root
+        self.build = build or partial(build_public_site, site_directory, repository_root)
+        self.build_lock = build_lock or threading.RLock()
+        self.poll_seconds = poll_seconds
+        self.debounce_seconds = debounce_seconds
+        self.stop_event = threading.Event()
+        self.thread: threading.Thread | None = None
+        self.snapshot: tuple[tuple[str, str, int, int], ...] = ()
+
+    def start(self) -> None:
+        self.snapshot = public_site_source_snapshot(self.repository_root)
+        self.thread = threading.Thread(
+            target=self._watch,
+            name="local-site-build-watcher",
+            daemon=True,
+        )
+        self.thread.start()
+
+    def stop(self) -> None:
+        self.stop_event.set()
+        if self.thread is not None:
+            self.thread.join(timeout=max(1.0, self.poll_seconds * 3))
+
+    def _watch(self) -> None:
+        changed_at: float | None = None
+        pending_snapshot = self.snapshot
+        while not self.stop_event.wait(self.poll_seconds):
+            current_snapshot = public_site_source_snapshot(self.repository_root)
+            if current_snapshot != pending_snapshot:
+                pending_snapshot = current_snapshot
+                changed_at = time.monotonic()
+                continue
+            if changed_at is None or time.monotonic() - changed_at < self.debounce_seconds:
+                continue
+
+            print("Website files changed; rebuilding the local preview...", flush=True)
+            build_input_snapshot = pending_snapshot
+            try:
+                with self.build_lock:
+                    self.build()
+            except (OSError, subprocess.CalledProcessError) as error:
+                print(
+                    f"Local preview rebuild failed: {error}",
+                    file=sys.stderr,
+                    flush=True,
+                )
+            else:
+                print("Local preview updated. Refresh the page to see the change.", flush=True)
+            self.snapshot = public_site_source_snapshot(self.repository_root)
+            pending_snapshot = self.snapshot
+            changed_at = time.monotonic() if self.snapshot != build_input_snapshot else None
 
 
 def read_json(path: Path) -> dict:
@@ -334,12 +471,14 @@ class PreviewRequestHandler(SimpleHTTPRequestHandler):
         local_files: dict[str, Path],
         published_pointer: bytes | None,
         published_files: dict[str, str],
+        build_lock: threading.RLock | None = None,
         **kwargs,
     ) -> None:
         self.local_pointer = local_pointer
         self.local_files = local_files
         self.published_pointer = published_pointer
         self.published_files = published_files
+        self.build_lock = build_lock or threading.RLock()
         super().__init__(*args, directory=directory, **kwargs)
 
     def end_headers(self) -> None:
@@ -421,6 +560,10 @@ class PreviewRequestHandler(SimpleHTTPRequestHandler):
             self.send_error(502, f"Published R2 preview failed: {error}")
 
     def handle_request(self, *, head_only: bool) -> None:
+        with self.build_lock:
+            self._handle_request(head_only=head_only)
+
+    def _handle_request(self, *, head_only: bool) -> None:
         if self.reject_preview_mode_mismatch():
             return
         if self.redirect_local_page():
@@ -477,6 +620,14 @@ def main() -> int:
     if args.bind not in {"127.0.0.1", "::1", "localhost"}:
         raise SystemExit("The preview server may bind only to the local machine.")
     directory = args.directory.resolve()
+    manages_local_build = args.mode == "local" and directory == DEFAULT_DIST.resolve()
+    if manages_local_build:
+        try:
+            build_public_site(directory, ROOT)
+        except (OSError, subprocess.CalledProcessError) as error:
+            raise SystemExit(
+                f"Could not build the local website preview: {error}"
+            ) from None
     if not directory.is_dir():
         raise SystemExit(f"Missing site build directory: {directory}")
 
@@ -512,6 +663,7 @@ def main() -> int:
         published = json.loads(published_pointer)
         run_id = str(published.get("run_id") or "").strip()
 
+    site_build_lock = threading.RLock()
     handler = partial(
         PreviewRequestHandler,
         directory=str(directory),
@@ -519,8 +671,17 @@ def main() -> int:
         local_files=local_files,
         published_pointer=published_pointer,
         published_files=published_files,
+        build_lock=site_build_lock,
     )
     server = ThreadingHTTPServer((args.bind, args.port), handler)
+    site_watcher: SiteBuildWatcher | None = None
+    if manages_local_build:
+        site_watcher = SiteBuildWatcher(
+            directory,
+            ROOT,
+            build_lock=site_build_lock,
+        )
+        site_watcher.start()
     if args.mode == "local":
         print(f"Local candidate release: {run_id}", flush=True)
         print(
@@ -536,6 +697,8 @@ def main() -> int:
     except KeyboardInterrupt:
         pass
     finally:
+        if site_watcher is not None:
+            site_watcher.stop()
         server.server_close()
     return 0
 

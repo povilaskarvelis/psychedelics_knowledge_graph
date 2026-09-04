@@ -14,7 +14,9 @@ if [[ "${MODE}" != "public" && "${MODE}" != "local" ]]; then
   exit 2
 fi
 
-bash "${ROOT_DIR}/scripts/build_site.sh"
+if [[ "${MODE}" == "public" ]]; then
+  bash "${ROOT_DIR}/scripts/build_site.sh"
+fi
 
 args=(
   "${ROOT_DIR}/scripts/serve_site.py"
