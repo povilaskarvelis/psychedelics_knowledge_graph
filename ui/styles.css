@@ -4833,6 +4833,32 @@ button.primary:hover {
   white-space: nowrap;
 }
 
+.analysis-concept-overlap-grid {
+  --overlap-label-width: 220px;
+  grid-template-rows: 190px;
+}
+
+.analysis-concept-overlap-grid .analytics-overlap-column {
+  position: relative;
+  overflow: visible;
+}
+
+.analysis-concept-overlap-grid .analytics-overlap-column span {
+  position: absolute;
+  right: 50%;
+  bottom: 10px;
+  width: 190px;
+  max-height: none;
+  overflow: visible;
+  writing-mode: horizontal-tb;
+  transform: rotate(45deg);
+  transform-origin: right bottom;
+  line-height: 1.2;
+  text-align: right;
+  text-overflow: clip;
+  white-space: normal;
+}
+
 .analytics-overlap-row-label {
   display: flex;
   align-items: center;

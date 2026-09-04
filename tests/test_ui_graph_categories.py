@@ -731,7 +731,7 @@ def test_versioned_static_assets_are_browser_immutable() -> None:
 
     assert headers["/ui/*.js"]["Cache-Control"] == "public, max-age=31536000, immutable"
     assert headers["/ui/*.css"]["Cache-Control"] == "public, max-age=31536000, immutable"
-    assert 'styles.css?v=20260904-square-legend-swatches-v58' in html_source
+    assert 'styles.css?v=20260904-diagonal-topic-labels-v59' in html_source
     assert 'app.js?v=20260904-contextual-scope-counts-v51' in html_source
     assert 'rel="canonical" href="https://psychedelicskg.com/"' in html_source
     assert '"@type": "Dataset"' in html_source
@@ -773,6 +773,22 @@ def test_analysis_legends_use_large_square_color_swatches() -> None:
     assert "width: 12px;" in swatches
     assert "height: 12px;" in swatches
     assert "border-radius: 3px;" in swatches
+
+
+def test_topic_overlap_has_room_for_diagonal_column_labels() -> None:
+    source = STYLES_CSS.read_text(encoding="utf-8")
+    grid = source.split(".analysis-concept-overlap-grid {", 1)[1].split("}", 1)[0]
+    labels = source.split(
+        ".analysis-concept-overlap-grid .analytics-overlap-column span {", 1
+    )[1].split("}", 1)[0]
+
+    assert "--overlap-label-width: 220px;" in grid
+    assert "grid-template-rows: 190px;" in grid
+    assert "width: 190px;" in labels
+    assert "writing-mode: horizontal-tb;" in labels
+    assert "transform: rotate(45deg);" in labels
+    assert "transform-origin: right bottom;" in labels
+    assert "white-space: normal;" in labels
 
 
 def test_analysis_scope_counts_follow_the_selected_entity() -> None:
