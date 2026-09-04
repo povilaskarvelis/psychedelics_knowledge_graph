@@ -344,6 +344,26 @@ def test_findings_search_does_not_rerender_the_graph_or_dashboard() -> None:
     assert "box-shadow: none" in styles.split('input[type="search"]:focus-visible', 1)[1].split("}", 1)[0]
 
 
+def test_analysis_entity_search_is_browseable_before_typing() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    matches = source.split("function explorerSearchMatches", 1)[1].split(
+        "function explorerSearchOptionMarkup", 1
+    )[0]
+    options = source.split("function renderExplorerSearchOptions", 1)[1].split(
+        "function selectExplorerSearchEntry", 1
+    )[0]
+    listeners = source.split('if (explorerSearchInput) {', 1)[1].split(
+        'window.addEventListener("resize"', 1
+    )[0]
+
+    assert "if (!normalizedQuery)" in matches
+    assert "right.studyCount - left.studyCount" in matches
+    assert "EXPLORER_SEARCH_OPTION_BATCH_SIZE = 80" in source
+    assert "appendExplorerSearchOptionBatch();" in options
+    assert 'explorerSearchInput.addEventListener("focus"' in listeners
+    assert 'explorerSearchOptions.addEventListener("scroll"' in listeners
+
+
 def test_explore_and_analyze_keep_separate_dashboard_and_filter_state() -> None:
     source = APP_JS.read_text(encoding="utf-8")
     html_source = INDEX_HTML.read_text(encoding="utf-8")
@@ -460,9 +480,16 @@ def test_analysis_chart_titles_and_axis_labels_have_safe_insets() -> None:
 
 def test_cross_domain_overlap_uses_consistent_labels_and_edge_markers() -> None:
     source = STYLES_CSS.read_text(encoding="utf-8")
+    grid = source.split(".analytics-overlap-grid {", 1)[1].split("}", 1)[0]
     column_label = source.split(".analytics-overlap-column span {", 1)[1].split("}", 1)[0]
     row_label = source.split(".analytics-overlap-row-label {", 1)[1].split("}", 1)[0]
 
+    assert "grid-template-rows: 170px;" in grid
+    assert "padding-right: 120px;" in grid
+    assert "writing-mode: horizontal-tb;" in column_label
+    assert "transform: rotate(-45deg);" in column_label
+    assert "transform-origin: left bottom;" in column_label
+    assert "text-align: left;" in column_label
     assert "color: color-mix(in srgb, var(--area-color) 60%, #e8ece8);" in column_label
     assert "text-shadow: none;" in column_label
     assert "color: color-mix(in srgb, var(--area-color) 60%, #e8ece8);" in row_label
@@ -731,8 +758,8 @@ def test_versioned_static_assets_are_browser_immutable() -> None:
 
     assert headers["/ui/*.js"]["Cache-Control"] == "public, max-age=31536000, immutable"
     assert headers["/ui/*.css"]["Cache-Control"] == "public, max-age=31536000, immutable"
-    assert 'styles.css?v=20260904-diagonal-topic-labels-v59' in html_source
-    assert 'app.js?v=20260904-contextual-scope-counts-v51' in html_source
+    assert 'styles.css?v=20260904-rising-overlap-labels-v60' in html_source
+    assert 'app.js?v=20260904-browseable-entity-search-v52' in html_source
     assert 'rel="canonical" href="https://psychedelicskg.com/"' in html_source
     assert '"@type": "Dataset"' in html_source
 
@@ -784,11 +811,8 @@ def test_topic_overlap_has_room_for_diagonal_column_labels() -> None:
 
     assert "--overlap-label-width: 220px;" in grid
     assert "grid-template-rows: 190px;" in grid
+    assert "padding-right: 140px;" in grid
     assert "width: 190px;" in labels
-    assert "writing-mode: horizontal-tb;" in labels
-    assert "transform: rotate(45deg);" in labels
-    assert "transform-origin: right bottom;" in labels
-    assert "white-space: normal;" in labels
 
 
 def test_analysis_scope_counts_follow_the_selected_entity() -> None:

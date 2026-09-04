@@ -74,7 +74,7 @@ const FINDING_SEARCH_DEBOUNCE_MS = 180;
 const BIBLIOGRAPHY_SEARCH_DEBOUNCE_MS = 80;
 const EXPLORER_SEARCH_DEBOUNCE_MS = 90;
 const FINDING_SEARCH_SUGGESTION_LIMIT = 10;
-const EXPLORER_SEARCH_SUGGESTION_LIMIT = 12;
+const EXPLORER_SEARCH_OPTION_BATCH_SIZE = 80;
 const EXPLORER_MOMENTUM_MIN_YEARS = 2;
 const EXPLORER_MOMENTUM_MAX_YEARS = 15;
 const GRAPH_VIEW_CONTRACT_PATH = "schema/graph_view_contract.json";
@@ -495,6 +495,7 @@ let explorerSearchTimer = 0;
 let explorerSearchRenderToken = 0;
 let explorerSearchActiveIndex = -1;
 let explorerSearchCurrentMatches = [];
+let explorerSearchRenderedCount = 0;
 let explorerSearchPositionFrame = 0;
 let explorerMomentumWindowYears = 5;
 let explorerMomentumItems = [];
@@ -7304,6 +7305,7 @@ function closeExplorerSearchOptions() {
   }
   explorerSearchActiveIndex = -1;
   explorerSearchCurrentMatches = [];
+  explorerSearchRenderedCount = 0;
   if (explorerSearchOptions) {
     explorerSearchOptions.hidden = true;
     explorerSearchOptions.innerHTML = "";
@@ -7316,7 +7318,15 @@ function closeExplorerSearchOptions() {
 
 function explorerSearchMatches(query = explorerSearchInput?.value || "") {
   const normalizedQuery = normalizeSearchText(query);
-  if (!normalizedQuery || !explorerSearchMatrix?.entries?.length) return [];
+  if (!explorerSearchMatrix?.entries?.length) return [];
+  if (!normalizedQuery) {
+    return [...explorerSearchMatrix.entries].sort(
+      (left, right) =>
+        right.studyCount - left.studyCount ||
+        right.breadthCount - left.breadthCount ||
+        left.label.localeCompare(right.label, undefined, { sensitivity: "base" })
+    );
+  }
   return explorerSearchMatrix.entries
     .map((entry) => {
       const searchLabel = entry.searchLabel || normalizeSearchText(entry.label);
@@ -7335,13 +7345,50 @@ function explorerSearchMatches(query = explorerSearchInput?.value || "") {
         right.entry.studyCount - left.entry.studyCount ||
         left.entry.label.localeCompare(right.entry.label)
     )
-    .slice(0, EXPLORER_SEARCH_SUGGESTION_LIMIT)
     .map(({ entry }) => entry);
+}
+
+function explorerSearchOptionMarkup(entry, index) {
+  const breadthLabel = explorerScopeAreaKey
+    ? entry.breadthCount === 1 ? "topic" : "topics"
+    : entry.areaCount === 1 ? "area" : "areas";
+  return `
+    <button
+      class="explorer-search-option"
+      id="explorerSearchOption${index}"
+      type="button"
+      role="option"
+      aria-selected="false"
+      aria-posinset="${index + 1}"
+      aria-setsize="${explorerSearchCurrentMatches.length}"
+      data-explorer-search-key="${escapeHtml(entry.key)}"
+    >
+      <span class="explorer-search-option-label">${escapeHtml(entry.label)}</span>
+      <span class="explorer-search-option-meta">${formatCompactNumber(entry.studyCount)} ${entry.studyCount === 1 ? "paper" : "papers"} · ${formatCompactNumber(entry.breadthCount)} ${breadthLabel}</span>
+    </button>
+  `;
+}
+
+function appendExplorerSearchOptionBatch() {
+  if (!explorerSearchOptions || explorerSearchRenderedCount >= explorerSearchCurrentMatches.length) return;
+  const nextCount = Math.min(
+    explorerSearchCurrentMatches.length,
+    explorerSearchRenderedCount + EXPLORER_SEARCH_OPTION_BATCH_SIZE
+  );
+  explorerSearchOptions.insertAdjacentHTML(
+    "beforeend",
+    explorerSearchCurrentMatches
+      .slice(explorerSearchRenderedCount, nextCount)
+      .map((entry, offset) => explorerSearchOptionMarkup(entry, explorerSearchRenderedCount + offset))
+      .join("")
+  );
+  explorerSearchRenderedCount = nextCount;
 }
 
 function updateExplorerSearchActiveOption(nextIndex) {
   if (!explorerSearchCurrentMatches.length || !explorerSearchOptions) return;
   explorerSearchActiveIndex = Math.max(0, Math.min(nextIndex, explorerSearchCurrentMatches.length - 1));
+  while (explorerSearchActiveIndex >= explorerSearchRenderedCount) appendExplorerSearchOptionBatch();
   const options = Array.from(explorerSearchOptions.querySelectorAll("[data-explorer-search-key]"));
   options.forEach((option, index) => {
     const active = index === explorerSearchActiveIndex;
@@ -7360,33 +7407,15 @@ function renderExplorerSearchOptions({ preserveActive = false } = {}) {
     return;
   }
   const query = normalizeSearchText(explorerSearchInput.value);
-  if (!query) {
-    closeExplorerSearchOptions();
-    return;
-  }
   const previousActive = preserveActive ? explorerSearchActiveIndex : -1;
   explorerSearchCurrentMatches = explorerSearchMatches(query);
   explorerSearchActiveIndex = -1;
+  explorerSearchRenderedCount = 0;
   const meta = explorerLensMeta();
   explorerSearchOptions.innerHTML = explorerSearchCurrentMatches.length
-    ? explorerSearchCurrentMatches
-        .map(
-          (entry, index) => `
-            <button
-              class="explorer-search-option"
-              id="explorerSearchOption${index}"
-              type="button"
-              role="option"
-              aria-selected="false"
-              data-explorer-search-key="${escapeHtml(entry.key)}"
-            >
-              <span class="explorer-search-option-label">${escapeHtml(entry.label)}</span>
-              <span class="explorer-search-option-meta">${formatCompactNumber(entry.studyCount)} ${entry.studyCount === 1 ? "paper" : "papers"} · ${formatCompactNumber(entry.breadthCount)} ${explorerScopeAreaKey ? entry.breadthCount === 1 ? "topic" : "topics" : entry.areaCount === 1 ? "area" : "areas"}</span>
-            </button>
-          `
-        )
-        .join("")
+    ? ""
     : `<div class="explorer-search-empty">No matching ${escapeHtml(meta.plural)}.</div>`;
+  appendExplorerSearchOptionBatch();
   explorerSearchOptions.hidden = false;
   explorerSearchInput.setAttribute("aria-expanded", "true");
   positionExplorerSearchOptions();
@@ -13776,13 +13805,12 @@ if (explorerSearchInput) {
   explorerSearchInput.addEventListener("keydown", (event) => {
     if (!isAnalysisEntitySection()) return;
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-      if (!normalizeSearchText(explorerSearchInput.value)) return;
       event.preventDefault();
       if (explorerSearchOptions?.hidden) renderExplorerSearchOptions();
       if (!explorerSearchCurrentMatches.length) return;
       const direction = event.key === "ArrowDown" ? 1 : -1;
       const nextIndex = explorerSearchActiveIndex < 0
-        ? direction > 0 ? 0 : explorerSearchCurrentMatches.length - 1
+        ? direction > 0 ? 0 : Math.max(0, explorerSearchRenderedCount - 1)
         : (explorerSearchActiveIndex + direction + explorerSearchCurrentMatches.length) % explorerSearchCurrentMatches.length;
       updateExplorerSearchActiveOption(nextIndex);
       return;
@@ -13807,6 +13835,14 @@ if (explorerSearchInput) {
 }
 if (explorerSearchOptions) {
   explorerSearchOptions.addEventListener("mousedown", (event) => event.preventDefault());
+  explorerSearchOptions.addEventListener("scroll", () => {
+    if (
+      explorerSearchOptions.scrollTop + explorerSearchOptions.clientHeight >=
+      explorerSearchOptions.scrollHeight - 80
+    ) {
+      appendExplorerSearchOptionBatch();
+    }
+  }, { passive: true });
   explorerSearchOptions.addEventListener("click", (event) => {
     const option = event.target.closest?.("[data-explorer-search-key]");
     if (!option || !explorerSearchOptions.contains(option)) return;

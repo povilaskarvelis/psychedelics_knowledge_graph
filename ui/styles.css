@@ -4803,60 +4803,53 @@ button.primary:hover {
   --overlap-cell-width: 58px;
   display: grid;
   grid-template-columns: var(--overlap-label-width) repeat(var(--overlap-count), var(--overlap-cell-width));
-  grid-template-rows: 124px;
+  grid-template-rows: 170px;
   grid-auto-rows: 46px;
   gap: 3px;
   width: max-content;
   min-width: 100%;
+  padding-right: 120px;
+  box-sizing: border-box;
 }
 
 .analytics-overlap-column {
+  position: relative;
   display: flex;
   align-items: end;
   justify-content: center;
-  padding-bottom: 8px;
   border-bottom: 2px solid var(--area-color);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .analytics-overlap-column span {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
   display: block;
-  max-height: 108px;
-  overflow: hidden;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
+  width: 165px;
+  max-height: none;
+  overflow: visible;
+  writing-mode: horizontal-tb;
+  transform: rotate(-45deg);
+  transform-origin: left bottom;
   color: color-mix(in srgb, var(--area-color) 60%, #e8ece8);
   font-size: 0.72rem;
   font-weight: 500;
+  line-height: 1.2;
+  text-align: left;
   text-shadow: none;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-overflow: clip;
+  white-space: normal;
 }
 
 .analysis-concept-overlap-grid {
   --overlap-label-width: 220px;
   grid-template-rows: 190px;
-}
-
-.analysis-concept-overlap-grid .analytics-overlap-column {
-  position: relative;
-  overflow: visible;
+  padding-right: 140px;
 }
 
 .analysis-concept-overlap-grid .analytics-overlap-column span {
-  position: absolute;
-  right: 50%;
-  bottom: 10px;
   width: 190px;
-  max-height: none;
-  overflow: visible;
-  writing-mode: horizontal-tb;
-  transform: rotate(45deg);
-  transform-origin: right bottom;
-  line-height: 1.2;
-  text-align: right;
-  text-overflow: clip;
-  white-space: normal;
 }
 
 .analytics-overlap-row-label {
