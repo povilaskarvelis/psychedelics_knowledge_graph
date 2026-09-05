@@ -758,8 +758,10 @@ def test_versioned_static_assets_are_browser_immutable() -> None:
 
     assert headers["/ui/*.js"]["Cache-Control"] == "public, max-age=31536000, immutable"
     assert headers["/ui/*.css"]["Cache-Control"] == "public, max-age=31536000, immutable"
-    assert 'styles.css?v=20260904-rising-overlap-labels-v60' in html_source
-    assert 'app.js?v=20260904-browseable-entity-search-v52' in html_source
+    assert 'styles.css?v=20260905-research-workspace-v61' in html_source
+    assert 'app.js?v=20260905-research-workspace-v53' in html_source
+    for asset in ("research-model.js", "research-analysis.js", "research-analysis.css"):
+        assert f'{asset}?v=20260905-v1' in html_source
     assert 'rel="canonical" href="https://psychedelicskg.com/"' in html_source
     assert '"@type": "Dataset"' in html_source
 

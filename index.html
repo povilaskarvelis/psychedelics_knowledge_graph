@@ -87,7 +87,8 @@
       type="application/json"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="styles.css?v=20260904-rising-overlap-labels-v60" />
+    <link rel="stylesheet" href="styles.css?v=20260905-research-workspace-v61" />
+    <link rel="stylesheet" href="research-analysis.css?v=20260905-v1" />
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>
@@ -161,6 +162,27 @@
           <div class="graph-column">
             <div class="graph-toolbar">
               <div class="graph-header-controls">
+                <div id="researchNavigation" class="research-navigation" hidden>
+                  <div class="research-navigation-top">
+                    <div class="research-task-tabs" role="tablist" aria-label="Analysis task">
+                      <button type="button" role="tab" class="active" aria-selected="true" data-research-task="landscape">Landscape</button>
+                      <button type="button" role="tab" aria-selected="false" data-research-task="compare">Compare</button>
+                      <button type="button" role="tab" aria-selected="false" data-research-task="evidence">Evidence</button>
+                    </div>
+                    <button class="ghost small" type="button" data-research-copy>Copy question link</button>
+                  </div>
+                  <p id="researchTaskDescription" class="research-task-description"></p>
+                  <details class="research-saved-questions">
+                    <summary>Saved questions</summary>
+                    <div class="research-save-form">
+                      <label class="research-field"><span>Question name</span><input id="researchQuestionName" type="text" maxlength="200" placeholder="Name this research question" /></label>
+                      <button class="ghost small" type="button" data-research-save>Save current question</button>
+                    </div>
+                    <div id="researchSavedList"></div>
+                  </details>
+                  <p id="researchStatus" class="research-status" role="status" aria-live="polite"></p>
+                  <p id="researchFiltersNotice" class="research-note" hidden></p>
+                </div>
                 <div class="explorer-primary-row">
                   <div class="filter-center-controls">
                     <div class="segmented-toggle evidence-view-toggle" id="evidenceViewToggle" role="tablist" aria-label="Evidence view">
@@ -262,10 +284,10 @@
                         </select>
                       </label>
                       <label class="analysis-query-field analysis-query-access">
-                        <span class="sr-only">Access</span>
-                        <select id="explorerAccessSelect" aria-label="Filter analysis by access availability">
-                          <option value="all">All access</option>
-                          <option value="open">Open access</option>
+                        <span class="sr-only">Source text</span>
+                        <select id="explorerAccessSelect" aria-label="Filter analysis by source text">
+                          <option value="all">All source text</option>
+                          <option value="open">Full-text extraction</option>
                         </select>
                       </label>
                       <div class="analysis-query-field analysis-query-years">
@@ -291,6 +313,7 @@
             <div class="detail-header">
               <div>
                 <h3></h3>
+                <button class="ghost small" type="button" id="analyzeGraphEvidence">Analyze this graph scope</button>
               </div>
             </div>
             <div class="detail-body" id="detailBody"></div>
@@ -354,6 +377,8 @@
     </footer>
 
     <script src="/ui/site-nav.js?v=20260720-local-data-preview-v1"></script>
-    <script src="app.js?v=20260904-browseable-entity-search-v52"></script>
+    <script src="research-model.js?v=20260905-v1"></script>
+    <script src="research-analysis.js?v=20260905-v1"></script>
+    <script src="app.js?v=20260905-research-workspace-v53"></script>
   </body>
 </html>

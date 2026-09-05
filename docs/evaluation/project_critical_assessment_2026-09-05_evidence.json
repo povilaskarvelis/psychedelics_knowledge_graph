@@ -1,0 +1,489 @@
+{
+  "assessment_date": "2026-09-05",
+  "inspected_at_utc": "2026-09-05T03:02:52.117348+00:00",
+  "git_head": "de46334cb910f9efb51949be8ba4eb759d9a458c",
+  "active_run": {
+    "schema_version": "active_routed_extraction_run_v1",
+    "release_id": "full_corpus_normalization_patch_qa_20260724:60f0d4c24ef84f369509fc7974445274",
+    "updated_at_utc": "2026-07-24T03:19:36.557049+00:00",
+    "run_id": "full_corpus_normalization_patch_qa_20260724",
+    "outputs_jsonl": "data/processed/extraction/routed_runs/full_corpus_normalization_patch_qa_20260724/route_extraction_outputs.jsonl",
+    "evidence_rows_json": "data/processed/extraction/routed_runs/full_corpus_normalization_patch_qa_20260724/routed_evidence_rows.json",
+    "kg_dir": "data/processed/kg_routed_runs/full_corpus_normalization_patch_qa_20260724",
+    "graph_payload_manifest": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/graph_payload_manifest.json"
+  },
+  "scope_note": "Read-only corpus queries and targeted source checks. Examples are diagnostic, not a random accuracy sample. The UI working tree was being modified concurrently. No production changes made by this assessment.",
+  "metrics": {
+    "primary_quotes": {
+      "sql": "SELECT count(*) AS findings,count(*) FILTER(WHERE trim(coalesce(supporting_quote,'')) <> '') AS supporting_quotes FROM read_parquet('data/processed/kg_routed_runs/full_corpus_normalization_patch_qa_20260724/findings.parquet') WHERE evidence_type='primary_evidence'",
+      "rows": [
+        {
+          "findings": 82297,
+          "supporting_quotes": 0
+        }
+      ]
+    },
+    "condition_split": {
+      "sql": "SELECT count(*) AS findings,count(DISTINCT study_doi) AS reports FROM read_parquet('data/processed/kg_routed_runs/full_corpus_normalization_patch_qa_20260724/findings.parquet') WHERE endpoint_label_source='condition_text_split'",
+      "rows": [
+        {
+          "findings": 520,
+          "reports": 123
+        }
+      ]
+    },
+    "counts": {
+      "sql": "SELECT count(*) AS findings,count(DISTINCT paper_id) AS reports FROM read_parquet('data/processed/kg_routed_runs/full_corpus_normalization_patch_qa_20260724/findings.parquet')",
+      "rows": [
+        {
+          "findings": 97195,
+          "reports": 21383
+        }
+      ]
+    },
+    "source_depth": {
+      "sql": "SELECT evidence_type,access_level,count(*) AS findings,count(DISTINCT paper_id) AS reports FROM read_parquet('data/processed/kg_routed_runs/full_corpus_normalization_patch_qa_20260724/findings.parquet') GROUP BY 1,2 ORDER BY 1,2",
+      "rows": [
+        {
+          "evidence_type": "primary_evidence",
+          "access_level": "abstract_only",
+          "findings": 30017,
+          "reports": 9029
+        },
+        {
+          "evidence_type": "primary_evidence",
+          "access_level": "article_text",
+          "findings": 52280,
+          "reports": 7481
+        },
+        {
+          "evidence_type": "secondary_literature",
+          "access_level": "abstract_only",
+          "findings": 5539,
+          "reports": 2276
+        },
+        {
+          "evidence_type": "secondary_literature",
+          "access_level": "article_text",
+          "findings": 9359,
+          "reports": 2597
+        }
+      ]
+    },
+    "prescreen": {
+      "sql": "SELECT prescreen_action,count(*) AS records FROM read_parquet('data/processed/corpus/paper_prescreen_decisions.parquet') GROUP BY 1 ORDER BY records DESC",
+      "rows": [
+        {
+          "prescreen_action": "exclude_obvious_irrelevant",
+          "records": 86692
+        },
+        {
+          "prescreen_action": "exclude_no_usable_abstract",
+          "records": 86584
+        },
+        {
+          "prescreen_action": "retain_for_screening",
+          "records": 48634
+        },
+        {
+          "prescreen_action": "exclude_non_evidence_artifact",
+          "records": 35147
+        },
+        {
+          "prescreen_action": "exclude_non_english_language",
+          "records": 7440
+        },
+        {
+          "prescreen_action": "exclude_preprint_or_unpublished",
+          "records": 3613
+        },
+        {
+          "prescreen_action": "exclude_non_paper_container",
+          "records": 111
+        }
+      ]
+    },
+    "unresolved": {
+      "sql": "SELECT resolution_status,count(*) AS records FROM read_parquet('data/processed/discovery/unresolved_candidate_records.parquet') GROUP BY 1",
+      "rows": [
+        {
+          "resolution_status": "needs_identifier_resolution",
+          "records": 60796
+        }
+      ]
+    },
+    "normalization_audit": {
+      "sql": "SELECT count(*) AS projected_rows,count(DISTINCT study_doi) AS reports FROM read_parquet('data/processed/kg_routed_runs/full_corpus_normalization_patch_qa_20260724/normalization_audit.parquet')",
+      "rows": [
+        {
+          "projected_rows": 24672,
+          "reports": 10977
+        }
+      ]
+    },
+    "audit_only": {
+      "sql": "SELECT count(DISTINCT lower(study_doi)) AS reports FROM read_parquet('data/processed/kg_routed_runs/full_corpus_normalization_patch_qa_20260724/normalization_audit.parquet') WHERE lower(study_doi) NOT IN (SELECT lower(study_doi) FROM read_parquet('data/processed/kg_routed_runs/full_corpus_normalization_patch_qa_20260724/findings.parquet'))",
+      "rows": [
+        {
+          "reports": 1318
+        }
+      ]
+    }
+  },
+  "control_character_scan": {
+    "dose": {
+      "sql": "SELECT count(*) AS findings,count(DISTINCT study_doi) AS reports FROM read_parquet('data/processed/kg_routed_runs/full_corpus_normalization_patch_qa_20260724/findings.parquet') WHERE regexp_matches(coalesce(\"dose\",''),'[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]')",
+      "findings": 57,
+      "reports": 17
+    },
+    "effect_size": {
+      "sql": "SELECT count(*) AS findings,count(DISTINCT study_doi) AS reports FROM read_parquet('data/processed/kg_routed_runs/full_corpus_normalization_patch_qa_20260724/findings.parquet') WHERE regexp_matches(coalesce(\"effect_size\",''),'[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]')",
+      "findings": 28,
+      "reports": 9
+    },
+    "sample_size_total": {
+      "sql": "SELECT count(*) AS findings,count(DISTINCT study_doi) AS reports FROM read_parquet('data/processed/kg_routed_runs/full_corpus_normalization_patch_qa_20260724/findings.parquet') WHERE regexp_matches(coalesce(\"sample_size_total\",''),'[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]')",
+      "findings": 2,
+      "reports": 1
+    },
+    "support": {
+      "sql": "SELECT count(*) AS findings,count(DISTINCT study_doi) AS reports FROM read_parquet('data/processed/kg_routed_runs/full_corpus_normalization_patch_qa_20260724/findings.parquet') WHERE regexp_matches(coalesce(\"support\",''),'[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]')",
+      "findings": 52,
+      "reports": 25
+    },
+    "evidence_locator": {
+      "sql": "SELECT count(*) AS findings,count(DISTINCT study_doi) AS reports FROM read_parquet('data/processed/kg_routed_runs/full_corpus_normalization_patch_qa_20260724/findings.parquet') WHERE regexp_matches(coalesce(\"evidence_locator\",''),'[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]')",
+      "findings": 1,
+      "reports": 1
+    }
+  },
+  "diagnostic_examples": [
+    {
+      "finding_id": "finding:d695c93e46f1a11486",
+      "study_doi": "10.3389/fpsyt.2021.735427",
+      "domain": "clinical_outcome",
+      "graph_entity_label": "Chronic pain",
+      "endpoint_label_source": "",
+      "sample_size_total": "11",
+      "comparator": "Retrospective baseline",
+      "effect_size": "Mean score 0.33/10 (baseline mean 7.25/10)",
+      "dose": "Variable; high doses (mean 2.6g psilocybin) and microdosing (mean 225mg psilocybin or 10\u0000g LSD)",
+      "support": "Nine contributors reported pronounced reductions in pain during the acute psychedelic state, with the mean score dropping from a severe baseline to near-zero.",
+      "evidence_locator": "Paragraph 1",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "finding_id": "finding:424d8faada282e871e",
+      "study_doi": "10.3389/fpsyt.2021.735427",
+      "domain": "clinical_outcome",
+      "graph_entity_label": "Chronic pain",
+      "endpoint_label_source": "",
+      "sample_size_total": "11",
+      "comparator": "Retrospective baseline",
+      "effect_size": "Mean score 2.73/10 (baseline mean 7.25/10)",
+      "dose": "Variable; high doses (mean 2.6g psilocybin) and microdosing (mean 225mg psilocybin or 10\u0000g LSD)",
+      "support": "Pain scores remained significantly lower than baseline in the 48 hours following the experience, categorized as mild pain.",
+      "evidence_locator": "Paragraph 1",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "finding_id": "finding:f04007c5a43a80b6e1",
+      "study_doi": "10.3389/fpsyt.2021.735427",
+      "domain": "clinical_outcome",
+      "graph_entity_label": "Chronic pain",
+      "endpoint_label_source": "",
+      "sample_size_total": "11",
+      "comparator": "Retrospective baseline",
+      "effect_size": "11/11 (100%) reported increase",
+      "dose": "Variable self-medication protocols",
+      "support": "All contributors reported an increase in mental wellbeing, including antidepressant and anxiolytic effects and positive reframing of their relationship with pain.",
+      "evidence_locator": "Table 3",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "finding_id": "finding:0a2dd1e391a0e3f749",
+      "study_doi": "10.3389/fpsyt.2021.735427",
+      "domain": "clinical_outcome",
+      "graph_entity_label": "Chronic pain",
+      "endpoint_label_source": "",
+      "sample_size_total": "11",
+      "comparator": "Retrospective baseline",
+      "effect_size": "11/11 (100%) reported improvement",
+      "dose": "Variable self-medication protocols",
+      "support": "All contributors claimed improvements in quality of life, including increased mobility, energy, and ability to perform daily tasks like cooking and errands.",
+      "evidence_locator": "Table 3",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "finding_id": "finding:5829923675e7225911",
+      "study_doi": "10.3389/fpsyt.2021.735427",
+      "domain": "clinical_outcome",
+      "graph_entity_label": "Pain",
+      "endpoint_label_source": "clinical_symptom_endpoint",
+      "sample_size_total": "11",
+      "comparator": "Retrospective baseline",
+      "effect_size": "Mean score 0.33/10 (baseline mean 7.25/10)",
+      "dose": "Variable; high doses (mean 2.6g psilocybin) and microdosing (mean 225mg psilocybin or 10\u0000g LSD)",
+      "support": "Nine contributors reported pronounced reductions in pain during the acute psychedelic state, with the mean score dropping from a severe baseline to near-zero.",
+      "evidence_locator": "Paragraph 1",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "finding_id": "finding:9ab9ef11bd0b0dc070",
+      "study_doi": "10.3389/fpsyt.2021.735427",
+      "domain": "clinical_outcome",
+      "graph_entity_label": "Pain",
+      "endpoint_label_source": "clinical_symptom_endpoint",
+      "sample_size_total": "11",
+      "comparator": "Retrospective baseline",
+      "effect_size": "Mean score 2.73/10 (baseline mean 7.25/10)",
+      "dose": "Variable; high doses (mean 2.6g psilocybin) and microdosing (mean 225mg psilocybin or 10\u0000g LSD)",
+      "support": "Pain scores remained significantly lower than baseline in the 48 hours following the experience, categorized as mild pain.",
+      "evidence_locator": "Paragraph 1",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "finding_id": "finding:7a3b84f33b4ac262f0",
+      "study_doi": "10.1007/s00213-020-05611-y",
+      "domain": "clinical_outcome",
+      "graph_entity_label": "Persistent depressive disorder",
+      "endpoint_label_source": "condition_text_split",
+      "sample_size_total": "25",
+      "comparator": "baseline (pre-treatment)",
+      "effect_size": "mean BDI II decreased from 31 (SD 13) to 20 (SD 14); p < 0.001",
+      "dose": "0.25-0.5 mg/kg, maximum 3x weekly",
+      "support": "There was a significant improvement in depression ratings after esketamine treatment.",
+      "evidence_locator": "C007",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "finding_id": "finding:b57a0d67055bca22ac",
+      "study_doi": "10.1007/s00213-020-05611-y",
+      "domain": "clinical_outcome",
+      "graph_entity_label": "Schizoaffective disorder",
+      "endpoint_label_source": "condition_text_split",
+      "sample_size_total": "25",
+      "comparator": "baseline (pre-treatment)",
+      "effect_size": "mean BDI II decreased from 31 (SD 13) to 20 (SD 14); p < 0.001",
+      "dose": "0.25-0.5 mg/kg, maximum 3x weekly",
+      "support": "There was a significant improvement in depression ratings after esketamine treatment.",
+      "evidence_locator": "C007",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "finding_id": "finding:b5043ade63ccdd0265",
+      "study_doi": "10.1007/s00213-020-05611-y",
+      "domain": "clinical_outcome",
+      "graph_entity_label": "Bipolar disorder",
+      "endpoint_label_source": "condition_text_split",
+      "sample_size_total": "25",
+      "comparator": "baseline (pre-treatment)",
+      "effect_size": "mean BDI II decreased from 31 (SD 13) to 20 (SD 14); p < 0.001",
+      "dose": "0.25-0.5 mg/kg, maximum 3x weekly",
+      "support": "There was a significant improvement in depression ratings after esketamine treatment.",
+      "evidence_locator": "C007",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "finding_id": "finding:61489f177e8676cc42",
+      "study_doi": "10.1007/s00213-020-05611-y",
+      "domain": "clinical_outcome",
+      "graph_entity_label": "Persistent depressive disorder",
+      "endpoint_label_source": "condition_text_split",
+      "sample_size_total": "25",
+      "comparator": "baseline (pre-treatment)",
+      "effect_size": "F(20; 3.0) = 3.1; p = 0.2",
+      "dose": "0.25-0.5 mg/kg, maximum 3x weekly (average 11.4 treatments)",
+      "support": "No significant trend towards an increase in urinary leukocyte concentration was observed during the course of treatment.",
+      "evidence_locator": "C006",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "finding_id": "finding:e5799d6fe46fe62a25",
+      "study_doi": "10.1007/s00213-020-05611-y",
+      "domain": "clinical_outcome",
+      "graph_entity_label": "Schizoaffective disorder",
+      "endpoint_label_source": "condition_text_split",
+      "sample_size_total": "25",
+      "comparator": "baseline (pre-treatment)",
+      "effect_size": "F(20; 3.0) = 3.1; p = 0.2",
+      "dose": "0.25-0.5 mg/kg, maximum 3x weekly (average 11.4 treatments)",
+      "support": "No significant trend towards an increase in urinary leukocyte concentration was observed during the course of treatment.",
+      "evidence_locator": "C006",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "finding_id": "finding:1fe6022a87f8a5ad99",
+      "study_doi": "10.1007/s00213-020-05611-y",
+      "domain": "clinical_outcome",
+      "graph_entity_label": "Bipolar disorder",
+      "endpoint_label_source": "condition_text_split",
+      "sample_size_total": "25",
+      "comparator": "baseline (pre-treatment)",
+      "effect_size": "F(20; 3.0) = 3.1; p = 0.2",
+      "dose": "0.25-0.5 mg/kg, maximum 3x weekly (average 11.4 treatments)",
+      "support": "No significant trend towards an increase in urinary leukocyte concentration was observed during the course of treatment.",
+      "evidence_locator": "C006",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "finding_id": "finding:fcaf0c0b029bf66dd7",
+      "study_doi": "10.1007/s00213-020-05611-y",
+      "domain": "clinical_outcome",
+      "graph_entity_label": "Persistent depressive disorder",
+      "endpoint_label_source": "condition_text_split",
+      "sample_size_total": "25",
+      "comparator": "baseline (pre-treatment)",
+      "effect_size": "F(20; 2.2) = 4.1; p = 0.2",
+      "dose": "0.25-0.5 mg/kg, maximum 3x weekly (average 11.4 treatments)",
+      "support": "No significant trend towards an increase in urinary erythrocyte concentration was observed during the course of treatment.",
+      "evidence_locator": "C006",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "finding_id": "finding:252da4bbc5e01ce186",
+      "study_doi": "10.1007/s00213-020-05611-y",
+      "domain": "clinical_outcome",
+      "graph_entity_label": "Schizoaffective disorder",
+      "endpoint_label_source": "condition_text_split",
+      "sample_size_total": "25",
+      "comparator": "baseline (pre-treatment)",
+      "effect_size": "F(20; 2.2) = 4.1; p = 0.2",
+      "dose": "0.25-0.5 mg/kg, maximum 3x weekly (average 11.4 treatments)",
+      "support": "No significant trend towards an increase in urinary erythrocyte concentration was observed during the course of treatment.",
+      "evidence_locator": "C006",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "finding_id": "finding:8f0525c4395d71cc4f",
+      "study_doi": "10.1007/s00213-020-05611-y",
+      "domain": "clinical_outcome",
+      "graph_entity_label": "Bipolar disorder",
+      "endpoint_label_source": "condition_text_split",
+      "sample_size_total": "25",
+      "comparator": "baseline (pre-treatment)",
+      "effect_size": "F(20; 2.2) = 4.1; p = 0.2",
+      "dose": "0.25-0.5 mg/kg, maximum 3x weekly (average 11.4 treatments)",
+      "support": "No significant trend towards an increase in urinary erythrocyte concentration was observed during the course of treatment.",
+      "evidence_locator": "C006",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "finding_id": "finding:27319a277ff48e4a7c",
+      "study_doi": "10.1007/s00213-020-05611-y",
+      "domain": "clinical_outcome",
+      "graph_entity_label": "Persistent depressive disorder",
+      "endpoint_label_source": "condition_text_split",
+      "sample_size_total": "25",
+      "comparator": "baseline (pre-treatment)",
+      "effect_size": "descriptive analysis; no observable increase in detectable levels",
+      "dose": "0.25-0.5 mg/kg, maximum 3x weekly (average 11.4 treatments)",
+      "support": "Descriptive analysis showed no observable increase in the number of individuals with detectable levels of free haemoglobin or protein during treatment.",
+      "evidence_locator": "C006",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "finding_id": "finding:e73a946ade3bf12a33",
+      "study_doi": "10.1007/s00213-020-05611-y",
+      "domain": "clinical_outcome",
+      "graph_entity_label": "Schizoaffective disorder",
+      "endpoint_label_source": "condition_text_split",
+      "sample_size_total": "25",
+      "comparator": "baseline (pre-treatment)",
+      "effect_size": "descriptive analysis; no observable increase in detectable levels",
+      "dose": "0.25-0.5 mg/kg, maximum 3x weekly (average 11.4 treatments)",
+      "support": "Descriptive analysis showed no observable increase in the number of individuals with detectable levels of free haemoglobin or protein during treatment.",
+      "evidence_locator": "C006",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "finding_id": "finding:8903129ee133dbbb74",
+      "study_doi": "10.1007/s00213-020-05611-y",
+      "domain": "clinical_outcome",
+      "graph_entity_label": "Bipolar disorder",
+      "endpoint_label_source": "condition_text_split",
+      "sample_size_total": "25",
+      "comparator": "baseline (pre-treatment)",
+      "effect_size": "descriptive analysis; no observable increase in detectable levels",
+      "dose": "0.25-0.5 mg/kg, maximum 3x weekly (average 11.4 treatments)",
+      "support": "Descriptive analysis showed no observable increase in the number of individuals with detectable levels of free haemoglobin or protein during treatment.",
+      "evidence_locator": "C006",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "finding_id": "finding:b020b7570563879f01",
+      "study_doi": "10.1007/s00213-020-05611-y",
+      "domain": "clinical_outcome",
+      "graph_entity_label": "Low mood & depressive symptoms",
+      "endpoint_label_source": "clinical_symptom_endpoint",
+      "sample_size_total": "25",
+      "comparator": "baseline (pre-treatment)",
+      "effect_size": "mean BDI II decreased from 31 (SD 13) to 20 (SD 14); p < 0.001",
+      "dose": "0.25-0.5 mg/kg, maximum 3x weekly",
+      "support": "There was a significant improvement in depression ratings after esketamine treatment.",
+      "evidence_locator": "C007",
+      "graph_admission_status": "main_graph"
+    }
+  ],
+  "test_run": {
+    "command": "python -m pytest -q --disable-warnings --maxfail=12",
+    "passed": 1105,
+    "failed": 2,
+    "subtests_passed": 367,
+    "seconds": 24.21,
+    "failures": [
+      "tests/test_site_metadata.py::test_public_html_pages_use_current_favicon_assets",
+      "tests/test_ui_graph_categories.py::test_year_controls_stack_when_the_graph_column_is_constrained"
+    ]
+  },
+  "source_hashes": {
+    "pipeline/kg/build_evidence_tables.py": {
+      "sha256": "eb90cadfa2cb880079efc245c5076844e6454e40e3e305f9bbdb8f58c6252289",
+      "bytes": 472554
+    },
+    "pipeline/extract/run_route_extraction.py": {
+      "sha256": "e0e3bc5cbf2a50460265c43b2ca00e6411064862c44cb2adcd9f9f17f76f5928",
+      "bytes": 45752
+    },
+    "pipeline/publish/export_evidence_payload.py": {
+      "sha256": "6d7ca6e83bdadae6c3573b562585a8368b3f4a2fc53b0e0df21e9c9fed06a867",
+      "bytes": 76631
+    },
+    "scripts/build_analysis_index.py": {
+      "sha256": "3b27affca6bf8be84f31cb2db904e36d8ebc4d3e94969d9f089fc26b9fcb4174",
+      "bytes": 15015
+    },
+    "data/curated/entity_registry.json": {
+      "sha256": "f98a78be962fb975c9ad6533b1262be217d96db1d107e5e222e0a60991c9aa43",
+      "bytes": 95257
+    },
+    "data/processed/extraction/active_routed_run.json": {
+      "sha256": "c01f4d565472610c0ac3f67a2ed89422c6ca2520af57df1d7fb1f83d47928975",
+      "bytes": 765
+    },
+    "data/processed/graph_payload_active.json": {
+      "sha256": "75f2d1ea92f546c2cbf3547e93c4886ea12e68b5421fa182d1b306b17bf4208d",
+      "bytes": 6915
+    },
+    "data/processed/kg_routed_runs/full_corpus_normalization_patch_qa_20260724/findings.parquet": {
+      "sha256": "ff1cda018282e582ed588943cd26ee2626ad9271402f866ad9af890aef9415bf",
+      "bytes": 149744080
+    },
+    "data/processed/kg_routed_runs/full_corpus_normalization_patch_qa_20260724/normalization_audit.parquet": {
+      "sha256": "a0dc6a9fd374b8ee795da73d179e3b1d417e7fe2972dae1014edb639904b1805",
+      "bytes": 36288189
+    },
+    "data/processed/corpus/candidate_papers.parquet": {
+      "sha256": "c6b03e85b3d3305fadb61c633c4589fd4eee621b31204eb16bba10a2cd5a825f",
+      "bytes": 198290370
+    },
+    "data/processed/corpus/paper_prescreen_decisions.parquet": {
+      "sha256": "b6343a20f0242b752b4acf55e74cae62240739020512a6dfd40704f15c46e840",
+      "bytes": 38718885
+    },
+    "data/processed/discovery/unresolved_candidate_records.parquet": {
+      "sha256": "33e789d52d3c246f6e1f9ac1299335adadc3233379db99b2f569baf87f63e5a9",
+      "bytes": 6955792
+    }
+  }
+}
