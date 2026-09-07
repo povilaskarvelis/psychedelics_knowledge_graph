@@ -1368,3 +1368,22 @@ class ExportEvidencePayloadTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_reviewed_citation_names_include_authors_without_structured_identity(tmp_path):
+    write_author_tables(tmp_path)
+    rows = pd.read_parquet(tmp_path / "paper_authors.parquet")
+    rows["author_list_review_id"] = "review-list-1"
+    rows.loc[1, "author_id"] = "name:grace"
+    rows.loc[1, "identity_confidence"] = "name_only"
+    rows.to_parquet(tmp_path / "paper_authors.parquet", index=False)
+    identities = evidence_exporter.load_author_identities(tmp_path)
+    finding = evidence_exporter.finding_from_record({
+        "paper_id": "paper-1", "authors": "Ada Example; Ada Example; Wrong Person",
+        "raw_row_json": "{}",
+    }, identities, {})
+    assert finding["authors"] == "Ada Example; Grace Example"
+    assert len(identities["paper-1"]["author_identities"]) == 1
+    rows["author_list_review_id"] = ""
+    rows.to_parquet(tmp_path / "paper_authors.parquet", index=False)
+    assert "reviewed_author_names" not in evidence_exporter.load_author_identities(tmp_path)["paper-1"]

@@ -1,0 +1,76 @@
+........................................................................ [  6%]
+............................... [  9%]
+................................. [ 12%]
+.............. [ 13%]
+.................................................................. [ 19%]
+........................................................................ [ 26%]
+................................................................. [ 31%]
+.................................................................. [ 37%]
+........................................................................ [ 44%]
+........................................................................ [ 50%]
+............................................................ [ 56%]
+........................................................................ [ 62%]
+........................................................................ [ 69%]
+........................................................................ [ 75%]
+............................................................................................ [ 84%]
+...................................................................... [ 90%]
+F....................................................................... [ 96%]
+.................F................                                       [100%]
+=================================== FAILURES ===================================
+______________ test_public_html_pages_use_current_favicon_assets _______________
+
+    def test_public_html_pages_use_current_favicon_assets() -> None:
+        pages = (
+            "index.html",
+            "about/index.html",
+            "methods/index.html",
+            "api/index.html",
+            "compounds/psilocybin/index.html",
+            "feedback/index.html",
+            "feedback/sent/index.html",
+            "ui/index.html",
+            "ui/methods.html",
+        )
+    
+        for relative_path in pages:
+            source = (ROOT / relative_path).read_text(encoding="utf-8")
+            assert 'href="/favicon.ico" sizes="16x16 32x32"' in source
+>           assert 'href="/favicon-search.png" type="image/png" sizes="192x192"' in source
+E           assert 'href="/favicon-search.png" type="image/png" sizes="192x192"' in '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8" />\n    <meta name="viewport" content="width=d...s?v=20260905-v1"></script>\n    <script src="app.js?v=20260905-research-workspace-v53"></script>\n  </body>\n</html>\n'
+
+tests/test_site_metadata.py:139: AssertionError
+________ test_year_controls_stack_when_the_graph_column_is_constrained _________
+
+    def test_year_controls_stack_when_the_graph_column_is_constrained() -> None:
+        source = STYLES_CSS.read_text(encoding="utf-8")
+        graph_column_styles = source.split(".graph-column {", 1)[1].split("}", 1)[0]
+        constrained_styles = source.split(
+            "@container graph-column (max-width: 820px)", 1
+        )[1].split(".panel h2", 1)[0]
+    
+        assert "container-type: inline-size;" in graph_column_styles
+        assert "container-name: graph-column;" in graph_column_styles
+>       assert "grid-template-columns: minmax(0, 1fr);" in constrained_styles
+E       AssertionError: assert 'grid-template-columns: minmax(0, 1fr);' in ' {\n  .explorer-primary-row {\n    justify-content: flex-start;\n    overflow-x: auto;\n    scrollbar-width: none;\n ...-navigation-row .explorer-search,\n  .explorer-navigation-row .explorer-focus-path {\n    margin-top: 0;\n  }\n\n}\n\n'
+
+tests/test_ui_graph_categories.py:1184: AssertionError
+============================= slowest 15 durations =============================
+7.92s call     tests/test_build_extraction_routes.py::BuildExtractionRoutesTests::test_curated_screening_exclusion_overrides_an_in_scope_model_route
+0.42s call     tests/test_build_routed_kg_payload_script.py::BuildRoutedKgPayloadScriptTest::test_activating_build_exports_then_uses_guarded_promotion
+0.20s call     tests/test_query_api.py::QueryApiTest::test_catalogue_search_filters_and_relationships
+0.17s call     tests/test_preview_server.py::test_local_site_watcher_rebuilds_once_after_a_burst_of_edits
+0.14s call     tests/test_query_api.py::QueryApiTest::test_paper_query_and_http_contract
+0.14s call     tests/test_pdf_alternate_sources.py::test_title_validation_accepts_only_exact_doi_and_registered_pdf_hash
+0.14s call     tests/test_build_routed_kg_payload_script.py::BuildRoutedKgPayloadScriptTest::test_r2_publish_runs_only_after_successful_promotion
+0.14s call     tests/test_meta_analysis_normalization.py::test_meta_analysis_target_measure_projects_explicit_supported_targets
+0.14s call     tests/test_build_evidence_tables.py::BuildEvidenceTablesTest::test_molecular_postprocessing_resolves_target_pathway_and_readout_kinds
+0.14s call     tests/test_meta_analysis_normalization.py::test_meta_analysis_safety_events_cover_perceptual_and_discontinuation_outcomes
+0.13s call     tests/test_build_routed_kg_payload_script.py::BuildRoutedKgPayloadScriptTest::test_staged_build_leaves_live_methods_unchanged
+0.12s call     tests/test_build_routed_kg_payload_script.py::BuildRoutedKgPayloadScriptTest::test_promotion_failure_is_reported_after_versioned_export
+0.12s call     tests/test_build_routed_kg_payload_script.py::BuildRoutedKgPayloadScriptTest::test_build_is_non_activating_when_flag_is_unset
+0.11s call     tests/test_query_api_r2_sync.py::QueryApiR2SyncTest::test_syncs_private_query_runtime_without_bulk_routes
+0.11s call     tests/test_discovery_runner.py::test_completed_retrieval_can_be_finalized_again_without_provider_requests
+=========================== short test summary info ============================
+FAILED tests/test_site_metadata.py::test_public_html_pages_use_current_favicon_assets
+FAILED tests/test_ui_graph_categories.py::test_year_controls_stack_when_the_graph_column_is_constrained
+2 failed, 1105 passed, 367 subtests passed in 22.74s

@@ -1,0 +1,4887 @@
+{
+  "10.1001/jamapsychiatry.2026.0255": {
+    "source_url": "https://api.crossref.org/works/10.1001%2Fjamapsychiatry.2026.0255",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  "10.1002/hbm.70596": {
+    "source_url": "https://api.crossref.org/works/10.1002%2Fhbm.70596",
+    "title": [
+      "Modeled Long‐Term Effects of Psilocybin on Dynamic Activity and Effective Connectivity of Fronto‐Striatal‐Thalamic Circuits"
+    ],
+    "authors": [
+      {
+        "ORCID": "https://orcid.org/0000-0002-7899-7061",
+        "authenticated-orcid": false,
+        "given": "Lorenzo",
+        "family": "Pasquini",
+        "sequence": "first",
+        "affiliation": [
+          {
+            "name": "Department of Neurology University of California, San Francisco  California San Francisco USA"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-0994-5054",
+        "authenticated-orcid": false,
+        "given": "Jakub",
+        "family": "Vohryzek",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Computational Neuroscience Group Universitat Pompeu Fabra  Barcelona Spain"
+          },
+          {
+            "name": "Centre for Eudaimonia and Human Flourishing, Linacre College University of Oxford  Oxford UK"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Anira",
+        "family": "Escrichs",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Computational Neuroscience Group Universitat Pompeu Fabra  Barcelona Spain"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Yonatan Sanz",
+        "family": "Perl",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Computational Neuroscience Group Universitat Pompeu Fabra  Barcelona Spain"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Adrian",
+        "family": "Ponce‐Alvarez",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Mathematics Polytechnic University of Catalonia  Barcelona Spain"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Sebastian",
+        "family": "Idesis",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Computational Neuroscience Group Universitat Pompeu Fabra  Barcelona Spain"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Manesh",
+        "family": "Girn",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Neurology University of California, San Francisco  California San Francisco USA"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Leor",
+        "family": "Roseman",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Centre for Psychedelic Research Imperial College London  London UK"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Jennifer M.",
+        "family": "Mitchell",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Neurology University of California, San Francisco  California San Francisco USA"
+          },
+          {
+            "name": "Department of Psychiatry and Behavioral Sciences University of California, San Francisco  San Francisco California USA"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Adam",
+        "family": "Gazzaley",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Neurology University of California, San Francisco  California San Francisco USA"
+          },
+          {
+            "name": "Department of Psychiatry and Behavioral Sciences University of California, San Francisco  San Francisco California USA"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Morten",
+        "family": "Kringelbach",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Centre for Eudaimonia and Human Flourishing, Linacre College University of Oxford  Oxford UK"
+          },
+          {
+            "name": "Department of Psychiatry University of Oxford  Oxford UK"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-1286-1401",
+        "authenticated-orcid": false,
+        "given": "David J.",
+        "family": "Nutt",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Centre for Psychedelic Research Imperial College London  London UK"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Taylor",
+        "family": "Lyons",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Centre for Psychedelic Research Imperial College London  London UK"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Robin L.",
+        "family": "Carhart‐Harris",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Neurology University of California, San Francisco  California San Francisco USA"
+          },
+          {
+            "name": "Centre for Psychedelic Research Imperial College London  London UK"
+          },
+          {
+            "name": "Department of Psychiatry and Behavioral Sciences University of California, San Francisco  San Francisco California USA"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-8995-7583",
+        "authenticated-orcid": false,
+        "given": "Gustavo",
+        "family": "Deco",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Computational Neuroscience Group Universitat Pompeu Fabra  Barcelona Spain"
+          },
+          {
+            "name": "Institució Catalana de la Recerca i Estudis Avançats (ICREA)  Barcelona Spain"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1002/hup.2836": {
+    "source_url": "https://api.crossref.org/works/10.1002%2Fhup.2836",
+    "title": [
+      "Clinical predictors of depressive symptom remission and response after racemic ketamine and esketamine infusion in treatment‐resistant depression"
+    ],
+    "authors": [
+      {
+        "given": "Ana Paula",
+        "family": "Jesus‐Nunes",
+        "sequence": "first",
+        "affiliation": [
+          {
+            "name": "Programa de Pós‐graduação Em Medicina e Saúde Faculdade de Medicina da Bahia Universidade Federal da Bahia  Salvador Brazil"
+          },
+          {
+            "name": "Laboratório de Neuropsicofarmacologia Hospital Universitário Professor Edgard Santos Universidade Federal da Bahia  Salvador Brazil"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Gustavo C.",
+        "family": "Leal",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Programa de Pós‐graduação Em Medicina e Saúde Faculdade de Medicina da Bahia Universidade Federal da Bahia  Salvador Brazil"
+          },
+          {
+            "name": "Laboratório de Neuropsicofarmacologia Hospital Universitário Professor Edgard Santos Universidade Federal da Bahia  Salvador Brazil"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Fernanda S.",
+        "family": "Correia‐Melo",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Programa de Pós‐graduação Em Medicina e Saúde Faculdade de Medicina da Bahia Universidade Federal da Bahia  Salvador Brazil"
+          },
+          {
+            "name": "Laboratório de Neuropsicofarmacologia Hospital Universitário Professor Edgard Santos Universidade Federal da Bahia  Salvador Brazil"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Flávia",
+        "family": "Vieira",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Programa de Pós‐graduação Em Medicina e Saúde Faculdade de Medicina da Bahia Universidade Federal da Bahia  Salvador Brazil"
+          },
+          {
+            "name": "Laboratório de Neuropsicofarmacologia Hospital Universitário Professor Edgard Santos Universidade Federal da Bahia  Salvador Brazil"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Rodrigo P.",
+        "family": "Mello",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Programa de Pós‐graduação Em Medicina e Saúde Faculdade de Medicina da Bahia Universidade Federal da Bahia  Salvador Brazil"
+          },
+          {
+            "name": "Laboratório de Neuropsicofarmacologia Hospital Universitário Professor Edgard Santos Universidade Federal da Bahia  Salvador Brazil"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Ana Teresa",
+        "family": "Caliman‐Fontes",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Laboratório de Neuropsicofarmacologia Hospital Universitário Professor Edgard Santos Universidade Federal da Bahia  Salvador Brazil"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Mariana V. F.",
+        "family": "Echegaray",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Laboratório de Neuropsicofarmacologia Hospital Universitário Professor Edgard Santos Universidade Federal da Bahia  Salvador Brazil"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Roberta F.",
+        "family": "Marback",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Laboratório de Neuropsicofarmacologia Hospital Universitário Professor Edgard Santos Universidade Federal da Bahia  Salvador Brazil"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Lívia N. F.",
+        "family": "Guerreiro‐Costa",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Programa de Pós‐graduação Em Medicina e Saúde Faculdade de Medicina da Bahia Universidade Federal da Bahia  Salvador Brazil"
+          },
+          {
+            "name": "Laboratório de Neuropsicofarmacologia Hospital Universitário Professor Edgard Santos Universidade Federal da Bahia  Salvador Brazil"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Breno",
+        "family": "Souza‐Marques",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Programa de Pós‐graduação Em Medicina e Saúde Faculdade de Medicina da Bahia Universidade Federal da Bahia  Salvador Brazil"
+          },
+          {
+            "name": "Laboratório de Neuropsicofarmacologia Hospital Universitário Professor Edgard Santos Universidade Federal da Bahia  Salvador Brazil"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Cassio",
+        "family": "Santos‐Lima",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Laboratório de Neuropsicofarmacologia Hospital Universitário Professor Edgard Santos Universidade Federal da Bahia  Salvador Brazil"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Lucca S.",
+        "family": "Souza",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Laboratório de Neuropsicofarmacologia Hospital Universitário Professor Edgard Santos Universidade Federal da Bahia  Salvador Brazil"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Igor D.",
+        "family": "Bandeira",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Programa de Pós‐graduação Em Medicina e Saúde Faculdade de Medicina da Bahia Universidade Federal da Bahia  Salvador Brazil"
+          },
+          {
+            "name": "Laboratório de Neuropsicofarmacologia Hospital Universitário Professor Edgard Santos Universidade Federal da Bahia  Salvador Brazil"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Flavio",
+        "family": "Kapczinski",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "INCT‐TM and Department of Psychiatry and Behavioural Neurosciences McMaster University  Hamilton Ontario Canada"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Acioly L. T.",
+        "family": "Lacerda",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Laboratório Interdisciplinar de Neurociências Clínicas Universidade Federal de São Paulo  São Paulo Brazil"
+          },
+          {
+            "name": "Programa de Distúrbios Afetivos Universidade Federal de São Paulo  São Paulo Brazil"
+          },
+          {
+            "name": "BR Trials – Clinical Research  São Paulo Brazil"
+          },
+          {
+            "name": "National Institute of Science and Technology in Translational Medicine CNPq/FAPESP/CAPES  São Paulo Brazil"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-0389-1940",
+        "authenticated-orcid": false,
+        "given": "Lucas C.",
+        "family": "Quarantini",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Programa de Pós‐graduação Em Medicina e Saúde Faculdade de Medicina da Bahia Universidade Federal da Bahia  Salvador Brazil"
+          },
+          {
+            "name": "Laboratório de Neuropsicofarmacologia Hospital Universitário Professor Edgard Santos Universidade Federal da Bahia  Salvador Brazil"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1007/s11064-026-04727-5": {
+    "source_url": "https://api.crossref.org/works/10.1007%2Fs11064-026-04727-5",
+    "title": [
+      "Ibogalogs Activate the 5-HT2A Receptor through a Mechanism Involving Outward and Inward Movements of the Respective Transmembrane Segment TM6 and TM7"
+    ],
+    "authors": [
+      {
+        "given": "Deborah",
+        "family": "Rudin",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "Xintong",
+        "family": "Ren",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "Matthias E.",
+        "family": "Liechti",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "Niu",
+        "family": "Huang",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "Hugo R.",
+        "family": "Arias",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1007/s11306-023-02034-6": {
+    "source_url": "https://api.crossref.org/works/10.1007%2Fs11306-023-02034-6",
+    "title": [
+      "Behavioral metabolomics: how behavioral data can guide metabolomics research on neuropsychiatric disorders"
+    ],
+    "authors": [
+      {
+        "ORCID": "https://orcid.org/0000-0002-1387-444X",
+        "authenticated-orcid": false,
+        "given": "Ross",
+        "family": "van de Wetering",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-7764-4053",
+        "authenticated-orcid": false,
+        "given": "Jan A.",
+        "family": "Vorster",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0001-5687-2586",
+        "authenticated-orcid": false,
+        "given": "Sophie",
+        "family": "Geyrhofer",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-7658-7421",
+        "authenticated-orcid": false,
+        "given": "Joanne E.",
+        "family": "Harvey",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-7786-8313",
+        "authenticated-orcid": false,
+        "given": "Robert A.",
+        "family": "Keyzers",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "Susan",
+        "family": "Schenk",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1016/j.concog.2019.01.011": {
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.concog.2019.01.011",
+    "title": [
+      "Neurochemical models of near-death experiences: A large-scale study based on the semantic similarity of written reports"
+    ],
+    "authors": [
+      {
+        "given": "Charlotte",
+        "family": "Martial",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Héléna",
+        "family": "Cassol",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Vanessa",
+        "family": "Charland-Verville",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Carla",
+        "family": "Pallavicini",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Camila",
+        "family": "Sanz",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Federico",
+        "family": "Zamberlan",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Rocío Martínez",
+        "family": "Vivot",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Fire",
+        "family": "Erowid",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Earth",
+        "family": "Erowid",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Steven",
+        "family": "Laureys",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0001-7641-6916",
+        "authenticated-orcid": false,
+        "given": "Bruce",
+        "family": "Greyson",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Enzo",
+        "family": "Tagliazucchi",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1016/j.eclinm.2024.102799": {
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.eclinm.2024.102799",
+    "title": [
+      "Effect of psilocybin versus escitalopram on depression symptom severity in patients with moderate-to-severe major depressive disorder: observational 6-month follow-up of a phase 2, double-blind, randomised, controlled trial"
+    ],
+    "authors": [
+      {
+        "given": "David",
+        "family": "Erritzoe",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-2565-4628",
+        "authenticated-orcid": false,
+        "given": "Tommaso",
+        "family": "Barba",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-7829-493X",
+        "authenticated-orcid": false,
+        "given": "Kyle T.",
+        "family": "Greenway",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Roberta",
+        "family": "Murphy",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Jonny",
+        "family": "Martell",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Bruna",
+        "family": "Giribaldi",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Christopher",
+        "family": "Timmermann",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Ashleigh",
+        "family": "Murphy-Beiner",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Michelle Baker",
+        "family": "Jones",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "David",
+        "family": "Nutt",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-2989-2981",
+        "authenticated-orcid": false,
+        "given": "Brandon",
+        "family": "Weiss",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Robin",
+        "family": "Carhart-Harris",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1016/j.forsciint.2020.110298": {
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.forsciint.2020.110298",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  "10.1016/j.genhosppsych.2026.04.005": {
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.genhosppsych.2026.04.005",
+    "title": [
+      "Evaluating the potential risk of ketamine-induced hepatotoxicity in the treatment of mood and anxiety disorders: A systematic review"
+    ],
+    "authors": [
+      {
+        "given": "Gabrielle F.M.",
+        "family": "Lovell",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Shreya",
+        "family": "Vasudeva",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Diana K.",
+        "family": "Orsini",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Sara",
+        "family": "Di Luch",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Sabrina",
+        "family": "Wong",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Gia Han",
+        "family": "Le",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Roger S.",
+        "family": "McIntyre",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Eddie Y.",
+        "family": "Liu",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Joshua D.",
+        "family": "Rosenblat",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1016/j.jad.2025.01.054": {
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.jad.2025.01.054",
+    "title": [
+      "Hepatic adverse events associated with ketamine and esketamine: A population-based disproportionality analysis"
+    ],
+    "authors": [
+      {
+        "given": "Angela T.H.",
+        "family": "Kwan",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Moiz",
+        "family": "Lakhani",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Kayla M.",
+        "family": "Teopiz",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Sabrina",
+        "family": "Wong",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Gia Han",
+        "family": "Le",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Roger C.",
+        "family": "Ho",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Taeho Greg",
+        "family": "Rhee",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Bing",
+        "family": "Cao",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Joshua D.",
+        "family": "Rosenblat",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Rodrigo",
+        "family": "Mansur",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Roger S.",
+        "family": "McIntyre",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1016/j.jad.2025.121081": {
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.jad.2025.121081",
+    "title": [
+      "A systematic review of ketamine and esketamine-induced long-term potentiation and synaptic scaling: Do the molecular and synaptic plasticity effects inform dosing intervals?"
+    ],
+    "authors": [
+      {
+        "given": "Gia Han",
+        "family": "Le",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Sabrina",
+        "family": "Wong",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-2000-7691",
+        "authenticated-orcid": false,
+        "given": "Danica E.",
+        "family": "Johnson",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Andy",
+        "family": "Lu",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0009-0009-6641-0057",
+        "authenticated-orcid": false,
+        "given": "Diana",
+        "family": "Orsini",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Noah",
+        "family": "Chisamore",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Sara",
+        "family": "Di Luch",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-4773-2191",
+        "authenticated-orcid": false,
+        "given": "Joshua D.",
+        "family": "Rosenblat",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-4733-2523",
+        "authenticated-orcid": false,
+        "given": "Roger S.",
+        "family": "McIntyre",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1016/j.jad.2026.121385": {
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.jad.2026.121385",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  "10.1016/j.jhazmat.2019.121577": {
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.jhazmat.2019.121577",
+    "title": [
+      "Impact of ketamine on the behavior and immune system of adult medaka (Oryzias latipes) at environmentally relevant concentrations and eco-risk assessment in surface water"
+    ],
+    "authors": [
+      {
+        "ORCID": "https://orcid.org/0000-0002-3162-5068",
+        "authenticated-orcid": false,
+        "given": "Zhenglu",
+        "family": "Wang",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Zeqiong",
+        "family": "Xu",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Yuexia",
+        "family": "Wu",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Zhaobin",
+        "family": "Zhang",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Xiqing",
+        "family": "Li",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1016/j.jpainsymman.2026.04.611": {
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.jpainsymman.2026.04.611",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  "10.1016/j.jpsychires.2026.02.011": {
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.jpsychires.2026.02.011",
+    "title": [
+      "The effect of glutamatergic modulators on sleep behavior and architecture in depressive disorders: A systematic review"
+    ],
+    "authors": [
+      {
+        "given": "Kyle",
+        "family": "Valentino",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Hana",
+        "family": "Ballum",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "William",
+        "family": "Cheung",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Christine",
+        "family": "Dri",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Kayla M.",
+        "family": "Teopiz",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Angela T.H.",
+        "family": "Kwan",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Sabrina",
+        "family": "Wong",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Bianca",
+        "family": "Shen",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Morgan C.H.",
+        "family": "Cheng",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Gia Han",
+        "family": "Le",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Joshua D.",
+        "family": "Rosenblat",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Rodrigo B.",
+        "family": "Mansur",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Heidi Ka Ying",
+        "family": "Lo",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-4733-2523",
+        "authenticated-orcid": false,
+        "given": "Roger S.",
+        "family": "McIntyre",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1016/j.neubiorev.2026.106657": {
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.neubiorev.2026.106657",
+    "title": [
+      "How to set up a psychedelic study: Unique considerations for research involving human participants"
+    ],
+    "authors": [
+      {
+        "ORCID": "https://orcid.org/0009-0002-1030-5249",
+        "authenticated-orcid": false,
+        "given": "Marcus J.",
+        "family": "Glennon",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Catherine I.V.",
+        "family": "Bird",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Prateek",
+        "family": "Yadav",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Patrick",
+        "family": "Kleine",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Shayam",
+        "family": "Suseelan",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Christina",
+        "family": "Boman-Markaki",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Vasileia",
+        "family": "Kotoula",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Matt",
+        "family": "Butler",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Robert",
+        "family": "Leech",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Leor",
+        "family": "Roseman",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "David",
+        "family": "Erritzoe",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Deepak P.",
+        "family": "Srivastava",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Celia",
+        "family": "Morgan",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Christopher",
+        "family": "Timmermann",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Greg",
+        "family": "Cooper",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Jeremy I.",
+        "family": "Skipper",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "James",
+        "family": "Rucker",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Sunjeev K.",
+        "family": "Kamboj",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Mitul A.",
+        "family": "Mehta",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Ravi K.",
+        "family": "Das",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Anjali",
+        "family": "Bhat",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1016/j.pnpbp.2019.01.002": {
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.pnpbp.2019.01.002",
+    "title": [
+      "Pharmacological interventions targeting anhedonia in patients with major depressive disorder: A systematic review"
+    ],
+    "authors": [
+      {
+        "given": "Bing",
+        "family": "Cao",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Judy",
+        "family": "Zhu",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Hannah",
+        "family": "Zuckerman",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Joshua D.",
+        "family": "Rosenblat",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Elisa",
+        "family": "Brietzke",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Zihang",
+        "family": "Pan",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Mehala",
+        "family": "Subramanieapillai",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Caroline",
+        "family": "Park",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-0629-9456",
+        "authenticated-orcid": false,
+        "given": "Yena",
+        "family": "Lee",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Roger S.",
+        "family": "McIntyre",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1016/j.pnpbp.2025.111455": {
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.pnpbp.2025.111455",
+    "title": [
+      "The role of GABA, glutamate, and Glx levels in treatment of major depressive disorder: A systematic review and meta-analysis"
+    ],
+    "authors": [
+      {
+        "given": "Kate",
+        "family": "Godfrey",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Hannah",
+        "family": "Douglass",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "David",
+        "family": "Erritzoe",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Suresh",
+        "family": "Muthukumaraswamy",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "David",
+        "family": "Nutt",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Rachael",
+        "family": "Sumner",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1016/j.psychres.2026.117152": {
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.psychres.2026.117152",
+    "title": [
+      "Psychedelics as a potential treatment for borderline personality disorder: A narrative review"
+    ],
+    "authors": [
+      {
+        "ORCID": "https://orcid.org/0000-0001-6829-1797",
+        "authenticated-orcid": false,
+        "given": "Erin",
+        "family": "Artna",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Guneet",
+        "family": "Sandhu",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Noah",
+        "family": "Chisamore",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0001-9110-7951",
+        "authenticated-orcid": false,
+        "given": "Orly",
+        "family": "Lipsitz",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Erica S",
+        "family": "Kaczmarek",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-2000-7691",
+        "authenticated-orcid": false,
+        "given": "Danica E",
+        "family": "Johnson",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Joshua D",
+        "family": "Rosenblat",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-3408-9942",
+        "authenticated-orcid": false,
+        "given": "Saadia",
+        "family": "Sediqzadah",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1016/s2215-0366(26)00018-0": {
+    "source_url": "https://api.crossref.org/works/10.1016%2Fs2215-0366%2826%2900018-0",
+    "title": [
+      "Measuring and appraising placebo effects in clinical trials: contemporary challenges and approaches in psychiatry"
+    ],
+    "authors": [
+      {
+        "given": "Joseph J",
+        "family": "Taylor",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Balázs",
+        "family": "Szigeti",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Noah D",
+        "family": "Silverberg",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Masoud",
+        "family": "Ahmadzad-Asl",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Marina",
+        "family": "Kare",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Ryan",
+        "family": "Webler",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Diana K",
+        "family": "Orsini",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Joshua D",
+        "family": "Rosenblat",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Tom",
+        "family": "Bschor",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Christopher",
+        "family": "Baethge",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Mark",
+        "family": "Sinyor",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Timothy R",
+        "family": "Nicholson",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Tor D",
+        "family": "Wager",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Matthew J",
+        "family": "Burke",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1038/s41386-019-0569-3": {
+    "source_url": "https://api.crossref.org/works/10.1038%2Fs41386-019-0569-3",
+    "title": [
+      "Distinct acute effects of LSD, MDMA, and d-amphetamine in healthy subjects"
+    ],
+    "authors": [
+      {
+        "ORCID": "https://orcid.org/0000-0002-4582-6610",
+        "authenticated-orcid": false,
+        "given": "Friederike",
+        "family": "Holze",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-5954-4446",
+        "authenticated-orcid": false,
+        "given": "Patrick",
+        "family": "Vizeli",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Felix",
+        "family": "Müller",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Laura",
+        "family": "Ley",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Raoul",
+        "family": "Duerig",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Nimmy",
+        "family": "Varghese",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-9341-3669",
+        "authenticated-orcid": false,
+        "given": "Anne",
+        "family": "Eckert",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-5792-3987",
+        "authenticated-orcid": false,
+        "given": "Stefan",
+        "family": "Borgwardt",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-1765-9659",
+        "authenticated-orcid": false,
+        "given": "Matthias E.",
+        "family": "Liechti",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1038/s41386-026-02428-9": {
+    "source_url": "https://api.crossref.org/works/10.1038%2Fs41386-026-02428-9",
+    "title": [
+      "Acute dose-dependent effects of 4-bromo-2,5-dimethoxyphenethylamine (2C-B) compared with 3,4-methylenedioxymethamphetamine (MDMA) and psilocybin in a double-blind, placebo-controlled study in healthy participants"
+    ],
+    "authors": [
+      {
+        "given": "Denis",
+        "family": "Arikci",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Joran",
+        "family": "Borgulya",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0009-0008-2952-586X",
+        "authenticated-orcid": false,
+        "given": "Isabelle",
+        "family": "Straumann",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-5954-4446",
+        "authenticated-orcid": false,
+        "given": "Patrick",
+        "family": "Vizeli",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-0874-4875",
+        "authenticated-orcid": false,
+        "given": "Dino",
+        "family": "Luethi",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-3820-2671",
+        "authenticated-orcid": false,
+        "given": "Jan",
+        "family": "Thomann",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-3069-9732",
+        "authenticated-orcid": false,
+        "given": "Deborah",
+        "family": "Rudin",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Ina",
+        "family": "Vukalovic",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-9341-3669",
+        "authenticated-orcid": false,
+        "given": "Anne",
+        "family": "Eckert",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-1765-9659",
+        "authenticated-orcid": false,
+        "given": "Matthias E.",
+        "family": "Liechti",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-3143-1519",
+        "authenticated-orcid": false,
+        "given": "Friederike",
+        "family": "Holze",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1038/s41398-026-03987-7": {
+    "source_url": "https://api.crossref.org/works/10.1038%2Fs41398-026-03987-7",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  "10.1038/s41398-026-04148-6": {
+    "source_url": "https://api.crossref.org/works/10.1038%2Fs41398-026-04148-6",
+    "title": [
+      "Comparison of acute effects of 3,4-methylenedioxymethamphetamine (MDMA) with and without a supplemental booster dose in healthy participants: a double-blind, randomized, placebo-controlled, crossover study"
+    ],
+    "authors": [
+      {
+        "given": "Mélusine",
+        "family": "Humbert-Droz",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0001-5308-7945",
+        "authenticated-orcid": false,
+        "given": "Anna M.",
+        "family": "Becker",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0009-0008-7040-1041",
+        "authenticated-orcid": false,
+        "given": "Jan",
+        "family": "Valenta",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Deborah",
+        "family": "Rudin",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-0874-4875",
+        "authenticated-orcid": false,
+        "given": "Dino",
+        "family": "Luethi",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Ina",
+        "family": "Vukalovic",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-9341-3669",
+        "authenticated-orcid": false,
+        "given": "Anne",
+        "family": "Eckert",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-1765-9659",
+        "authenticated-orcid": false,
+        "given": "Matthias E.",
+        "family": "Liechti",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-9155-1080",
+        "authenticated-orcid": false,
+        "given": "Lorenz",
+        "family": "Mueller",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1038/s41591-025-04154-z": {
+    "source_url": "https://api.crossref.org/works/10.1038%2Fs41591-025-04154-z",
+    "title": [
+      "A short-acting psychedelic intervention for major depressive disorder: a phase IIa randomized placebo-controlled trial"
+    ],
+    "authors": [
+      {
+        "ORCID": "https://orcid.org/0000-0002-7022-6211",
+        "authenticated-orcid": false,
+        "given": "David",
+        "family": "Erritzoe",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-2565-4628",
+        "authenticated-orcid": false,
+        "given": "Tommaso",
+        "family": "Barba",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Tiffanie",
+        "family": "Benway",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Zelah",
+        "family": "Joel",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Meghan",
+        "family": "Good",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Marie",
+        "family": "Layzell",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0009-0004-6557-0503",
+        "authenticated-orcid": false,
+        "given": "Michelle Baker",
+        "family": "Jones",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Graham",
+        "family": "Campbell",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Ashleigh",
+        "family": "Murphy-Beiner",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Peter",
+        "family": "Rands",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Malcolm",
+        "family": "Boyce",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Helen",
+        "family": "Topping",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Brandon",
+        "family": "Weiss",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-2281-377X",
+        "authenticated-orcid": false,
+        "given": "Christopher",
+        "family": "Timmermann",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-1286-1401",
+        "authenticated-orcid": false,
+        "given": "David",
+        "family": "Nutt",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-6062-7150",
+        "authenticated-orcid": false,
+        "given": "Robin",
+        "family": "Carhart-Harris",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Carol",
+        "family": "Routledge",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0009-0000-9554-573X",
+        "authenticated-orcid": false,
+        "given": "Ellen",
+        "family": "James",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1038/s41591-026-04287-9": {
+    "source_url": "https://api.crossref.org/works/10.1038%2Fs41591-026-04287-9",
+    "title": [
+      "An international mega-analysis of psychedelic drug effects on brain circuit function"
+    ],
+    "authors": [
+      {
+        "ORCID": "https://orcid.org/0000-0003-0455-4273",
+        "authenticated-orcid": false,
+        "given": "Manesh",
+        "family": "Girn",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-2939-2522",
+        "authenticated-orcid": false,
+        "given": "Manoj K.",
+        "family": "Doss",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Leor",
+        "family": "Roseman",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-0413-7672",
+        "authenticated-orcid": false,
+        "given": "Katrin H.",
+        "family": "Preller",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-1612-6703",
+        "authenticated-orcid": false,
+        "given": "Fernanda",
+        "family": "Palhano-Fontes",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Lorenzo",
+        "family": "Pasquini",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Frederick S.",
+        "family": "Barrett",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Pablo",
+        "family": "Mallaroni",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0001-7115-0389",
+        "authenticated-orcid": false,
+        "given": "Natasha L.",
+        "family": "Mason",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Christopher",
+        "family": "Timmermann",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0001-6360-5224",
+        "authenticated-orcid": false,
+        "given": "Drummond E.",
+        "family": "McCulloch",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Patrick M.",
+        "family": "Fisher",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Brian S.",
+        "family": "Winston",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-0843-0393",
+        "authenticated-orcid": false,
+        "given": "Flora",
+        "family": "Moujaes",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Felix",
+        "family": "Muller",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Matthias E.",
+        "family": "Liechti",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0001-9053-6164",
+        "authenticated-orcid": false,
+        "given": "Franz X.",
+        "family": "Vollenweider",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-4553-376X",
+        "authenticated-orcid": false,
+        "given": "Johannes G.",
+        "family": "Ramaekers",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0001-7634-3809",
+        "authenticated-orcid": false,
+        "given": "Kim",
+        "family": "Kuypers",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-6934-2485",
+        "authenticated-orcid": false,
+        "given": "Draulio B.",
+        "family": "Araujo",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0001-7265-4036",
+        "authenticated-orcid": false,
+        "given": "Olaf",
+        "family": "Sporns",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-5752-3641",
+        "authenticated-orcid": false,
+        "given": "Joshua",
+        "family": "Siegel",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-6876-7078",
+        "authenticated-orcid": false,
+        "given": "Nico",
+        "family": "Dosenbach",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-1286-1401",
+        "authenticated-orcid": false,
+        "given": "David J.",
+        "family": "Nutt",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-6062-7150",
+        "authenticated-orcid": false,
+        "given": "Robin L.",
+        "family": "Carhart-Harris",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0001-6955-9601",
+        "authenticated-orcid": false,
+        "given": "Emmanuel A.",
+        "family": "Stamatakis",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-3466-6620",
+        "authenticated-orcid": false,
+        "given": "Danilo",
+        "family": "Bzdok",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1080/14656566.2026.2637587": {
+    "source_url": "https://api.crossref.org/works/10.1080%2F14656566.2026.2637587",
+    "title": [
+      "Progress, potential and pitfalls of ketamine as a treatment for depression"
+    ],
+    "authors": [
+      {
+        "ORCID": "https://orcid.org/0009-0009-6641-0057",
+        "authenticated-orcid": false,
+        "given": "Diana K.",
+        "family": "Orsini",
+        "sequence": "first",
+        "affiliation": [
+          {
+            "name": "University Health Network",
+            "place": [
+              "Toronto, Canada"
+            ]
+          },
+          {
+            "name": "University of Toronto",
+            "place": [
+              "Toronto, Canada"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0009-0007-7662-5882",
+        "authenticated-orcid": false,
+        "given": "Sara",
+        "family": "Di Luch",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "University Health Network",
+            "place": [
+              "Toronto, Canada"
+            ]
+          },
+          {
+            "name": "University of Toronto",
+            "place": [
+              "Toronto, Canada"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0009-0008-8403-5206",
+        "authenticated-orcid": false,
+        "given": "Gabrielle F. M.",
+        "family": "Lovell",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "University Health Network",
+            "place": [
+              "Toronto, Canada"
+            ]
+          },
+          {
+            "name": "University of Toronto",
+            "place": [
+              "Toronto, Canada"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-4773-2191",
+        "authenticated-orcid": false,
+        "given": "Joshua D.",
+        "family": "Rosenblat",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "University Health Network",
+            "place": [
+              "Toronto, Canada"
+            ]
+          },
+          {
+            "name": "University of Toronto",
+            "place": [
+              "Toronto, Canada"
+            ]
+          },
+          {
+            "name": "University of Toronto",
+            "place": [
+              "Toronto, Canada"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1080/2153599x.2026.2635353": {
+    "source_url": "https://api.crossref.org/works/10.1080%2F2153599x.2026.2635353",
+    "title": [
+      "Mystical dynamics: renewal, luminous light, and ego disintegration as key features associated with mystical oneness—a psychometric analysis using the PES100 in controlled psychedelic studies"
+    ],
+    "authors": [
+      {
+        "given": "Kurt",
+        "family": "Stocker",
+        "sequence": "first",
+        "affiliation": [
+          {
+            "name": "University Hospital Basel, and University of Basel",
+            "place": [
+              "Basel, Switzerland"
+            ]
+          },
+          {
+            "name": "ETH Swiss Federal Institute of Technology Zurich",
+            "place": [
+              "Zurich, Switzerland"
+            ]
+          },
+          {
+            "name": "University of Zurich",
+            "place": [
+              "Zurich, Switzerland"
+            ]
+          },
+          {
+            "name": "UniDistance Suisse",
+            "place": [
+              "Brig, Switzerland"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Matthias",
+        "family": "Hartmann",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "UniDistance Suisse",
+            "place": [
+              "Brig, Switzerland"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Frederick S.",
+        "family": "Barrett",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Johns Hopkins University School of Medicine",
+            "place": [
+              "Baltimore, USA"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Willam",
+        "family": "Richards",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Johns Hopkins University School of Medicine",
+            "place": [
+              "Baltimore, USA"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Nathan D.",
+        "family": "Sepeda",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Johns Hopkins University School of Medicine",
+            "place": [
+              "Baltimore, USA"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Isabelle",
+        "family": "Straumann",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "University Hospital Basel, and University of Basel",
+            "place": [
+              "Basel, Switzerland"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Aaron",
+        "family": "Klaiber",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "University Hospital Basel, and University of Basel",
+            "place": [
+              "Basel, Switzerland"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Severin B.",
+        "family": "Vogt",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "University Hospital Basel, and University of Basel",
+            "place": [
+              "Basel, Switzerland"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Livio",
+        "family": "Erne",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "University Hospital Basel, and University of Basel",
+            "place": [
+              "Basel, Switzerland"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Laura",
+        "family": "Ley",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "University Hospital Basel, and University of Basel",
+            "place": [
+              "Basel, Switzerland"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Anna M.",
+        "family": "Becker",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "University Hospital Basel, and University of Basel",
+            "place": [
+              "Basel, Switzerland"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Patrick",
+        "family": "Vizeli",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "University Hospital Basel, and University of Basel",
+            "place": [
+              "Basel, Switzerland"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Friederike",
+        "family": "Holze",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "University Hospital Basel, and University of Basel",
+            "place": [
+              "Basel, Switzerland"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Matthias E.",
+        "family": "Liechti",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "University Hospital Basel, and University of Basel",
+            "place": [
+              "Basel, Switzerland"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1089/psymed.2024.0039": {
+    "source_url": "https://api.crossref.org/works/10.1089%2Fpsymed.2024.0039",
+    "title": [
+      "Therapeutic Effects of Low-Dose Psilocybin in Depression and Other Mental Disorders: A Systematic Review"
+    ],
+    "authors": [
+      {
+        "given": "Shakila",
+        "family": "Meshkat",
+        "sequence": "first",
+        "affiliation": [
+          {
+            "name": "Interventional Psychiatry Program, St. Michael’s Hospital, Toronto, Canada."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Howell",
+        "family": "Fang",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Interventional Psychiatry Program, St. Michael’s Hospital, Toronto, Canada."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-8768-1173",
+        "authenticated-orcid": false,
+        "given": "Rachel",
+        "family": "Sousa-Ho",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Interventional Psychiatry Program, St. Michael’s Hospital, Toronto, Canada."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Richard J.",
+        "family": "Zeifman",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "NYU Center for Psychedelic Medicine, NYU Grossman School of Medicine, New York, New York, USA."
+          },
+          {
+            "name": "Center for Psychedelic Research, Imperial College London, London, United Kingdom."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Benjamin T.",
+        "family": "Dunkley",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Neurosciences &amp; Mental Health, Hospital for Sick Children Research Institute, Toronto, Canada."
+          },
+          {
+            "name": "Institute of Medical Science, University of Toronto, Toronto, Canada."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Amy C.",
+        "family": "Reichelt",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Physiology and Pharmacology, Western University, London, Canada."
+          },
+          {
+            "name": "School of Biomedicine, Adelaide Medical School, University of Adelaide, Adelaide, Australia."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Yanbo",
+        "family": "Zhang",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Psychiatry, University of Alberta, Edmonton, Canada."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Lisa",
+        "family": "Burback",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Psychiatry, University of Alberta, Edmonton, Canada."
+          },
+          {
+            "name": "Neuroscience and Mental Health Institute (NMHI), University of Alberta, Edmonton, Canada."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Olga",
+        "family": "Winkler",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Psychiatry, University of Alberta, Edmonton, Canada."
+          },
+          {
+            "name": "Neuroscience and Mental Health Institute (NMHI), University of Alberta, Edmonton, Canada."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Andrew",
+        "family": "Greenshaw",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Psychiatry, University of Alberta, Edmonton, Canada."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Rakesh",
+        "family": "Jetly",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "The Institute of Mental Health Research, Royal Ottawa Hospital, University of Ottawa, Ottawa, Canada."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Leah M.",
+        "family": "Mayo",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Psychiatry, Mathison Centre for Mental Health Research and Education, Hotchkiss Brain Institute, University of Calgary, Calgary, Canada."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Candice M.",
+        "family": "Monson",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Psychology, Toronto Metropolitan University, Toronto, Canada."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Venkat",
+        "family": "Bhat",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Interventional Psychiatry Program, St. Michael’s Hospital, Toronto, Canada."
+          },
+          {
+            "name": "Institute of Medical Science, University of Toronto, Toronto, Canada."
+          },
+          {
+            "name": "Neuroscience Research Program, St. Michael’s Hospital, Toronto, Canada."
+          },
+          {
+            "name": "Department of Psychiatry, University of Toronto, Toronto, Canada."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1111/add.70363": {
+    "source_url": "https://api.crossref.org/works/10.1111%2Fadd.70363",
+    "title": [
+      "Changes over time in hallucinogen‐related emergency department visits in Ontario, Canada"
+    ],
+    "authors": [
+      {
+        "ORCID": "https://orcid.org/0000-0002-8038-300X",
+        "authenticated-orcid": false,
+        "given": "Daniel T.",
+        "family": "Myran",
+        "sequence": "first",
+        "affiliation": [
+          {
+            "name": "Department of Family and Community Medicine North York General Hospital  Toronto Ontario Canada"
+          },
+          {
+            "name": "Department of Family and Community Medicine University of Toronto  Toronto Ontario Canada"
+          },
+          {
+            "name": "Department of Family Medicine University of Ottawa  Ottawa Ontario Canada"
+          },
+          {
+            "name": "Bruyère Health Research Institute  Ottawa Ontario Canada"
+          },
+          {
+            "name": "Ottawa Hospital Research Institute  Ottawa Ontario Canada"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-2016-3232",
+        "authenticated-orcid": false,
+        "given": "Rachael",
+        "family": "MacDonald‐Spracklin",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Bruyère Health Research Institute  Ottawa Ontario Canada"
+          },
+          {
+            "name": "Ottawa Hospital Research Institute  Ottawa Ontario Canada"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Alexander R.",
+        "family": "Levesque",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Dalla Lana School of Public Health University of Toronto  Toronto Ontario Canada"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Michael",
+        "family": "Pugliese",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "ICES uOttawa Ottawa Hospital Research Institute  Ottawa Ontario Canada"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Jess G.",
+        "family": "Fiedorowicz",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Ottawa Hospital Research Institute  Ottawa Ontario Canada"
+          },
+          {
+            "name": "School of Epidemiology and Public Health University of Ottawa  Ottawa Ontario Canada"
+          },
+          {
+            "name": "Department of Psychiatry University of Ottawa  Ottawa Ontario Canada"
+          },
+          {
+            "name": "Department of Mental Health The Ottawa Hospital  Ottawa Ontario Canada"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-1734-5067",
+        "authenticated-orcid": false,
+        "given": "André J.",
+        "family": "McDonald",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Peter Boris Centre for Addictions Research St. Joseph's Healthcare Hamilton  Hamilton Ontario Canada"
+          },
+          {
+            "name": "Department of Psychiatry and Behavioural Neurosciences McMaster University  Hamilton Ontario Canada"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Joshua D.",
+        "family": "Rosenblat",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Psychiatry University of Toronto  Toronto Ontario Canada"
+          },
+          {
+            "name": "Toronto Western Hospital University Health Network  Toronto Ontario Canada"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0001-5924-0277",
+        "authenticated-orcid": false,
+        "given": "Ian",
+        "family": "Colman",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "School of Epidemiology and Public Health University of Ottawa  Ottawa Ontario Canada"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Josephine",
+        "family": "Zein",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Bruyère Health Research Institute  Ottawa Ontario Canada"
+          },
+          {
+            "name": "Department of Psychiatry University of Ottawa  Ottawa Ontario Canada"
+          },
+          {
+            "name": "Department of Mental Health The Ottawa Hospital  Ottawa Ontario Canada"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Marco",
+        "family": "Solmi",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Bruyère Health Research Institute  Ottawa Ontario Canada"
+          },
+          {
+            "name": "ICES uOttawa Ottawa Hospital Research Institute  Ottawa Ontario Canada"
+          },
+          {
+            "name": "Department of Psychiatry University of Ottawa  Ottawa Ontario Canada"
+          },
+          {
+            "name": "Department of Mental Health The Ottawa Hospital  Ottawa Ontario Canada"
+          },
+          {
+            "name": "Department of Child and Adolescent Psychiatry, Charité Universitätsmedizin Berlin  Berlin Germany"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1176/appi.ajp.20230902": {
+    "source_url": "https://api.crossref.org/works/10.1176%2Fappi.ajp.20230902",
+    "title": [
+      "Psychedelics for the Treatment of Psychiatric Disorders: Interpreting and Translating Available Evidence and Guidance for Future Research"
+    ],
+    "authors": [
+      {
+        "given": "Roger S.",
+        "family": "McIntyre",
+        "sequence": "first",
+        "affiliation": [
+          {
+            "name": "Department of Psychiatry (McIntyre, Mansur, Rosenblat) and Department of Pharmacology and Toxicology (McIntyre, Mansur, Rosenblat), University of Toronto, Toronto; Brain and Cognition Discovery Foundation, Toronto (Kwan, Teopiz); Faculty of Medicine, University of Ottawa, Ottawa (Kwan); Champalimaud Research and Clinical Center, Champalimaud Foundation, Lisbon (Oliveira-Maia); NOVA Medical School, Faculdade de Ciências Médicas, NMS, FCM, Universidade NOVA de Lisboa, Lisbon (Oliveira-Maia); Department of..."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Angela T. H.",
+        "family": "Kwan",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Psychiatry (McIntyre, Mansur, Rosenblat) and Department of Pharmacology and Toxicology (McIntyre, Mansur, Rosenblat), University of Toronto, Toronto; Brain and Cognition Discovery Foundation, Toronto (Kwan, Teopiz); Faculty of Medicine, University of Ottawa, Ottawa (Kwan); Champalimaud Research and Clinical Center, Champalimaud Foundation, Lisbon (Oliveira-Maia); NOVA Medical School, Faculdade de Ciências Médicas, NMS, FCM, Universidade NOVA de Lisboa, Lisbon (Oliveira-Maia); Department of..."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Rodrigo B.",
+        "family": "Mansur",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Psychiatry (McIntyre, Mansur, Rosenblat) and Department of Pharmacology and Toxicology (McIntyre, Mansur, Rosenblat), University of Toronto, Toronto; Brain and Cognition Discovery Foundation, Toronto (Kwan, Teopiz); Faculty of Medicine, University of Ottawa, Ottawa (Kwan); Champalimaud Research and Clinical Center, Champalimaud Foundation, Lisbon (Oliveira-Maia); NOVA Medical School, Faculdade de Ciências Médicas, NMS, FCM, Universidade NOVA de Lisboa, Lisbon (Oliveira-Maia); Department of..."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Albino J.",
+        "family": "Oliveira-Maia",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Psychiatry (McIntyre, Mansur, Rosenblat) and Department of Pharmacology and Toxicology (McIntyre, Mansur, Rosenblat), University of Toronto, Toronto; Brain and Cognition Discovery Foundation, Toronto (Kwan, Teopiz); Faculty of Medicine, University of Ottawa, Ottawa (Kwan); Champalimaud Research and Clinical Center, Champalimaud Foundation, Lisbon (Oliveira-Maia); NOVA Medical School, Faculdade de Ciências Médicas, NMS, FCM, Universidade NOVA de Lisboa, Lisbon (Oliveira-Maia); Department of..."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Kayla M.",
+        "family": "Teopiz",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Psychiatry (McIntyre, Mansur, Rosenblat) and Department of Pharmacology and Toxicology (McIntyre, Mansur, Rosenblat), University of Toronto, Toronto; Brain and Cognition Discovery Foundation, Toronto (Kwan, Teopiz); Faculty of Medicine, University of Ottawa, Ottawa (Kwan); Champalimaud Research and Clinical Center, Champalimaud Foundation, Lisbon (Oliveira-Maia); NOVA Medical School, Faculdade de Ciências Médicas, NMS, FCM, Universidade NOVA de Lisboa, Lisbon (Oliveira-Maia); Department of..."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Vladimir",
+        "family": "Maletic",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Psychiatry (McIntyre, Mansur, Rosenblat) and Department of Pharmacology and Toxicology (McIntyre, Mansur, Rosenblat), University of Toronto, Toronto; Brain and Cognition Discovery Foundation, Toronto (Kwan, Teopiz); Faculty of Medicine, University of Ottawa, Ottawa (Kwan); Champalimaud Research and Clinical Center, Champalimaud Foundation, Lisbon (Oliveira-Maia); NOVA Medical School, Faculdade de Ciências Médicas, NMS, FCM, Universidade NOVA de Lisboa, Lisbon (Oliveira-Maia); Department of..."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Trisha",
+        "family": "Suppes",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Psychiatry (McIntyre, Mansur, Rosenblat) and Department of Pharmacology and Toxicology (McIntyre, Mansur, Rosenblat), University of Toronto, Toronto; Brain and Cognition Discovery Foundation, Toronto (Kwan, Teopiz); Faculty of Medicine, University of Ottawa, Ottawa (Kwan); Champalimaud Research and Clinical Center, Champalimaud Foundation, Lisbon (Oliveira-Maia); NOVA Medical School, Faculdade de Ciências Médicas, NMS, FCM, Universidade NOVA de Lisboa, Lisbon (Oliveira-Maia); Department of..."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Stephen M.",
+        "family": "Stahl",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Psychiatry (McIntyre, Mansur, Rosenblat) and Department of Pharmacology and Toxicology (McIntyre, Mansur, Rosenblat), University of Toronto, Toronto; Brain and Cognition Discovery Foundation, Toronto (Kwan, Teopiz); Faculty of Medicine, University of Ottawa, Ottawa (Kwan); Champalimaud Research and Clinical Center, Champalimaud Foundation, Lisbon (Oliveira-Maia); NOVA Medical School, Faculdade de Ciências Médicas, NMS, FCM, Universidade NOVA de Lisboa, Lisbon (Oliveira-Maia); Department of..."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Joshua D.",
+        "family": "Rosenblat",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Psychiatry (McIntyre, Mansur, Rosenblat) and Department of Pharmacology and Toxicology (McIntyre, Mansur, Rosenblat), University of Toronto, Toronto; Brain and Cognition Discovery Foundation, Toronto (Kwan, Teopiz); Faculty of Medicine, University of Ottawa, Ottawa (Kwan); Champalimaud Research and Clinical Center, Champalimaud Foundation, Lisbon (Oliveira-Maia); NOVA Medical School, Faculdade de Ciências Médicas, NMS, FCM, Universidade NOVA de Lisboa, Lisbon (Oliveira-Maia); Department of..."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.1177/02698811261443677": {
+    "source_url": "https://api.crossref.org/works/10.1177%2F02698811261443677",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  "10.15288/jsad.23-00032": {
+    "source_url": "https://api.crossref.org/works/10.15288%2Fjsad.23-00032",
+    "title": [
+      "A Perspective on Psychedelics as Treatments for Addictions"
+    ],
+    "authors": [
+      {
+        "given": "David J.",
+        "family": "Nutt",
+        "sequence": "first",
+        "affiliation": [
+          {
+            "name": "Department of Psychiatry, Faculty of Medicine, Imperial College London, London, United Kingdom"
+          },
+          {
+            "name": "Awakn Life Sciences, Toronto, Ontario, Canada"
+          }
+        ],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "Celia",
+        "family": "Morgan",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Psychiatry, Faculty of Medicine, Imperial College London, London, United Kingdom"
+          },
+          {
+            "name": "Awakn Life Sciences, Toronto, Ontario, Canada"
+          },
+          {
+            "name": "Department of Psychology, University of Exeter, Exeter, United Kingdom"
+          }
+        ],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "Sukhpreet",
+        "family": "Klaire",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Division of Addiction Medicine, Providence Health Care, Vancouver, British Columbia, Canada"
+          },
+          {
+            "name": "Department of Family Practice, University of British Columbia, Vancouver, British Columbia, Canada"
+          }
+        ],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      }
+    ]
+  },
+  "10.2139/ssrn.4237108": {
+    "source_url": "https://api.crossref.org/works/10.2139%2Fssrn.4237108",
+    "title": [
+      "Liquid Chromatography–Tandem Mass Spectrometry Method for the Bioanalysis of N,N-Dimethyltryptamine (Dmt) and its Metabolites Dmt-N-Oxide and Indole-3-Acetic Acid in Human Plasma"
+    ],
+    "authors": [
+      {
+        "ORCID": "https://orcid.org/0000-0003-0874-4875",
+        "authenticated-orcid": true,
+        "given": "Dino",
+        "family": "Luethi",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Karolina  E.",
+        "family": "Kolaczynska",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Severin  B.",
+        "family": "Vogt",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Laura",
+        "family": "Ley",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Livio",
+        "family": "Erne",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-1765-9659",
+        "authenticated-orcid": true,
+        "given": "Matthias  E.",
+        "family": "Liechti",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-7811-3932",
+        "authenticated-orcid": true,
+        "given": "Urs",
+        "family": "Duthaler",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.3389/fpubh.2024.1391390": {
+    "source_url": "https://api.crossref.org/works/10.3389%2Ffpubh.2024.1391390",
+    "title": [
+      "Descriptive study on substance uses and risk of sexually transmitted infections in the practice of Chemsex in Spain"
+    ],
+    "authors": [
+      {
+        "given": "Pablo",
+        "family": "del Pozo-Herce",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Enrique",
+        "family": "Baca-García",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Antonio",
+        "family": "Martínez-Sabater",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Elena",
+        "family": "Chover-Sierra",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Vicente",
+        "family": "Gea-Caballero",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Javier",
+        "family": "Curto-Ramos",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Michal",
+        "family": "Czapla",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Piotr",
+        "family": "Karniej",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Jesús",
+        "family": "Martínez-Tofe",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Mercedes",
+        "family": "Sánchez-Barba",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Regina Ruiz",
+        "family": "de Viñaspre",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Raúl",
+        "family": "Juárez-Vela",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ]
+  },
+  "10.3929/ethz-c-000799490": {
+    "source_url": "https://api.crossref.org/works/10.3929%2Fethz-c-000799490",
+    "error": "HTTP Error 404: Not Found"
+  },
+  "10.4038/sljpsyc.v11i1.8240": {
+    "source_url": "https://api.crossref.org/works/10.4038%2Fsljpsyc.v11i1.8240",
+    "title": [
+      "Party drug to mainstream medicine; the transition of ketamine"
+    ],
+    "authors": [
+      {
+        "ORCID": "https://orcid.org/0000-0002-1655-2753",
+        "authenticated-orcid": false,
+        "given": "N.",
+        "family": "Ravindran",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "A.",
+        "family": "Ravindran",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      }
+    ]
+  },
+  "10.5167/uzh-284344": {
+    "source_url": "https://api.crossref.org/works/10.5167%2Fuzh-284344",
+    "error": "HTTP Error 404: Not Found"
+  }
+}

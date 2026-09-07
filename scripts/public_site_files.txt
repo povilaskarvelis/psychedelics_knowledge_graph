@@ -16,6 +16,7 @@ ui/index.html
 ui/app.js
 ui/analysis-worker.js
 ui/research-model.js
+ui/view-state.js
 ui/research-analysis.js
 ui/research-analysis.css
 ui/compound.js

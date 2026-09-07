@@ -1,0 +1,34 @@
+{
+  "doi": "10.1016/j.jpsychires.2023.01.009",
+  "review_id": "author-list-20260906-066",
+  "expected_source_sha256": "0b6f704b5b6faf9ea5cf9fb703d45787832503041bb820f0e080a3c3c690f924",
+  "authors": [
+    {
+      "source_position": 1
+    },
+    {
+      "source_position": 2
+    },
+    {
+      "source_position": 3
+    },
+    {
+      "source_position": 5
+    },
+    {
+      "source_position": 6
+    },
+    {
+      "source_position": 7
+    },
+    {
+      "source_position": 8
+    }
+  ],
+  "reason": "Follow-up audit exposed a previously split duplicate Tung-Hsia Liu. Published author list contains one entry, at position 3; remove the extra cached entry at source position 4.",
+  "sources": [
+    "https://api.crossref.org/works/10.1016/j.jpsychires.2023.01.009"
+  ],
+  "reviewed_at": "2026-09-06",
+  "reviewed_by": "codex_source_review"
+}

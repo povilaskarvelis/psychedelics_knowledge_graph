@@ -1,0 +1,64 @@
+{
+  "run_id": "full_corpus_normalization_patch_qa_20260724",
+  "release_id": "full_corpus_normalization_patch_qa_20260724:60f0d4c24ef84f369509fc7974445274",
+  "scope": "Active local release. Not a fresh download or verification of the live production release.",
+  "findings_sha256": "ff1cda018282e582ed588943cd26ee2626ad9271402f866ad9af890aef9415bf",
+  "total_normalized_rows": 97195,
+  "main_graph_admitted_rows": 80824,
+  "condition_rows_all": 9697,
+  "condition_rows_main_graph": 8592,
+  "candidate_rows": 621,
+  "high_confidence_rows": 209,
+  "distinct_dois": 171,
+  "distinct_statement_keys": 202,
+  "condition_high_confidence_rows": 197,
+  "rows_with_matching_bootstrap_edge": 209,
+  "distinct_compound_entity_kind_pairs": 72,
+  "by_category": {
+    "safety_in_conditions": 106,
+    "ketamine_uropathy_in_conditions": 38,
+    "disease_model_in_conditions": 16,
+    "mechanism_in_conditions": 11,
+    "therapeutic_in_safety": 11,
+    "intervention_context_in_conditions": 10,
+    "exposure_context_in_conditions": 8,
+    "policy_in_conditions": 5,
+    "research_metadata_in_conditions": 3,
+    "serious_harm_in_cognition": 1
+  },
+  "by_source": {
+    "primary": 157,
+    "reviews": 48,
+    "meta_analyses": 4
+  },
+  "by_current_entity_kind": {
+    "condition_indication": 197,
+    "safety_adverse_event": 11,
+    "cognitive_behavioral_construct": 1
+  },
+  "by_compound": {
+    "Ketamine": 104,
+    "MDMA": 26,
+    "Psilocybin": 21,
+    "S-ketamine": 16,
+    "LSD": 9,
+    "NMDA receptor antagonists": 5,
+    "DMT": 4,
+    "Hallucinogens": 4,
+    "Ayahuasca": 3,
+    "Classic psychedelics": 3,
+    "Psychedelics (broad or mixed)": 3,
+    "Mescaline": 3,
+    "Ibogaine": 2,
+    "25I-NBOMe": 2,
+    "Dissociatives": 2,
+    "2C-B": 1,
+    "Psychedelic-assisted therapy": 1
+  },
+  "limits": [
+    "Heuristic census plus manual targeted semantic review, not exhaustive full-text adjudication or a prevalence estimate.",
+    "A matching bootstrap edge establishes that the concept link is exported, not that every individual row survives all UI filters.",
+    "Counts are normalized rows, not independent experiments. Exact repeated statement keys are also reported.",
+    "Other candidates include legitimate rows and unresolved mixed-role findings; not_confirmed does not mean correct."
+  ]
+}

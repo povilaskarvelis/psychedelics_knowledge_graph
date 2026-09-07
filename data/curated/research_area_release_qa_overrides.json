@@ -1,0 +1,257 @@
+{
+  "schema_version": "research_area_release_qa_overrides_v1",
+  "qa_version": "research_area_release_qa_v1",
+  "reviewed_at": "2026-09-06",
+  "reviewer": "codex_manual_semantic_review",
+  "confirmation_sample_quotas": {
+    "confirm_therapeutic_condition_outcome_projection": 140,
+    "confirm_safety_endpoint_projection": 49,
+    "confirm_cognitive_behavioral_projection": 6,
+    "confirm_real_world_public_health_projection": 5
+  },
+  "restore_action_rules": [
+    {
+      "second_pass_action": "hold_safety_endpoint_from_clinical_area_projection",
+      "except_finding_ids": [
+        "finding:98afc49bb30d7c6028",
+        "finding:81f38dc68c9a8ebb09",
+        "finding:5c630a786e4fe65264",
+        "finding:df79178c0512db4eb7",
+        "finding:900b9670174e76070a",
+        "finding:90e72a2e133b70e59b",
+        "finding:34c4bcbde2b68a5f01",
+        "finding:c25491177899b54c72"
+      ],
+      "rationale": "The graph view contract selects Safety from entity_kind. These findings already have a safety_adverse_event entity and safety-matching support, so the source extraction domain does not justify removing the edge. The listed exceptions lack a matching safety endpoint or label."
+    },
+    {
+      "second_pass_action": "hold_condition_endpoint_from_cognitive_behavioral_area_projection",
+      "except_finding_ids": [],
+      "rationale": "These findings report direct withdrawal, dependence, or cessation outcomes. A condition_indication projection is semantically supported even though the extraction domain is cognitive_behavioral."
+    },
+    {
+      "second_pass_action": "hold_safety_endpoint_from_subjective_area",
+      "except_finding_ids": [],
+      "rationale": "These findings report dissociation, manic symptoms, or persistent tinnitus and already project to the Safety view through their safety_adverse_event entity kind."
+    }
+  ],
+  "restore_groups": [
+    {
+      "name": "measured_clinical_findings_with_explicit_outcomes",
+      "rationale": "The statement includes an explicit clinical response, remission, symptom, pain, sleep, quality-of-life, or cessation outcome; the accompanying measured endpoint does not invalidate the condition projection.",
+      "finding_ids": [
+        "finding:0dfa575bf8a225fba6",
+        "finding:332d7849fd1902fa00",
+        "finding:c009f012aef66575b1",
+        "finding:325338f49b128be55f",
+        "finding:07f4080c4e3647ee6c",
+        "finding:5c55fc3e90ee2b06c2",
+        "finding:e6997e805fd9bd1f39",
+        "finding:37f266331b4ec1552b",
+        "finding:ab2505dcfa4b1b4715",
+        "finding:674476dc146bf88023",
+        "finding:24564cb5d96473ab79",
+        "finding:5af3b2a2888cae7620",
+        "finding:1404bc4cc1204db9e7",
+        "finding:f6d81a74b895562d6b",
+        "finding:d54f2f157e8bbe670b",
+        "finding:c874f4bf36aa5fe07d",
+        "finding:34814a2a114466ef0d",
+        "finding:95480e8713324a5fe4",
+        "finding:33aac17670a14451de",
+        "finding:b24e9fa6d56ac0380c",
+        "finding:37dee68d5959998bcd",
+        "finding:699be16e66c3bad478",
+        "finding:e4a0bc0923970b46b7",
+        "finding:182f1aef789ef1425a",
+        "finding:335b7342d08c26107f",
+        "finding:4c536cc5faf769dac1",
+        "finding:966b2f51f7df8f701d",
+        "finding:627dc3aed46778dc17",
+        "finding:e361f399e3e7167663",
+        "finding:8d427f3c971688fe3b",
+        "finding:78b38ecdc2ba6fc9e7",
+        "finding:1c142f3fd3e3236ba5",
+        "finding:4552da15621760929f",
+        "finding:21e5a81c9e1138b6f7",
+        "finding:6801bebf8bdabbfbf1",
+        "finding:f5e674cdc7a15c54ae",
+        "finding:d426f8492a42facf96",
+        "finding:7aea9d41190ee40fe4",
+        "finding:2698899749138eeda4",
+        "finding:673f27f08b0ddc6d87",
+        "finding:281a2f05e757385997",
+        "finding:01db1b7bafbf2ce5db",
+        "finding:853f3a710bafb9d326",
+        "finding:5ce8a6bbd9a738dd92",
+        "finding:b48def633e0480c609",
+        "finding:fbcbec631124a4f40c",
+        "finding:e8895c1b3dc4434205",
+        "finding:a96f2dd107350d08b5",
+        "finding:8b68bd51db0e084607",
+        "finding:a297771c035a9c2b9b",
+        "finding:f23102bb7e3e48a819",
+        "finding:2071e28e6978682b85",
+        "finding:37ee870fdfd4975ad1",
+        "finding:3325287e9f8a389bd8",
+        "finding:06bae874bf08551162",
+        "finding:3a9e4cb0fe7bf62891"
+      ]
+    },
+    {
+      "name": "condition_findings_with_therapeutic_context",
+      "rationale": "The statement describes therapeutic benefit, nonresponse, withdrawal relief, craving reduction, or an explicit treatment rationale rather than an exposure harm.",
+      "finding_ids": [
+        "finding:3068eef569567664e0",
+        "finding:0a9b4885295ae21854",
+        "finding:e806c9c4b927b5d6a2",
+        "finding:9307d32bd4a1d86238",
+        "finding:bdd0fbb6c3e246ebf9",
+        "finding:161687afb5bca204e2",
+        "finding:f41c66c85469c06667",
+        "finding:f56070a749aeb1d889",
+        "finding:68f586eba6a5341f4b",
+        "finding:eb862a540364cb6509",
+        "finding:f27a8239f869583323",
+        "finding:b3a0c85700a7507356",
+        "finding:5eb07071386f8b786c",
+        "finding:d9c82995b530f0a402",
+        "finding:3d804b696394a99220",
+        "finding:776e7a5ed4e103ae1e",
+        "finding:590279178832cdcf2c",
+        "finding:cacf9d3465529b3050",
+        "finding:c1ae71089e31f67e3d",
+        "finding:68e9c19f080d1bd060",
+        "finding:28d6d45f71bfd252f5",
+        "finding:4528bcae698632602f"
+      ]
+    },
+    {
+      "name": "safety_findings_with_mixed_therapeutic_language",
+      "rationale": "The statement still contains a matching adverse event, tolerability, impairment, toxicity, interaction, or absence-of-harm endpoint. Therapeutic language elsewhere in the sentence does not remove that safety evidence.",
+      "finding_ids": [
+        "finding:4e9dc6040d13bebc3b",
+        "finding:1844142fc8c3d39447",
+        "finding:01ee4880d7cc4833fd",
+        "finding:69807689095fde840d",
+        "finding:a10a512c2d08ed6a58",
+        "finding:1dc81be0e85af543c9",
+        "finding:5de6973e0ea542c155",
+        "finding:0ca8e75d2a673c832b",
+        "finding:52a5712b29dbfd6d6d",
+        "finding:10ba276df20eb2591c",
+        "finding:0e8cac5ab4e4a0c2e0",
+        "finding:9bf421b05078805354",
+        "finding:f79134d3bf457b74a8",
+        "finding:2a990fef274b65dae7",
+        "finding:25ac22dced9e3ea7e5",
+        "finding:42ff64fc3b5458ae22",
+        "finding:b90c858d3322a2c2da",
+        "finding:70b59f9a8cb3117cdc",
+        "finding:8a793db022a969dc03",
+        "finding:bd4a7391316ec51510",
+        "finding:59951872030c09c760",
+        "finding:a5e05047543eb4049d",
+        "finding:ed11cbb40de769740a",
+        "finding:6990c2b072648e8b3a",
+        "finding:ab2cb10d29f8ca7b59",
+        "finding:cdbce6a0c2edec77e0",
+        "finding:3218577ab4a0abccdc",
+        "finding:f5b38a046d03245b1b",
+        "finding:d958ab33615caed70d",
+        "finding:d0ff6d84e33a137c2b",
+        "finding:a1aa3230f0b24d1468",
+        "finding:b67a95e3f67a6347e6",
+        "finding:8f099204162f3d253b",
+        "finding:eac3b734571d498aae",
+        "finding:fb541a836d52fed331",
+        "finding:a43d2b23a9c87a474c",
+        "finding:bdfe3b7eb72539bf42",
+        "finding:8febe97e90d6209cb2",
+        "finding:9a107eefe4e5e977b4",
+        "finding:be5d540d1ccf4801e8",
+        "finding:2e1daec95834132195"
+      ]
+    },
+    {
+      "name": "model_rule_findings_with_treatment_evidence",
+      "rationale": "Although the statement mentions a model, mechanism, or comparison, it also reports or synthesizes a therapeutic outcome or treatment-response relationship.",
+      "finding_ids": [
+        "finding:1fcdc89b67f2cffa18",
+        "finding:457ae1f8533539e976",
+        "finding:dba1120635e6a0a77a",
+        "finding:f830344e6f8a1b50ab",
+        "finding:ea0f04be2d5475b3ff",
+        "finding:27db2edd6acccb436b",
+        "finding:608eebc4ae2a10b60a",
+        "finding:589228c9fd01e5df77",
+        "finding:45e18b272984d1c48b",
+        "finding:9cb957547b65a008e9",
+        "finding:9b7bf9999ca22e04f4",
+        "finding:dfc89311aba682d802"
+      ]
+    },
+    {
+      "name": "context_rule_findings_with_treatment_conclusions",
+      "rationale": "The statement makes a condition-specific efficacy conclusion or identifies a therapeutic context that materially governs the treatment effect.",
+      "finding_ids": [
+        "finding:c9564aafa554949f38",
+        "finding:7cc74bd4c1f14aefc8",
+        "finding:ddfc96192af0a4967a",
+        "finding:f847f9fe8e17622998"
+      ]
+    },
+    {
+      "name": "physiological_safety_endpoints",
+      "rationale": "The safety schema includes physiological changes; acute hormone changes are valid Endocrine effects even when the paper discusses a possible therapeutic mechanism.",
+      "finding_ids": [
+        "finding:e292baeec1d033be53",
+        "finding:24e033ab29d547d6eb"
+      ]
+    }
+  ],
+  "hold_confirmed_groups": [
+    {
+      "name": "confirmation_sample_wrong_projection",
+      "rationale": "Manual review of the deterministic confirmation sample found that the statement does not support the current entity projection or belongs to exposure/safety/context rather than the confirmed treatment projection.",
+      "finding_ids": [
+        "finding:5061ecca3405da9730",
+        "finding:c394916587295ff6dc",
+        "finding:5425e39941ac4f39b4",
+        "finding:06a66e20621df80f94",
+        "finding:5c499f3d7701b1b22a",
+        "finding:84a034736e9750ed35",
+        "finding:b5cdfe5e3d0d4b932a",
+        "finding:102eba10984d69ee33",
+        "finding:dd9894eee2a91b1ce0",
+        "finding:a07cc3c035d4f9edc9",
+        "finding:d7a32322b9cdba0e02",
+        "finding:9ca1e05270308dc97d",
+        "finding:b88c74a53136ba5d26",
+        "finding:3678d420935cfae889",
+        "finding:3c33fc3342921c2b08",
+        "finding:9575076a389e634937",
+        "finding:402cddab63b8e17ebf",
+        "finding:47d25b82ba2d8f0e29",
+        "finding:56a3ad65f8997125f8",
+        "finding:21d0d625bc21ae0487",
+        "finding:691b74c0625e37f647",
+        "finding:56a11b89b4f9c1145d",
+        "finding:853fc54c6b9f795ff7",
+        "finding:d79795fe072f04f62f"
+      ]
+    }
+  ],
+  "resolve_unresolved": [
+    {
+      "finding_id": "finding:adf0fef625beb5068f",
+      "action": "hold_review_scope_without_endpoint",
+      "rationale": "Source-level review of PMID 11662868 / DOI 10.1177/002204267700700308 shows that this row only states the scope of a review of psychedelic research in terminal cancer. It does not report a condition-specific treatment endpoint."
+    },
+    {
+      "finding_id": "finding:416f1f52daaed1cf03",
+      "action": "hold_model_statement_without_endpoint",
+      "rationale": "Source-level review of DOI 10.2174/1874941001104010034 shows that this row describes a diathesis-stress explanatory model. The paper's separate MDMA psychiatric-harm finding remains in Safety, while this conceptual statement does not itself report an anxiety or panic endpoint."
+    }
+  ]
+}

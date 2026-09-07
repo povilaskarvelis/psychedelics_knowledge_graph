@@ -154,9 +154,55 @@ Each KG output directory contains:
 - `evidence_edges.parquet`: graph-oriented compound-to-entity evidence edges.
 - `normalization_audit.parquet`: rows held back from graph promotion because a
   compound or right-side graph entity could not be normalized cleanly.
+- `research_area_review_queue.parquet`: deterministic research-area flags,
+  including unresolved normalization records.
 - `manifest.json`: table counts, source counts, and entity-kind summaries.
 - `kg.duckdb`: optional local DuckDB database materialized when the `duckdb`
   Python package is installed.
+
+### Research-area adjudication overlay
+
+The routing queue is advisory. To persist a review decision for every queued
+record and materialize only high-confidence graph holds, apply the versioned
+overlay after a candidate build:
+
+```bash
+python pipeline/validate/apply_research_area_adjudications.py \
+  --candidate-dir data/processed/kg_routed_runs/<RUN_ID> \
+  --out-dir data/processed/kg_routed_runs/<RUN_ID>_adjudicated \
+  --audit docs/evaluation/research_area_audit_2026-09-06/high_confidence_findings.csv \
+  --reviewed-at 2026-09-06
+```
+
+This step makes no model calls. It writes
+`research_area_adjudications.parquet`/`.csv` and a queue with decisions joined
+back to each record. `corrected` rows with a `hold_*` action lose their
+evidence edge and remain in paper detail; rows with
+`route_to_existing_replacement_projection` retain the deterministic
+replacement edge. `unresolved` rows keep their original graph projection and
+carry an explicit reason for later source-level review. The overlay is a
+versioned staging output and is not the active release until it passes the
+normal promotion checks.
+
+For a follow-up semantic pass over unresolved rows that are still visible in
+the main graph, apply the second-pass overlay:
+
+```bash
+python pipeline/validate/apply_research_area_second_pass.py \
+  --first-pass-dir data/processed/kg_routed_runs/<RUN_ID>_adjudicated \
+  --out-dir data/processed/kg_routed_runs/<RUN_ID>_second_pass \
+  --reviewed-at 2026-09-06
+```
+
+This pass is deterministic and makes no model/API calls. It reviews the saved
+support statement together with the current area and normalized entity kind,
+groups repeated exact statement/projection rows, and records one decision for
+each group. It writes
+`research_area_second_pass_decisions.parquet`/`.csv`, updates the combined
+adjudication ledger, and removes only explicitly corrected `hold_*` edges from
+the staged evidence table. Rows already held in paper detail and
+normalization-audit records remain unresolved until a source-level review can
+provide a safe replacement. The output remains a versioned staging overlay.
 
 Molecular finding subtopics are assigned by the versioned taxonomy recorded in
 `manifest.json` as `molecular_subtopic_taxonomy_version`. The matcher first uses
@@ -279,6 +325,39 @@ This writes:
 - `author_resolution_report.json`: structured identity coverage and unresolved-row counts.
 - `openalex_author_cache.json`: cached OpenAlex authorship lookups for rebuilds.
 
+Reviewed identity corrections live in `author_identity_overrides.json`. Profile
+merges use the existing `overrides` records; `authorship_overrides` correct a
+specific DOI and author position before ORCID propagation. Each scoped record
+requires exact expected source names/identifiers, replacement identifiers,
+reviewer/date, reason, and source links. Changed source records or propagation
+that restores a rejected ORCID stop the build for renewed review. Authorship
+tables retain original identifiers in `source_*` columns and link corrections
+through `identity_review_id`; the OpenAlex cache is not rewritten.
+
+`author_list_reviews` stores publication-specific corrections to complete author
+lists. Each review fingerprints the original ordered source names and identifiers,
+then explicitly selects retained source positions and (where a source profile was
+shifted onto another name) the identity donor position. Unsupported profile matches
+can be cleared to name-only identities. There is no global name deduplication:
+consortium credits and unresolved same-name cases remain available for review.
+Changed source fingerprints stop the build. Output rows retain original source
+position/name/identifiers and `author_list_review_id`; the resolution report records
+removed positions. Review decisions, including attempted-but-unresolved cases,
+are documented in `docs/evaluation/author_identity_2026-09-06/pass3/`.
+
+To generate review candidates without automatically merging similar names:
+
+```bash
+python pipeline/validate/audit_author_identities.py \
+  --kg-dir "data/processed/kg_routed_runs/$RUN_ID" \
+  --out-dir "data/processed/evaluation/author_identity/$RUN_ID"
+```
+
+This standalone audit distinguishes possible name splits, repeated identities
+within papers, and conflicting ORCIDs. Candidate counts are not confirmed-error
+counts. Confirm corrections against independent author/publication records and
+rebuild into a staging directory before promoting new graph payloads.
+
 The command refuses to replace the author tables unless at least 95% of
 authorship rows have an OpenAlex or ORCID identity. Offline builds also require
 successful cached authorships for at least 95% of the DOI-bearing paper set. For
@@ -368,3 +447,86 @@ extraction outputs, and normalized KG tables, then promote the routed release.
 Promotion first validates and updates the canonical corpus ledger, and only
 then regenerates the Methods PRISMA flow and bibliography. Do not edit the UI
 data by hand.
+
+## Research-area routing and review queue
+
+`research_area_review.py` supplies conservative routing boundaries and advisory
+review flags. It makes no model/API calls. The builder now writes
+`research_area_review_queue.parquet` alongside its evidence tables, including
+flagged normalized findings and flagged normalization failures. The manifest's
+`research_area_review` section records the rule version and counts by reason
+and record type.
+
+Current deterministic changes protect negated/population psychosis context,
+resolve explicit depression/suicidality endpoints in those rows, retain serious
+psychosis in Safety rather than transient Cognition, and route narrow explicit
+safety endpoints out of clinical outcomes. Ketamine-to-ketamine-associated-
+uropathy condition projections are held in paper detail: the exposure is not
+established as a treatment, and surgery/cessation outcomes require review.
+
+The fields on findings and review-queue rows distinguish:
+
+- `research_area_input_json`: source classification/anchor before these routing
+  rules; this is not an independently reviewed classification.
+- `research_area_routing_version` and `research_area_rule_actions_json`:
+  automatic routing provenance. Existing normalization fields retain their
+  additional normalization reasons.
+- `research_area_classification_origin`: the candidate builder writes
+  `deterministic`; the adjudication overlay changes corrected rows to
+  `agent_reviewed` and leaves unresolved rows deterministic.
+- `research_area_review_status`: `pending` or `not_flagged`. Neither means an
+  adjudicator has accepted the finding; `not_flagged` does not certify accuracy.
+- `research_area_review_reasons_json`: explainable ambiguity triggers, separate
+  from extraction's `needs_human_review` admission flag.
+- `research_area_evidence_fingerprint`: hash of DOI, compound, saved support,
+  quote and location, allowing a future adjudication to detect changed evidence.
+
+Review flags do not change admission. Explicit routing/admission boundaries
+still can. The queue therefore includes both graph-admitted findings and
+already-held records. `record_type=normalization_audit` rows do not have a
+normalized finding ID; use their evidence fingerprint and source metadata.
+The raw extraction files are never modified.
+
+For a staged build and comparison against the September audit:
+
+```bash
+python pipeline/kg/build_evidence_tables.py \
+  --run-id research_area_routing_20260906 \
+  --evidence-run-id full_corpus_normalization_patch_qa_20260724 \
+  --skip-duckdb
+python pipeline/validate/evaluate_research_area_routing.py \
+  --audit docs/evaluation/research_area_audit_2026-09-06/high_confidence_findings.csv \
+  --candidate-dir data/processed/kg_routed_runs/research_area_routing_20260906 \
+  --out-dir docs/evaluation/research_area_routing_2026-09-06/full
+```
+
+The comparison distinguishes remaining flags, held projections, changed
+projections, normalization-review records and missing matches. Absence alone is
+not counted as a correction. This step does not promote or publish the graph.
+Apply the adjudication overlay shown above to persist the current conservative
+decisions; unresolved records remain explicit for later source-level review.
+
+For a release candidate, follow the deterministic pass with the replayable QA
+gate:
+
+```bash
+python pipeline/validate/apply_research_area_release_qa.py \
+  --second-pass-dir "data/processed/kg_routed_runs/$SECOND_PASS_RUN" \
+  --out-dir "data/processed/kg_routed_runs/$RELEASE_RUN" \
+  --overrides data/curated/research_area_release_qa_overrides.json \
+  --run-id "$RELEASE_RUN"
+```
+
+The gate records review provenance in `research_area_release_qa.parquet` and
+finalizes all second-pass decisions in `research_area_final_decisions.parquet`.
+The current policy reviews every proposed correction, every unresolved
+main-graph row using source context, and a hash-stable stratified sample of
+automatic confirmations. A release is eligible for promotion only when its
+final corrected findings have no evidence edges, its final confirmed findings
+all have edges, and the main-graph second-pass scope has no unresolved rows.
+
+Research-area views are selected from the normalized `entity_kind` contract.
+The extraction `domain` remains useful provenance, but a domain mismatch alone
+does not establish a wrong visible area. Version v3 of
+`research_area_second_pass.py` applies this rule so valid safety and condition
+projections are not suppressed merely because their extraction domain differs.

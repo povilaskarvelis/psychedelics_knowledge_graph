@@ -1,61 +1,27 @@
 # Analyze workflows
 
-Explore remains the interactive graph and its path to findings and papers. Analyze has three tasks that share research area, topic, publication type, source-text depth, years, and evidence filters:
+Explore remains the interactive graph and its path to findings and papers. Analyze is one continuous view: existing publication profiles, trends, entities and overlap charts, followed by a finer-grained Evidence coverage heat map.
 
-| Task | Purpose | Main interactions |
-| --- | --- | --- |
-| Landscape | Understand activity and research coverage | Existing overview, entity profiles, publication trends, and coverage |
-| Compare | Compare the composition of research literatures | Choose up to four compounds, authors, journals, areas, topics, or pinned evidence sets; compare counts or shares; inspect contributing reports |
-| Evidence | Examine methods, results, and limitations | Filter findings, inspect publication characteristics or individual results, explore coverage, and open source findings |
+There are no Landscape/Compare/Evidence task tabs, comparison builder, saved-question controls, or study-characteristics/results tables. The experimental workspace remains available on `codex/analyze-workspace-experiment`.
 
-## Scope and counting
+## Scope and coverage
 
-- Analysis uses the normalized findings admitted to the main graph. It does not claim to cover every result in every source paper.
-- Evidence filters apply together to each finding before publication aggregation. A design recorded on one finding and an outcome recorded on another do not satisfy a combined finding-level filter.
-- A source report is one publication under the existing publication identity rules. It is not necessarily an independent trial, dataset, or participant sample.
-- Study characteristics group matching findings by publication. Results and limitations retain one row per indexed finding; a result may appear in more than one graph projection.
-- Samples are displayed as extracted, never summed. The minimum-sample filter uses primary-study sample metadata and excludes unknown sizes and secondary-literature totals.
-- A report counts once in each profile category it covers. Categories and comparison groups can overlap, so shares need not sum to 100%.
-- Coverage cells count reports containing both selected characteristics across their matching findings. Co-coverage does not establish an association, paired measurement, or treatment comparison. Clicking a cell shows all matching findings within those reports.
-- “Not recorded” means missing metadata. A zero cell means no matching indexed reports in the chosen scope. Neither establishes an absence of research outside this corpus.
-- “Full-text extraction” describes the text used by the extraction pipeline. It is not a legal open-access or licensing classification. Analyze defaults to all source text.
-- Author profiles use the first/last-author metadata currently provided by the corpus; they are not a complete coauthorship analysis.
+The heat map follows the main Analyze controls: entity and focus, research area, topic, publication type, access availability, and years. The Open access option uses accessible full text as the project’s operational proxy for open access. All three paper types remain included when All papers is selected. Dates remain stable when switching to a paper type or entity with fewer publication years.
 
-Pinned evidence sets keep their own scope, dates, evidence filters, and coverage selection. Shared Compare controls can narrow every set further. Adding sets with different dates expands the shared date range to encompass their saved ranges. Comparison profiles describe separate literatures; they do not pool effects or establish comparative efficacy.
+Rows and columns can represent populations/models, study design, outcomes/measures, comparators, follow-up, experimental systems, assays/methods, topics, research areas, or compounds. The two axes must differ. Each axis has a category search that narrows the displayed labels without filtering the main charts or changing the heat-map counts. Up to 18 rows and 12 columns appear at once; category search makes less common categories accessible. Selected cells from shared links remain visible outside those leading categories.
 
-## Results and appraisal
+Cells count unique publications containing both characteristics across their matching findings. Multiple findings in one publication do not multiply its count. This is report-level co-coverage, not an association between characteristics or a pooled treatment comparison. Missing metadata is shown as Not recorded; zero means no indexed reports match that cell in the current scope. The graph corpus does not include every finding in every source paper.
 
-Results show extracted support, estimates, population/system, exact comparator, timepoint, and source locator. Source risk-of-bias, certainty, heterogeneity, and subgroup information appears when recorded. Extracted notes and uncertainty remain separate from source appraisal. Missing appraisal is explicit; the UI does not calculate a quality score or infer certainty from sample size, citations, publication counts, or reporting signals.
+Clicking a nonzero cell opens the matching findings and bibliography using the existing source-paper workflow. Clearing a cell or changing its axes/category search clears that drill-down. No separate evidence table is added.
 
-The reporting and reproducibility panel remains available as a disclosure below the evidence table. Study rows, comparison cells, and overlap actions open the existing Findings and Bibliography surfaces, preserving source-paper links.
+## Sharing
 
-## Explore handoff
+The workspace header keeps the Explore/Analyze choice together on the left and a quieter Share view action on the right. The action is available in both modes without reading as a third workspace tab. Explore links preserve the category, paper/access filters, date range, and selected graph node or relationship. Analyze links preserve the section, entity focus, research-area/topic scope, paper/access filters, date range, chart configuration, coverage axes/searches, and selected result or coverage cell. Reopening a link restores that state without automatically scrolling away from the main view.
 
-“Analyze this graph scope” opens Evidence with the graph subject, research area/topic, dates, paper type, and source-text scope. Generic graph subjects remain valid filters even when they are not individual compounds in the Analyze entity list. A detail-chart selection is not silently approximated with inferred facets: the UI explains that Evidence filters can refine the transferred graph scope.
+Major navigation creates browser-history entries, while filter tuning updates the current entry. Back and Forward therefore move between meaningful views without adding an entry for every small adjustment. Copied URLs use the canonical public address and include a schema version and graph release; ordinary browsing preserves local preview parameters. Links query the current corpus rather than freezing a historical dataset, and an older-release link displays a notice when it is rendered against newer data.
 
-Switching between Explore and Analyze retains each workspace. Analysis tasks share the year range instead of resetting it when changing entity type or publication type. A selected area/topic with no matches stays selected and displays zero instead of widening the query automatically.
+Older task links resolve to the single Analyze view. Old comparison selections and detailed evidence filters are ignored rather than silently narrowing the overview. Existing browser-local saved-question data is not deleted, but the simplified view does not expose it.
 
-## Saved questions and links
+## Verification
 
-The page URL carries the analysis task, scope, evidence filters, comparison selections, and selected coverage cell. “Copy question link” shares this query against the recipient's current corpus; it does not freeze the dataset.
-
-Up to ten questions can be saved in browser local storage. Each stores a query and a compact baseline fingerprint per matching publication. Reopening a question compares the current matching evidence with the saved baseline and reports:
-
-- publications newly matching the question;
-- publications whose matching extracted content changed;
-- publications no longer matching the question.
-
-New and changed reports can be inspected, and the user can accept the current evidence as a new baseline. Changes may reflect indexing, corrections, extraction updates, or a different available corpus. Removed reports are counted but cannot be opened from the current dataset. Baselines do not store full historical findings.
-
-Saving requires no account or backend. Questions remain in that browser and origin; clearing browser data removes them. Checks run when a question is reopened. There are no scheduled checks, cross-device synchronization, or background notifications.
-
-## Implementation and verification
-
-- `ui/research-model.js`: publication aggregation, finding filters, report co-coverage, and snapshot comparison; browser and CommonJS export.
-- `ui/research-analysis.js`: integration with existing domain labelers, task rendering, scope transfer, comparisons, and saved questions.
-- `ui/research-analysis.css`: workspace styling, responsive controls, and scrollable tables.
-- `scripts/public_site_files.txt`: includes the three new assets in the static site.
-
-Run the focused model tests with `node --test tests/test_research_model.cjs`. They cover same-finding filter conjunction, report deduplication, overlapping categories, missing metadata, sample thresholds, coverage selection, saved-state validation and restoration, pinned date/type scope, and change baselines.
-
-Build and preview with `bash scripts/preview_site.sh public`, which serves the local UI against the published data. No corpus regeneration or schema migration is needed.
+Run `node --test tests/test_research_model.cjs tests/test_view_state.cjs` for counting, category-search behavior, scope filtering, shared-state validation and restoration, legacy-link handling, and cell drill-down. Build the preview with `bash scripts/build_site.sh`; no corpus regeneration or schema migration is needed.

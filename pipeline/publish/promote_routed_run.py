@@ -569,7 +569,12 @@ def validate_active_pointer_pair() -> dict:
 
 def run_checked(command: list[str], *, env: dict[str, str] | None = None) -> None:
     print("+ " + " ".join(command), flush=True)
-    subprocess.run(command, cwd=ROOT, env=env, check=True)
+    child_env = dict(os.environ if env is None else env)
+    existing_pythonpath = normalize(child_env.get("PYTHONPATH"))
+    child_env["PYTHONPATH"] = os.pathsep.join(
+        value for value in (str(ROOT), existing_pythonpath) if value
+    )
+    subprocess.run(command, cwd=ROOT, env=child_env, check=True)
 
 
 def retarget_methods_manifest(

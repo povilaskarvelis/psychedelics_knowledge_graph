@@ -1,0 +1,1343 @@
+[
+  {
+    "doi": "10.1002/advs.202303503",
+    "source_url": "https://api.crossref.org/works/10.1002%2Fadvs.202303503",
+    "source_rows": 16,
+    "published_rows": 16,
+    "removed_source_positions": [],
+    "identity_reassignments": [
+      {
+        "source_position": 3,
+        "display_name": "Ke Wei",
+        "identity_source_position": null
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-001"
+  },
+  {
+    "doi": "10.1002/cbic.202400162",
+    "source_url": "https://api.crossref.org/works/10.1002%2Fcbic.202400162",
+    "source_rows": 9,
+    "published_rows": 8,
+    "removed_source_positions": [
+      8
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-002"
+  },
+  {
+    "doi": "10.1002/hup.1242",
+    "source_url": "https://api.crossref.org/works/10.1002%2Fhup.1242",
+    "source_rows": 32,
+    "published_rows": 32,
+    "removed_source_positions": [],
+    "identity_reassignments": [
+      {
+        "source_position": 18,
+        "display_name": "Magi Farre",
+        "identity_source_position": null
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-003"
+  },
+  {
+    "doi": "10.1002/tox.23365",
+    "source_url": "https://api.crossref.org/works/10.1002%2Ftox.23365",
+    "source_rows": 14,
+    "published_rows": 12,
+    "removed_source_positions": [
+      10,
+      14
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-004"
+  },
+  {
+    "doi": "10.1007/978-981-97-4402-2_3",
+    "source_url": "https://api.crossref.org/works/10.1007%2F978-981-97-4402-2_3",
+    "source_rows": 2,
+    "published_rows": 2,
+    "removed_source_positions": [],
+    "identity_reassignments": [
+      {
+        "source_position": 2,
+        "display_name": "Jocelien D. A. Olivier",
+        "identity_source_position": null
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-005"
+  },
+  {
+    "doi": "10.1007/bf02246437",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/8711060/",
+    "source_rows": 3,
+    "published_rows": 2,
+    "removed_source_positions": [
+      3
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "reason": "Original publication record lists each author once; duplicated metadata entries are not separate authors or contributor roles.",
+    "review_id": "author-list-20260906-068"
+  },
+  {
+    "doi": "10.1016/j.ajp.2024.104167",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.ajp.2024.104167",
+    "source_rows": 8,
+    "published_rows": 7,
+    "removed_source_positions": [
+      4
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 5,
+        "display_name": "Hu-Ming Chang",
+        "identity_source_position": 4
+      },
+      {
+        "source_position": 6,
+        "display_name": "Po-Yu Chen",
+        "identity_source_position": 5
+      },
+      {
+        "source_position": 7,
+        "display_name": "Yu-Li Liu",
+        "identity_source_position": 6
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-006"
+  },
+  {
+    "doi": "10.1016/j.bbi.2023.09.026",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.bbi.2023.09.026",
+    "source_rows": 17,
+    "published_rows": 16,
+    "removed_source_positions": [
+      8
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 9,
+        "display_name": "Di Wang",
+        "identity_source_position": 8
+      },
+      {
+        "source_position": 10,
+        "display_name": "Chaoli Huang",
+        "identity_source_position": 9
+      },
+      {
+        "source_position": 11,
+        "display_name": "Jiahao Duan",
+        "identity_source_position": 10
+      },
+      {
+        "source_position": 12,
+        "display_name": "Xiangyang Xu",
+        "identity_source_position": 11
+      },
+      {
+        "source_position": 13,
+        "display_name": "Xiangqing Xu",
+        "identity_source_position": 12
+      },
+      {
+        "source_position": 14,
+        "display_name": "Kenji Hashimoto",
+        "identity_source_position": 13
+      },
+      {
+        "source_position": 15,
+        "display_name": "Riyue Jiang",
+        "identity_source_position": 14
+      },
+      {
+        "source_position": 16,
+        "display_name": "Ling Yang",
+        "identity_source_position": 15
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-007"
+  },
+  {
+    "doi": "10.1016/j.bbrc.2024.150607",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.bbrc.2024.150607",
+    "source_rows": 10,
+    "published_rows": 9,
+    "removed_source_positions": [
+      5
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 6,
+        "display_name": "Eunyoung Han",
+        "identity_source_position": null
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-008"
+  },
+  {
+    "doi": "10.1016/j.biopha.2024.116739",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.biopha.2024.116739",
+    "source_rows": 16,
+    "published_rows": 14,
+    "removed_source_positions": [
+      2,
+      16
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 4,
+        "display_name": "Lei Yan",
+        "identity_source_position": null
+      },
+      {
+        "source_position": 10,
+        "display_name": "Lei Lu",
+        "identity_source_position": null
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-009"
+  },
+  {
+    "doi": "10.1016/j.biopsych.2015.02.028",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.biopsych.2015.02.028",
+    "source_rows": 13,
+    "published_rows": 11,
+    "removed_source_positions": [
+      5,
+      13
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-010"
+  },
+  {
+    "doi": "10.1016/j.biopsych.2023.08.026",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.biopsych.2023.08.026",
+    "source_rows": 13,
+    "published_rows": 11,
+    "removed_source_positions": [
+      8,
+      13
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-011"
+  },
+  {
+    "doi": "10.1016/j.cca.2025.120225",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.cca.2025.120225",
+    "source_rows": 15,
+    "published_rows": 12,
+    "removed_source_positions": [
+      2,
+      6,
+      13
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 9,
+        "display_name": "Hao Zhou",
+        "identity_source_position": null
+      },
+      {
+        "source_position": 12,
+        "display_name": "Jiutong Li",
+        "identity_source_position": 13
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-012"
+  },
+  {
+    "doi": "10.1016/j.chroma.2024.464703",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.chroma.2024.464703",
+    "source_rows": 6,
+    "published_rows": 5,
+    "removed_source_positions": [
+      3
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-013"
+  },
+  {
+    "doi": "10.1016/j.ejmech.2024.117049",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.ejmech.2024.117049",
+    "source_rows": 11,
+    "published_rows": 10,
+    "removed_source_positions": [
+      8
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 9,
+        "display_name": "Jinpeng Sun",
+        "identity_source_position": 8
+      },
+      {
+        "source_position": 10,
+        "display_name": "Hongshuang Wang",
+        "identity_source_position": 9
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-014"
+  },
+  {
+    "doi": "10.1016/j.ejmech.2025.117274",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.ejmech.2025.117274",
+    "source_rows": 5,
+    "published_rows": 4,
+    "removed_source_positions": [
+      2
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 4,
+        "display_name": "Hongshuang Wang",
+        "identity_source_position": null
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-015"
+  },
+  {
+    "doi": "10.1016/j.forsciint.2020.110332",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.forsciint.2020.110332",
+    "source_rows": 9,
+    "published_rows": 7,
+    "removed_source_positions": [
+      2,
+      8
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-016"
+  },
+  {
+    "doi": "10.1016/j.jad.2020.01.002",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.jad.2020.01.002",
+    "source_rows": 13,
+    "published_rows": 11,
+    "removed_source_positions": [
+      4,
+      13
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-017"
+  },
+  {
+    "doi": "10.1016/j.jad.2026.122164",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.jad.2026.122164",
+    "source_rows": 14,
+    "published_rows": 12,
+    "removed_source_positions": [
+      12,
+      14
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 5,
+        "display_name": "Bo Liu",
+        "identity_source_position": null
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-018"
+  },
+  {
+    "doi": "10.1016/j.jhazmat.2024.135020",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.jhazmat.2024.135020",
+    "source_rows": 15,
+    "published_rows": 11,
+    "removed_source_positions": [
+      3,
+      8,
+      10,
+      15
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-019"
+  },
+  {
+    "doi": "10.1016/j.jhazmat.2024.135823",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.jhazmat.2024.135823",
+    "source_rows": 9,
+    "published_rows": 8,
+    "removed_source_positions": [
+      3
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-020"
+  },
+  {
+    "doi": "10.1016/j.jpba.2023.115577",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.jpba.2023.115577",
+    "source_rows": 8,
+    "published_rows": 7,
+    "removed_source_positions": [
+      5
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-021"
+  },
+  {
+    "doi": "10.1016/j.jpba.2025.116779",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.jpba.2025.116779",
+    "source_rows": 8,
+    "published_rows": 7,
+    "removed_source_positions": [
+      2
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-022"
+  },
+  {
+    "doi": "10.1016/j.jpsychires.2023.06.028",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.jpsychires.2023.06.028",
+    "source_rows": 16,
+    "published_rows": 16,
+    "removed_source_positions": [],
+    "identity_reassignments": [
+      {
+        "source_position": 9,
+        "display_name": "Ingrid Dorea-Bandeira",
+        "identity_source_position": null
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-023"
+  },
+  {
+    "doi": "10.1016/j.jpsychires.2024.05.022",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.jpsychires.2024.05.022",
+    "source_rows": 5,
+    "published_rows": 3,
+    "removed_source_positions": [
+      2,
+      5
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-024"
+  },
+  {
+    "doi": "10.1016/j.jpsychires.2025.09.078",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.jpsychires.2025.09.078",
+    "source_rows": 9,
+    "published_rows": 8,
+    "removed_source_positions": [
+      4
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 5,
+        "display_name": "Xiaoyi Hu",
+        "identity_source_position": 4
+      },
+      {
+        "source_position": 6,
+        "display_name": "Yuzhu Gao",
+        "identity_source_position": 5
+      },
+      {
+        "source_position": 7,
+        "display_name": "Qing-ren Liu",
+        "identity_source_position": 6
+      },
+      {
+        "source_position": 8,
+        "display_name": "Xinmiao Wu",
+        "identity_source_position": 7
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-025"
+  },
+  {
+    "doi": "10.1016/j.neuint.2025.106089",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.neuint.2025.106089",
+    "source_rows": 11,
+    "published_rows": 10,
+    "removed_source_positions": [
+      4
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 5,
+        "display_name": "Hao Yu",
+        "identity_source_position": 4
+      },
+      {
+        "source_position": 6,
+        "display_name": "Liangyu Ju",
+        "identity_source_position": null
+      },
+      {
+        "source_position": 7,
+        "display_name": "Yu Su",
+        "identity_source_position": 6
+      },
+      {
+        "source_position": 8,
+        "display_name": "Jianming Bi",
+        "identity_source_position": null
+      },
+      {
+        "source_position": 9,
+        "display_name": "Jianhao Qiu",
+        "identity_source_position": null
+      },
+      {
+        "source_position": 10,
+        "display_name": "Yuan Dong",
+        "identity_source_position": 9
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-026"
+  },
+  {
+    "doi": "10.1016/j.neuroimage.2018.12.011",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.neuroimage.2018.12.011",
+    "source_rows": 27,
+    "published_rows": 27,
+    "removed_source_positions": [],
+    "identity_reassignments": [],
+    "status": "reviewed_retained_contributor_lists",
+    "reason": "Source lists individual authors plus consortium/investigator credits. Preserve repeated credits; these are not sufficient evidence for duplicate-person deletion."
+  },
+  {
+    "doi": "10.1016/j.neuron.2024.07.003",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.neuron.2024.07.003",
+    "source_rows": 14,
+    "published_rows": 12,
+    "removed_source_positions": [
+      9,
+      14
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 10,
+        "display_name": "Zhangcheng Chen",
+        "identity_source_position": 9
+      },
+      {
+        "source_position": 11,
+        "display_name": "Jianjun Cheng",
+        "identity_source_position": 10
+      },
+      {
+        "source_position": 12,
+        "display_name": "H. Eric Xu",
+        "identity_source_position": 11
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-027"
+  },
+  {
+    "doi": "10.1016/j.neuropharm.2022.108947",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.neuropharm.2022.108947",
+    "source_rows": 9,
+    "published_rows": 8,
+    "removed_source_positions": [
+      3
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-028"
+  },
+  {
+    "doi": "10.1016/j.neuroscience.2019.07.018",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.neuroscience.2019.07.018",
+    "source_rows": 9,
+    "published_rows": 7,
+    "removed_source_positions": [
+      3,
+      7
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-029"
+  },
+  {
+    "doi": "10.1016/j.nlm.2019.107136",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.nlm.2019.107136",
+    "source_rows": 11,
+    "published_rows": 9,
+    "removed_source_positions": [
+      3,
+      5
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 4,
+        "display_name": "Yang He",
+        "identity_source_position": null
+      },
+      {
+        "source_position": 6,
+        "display_name": "Song Wu",
+        "identity_source_position": 4
+      },
+      {
+        "source_position": 7,
+        "display_name": "Zhifei Xie",
+        "identity_source_position": 5
+      },
+      {
+        "source_position": 8,
+        "display_name": "Jian Zhang",
+        "identity_source_position": 6
+      },
+      {
+        "source_position": 9,
+        "display_name": "Jingshan Shen",
+        "identity_source_position": 7
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-030"
+  },
+  {
+    "doi": "10.1016/j.psychres.2024.115886",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.psychres.2024.115886",
+    "source_rows": 14,
+    "published_rows": 13,
+    "removed_source_positions": [
+      4
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 5,
+        "display_name": "Fang-Lin Liu",
+        "identity_source_position": 4
+      },
+      {
+        "source_position": 6,
+        "display_name": "Shi-Hao Huang",
+        "identity_source_position": 5
+      },
+      {
+        "source_position": 7,
+        "display_name": "Meng-Qi Diao",
+        "identity_source_position": 6
+      },
+      {
+        "source_position": 8,
+        "display_name": "Su-Xia Li",
+        "identity_source_position": 7
+      },
+      {
+        "source_position": 9,
+        "display_name": "Xiu-Jun Zhang",
+        "identity_source_position": 8
+      },
+      {
+        "source_position": 10,
+        "display_name": "Thomas R Kosten",
+        "identity_source_position": 9
+      },
+      {
+        "source_position": 11,
+        "display_name": "Jie Shi",
+        "identity_source_position": 10
+      },
+      {
+        "source_position": 12,
+        "display_name": "Yan-Ping Bao",
+        "identity_source_position": 11
+      },
+      {
+        "source_position": 13,
+        "display_name": "Lin Lu",
+        "identity_source_position": 12
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-031"
+  },
+  {
+    "doi": "10.1016/j.psychres.2025.116377",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.psychres.2025.116377",
+    "source_rows": 10,
+    "published_rows": 9,
+    "removed_source_positions": [
+      5
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 6,
+        "display_name": "Wei-Chen Lin",
+        "identity_source_position": null
+      },
+      {
+        "source_position": 7,
+        "display_name": "Cheng-Ta Li",
+        "identity_source_position": 6
+      },
+      {
+        "source_position": 8,
+        "display_name": "Ya-Mei Bai",
+        "identity_source_position": 7
+      },
+      {
+        "source_position": 9,
+        "display_name": "Shih-Jen Tsai",
+        "identity_source_position": 8
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-032"
+  },
+  {
+    "doi": "10.1016/j.talanta.2024.126975",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.talanta.2024.126975",
+    "source_rows": 10,
+    "published_rows": 9,
+    "removed_source_positions": [
+      8
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-033"
+  },
+  {
+    "doi": "10.1016/j.tox.2022.153163",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.tox.2022.153163",
+    "source_rows": 15,
+    "published_rows": 13,
+    "removed_source_positions": [
+      6,
+      15
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-034"
+  },
+  {
+    "doi": "10.1016/j.tox.2025.154102",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.tox.2025.154102",
+    "source_rows": 8,
+    "published_rows": 7,
+    "removed_source_positions": [
+      2
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-035"
+  },
+  {
+    "doi": "10.1016/j.toxicon.2024.107849",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.toxicon.2024.107849",
+    "source_rows": 8,
+    "published_rows": 7,
+    "removed_source_positions": [
+      6
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-036"
+  },
+  {
+    "doi": "10.1016/j.urols.2015.08.010",
+    "source_url": "https://api.crossref.org/works/10.1016%2Fj.urols.2015.08.010",
+    "source_rows": 34,
+    "published_rows": 34,
+    "removed_source_positions": [],
+    "identity_reassignments": [],
+    "status": "reviewed_retained_contributor_lists",
+    "reason": "Source lists individual authors plus consortium/investigator credits. Preserve repeated credits; these are not sufficient evidence for duplicate-person deletion."
+  },
+  {
+    "doi": "10.1021/acschemneuro.5c00418",
+    "source_url": "https://api.crossref.org/works/10.1021%2Facschemneuro.5c00418",
+    "source_rows": 6,
+    "published_rows": 4,
+    "removed_source_positions": [
+      2,
+      6
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 3,
+        "display_name": "Fan Jun",
+        "identity_source_position": null
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-037"
+  },
+  {
+    "doi": "10.1021/acsptsci.5c00034",
+    "source_url": "https://api.crossref.org/works/10.1021%2Facsptsci.5c00034",
+    "source_rows": 5,
+    "published_rows": 3,
+    "removed_source_positions": [
+      2,
+      5
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-038"
+  },
+  {
+    "doi": "10.1038/s41380-025-03248-x",
+    "source_url": "https://api.crossref.org/works/10.1038%2Fs41380-025-03248-x",
+    "source_rows": 12,
+    "published_rows": 10,
+    "removed_source_positions": [
+      9,
+      12
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 10,
+        "display_name": "Congcong Sun",
+        "identity_source_position": 9
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-039"
+  },
+  {
+    "doi": "10.1038/s41591-023-02565-4",
+    "source_url": "https://api.crossref.org/works/10.1038%2Fs41591-023-02565-4",
+    "source_rows": 34,
+    "published_rows": 34,
+    "removed_source_positions": [],
+    "identity_reassignments": [],
+    "status": "reviewed_retained_contributor_lists",
+    "reason": "Source lists individual authors plus consortium/investigator credits. Preserve repeated credits; these are not sufficient evidence for duplicate-person deletion."
+  },
+  {
+    "doi": "10.1038/s41591-024-03063-x",
+    "source_url": "https://api.crossref.org/works/10.1038%2Fs41591-024-03063-x",
+    "source_rows": 22,
+    "published_rows": 22,
+    "removed_source_positions": [],
+    "identity_reassignments": [],
+    "status": "reviewed_retained_contributor_lists",
+    "reason": "Source lists individual authors plus consortium/investigator credits. Preserve repeated credits; these are not sufficient evidence for duplicate-person deletion."
+  },
+  {
+    "doi": "10.1039/d2an00351a",
+    "source_url": "https://api.crossref.org/works/10.1039%2Fd2an00351a",
+    "source_rows": 12,
+    "published_rows": 10,
+    "removed_source_positions": [
+      3,
+      10
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-040"
+  },
+  {
+    "doi": "10.1080/07391102.2017.1386592",
+    "source_url": "https://api.crossref.org/works/10.1080%2F07391102.2017.1386592",
+    "source_rows": 9,
+    "published_rows": 7,
+    "removed_source_positions": [
+      4,
+      9
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-041"
+  },
+  {
+    "doi": "10.1080/07853890.2026.2692804",
+    "source_url": "https://api.crossref.org/works/10.1080%2F07853890.2026.2692804",
+    "source_rows": 17,
+    "published_rows": 15,
+    "removed_source_positions": [
+      13,
+      17
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 7,
+        "display_name": "He Zhang",
+        "identity_source_position": null
+      },
+      {
+        "source_position": 12,
+        "display_name": "Yuelong Jin",
+        "identity_source_position": null
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-042"
+  },
+  {
+    "doi": "10.1080/15569527.2020.1730883",
+    "source_url": "https://api.crossref.org/works/10.1080%2F15569527.2020.1730883",
+    "source_rows": 12,
+    "published_rows": 10,
+    "removed_source_positions": [
+      6,
+      12
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-043"
+  },
+  {
+    "doi": "10.1089/can.2024.0059",
+    "source_url": "https://api.crossref.org/works/10.1089%2Fcan.2024.0059",
+    "source_rows": 7,
+    "published_rows": 4,
+    "removed_source_positions": [
+      2,
+      4,
+      6
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 3,
+        "display_name": "Harmony O. Soffer",
+        "identity_source_position": 2
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-044"
+  },
+  {
+    "doi": "10.1089/jpm.2020.0764",
+    "status": "reviewed_retained_contributor_lists",
+    "reason": "Published metadata includes separate group contributor credits. Preserve source authorships; roles require a separate schema change.",
+    "source_url": "https://api.crossref.org/works/10.1089%2Fjpm.2020.0764"
+  },
+  {
+    "doi": "10.1089/psymed.2023.0074",
+    "source_url": "https://api.crossref.org/works/10.1089%2Fpsymed.2023.0074",
+    "source_rows": 7,
+    "published_rows": 6,
+    "removed_source_positions": [
+      3
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 4,
+        "display_name": "Brian Connor Stark",
+        "identity_source_position": 3
+      },
+      {
+        "source_position": 5,
+        "display_name": "Victoria Dinh",
+        "identity_source_position": 4
+      },
+      {
+        "source_position": 6,
+        "display_name": "Ellen Wager Romesburg",
+        "identity_source_position": 5
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-045"
+  },
+  {
+    "doi": "10.1089/psymed.2024.0003",
+    "source_url": "https://api.crossref.org/works/10.1089%2Fpsymed.2024.0003",
+    "source_rows": 7,
+    "published_rows": 5,
+    "removed_source_positions": [
+      5,
+      7
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-046"
+  },
+  {
+    "doi": "10.1093/jat/bkaf002",
+    "source_url": "https://api.crossref.org/works/10.1093%2Fjat%2Fbkaf002",
+    "source_rows": 13,
+    "published_rows": 13,
+    "removed_source_positions": [],
+    "identity_reassignments": [
+      {
+        "source_position": 7,
+        "display_name": "Michael Lamb",
+        "identity_source_position": null
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-047"
+  },
+  {
+    "doi": "10.1096/fj.06-6394fje",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/17023388/",
+    "source_rows": 4,
+    "published_rows": 2,
+    "removed_source_positions": [
+      3,
+      4
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "reason": "Original publication record lists each author once; duplicated metadata entries are not separate authors or contributor roles.",
+    "review_id": "author-list-20260906-067"
+  },
+  {
+    "doi": "10.1097/hrp.0000000000000330",
+    "source_url": "https://api.crossref.org/works/10.1097%2Fhrp.0000000000000330",
+    "source_rows": 14,
+    "published_rows": 14,
+    "removed_source_positions": [],
+    "identity_reassignments": [
+      {
+        "source_position": 4,
+        "display_name": "Ingrid Dorea-Bandeira",
+        "identity_source_position": null
+      },
+      {
+        "source_position": 12,
+        "display_name": "Euripedes C. Miguel",
+        "identity_source_position": null
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-048"
+  },
+  {
+    "doi": "10.1111/cns.70145",
+    "source_url": "https://api.crossref.org/works/10.1111%2Fcns.70145",
+    "source_rows": 17,
+    "published_rows": 14,
+    "removed_source_positions": [
+      8,
+      14,
+      16
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-049"
+  },
+  {
+    "doi": "10.1111/j.1471-4159.2009.06087.x",
+    "source_url": "https://api.crossref.org/works/10.1111%2Fj.1471-4159.2009.06087.x",
+    "source_rows": 10,
+    "published_rows": 8,
+    "removed_source_positions": [
+      5,
+      9
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-050"
+  },
+  {
+    "doi": "10.1111/jcpt.13041",
+    "source_url": "https://api.crossref.org/works/10.1111%2Fjcpt.13041",
+    "source_rows": 10,
+    "published_rows": 8,
+    "removed_source_positions": [
+      6,
+      10
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-051"
+  },
+  {
+    "doi": "10.1136/bcr.08.2008.0669",
+    "source_url": "https://api.crossref.org/works/10.1136%2Fbcr.08.2008.0669",
+    "source_rows": 10,
+    "published_rows": 10,
+    "removed_source_positions": [],
+    "identity_reassignments": [],
+    "status": "reviewed_unresolved_source_repeat",
+    "reason": "Published source also repeats the author name. Review did not establish whether this is an editorial duplicate or distinct credit; retained pending stronger evidence."
+  },
+  {
+    "doi": "10.1161/circoutcomes.124.011905",
+    "source_url": "https://api.crossref.org/works/10.1161%2Fcircoutcomes.124.011905",
+    "source_rows": 92,
+    "published_rows": 92,
+    "removed_source_positions": [],
+    "identity_reassignments": [],
+    "status": "reviewed_unresolved_source_repeat",
+    "reason": "Published source also repeats the author name. Review did not establish whether this is an editorial duplicate or distinct credit; retained pending stronger evidence."
+  },
+  {
+    "doi": "10.1186/s12888-022-03838-x",
+    "source_url": "https://api.crossref.org/works/10.1186%2Fs12888-022-03838-x",
+    "source_rows": 7,
+    "published_rows": 5,
+    "removed_source_positions": [
+      3,
+      7
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 4,
+        "display_name": "Tingting Zhu",
+        "identity_source_position": 3
+      },
+      {
+        "source_position": 5,
+        "display_name": "Panmiao Liu",
+        "identity_source_position": 4
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-052"
+  },
+  {
+    "doi": "10.1300/j041v16n02_01",
+    "source_url": "https://api.crossref.org/works/10.1300%2Fj041v16n02_01",
+    "source_rows": 4,
+    "published_rows": 4,
+    "removed_source_positions": [],
+    "identity_reassignments": [],
+    "status": "reviewed_unresolved_source_repeat",
+    "reason": "Published source also repeats the author name. Review did not establish whether this is an editorial duplicate or distinct credit; retained pending stronger evidence."
+  },
+  {
+    "doi": "10.1371/journal.pone.0054840",
+    "source_url": "https://api.crossref.org/works/10.1371%2Fjournal.pone.0054840",
+    "source_rows": 8,
+    "published_rows": 8,
+    "removed_source_positions": [],
+    "identity_reassignments": [
+      {
+        "source_position": 7,
+        "display_name": "Savita P. Rao",
+        "identity_source_position": null
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-053"
+  },
+  {
+    "doi": "10.1371/journal.pone.0249361",
+    "source_url": "https://api.crossref.org/works/10.1371%2Fjournal.pone.0249361",
+    "source_rows": 8,
+    "published_rows": 5,
+    "removed_source_positions": [
+      2,
+      5,
+      7
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-054"
+  },
+  {
+    "doi": "10.14302/issn.2574-612x.ijpr-18-2503",
+    "source_url": "https://oap-journals.com/article/949/ijpr-18-2503.pdf",
+    "source_rows": 2,
+    "published_rows": 1,
+    "removed_source_positions": [
+      2
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "reason": "Original publication record lists each author once; duplicated metadata entries are not separate authors or contributor roles.",
+    "review_id": "author-list-20260906-069"
+  },
+  {
+    "doi": "10.17816/nb14113",
+    "source_url": "https://journals.eco-vector.com/1027-4898/article/view/14113",
+    "source_rows": 4,
+    "published_rows": 2,
+    "removed_source_positions": [
+      2,
+      4
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-055"
+  },
+  {
+    "doi": "10.2174/011570159x349856241213144902",
+    "source_url": "https://api.crossref.org/works/10.2174%2F011570159x349856241213144902",
+    "source_rows": 8,
+    "published_rows": 7,
+    "removed_source_positions": [
+      7
+    ],
+    "identity_reassignments": [
+      {
+        "source_position": 4,
+        "display_name": "Lingxiao Di",
+        "identity_source_position": null
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-056"
+  },
+  {
+    "doi": "10.24272/j.issn.2095-8137.2025.352",
+    "source_url": "https://www.zoores.ac.cn/en/article/doi/10.24272/j.issn.2095-8137.2025.352",
+    "source_rows": 10,
+    "published_rows": 7,
+    "removed_source_positions": [
+      2,
+      9,
+      10
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-057"
+  },
+  {
+    "doi": "10.3389/fncel.2017.00100",
+    "source_url": "https://api.crossref.org/works/10.3389%2Ffncel.2017.00100",
+    "source_rows": 10,
+    "published_rows": 8,
+    "removed_source_positions": [
+      3,
+      10
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-058"
+  },
+  {
+    "doi": "10.3389/fneur.2026.1801549",
+    "source_url": "https://api.crossref.org/works/10.3389%2Ffneur.2026.1801549",
+    "source_rows": 11,
+    "published_rows": 11,
+    "removed_source_positions": [],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "reason": "Distinct full names were merged under initial-only profile; separate identities.",
+    "review_id": "author-list-20260906-065"
+  },
+  {
+    "doi": "10.3389/fnins.2021.657714",
+    "source_url": "https://api.crossref.org/works/10.3389%2Ffnins.2021.657714",
+    "source_rows": 6,
+    "published_rows": 4,
+    "removed_source_positions": [
+      2,
+      5
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-059"
+  },
+  {
+    "doi": "10.3389/fpsyt.2026.1739904",
+    "source_url": "https://api.crossref.org/works/10.3389%2Ffpsyt.2026.1739904",
+    "source_rows": 9,
+    "published_rows": 9,
+    "removed_source_positions": [],
+    "identity_reassignments": [
+      {
+        "source_position": 2,
+        "display_name": "Zongfeng Zhang",
+        "identity_source_position": 3
+      },
+      {
+        "source_position": 3,
+        "display_name": "Yan He",
+        "identity_source_position": null
+      },
+      {
+        "source_position": 4,
+        "display_name": "Yuqiu Su",
+        "identity_source_position": 7
+      },
+      {
+        "source_position": 5,
+        "display_name": "Xiaofeng Zhu",
+        "identity_source_position": 9
+      },
+      {
+        "source_position": 6,
+        "display_name": "Yuhong Ding",
+        "identity_source_position": null
+      },
+      {
+        "source_position": 7,
+        "display_name": "Haihang Yu",
+        "identity_source_position": null
+      },
+      {
+        "source_position": 8,
+        "display_name": "Liuyin Jin",
+        "identity_source_position": null
+      },
+      {
+        "source_position": 9,
+        "display_name": "Jimeng Liu",
+        "identity_source_position": null
+      }
+    ],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-060"
+  },
+  {
+    "doi": "10.3390/ijerph15122691",
+    "source_url": "https://api.crossref.org/works/10.3390%2Fijerph15122691",
+    "source_rows": 6,
+    "published_rows": 4,
+    "removed_source_positions": [
+      2,
+      5
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-061"
+  },
+  {
+    "doi": "10.3390/ijerph19010408",
+    "source_url": "https://api.crossref.org/works/10.3390%2Fijerph19010408",
+    "source_rows": 14,
+    "published_rows": 12,
+    "removed_source_positions": [
+      2,
+      9
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-062"
+  },
+  {
+    "doi": "10.3390/ph19040628",
+    "source_url": "https://api.crossref.org/works/10.3390%2Fph19040628",
+    "source_rows": 9,
+    "published_rows": 7,
+    "removed_source_positions": [
+      5,
+      9
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-063"
+  },
+  {
+    "doi": "10.51561/cspsych.65.6.608",
+    "source_url": "https://ceskoslovenskapsychologie.cz/index.php/csps/article/view/208",
+    "source_rows": 4,
+    "published_rows": 2,
+    "removed_source_positions": [
+      1,
+      4
+    ],
+    "identity_reassignments": [],
+    "status": "reviewed_corrected",
+    "review_id": "author-list-20260906-064"
+  }
+]

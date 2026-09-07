@@ -1,0 +1,21 @@
+{
+  "audit_path": "docs/evaluation/research_area_audit_2026-09-06/high_confidence_findings.csv",
+  "candidate_dir": "data/processed/kg_routed_runs/research_area_routing_20260906_complete_audit_replay/candidate",
+  "audit_rows": 209,
+  "status_counts": {
+    "remaining_flagged": 156,
+    "old_projection_absent_other_projection_present": 15,
+    "old_projection_held_for_detail": 38
+  },
+  "candidate_rows": 1074,
+  "candidate_review_status_counts": {
+    "not_flagged": 702,
+    "pending": 372
+  },
+  "limitations": [
+    "Changed/absent projections require inspection before calling them corrected.",
+    "Missing matches are not counted as fixes.",
+    "A comparison to an older release does not isolate changes made by this patch.",
+    "Counts refer to normalized rows, including repeated projections of a finding."
+  ]
+}

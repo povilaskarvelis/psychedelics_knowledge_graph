@@ -1,0 +1,63 @@
+{
+  "status": "ok",
+  "review_date": "2026-09-06",
+  "first_pass_dir": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/kg_routed_runs/research_area_routing_20260906_adjudicated",
+  "second_pass_dir": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/kg_routed_runs/research_area_routing_20260906_second_pass",
+  "second_pass_version": "research_area_adjudication_v2",
+  "scope": {
+    "queue_records_total": 5405,
+    "main_graph_finding_rows_reviewed": 2032,
+    "unique_statement_projection_groups": 1927,
+    "normalization_audit_rows_left_for_source_review": 2248,
+    "first_pass_paper_detail_findings_left_for_source_review": 501
+  },
+  "second_pass_status_counts": {
+    "confirmed_current": 1517,
+    "corrected": 513,
+    "unresolved": 2
+  },
+  "second_pass_action_counts": {
+    "confirm_therapeutic_condition_outcome_projection": 1092,
+    "confirm_safety_endpoint_projection": 414,
+    "hold_measured_endpoint_from_condition_projection": 132,
+    "hold_safety_endpoint_from_clinical_area_projection": 131,
+    "hold_safety_or_exposure_in_condition_projection": 123,
+    "hold_therapeutic_text_in_safety_projection": 67,
+    "hold_model_or_comparison_projection": 31,
+    "hold_policy_or_context_projection": 11,
+    "hold_condition_endpoint_from_cognitive_behavioral_area_projection": 9,
+    "confirm_cognitive_behavioral_projection": 6,
+    "confirm_real_world_public_health_projection": 5,
+    "hold_measured_endpoint_from_safety_projection": 5,
+    "hold_safety_endpoint_from_subjective_area": 4,
+    "needs_source_level_review": 2
+  },
+  "combined_finding_status_counts": {
+    "confirmed_current": 1517,
+    "corrected": 1137,
+    "unresolved": 503
+  },
+  "combined_adjudication_status_counts": {
+    "unresolved": 2751,
+    "confirmed_current": 1517,
+    "corrected": 1137
+  },
+  "staged_output": {
+    "findings_rows": 97132,
+    "evidence_edge_rows": 96181,
+    "held_edges_in_second_pass": 513,
+    "active_release_changed": false
+  },
+  "integrity": {
+    "second_pass_corrected_edges_remaining": 0,
+    "second_pass_confirmed_edges_missing": 0
+  },
+  "remaining_second_pass_unresolved_finding_ids": [
+    "finding:adf0fef625beb5068f",
+    "finding:416f1f52daaed1cf03"
+  ],
+  "remaining_second_pass_unresolved_context": [
+    "Review-level statement about psychedelic research in terminal cancer without a specific endpoint.",
+    "Diathesis-stress model statement about psychiatric reactions to MDMA without a direct safety endpoint."
+  ]
+}

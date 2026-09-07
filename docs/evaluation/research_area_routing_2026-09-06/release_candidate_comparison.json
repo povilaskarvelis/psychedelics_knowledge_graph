@@ -1,0 +1,106 @@
+{
+  "schema_version": "research_area_release_comparison_v1",
+  "old_active_run_id": "full_corpus_normalization_patch_qa_20260724",
+  "deterministic_candidate_run_id": "research_area_routing_20260906",
+  "promoted_run_id": "research_area_routing_20260906_release_candidate",
+  "promoted_release_id": "research_area_routing_20260906_release_candidate:831a39b0160546258bcfc82130e51916",
+  "rows": {
+    "old_active_findings": 97195,
+    "deterministic_candidate_findings": 97132,
+    "promoted_findings": 97132
+  },
+  "edges": {
+    "old_active": 97282,
+    "deterministic_candidate_before_adjudication": 97219,
+    "promoted": 96428,
+    "reviewed_removals_after_candidate_build": 791,
+    "first_pass_held": 525,
+    "final_second_pass_scope_corrected": 266
+  },
+  "release_qa": {
+    "reviewed_rows": 715,
+    "qa_decision_counts": {
+      "restore_second_pass_correction": 273,
+      "accept_second_pass_correction": 240,
+      "accept_second_pass_confirmation": 176,
+      "hold_after_confirmation_sample_review": 24,
+      "hold_after_source_level_review": 2
+    },
+    "final_status_counts": {
+      "confirmed_current": 1766,
+      "corrected": 266
+    },
+    "remaining_unresolved": 0
+  },
+  "edge_counts_by_entity_kind": {
+    "old_active": {
+      "biomarker_readout": 8574,
+      "brain_measure": 1254,
+      "brain_network": 418,
+      "brain_region": 4486,
+      "cognitive_behavioral_construct": 11881,
+      "compound": 604,
+      "condition_indication": 9691,
+      "exposure_context": 87,
+      "intervention_component": 2491,
+      "neural_circuit": 69,
+      "pathway_process": 5491,
+      "pharmacokinetic_parameter": 4024,
+      "public_health_measure": 12287,
+      "safety_adverse_event": 14919,
+      "subjective_experience_construct": 5055,
+      "symptom_problem": 6507,
+      "system_family": 1018,
+      "target": 8426
+    },
+    "deterministic_candidate": {
+      "biomarker_readout": 8647,
+      "brain_measure": 1254,
+      "brain_network": 418,
+      "brain_region": 4486,
+      "cognitive_behavioral_construct": 11814,
+      "compound": 604,
+      "condition_indication": 9686,
+      "exposure_context": 87,
+      "intervention_component": 2491,
+      "neural_circuit": 69,
+      "pathway_process": 5530,
+      "pharmacokinetic_parameter": 4024,
+      "public_health_measure": 12287,
+      "safety_adverse_event": 14802,
+      "subjective_experience_construct": 5055,
+      "symptom_problem": 6507,
+      "system_family": 1023,
+      "target": 8435
+    },
+    "promoted": {
+      "biomarker_readout": 8642,
+      "brain_measure": 1254,
+      "brain_network": 418,
+      "brain_region": 4484,
+      "cognitive_behavioral_construct": 11813,
+      "compound": 604,
+      "condition_indication": 9131,
+      "exposure_context": 87,
+      "intervention_component": 2491,
+      "neural_circuit": 69,
+      "pathway_process": 5527,
+      "pharmacokinetic_parameter": 4024,
+      "public_health_measure": 12286,
+      "safety_adverse_event": 14731,
+      "subjective_experience_construct": 5054,
+      "symptom_problem": 6357,
+      "system_family": 1023,
+      "target": 8433
+    }
+  },
+  "integrity": {
+    "reviewed_removal_accounting_matches": true,
+    "corrected_edges_remaining": 0,
+    "confirmed_edges_missing": 0
+  },
+  "mdma_parkinson_payload": {
+    "condition_view_occurrences": 0,
+    "safety_view_occurrences": 1
+  }
+}

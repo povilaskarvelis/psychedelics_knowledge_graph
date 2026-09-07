@@ -1,0 +1,137 @@
+{
+  "0000-0002-6423-9411": {
+    "checksum_valid": true,
+    "name": {
+      "created-date": {
+        "value": 1471269152326
+      },
+      "last-modified-date": {
+        "value": 1471269152326
+      },
+      "given-names": {
+        "value": "David"
+      },
+      "family-name": {
+        "value": "Nutt"
+      },
+      "credit-name": null,
+      "source": null,
+      "visibility": "public",
+      "path": "0000-0002-6423-9411"
+    },
+    "other_names": {
+      "last-modified-date": null,
+      "other-name": [],
+      "path": "/0000-0002-6423-9411/other-names"
+    },
+    "source_url": "https://pub.orcid.org/v3.0/0000-0002-6423-9411/person"
+  },
+  "0000-0001-7641-6916": {
+    "checksum_valid": true,
+    "name": {
+      "created-date": {
+        "value": 1460754930035
+      },
+      "last-modified-date": {
+        "value": 1501154169779
+      },
+      "given-names": {
+        "value": "Vanessa"
+      },
+      "family-name": {
+        "value": "Charland-Verville"
+      },
+      "credit-name": null,
+      "source": null,
+      "visibility": "public",
+      "path": "0000-0001-7641-6916"
+    },
+    "other_names": {
+      "last-modified-date": null,
+      "other-name": [],
+      "path": "/0000-0001-7641-6916/other-names"
+    },
+    "source_url": "https://pub.orcid.org/v3.0/0000-0001-7641-6916/person"
+  },
+  "0000-0002-3162-5068": {
+    "checksum_valid": true,
+    "name": {
+      "created-date": {
+        "value": 1460758463101
+      },
+      "last-modified-date": {
+        "value": 1460758463101
+      },
+      "given-names": {
+        "value": "Xiqing"
+      },
+      "family-name": {
+        "value": "Li"
+      },
+      "credit-name": null,
+      "source": null,
+      "visibility": "public",
+      "path": "0000-0002-3162-5068"
+    },
+    "other_names": {
+      "last-modified-date": null,
+      "other-name": [],
+      "path": "/0000-0002-3162-5068/other-names"
+    },
+    "source_url": "https://pub.orcid.org/v3.0/0000-0002-3162-5068/person"
+  },
+  "0000-0002-1655-2753": {
+    "checksum_valid": true,
+    "name": {
+      "created-date": {
+        "value": 1460757508321
+      },
+      "last-modified-date": {
+        "value": 1460757508321
+      },
+      "given-names": {
+        "value": "Arun"
+      },
+      "family-name": {
+        "value": "Ravindran"
+      },
+      "credit-name": null,
+      "source": null,
+      "visibility": "public",
+      "path": "0000-0002-1655-2753"
+    },
+    "other_names": {
+      "last-modified-date": null,
+      "other-name": [],
+      "path": "/0000-0002-1655-2753/other-names"
+    },
+    "source_url": "https://pub.orcid.org/v3.0/0000-0002-1655-2753/person"
+  },
+  "0000-0002-7764-4053": {
+    "checksum_valid": true,
+    "name": {
+      "created-date": {
+        "value": 1646087364019
+      },
+      "last-modified-date": {
+        "value": 1646087364019
+      },
+      "given-names": {
+        "value": "Sophie"
+      },
+      "family-name": {
+        "value": "Geyrhofer"
+      },
+      "credit-name": null,
+      "source": null,
+      "visibility": "public",
+      "path": "0000-0002-7764-4053"
+    },
+    "other_names": {
+      "last-modified-date": null,
+      "other-name": [],
+      "path": "/0000-0002-7764-4053/other-names"
+    },
+    "source_url": "https://pub.orcid.org/v3.0/0000-0002-7764-4053/person"
+  }
+}

@@ -1,0 +1,122 @@
+[
+  {
+    "doi": "10.1016/j.psycr.2022.100100",
+    "study_doi": "10.1016/j.psycr.2022.100100",
+    "domain": "clinical_outcome",
+    "domain_route": "clinical_outcome",
+    "entity_role": null,
+    "graph_entity_label": "40-year-old male with severe depressive episode without psychotic symptoms and active suicidal ideation post-COVID-19",
+    "finding_summary": "The patient showed a rapid and significant reduction in depressive symptoms following five sessions of intravenous ketamine, achieving near-complete remission.",
+    "support": "The patient showed a rapid and significant reduction in depressive symptoms following five sessions of intravenous ketamine, achieving near-complete remission.",
+    "source_item_index": 1,
+    "source_item_type": "primary_item"
+  },
+  {
+    "doi": "10.1016/j.psycr.2022.100100",
+    "study_doi": "10.1016/j.psycr.2022.100100",
+    "domain": "clinical_outcome",
+    "domain_route": "clinical_outcome",
+    "entity_role": null,
+    "graph_entity_label": "40-year-old male with severe depressive episode without psychotic symptoms and active suicidal ideation post-COVID-19",
+    "finding_summary": "Suicidal ideation was completely resolved after the fourth ketamine infusion session.",
+    "support": "Suicidal ideation was completely resolved after the fourth ketamine infusion session.",
+    "source_item_index": 2,
+    "source_item_type": "primary_item"
+  },
+  {
+    "doi": "10.1016/j.psycr.2022.100100",
+    "study_doi": "10.1016/j.psycr.2022.100100",
+    "domain": "clinical_outcome",
+    "domain_route": "clinical_outcome",
+    "entity_role": null,
+    "graph_entity_label": "40-year-old male with severe depressive episode without psychotic symptoms and active suicidal ideation post-COVID-19",
+    "finding_summary": "The patient maintained clinical improvement and remission of depressive symptoms at the one-month follow-up visit post-discharge.",
+    "support": "The patient maintained clinical improvement and remission of depressive symptoms at the one-month follow-up visit post-discharge.",
+    "source_item_index": 3,
+    "source_item_type": "primary_item"
+  },
+  {
+    "doi": "10.1016/j.psycr.2022.100100",
+    "study_doi": "10.1016/j.psycr.2022.100100",
+    "domain": "safety_tolerability",
+    "domain_route": "safety_tolerability",
+    "entity_role": null,
+    "graph_entity_label": "Nausea",
+    "finding_summary": "The patient experienced nausea during the first two ketamine infusion sessions, which was treated symptomatically.",
+    "support": "The patient experienced nausea during the first two ketamine infusion sessions, which was treated symptomatically.",
+    "source_item_index": 1,
+    "source_item_type": "primary_item"
+  },
+  {
+    "doi": "10.1016/j.psycr.2022.100100",
+    "study_doi": "10.1016/j.psycr.2022.100100",
+    "domain": "safety_tolerability",
+    "domain_route": "safety_tolerability",
+    "entity_role": null,
+    "graph_entity_label": "Serious adverse events and dissociative experiences",
+    "finding_summary": "No serious adverse events or dissociative experiences were observed during the treatment course.",
+    "support": "No serious adverse events or dissociative experiences were observed during the treatment course.",
+    "source_item_index": 2,
+    "source_item_type": "primary_item"
+  },
+  {
+    "doi": "10.1186/s43045-024-00420-x",
+    "study_doi": "10.1186/s43045-024-00420-x",
+    "domain": "clinical_outcome",
+    "domain_route": "clinical_outcome",
+    "entity_role": null,
+    "graph_entity_label": "patients with severe depression without psychotic symptoms",
+    "finding_summary": "Significant reduction in depression scores from baseline to the fifth session, with 95% of patients achieving remission (score <= 9).",
+    "support": "Significant reduction in depression scores from baseline to the fifth session, with 95% of patients achieving remission (score <= 9).",
+    "source_item_index": 1,
+    "source_item_type": "primary_item"
+  },
+  {
+    "doi": "10.1186/s43045-024-00420-x",
+    "study_doi": "10.1186/s43045-024-00420-x",
+    "domain": "clinical_outcome",
+    "domain_route": "clinical_outcome",
+    "entity_role": null,
+    "graph_entity_label": "patients with severe depression without psychotic symptoms",
+    "finding_summary": "Significant reduction in depression scores from baseline to the fifth session, with 95% of patients achieving remission (score <= 7).",
+    "support": "Significant reduction in depression scores from baseline to the fifth session, with 95% of patients achieving remission (score <= 7).",
+    "source_item_index": 2,
+    "source_item_type": "primary_item"
+  },
+  {
+    "doi": "10.1186/s43045-024-00420-x",
+    "study_doi": "10.1186/s43045-024-00420-x",
+    "domain": "clinical_outcome",
+    "domain_route": "clinical_outcome",
+    "entity_role": null,
+    "graph_entity_label": "patients with severe depression without psychotic symptoms",
+    "finding_summary": "Significant reduction in suicidal ideation scores from baseline, with scores reducing to zero in almost all patients by the fifth session.",
+    "support": "Significant reduction in suicidal ideation scores from baseline, with scores reducing to zero in almost all patients by the fifth session.",
+    "source_item_index": 3,
+    "source_item_type": "primary_item"
+  },
+  {
+    "doi": "10.1186/s13256-023-04147-x",
+    "study_doi": "10.1186/s13256-023-04147-x",
+    "domain": "safety_tolerability",
+    "domain_route": "safety_tolerability",
+    "entity_role": null,
+    "graph_entity_label": "Early onset Parkinson's disease",
+    "finding_summary": "MDMA use was identified as a likely precipitating factor for the development of early-onset Parkinson's disease at age 38 in a patient with genetic vulnerability.",
+    "support": "MDMA use was identified as a likely precipitating factor for the development of early-onset Parkinson's disease at age 38 in a patient with genetic vulnerability.",
+    "source_item_index": 1,
+    "source_item_type": "primary_item"
+  },
+  {
+    "doi": "10.1186/s13256-023-04147-x",
+    "study_doi": "10.1186/s13256-023-04147-x",
+    "domain": "clinical_outcome",
+    "domain_route": "clinical_outcome",
+    "entity_role": null,
+    "graph_entity_label": "Parkinson's disease",
+    "finding_summary": "Chronic MDMA use was identified as a likely precipitating factor for the development of early onset Parkinson's disease at age 38 in a patient with a positive family history of the condition.",
+    "support": "Chronic MDMA use was identified as a likely precipitating factor for the development of early onset Parkinson's disease at age 38 in a patient with a positive family history of the condition.",
+    "source_item_index": 1,
+    "source_item_type": "primary_item"
+  }
+]

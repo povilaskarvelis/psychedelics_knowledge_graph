@@ -44,7 +44,7 @@ DEFAULT_PAPERS = DEFAULT_KG_DIR / "papers.parquet"
 DEFAULT_CACHE = DEFAULT_KG_DIR / "openalex_author_cache.json"
 DEFAULT_REPORT = DEFAULT_KG_DIR / "author_resolution_report.json"
 DEFAULT_IDENTITY_OVERRIDES = ROOT / "pipeline" / "kg" / "author_identity_overrides.json"
-KG_AUTHOR_TABLE_VERSION = "0.2"
+KG_AUTHOR_TABLE_VERSION = "0.3"
 MIN_STRUCTURED_AUTHORSHIP_RATE = 0.95
 MIN_OFFLINE_CACHE_COVERAGE = 0.95
 
@@ -133,7 +133,7 @@ def read_json(path: Path) -> dict[str, Any]:
     return data
 
 
-def load_identity_overrides(path: Path) -> dict[str, dict[str, str]]:
+def load_identity_overrides(path: Path) -> dict[str, Any]:
     """Load explicit, reviewed mappings without inferring identity from names."""
 
     if not path.is_file():
@@ -177,7 +177,126 @@ def load_identity_overrides(path: Path) -> dict[str, dict[str, str]]:
         "openalex_to_orcid": openalex_to_orcid,
         "local_name_to_orcid": local_name_to_orcid,
         "preferred_name_by_orcid": preferred_name_by_orcid,
+        "authorship_overrides": payload.get("authorship_overrides", []),
+        "author_list_reviews": payload.get("author_list_reviews", []),
     }
+
+
+def apply_authorship_overrides(
+    paper_authors: pd.DataFrame, identity_overrides: dict[str, Any] | None = None,
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    """Correct reviewed source errors before ORCID propagation, retaining evidence.
+
+    Selectors are scoped to a DOI and ordered authorship, with exact expected
+    source identity fields. A changed source record requires a new review.
+    """
+    out = paper_authors.copy()
+    records = (identity_overrides or {}).get("authorship_overrides", [])
+    if not isinstance(records, list):
+        raise ValueError("authorship_overrides must be an array")
+    for column in ("author_id", "orcid", "openalex_author_id", "display_name"):
+        out[f"source_{column}"] = out.get(column, pd.Series(index=out.index, dtype=str))
+    out["identity_review_id"] = ""
+    applied, absent, seen = [], [], set()
+    for record in records:
+        required = {"review_id", "doi", "author_position", "expected", "replacement", "reason", "sources", "reviewed_at", "reviewed_by"}
+        if not isinstance(record, dict) or not required.issubset(record):
+            raise ValueError("Authorship correction requires selectors, expectations, replacement, and review evidence")
+        review_id = record["review_id"]
+        if not review_id or review_id in seen or not record["reason"] or not record["sources"]:
+            raise ValueError(f"Invalid or duplicate authorship review: {review_id}")
+        seen.add(review_id)
+        expected, replacement = record["expected"], record["replacement"]
+        if set(expected) != {"display_name", "orcid", "openalex_author_id"} or set(replacement) != {"orcid", "openalex_author_id"}:
+            raise ValueError(f"Invalid identity fields in {review_id}")
+        for value in (expected["orcid"], replacement["orcid"]):
+            if value and normalize_orcid(value) != value:
+                raise ValueError(f"Invalid ORCID in {review_id}")
+        if out.empty or not out["doi"].eq(record["doi"]).any():
+            absent.append(review_id)
+            continue
+        mask = out["doi"].eq(record["doi"]) & out["author_position"].eq(record["author_position"])
+        if mask.sum() != 1:
+            raise ValueError(f"Authorship selector changed for {review_id}")
+        index = out.index[mask][0]
+        if out.at[index, "identity_review_id"] or any(normalize(out.at[index, k]) != v for k, v in expected.items()):
+            raise ValueError(f"Authorship source changed or overlapping correction: {review_id}")
+        identity = author_identity_from_openalex({"display_name": out.at[index, "display_name"], **replacement})
+        for column in ("author_id", "orcid", "openalex_author_id", "identity_confidence"):
+            out.at[index, column] = identity[column]
+        out.at[index, "identity_review_id"] = review_id
+        applied.append(review_id)
+    return out, {"applied_review_ids": applied, "absent_paper_review_ids": absent}
+
+
+def author_list_fingerprint(rows: list[dict[str, Any]]) -> str:
+    """Fingerprint source author order, names and identifiers, not fetch dates."""
+    fields = ("display_name", "raw_author_name", "openalex_author_id", "orcid")
+    snapshot = [{k: normalize(row.get(k, "")) for k in fields} for row in rows]
+    return hashlib.sha256(json.dumps(snapshot, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+
+
+def apply_author_list_reviews(
+    paper_authors: pd.DataFrame, cache: dict[str, Any], overrides: dict[str, Any] | None,
+) -> tuple[pd.DataFrame, list[dict[str, Any]]]:
+    """Apply explicit reviewed author lists; never deduplicate names globally."""
+    out = paper_authors.copy()
+    out["source_author_position"] = out.get("author_position", pd.Series(index=out.index, dtype=int))
+    out["author_list_review_id"] = ""
+    reports, seen_dois, seen_ids = [], set(), set()
+    for record in (overrides or {}).get("author_list_reviews", []):
+        required = {"doi", "review_id", "expected_source_sha256", "authors", "reason", "sources", "reviewed_at", "reviewed_by"}
+        if not isinstance(record, dict) or not required.issubset(record) or not record["sources"] or not record["reason"]:
+            raise ValueError("Author list review requires source fingerprint and review evidence")
+        doi, review_id = record["doi"], record["review_id"]
+        if doi in seen_dois or review_id in seen_ids:
+            raise ValueError(f"Duplicate author list review: {review_id}")
+        seen_dois.add(doi)
+        seen_ids.add(review_id)
+        group = out[out["doi"].eq(doi)] if not out.empty else out
+        if group.empty:
+            reports.append({"review_id": review_id, "status": "paper_absent"})
+            continue
+        source = cache.get("works_by_doi", {}).get(doi, {}).get("authorships", [])
+        if author_list_fingerprint(source) != record["expected_source_sha256"]:
+            raise ValueError(f"Author list source changed for {review_id}")
+        indexed = group.set_index("author_position", drop=False)
+        replacements, positions = [], set()
+        if not record["authors"]:
+            raise ValueError(f"Empty reviewed author list: {review_id}")
+        for position, spec in enumerate(record["authors"], 1):
+            source_position = spec["source_position"]
+            if source_position in positions or source_position not in indexed.index:
+                raise ValueError(f"Invalid source position in {review_id}")
+            positions.add(source_position)
+            row = indexed.loc[source_position].to_dict()
+            donor_position = spec.get("identity_source_position", source_position)
+            if donor_position is not None and donor_position not in indexed.index:
+                raise ValueError(f"Invalid identity source position in {review_id}")
+            donor = indexed.loc[donor_position].to_dict() if donor_position is not None else {}
+            name = spec.get("display_name", row["display_name"])
+            identity = author_identity_from_openalex({
+                "display_name": name,
+                "orcid": donor.get("orcid", ""),
+                "openalex_author_id": donor.get("openalex_author_id", ""),
+            })
+            row.update(identity)
+            # A row can retain a corrected identifier while receiving its true
+            # paper-specific name/order. Keep the review tied to that identifier.
+            row["identity_review_id"] = donor.get("identity_review_id", "")
+            row["author_position"] = position
+            row["is_first_author"] = position == 1
+            row["is_last_author"] = position == len(record["authors"])
+            row["author_position_label"] = "first" if row["is_first_author"] else "last" if row["is_last_author"] else "middle"
+            row["author_list_review_id"] = review_id
+            # Preserve the source provider label; author_identity_from_openalex
+            # describes identity parsing, not a new metadata retrieval.
+            row["source"] = indexed.loc[source_position]["source"]
+            replacements.append(row)
+        removed = sorted(set(indexed.index) - positions)
+        reports.append({"review_id": review_id, "doi": doi, "status": "applied", "source_rows": len(group), "output_rows": len(replacements), "removed_source_positions": removed})
+        out = pd.concat([out[~out["doi"].eq(doi)], pd.DataFrame(replacements)], ignore_index=True)
+    return out, reports
 
 
 def paper_dois(papers: pd.DataFrame) -> set[str]:
@@ -524,7 +643,7 @@ def apply_exact_name_aliases(paper_authors: pd.DataFrame) -> tuple[pd.DataFrame,
 
 def apply_orcid_identities(
     paper_authors: pd.DataFrame,
-    identity_overrides: dict[str, dict[str, str]] | None = None,
+    identity_overrides: dict[str, Any] | None = None,
 ) -> tuple[pd.DataFrame, dict[str, int]]:
     """Canonicalize identities by ORCID only when the evidence is unambiguous."""
 
@@ -592,7 +711,9 @@ def apply_orcid_identities(
             continue
         out.at[index, "author_id"] = f"orcid:{orcid}"
         out.at[index, "orcid"] = orcid
-        out.at[index, "identity_confidence"] = "orcid"
+        out.at[index, "identity_confidence"] = (
+            "curated_openalex_to_orcid" if openalex_id in openalex_overrides else "orcid"
+        )
         canonicalized_rows += 1
 
     profiles_per_orcid: Counter[str] = Counter(safe_mapping.values())
@@ -684,7 +805,7 @@ def build_authors_from_authorships(paper_authors: pd.DataFrame) -> pd.DataFrame:
 def build_tables(
     papers: pd.DataFrame,
     cache: dict[str, Any],
-    identity_overrides: dict[str, dict[str, str]] | None = None,
+    identity_overrides: dict[str, Any] | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
     authorship_rows: list[dict[str, Any]] = []
     paper_status_counts: Counter = Counter()
@@ -711,6 +832,7 @@ def build_tables(
                 source = source_status
             if not normalize(identity["display_name"]):
                 continue
+            identity["raw_author_name"] = normalize(row.get("raw_author_name", "")) if source_status == "openalex" else identity["display_name"]
             parsed_rows.append((index, author_position_label, identity, source))
 
         last_index = len(parsed_rows)
@@ -723,6 +845,7 @@ def build_tables(
                     "author_id": identity["author_id"],
                     "display_name": identity["display_name"],
                     "canonical_name": identity["canonical_name"],
+                    "raw_author_name": identity["raw_author_name"],
                     "openalex_author_id": identity["openalex_author_id"],
                     "orcid": identity["orcid"],
                     "author_position": index,
@@ -735,9 +858,22 @@ def build_tables(
             )
 
     paper_authors = pd.DataFrame(authorship_rows)
+    paper_authors, authorship_review_stats = apply_authorship_overrides(paper_authors, identity_overrides)
+    paper_authors, author_list_review_stats = apply_author_list_reviews(paper_authors, cache, identity_overrides)
     if not paper_authors.empty:
         paper_authors, orcid_stats = apply_orcid_identities(paper_authors, identity_overrides)
         paper_authors, alias_stats = apply_exact_name_aliases(paper_authors)
+        for record in (identity_overrides or {}).get("authorship_overrides", []):
+            reviewed = paper_authors[paper_authors["identity_review_id"].eq(record["review_id"])]
+            if reviewed.empty:
+                continue
+            resolved_orcid = normalize_orcid(reviewed.iloc[0]["orcid"])
+            target_orcid = record["replacement"]["orcid"]
+            rejected_orcid = record["expected"]["orcid"]
+            if (target_orcid and resolved_orcid != target_orcid) or (
+                not target_orcid and rejected_orcid and resolved_orcid == rejected_orcid
+            ):
+                raise ValueError(f"Identity propagation conflicts with review {record['review_id']}")
         paper_authors = paper_authors.sort_values(["paper_id", "author_position", "display_name"]).reset_index(drop=True)
     else:
         orcid_stats = apply_orcid_identities(paper_authors, identity_overrides)[1]
@@ -747,6 +883,8 @@ def build_tables(
     report = build_report(papers, cache, authors, paper_authors, paper_status_counts)
     report["orcid_identity_resolution_counts"] = orcid_stats
     report["name_alias_resolution_counts"] = alias_stats
+    report["authorship_review_counts"] = authorship_review_stats
+    report["author_list_reviews"] = author_list_review_stats
 
     preferred_names = (identity_overrides or {}).get("preferred_name_by_orcid", {})
     if not authors.empty and preferred_names:

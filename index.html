@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="kg-release" content="{{RELEASE_VERSION}}" />
     <meta
       name="description"
       content="A living map of psychedelic research, built to keep scientific knowledge organized, connected, and easily explorable."
@@ -87,8 +88,8 @@
       type="application/json"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="styles.css?v=20260905-research-workspace-v61" />
-    <link rel="stylesheet" href="research-analysis.css?v=20260905-v1" />
+    <link rel="stylesheet" href="styles.css?v=20260907-analysis-type-v9" />
+    <link rel="stylesheet" href="research-analysis.css?v=20260907-evidence-coverage-v6" />
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>
@@ -145,44 +146,34 @@
 
     <main class="content">
       <section class="panel graph-panel" data-explorer-workspace data-workspace-mode="overview">
-        <div
-          class="workspace-tabs"
-          data-explorer-mode-toggle
-          role="tablist"
-          aria-label="Workspace view"
-        >
-          <button class="workspace-tab active" type="button" data-explorer-mode="overview" role="tab" aria-selected="true">
-            Explore
-          </button>
-          <button class="workspace-tab" type="button" data-explorer-mode="analysis" role="tab" aria-selected="false">
-            Analyze
-          </button>
+        <div class="workspace-header">
+          <div
+            class="workspace-tabs"
+            data-explorer-mode-toggle
+            role="tablist"
+            aria-label="Workspace view"
+          >
+            <button class="workspace-tab active" type="button" data-explorer-mode="overview" role="tab" aria-selected="true">
+              Explore
+            </button>
+            <button class="workspace-tab" type="button" data-explorer-mode="analysis" role="tab" aria-selected="false">
+              Analyze
+            </button>
+          </div>
+          <div id="researchNavigation" class="research-navigation">
+            <span id="researchStatus" class="research-status" role="status" aria-live="polite"></span>
+            <button class="workspace-share" type="button" data-research-copy title="Copy a link to this view" aria-label="Copy a link to this view">
+              <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
+                <path d="M8.1 11.9 11.9 8.1M6.6 13.4l-1.1 1.1a2.8 2.8 0 0 1-4-4l2.3-2.3a2.8 2.8 0 0 1 4 0M13.4 6.6l1.1-1.1a2.8 2.8 0 1 1 4 4l-2.3 2.3a2.8 2.8 0 0 1-4 0" />
+              </svg>
+              <span>Share view</span>
+            </button>
+          </div>
         </div>
         <div class="graph-grid">
           <div class="graph-column">
             <div class="graph-toolbar">
               <div class="graph-header-controls">
-                <div id="researchNavigation" class="research-navigation" hidden>
-                  <div class="research-navigation-top">
-                    <div class="research-task-tabs" role="tablist" aria-label="Analysis task">
-                      <button type="button" role="tab" class="active" aria-selected="true" data-research-task="landscape">Landscape</button>
-                      <button type="button" role="tab" aria-selected="false" data-research-task="compare">Compare</button>
-                      <button type="button" role="tab" aria-selected="false" data-research-task="evidence">Evidence</button>
-                    </div>
-                    <button class="ghost small" type="button" data-research-copy>Copy question link</button>
-                  </div>
-                  <p id="researchTaskDescription" class="research-task-description"></p>
-                  <details class="research-saved-questions">
-                    <summary>Saved questions</summary>
-                    <div class="research-save-form">
-                      <label class="research-field"><span>Question name</span><input id="researchQuestionName" type="text" maxlength="200" placeholder="Name this research question" /></label>
-                      <button class="ghost small" type="button" data-research-save>Save current question</button>
-                    </div>
-                    <div id="researchSavedList"></div>
-                  </details>
-                  <p id="researchStatus" class="research-status" role="status" aria-live="polite"></p>
-                  <p id="researchFiltersNotice" class="research-note" hidden></p>
-                </div>
                 <div class="explorer-primary-row">
                   <div class="filter-center-controls">
                     <div class="segmented-toggle evidence-view-toggle" id="evidenceViewToggle" role="tablist" aria-label="Evidence view">
@@ -271,7 +262,7 @@
                       <label class="analysis-query-field analysis-query-concept">
                         <span class="sr-only">Focused on</span>
                         <select id="explorerScopeConceptSelect" aria-label="Filter analysis by topic" disabled>
-                          <option value="">Choose a research area first</option>
+                          <option value="">All topics</option>
                         </select>
                       </label>
                       <label class="analysis-query-field analysis-query-evidence">
@@ -284,10 +275,10 @@
                         </select>
                       </label>
                       <label class="analysis-query-field analysis-query-access">
-                        <span class="sr-only">Source text</span>
-                        <select id="explorerAccessSelect" aria-label="Filter analysis by source text">
-                          <option value="all">All source text</option>
-                          <option value="open">Full-text extraction</option>
+                        <span class="sr-only">Access</span>
+                        <select id="explorerAccessSelect" aria-label="Filter analysis by access availability">
+                          <option value="all">All access</option>
+                          <option value="open">Open access</option>
                         </select>
                       </label>
                       <div class="analysis-query-field analysis-query-years">
@@ -313,7 +304,6 @@
             <div class="detail-header">
               <div>
                 <h3></h3>
-                <button class="ghost small" type="button" id="analyzeGraphEvidence">Analyze this graph scope</button>
               </div>
             </div>
             <div class="detail-body" id="detailBody"></div>
@@ -334,7 +324,7 @@
                 aria-controls="findingSearchOptions"
                 aria-expanded="false"
                 autocomplete="off"
-                placeholder="Search compounds, findings, methods, or source reports"
+                placeholder="Search finding cards by keyword, compound, condition, method, or paper"
               />
               <div class="finding-search-options" id="findingSearchOptions" role="listbox" hidden></div>
             </div>
@@ -352,7 +342,7 @@
             <input
               id="bibliographySearchInput"
               type="search"
-              placeholder="Search titles, authors, journals, MeSH, DOI, or context"
+              placeholder="Search by title, author, journal, compound, condition, or DOI"
             />
           </div>
         </div>
@@ -377,8 +367,9 @@
     </footer>
 
     <script src="/ui/site-nav.js?v=20260720-local-data-preview-v1"></script>
+    <script src="view-state.js?v=20260907-focus-history-v2"></script>
     <script src="research-model.js?v=20260905-v1"></script>
-    <script src="research-analysis.js?v=20260905-v1"></script>
-    <script src="app.js?v=20260905-research-workspace-v53"></script>
+    <script src="research-analysis.js?v=20260907-evidence-coverage-v5"></script>
+    <script src="app.js?v=20260907-focused-history-v11"></script>
   </body>
 </html>

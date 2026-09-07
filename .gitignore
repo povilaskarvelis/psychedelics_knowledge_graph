@@ -24,6 +24,7 @@ data/*
 data/curated/*
 !data/curated/entity_registry.json
 !data/curated/graph_inclusion_disposition_overrides.json
+!data/curated/research_area_release_qa_overrides.json
 !data/curated/paper_metadata_overrides.json
 !data/curated/screening_decision_overrides.json
 !data/curated/direct_graph_recovery_dois.txt

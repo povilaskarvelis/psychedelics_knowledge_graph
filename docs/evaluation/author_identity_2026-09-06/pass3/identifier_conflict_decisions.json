@@ -1,0 +1,568 @@
+[
+  {
+    "profile": "https://openalex.org/A5006917915",
+    "name": "Hongshuang Wang",
+    "authorships_reviewed": 8,
+    "observed_orcids": [
+      "0009-0001-8797-4822",
+      "0009-0006-4378-3502"
+    ],
+    "sources": [
+      "https://pub.orcid.org/v3.0/0009-0001-8797-4822/person",
+      "https://pub.orcid.org/v3.0/0009-0006-4378-3502/person",
+      "https://pub.orcid.org/v3.0/0009-0001-8797-4822/activities",
+      "https://pub.orcid.org/v3.0/0009-0006-4378-3502/activities"
+    ],
+    "dois": [
+      "10.1002/advs.202416481",
+      "10.1002/advs.202500808",
+      "10.1016/j.ejmech.2024.117049",
+      "10.1021/acschemneuro.5c00247",
+      "10.1021/acschemneuro.5c00509",
+      "10.1021/acsptsci.5c00094",
+      "10.1038/s41380-025-03168-w",
+      "10.1038/s41586-025-09755-9"
+    ],
+    "status": "reviewed_unresolved_identifier_ownership",
+    "reason": "Reviewed both ORCID owner records, available affiliations/works and publication author lists. Matching or abbreviated/transliterated names do not establish that the ORCID accounts belong to the same person or which identifier applies across this profile. Preserve the existing conflict flag; do not infer a merge from name alone.",
+    "public_record_affiliations": {
+      "0009-0006-4378-3502": [],
+      "0009-0001-8797-4822": [
+        {
+          "organization": {
+            "name": "Changchun Institute of Applied Chemistry",
+            "address": {
+              "city": "Changchun",
+              "region": "Jilin",
+              "country": "CN"
+            },
+            "disambiguated-organization": {
+              "disambiguated-organization-identifier": "https://ror.org/00h52n341",
+              "disambiguation-source": "ROR"
+            }
+          },
+          "department-name": "Laboratory of Chemical Biology",
+          "role-title": null
+        }
+      ]
+    },
+    "public_work_dois": {
+      "0009-0006-4378-3502": [
+        "10.1088/1748-0221/21/02/P02008",
+        "10.3390/instruments9030017",
+        "10.1007/s41365-024-01498-y",
+        "10.1007/s41365-024-01443-z"
+      ],
+      "0009-0001-8797-4822": []
+    }
+  },
+  {
+    "profile": "https://openalex.org/A5008457324",
+    "name": "Yanling Zhou",
+    "authorships_reviewed": 56,
+    "observed_orcids": [
+      "0000-0002-8741-9394",
+      "0009-0003-3484-3735"
+    ],
+    "sources": [
+      "https://pub.orcid.org/v3.0/0000-0002-8741-9394/person",
+      "https://pub.orcid.org/v3.0/0009-0003-3484-3735/person",
+      "https://pub.orcid.org/v3.0/0000-0002-8741-9394/activities",
+      "https://pub.orcid.org/v3.0/0009-0003-3484-3735/activities"
+    ],
+    "dois": [
+      "10.1007/s00406-020-01221-z",
+      "10.1007/s10565-024-09981-3",
+      "10.1016/j.bbi.2018.09.007",
+      "10.1016/j.jaac.2023.05.031",
+      "10.1016/j.jad.2017.11.034",
+      "10.1016/j.jad.2018.12.005",
+      "10.1016/j.jad.2019.03.071",
+      "10.1016/j.jad.2019.08.012",
+      "10.1016/j.jad.2020.01.001",
+      "10.1016/j.jad.2020.03.048",
+      "10.1016/j.jad.2020.06.020",
+      "10.1016/j.jad.2020.06.068",
+      "10.1016/j.jad.2021.12.084",
+      "10.1016/j.jad.2021.12.105",
+      "10.1016/j.jad.2022.02.032",
+      "10.1016/j.jad.2022.06.081",
+      "10.1016/j.jad.2022.09.125",
+      "10.1016/j.jad.2023.01.003",
+      "10.1016/j.jad.2023.04.120",
+      "10.1016/j.jad.2023.04.122",
+      "10.1016/j.jad.2024.01.084",
+      "10.1016/j.jpsychires.2018.09.013",
+      "10.1016/j.jpsychires.2021.10.037",
+      "10.1016/j.psychres.2018.05.050",
+      "10.1038/s41398-020-00933-z",
+      "10.1038/s41398-020-00945-9",
+      "10.1038/s41398-024-03027-2",
+      "10.1080/13651501.2022.2138444",
+      "10.1111/acps.13096",
+      "10.1111/ajad.12984",
+      "10.1111/cns.70324",
+      "10.1136/gpsych-2023-101007",
+      "10.1177/0269881118798614",
+      "10.1177/0269881119827811",
+      "10.1177/0269881120936909",
+      "10.1177/2045125320973794",
+      "10.1177/20451253211014320",
+      "10.1186/s12974-021-02245-5",
+      "10.1186/s13034-023-00647-2",
+      "10.1186/s13293-024-00587-2",
+      "10.1192/j.eurpsy.2023.19",
+      "10.1192/j.eurpsy.2024.1744",
+      "10.2174/1570159x20666220927085706",
+      "10.2174/1570159x23666240923112548",
+      "10.3389/fnins.2022.956056",
+      "10.3389/fnins.2023.1123797",
+      "10.3389/fpsyt.2021.780975",
+      "10.3389/fpsyt.2022.1033019",
+      "10.3389/fpsyt.2022.779326",
+      "10.3389/fpsyt.2022.793677",
+      "10.3389/fpsyt.2022.855995",
+      "10.3389/fpsyt.2022.981981",
+      "10.3389/fpsyt.2025.1498952",
+      "10.3389/fpsyt.2025.1582312",
+      "10.7717/peerj.10208",
+      "10.7717/peerj.10989"
+    ],
+    "status": "reviewed_unresolved_identifier_ownership",
+    "reason": "Reviewed both ORCID owner records, available affiliations/works and publication author lists. Matching or abbreviated/transliterated names do not establish that the ORCID accounts belong to the same person or which identifier applies across this profile. Preserve the existing conflict flag; do not infer a merge from name alone.",
+    "public_record_affiliations": {
+      "0000-0002-8741-9394": [],
+      "0009-0003-3484-3735": []
+    },
+    "public_work_dois": {
+      "0000-0002-8741-9394": [],
+      "0009-0003-3484-3735": []
+    }
+  },
+  {
+    "profile": "https://openalex.org/A5013581078",
+    "name": "Su Min",
+    "authorships_reviewed": 9,
+    "observed_orcids": [
+      "0000-0002-0063-5044",
+      "0009-0005-8777-4248"
+    ],
+    "sources": [
+      "https://pub.orcid.org/v3.0/0000-0002-0063-5044/person",
+      "https://pub.orcid.org/v3.0/0009-0005-8777-4248/person",
+      "https://pub.orcid.org/v3.0/0000-0002-0063-5044/activities",
+      "https://pub.orcid.org/v3.0/0009-0005-8777-4248/activities"
+    ],
+    "dois": [
+      "10.1016/j.jpsychires.2018.07.003",
+      "10.1016/j.nlm.2018.06.013",
+      "10.1016/j.psychres.2019.112573",
+      "10.1097/yct.0000000000000148",
+      "10.1097/yct.0000000000000365",
+      "10.1097/yct.0000000000000938",
+      "10.3760/cma.j.issn.0254-1416.2011.06.009",
+      "10.3760/cma.j.issn.0254-1416.2016.02.021",
+      "10.3760/cma.j.issn.1673-4378.2014.01.017"
+    ],
+    "status": "reviewed_unresolved_identifier_ownership",
+    "reason": "Reviewed both ORCID owner records, available affiliations/works and publication author lists. Matching or abbreviated/transliterated names do not establish that the ORCID accounts belong to the same person or which identifier applies across this profile. Preserve the existing conflict flag; do not infer a merge from name alone.",
+    "public_record_affiliations": {
+      "0009-0005-8777-4248": [],
+      "0000-0002-0063-5044": []
+    },
+    "public_work_dois": {
+      "0009-0005-8777-4248": [],
+      "0000-0002-0063-5044": [
+        "10.1186/s12871-021-01509-0",
+        "10.1177/0269215520972648",
+        "10.1002/jcp.29973"
+      ]
+    }
+  },
+  {
+    "profile": "https://openalex.org/A5024589429",
+    "name": "Jay Yang",
+    "authorships_reviewed": 2,
+    "observed_orcids": [
+      "0000-0003-1621-0486",
+      "0009-0002-4332-1384"
+    ],
+    "sources": [
+      "https://pub.orcid.org/v3.0/0000-0003-1621-0486/person",
+      "https://pub.orcid.org/v3.0/0009-0002-4332-1384/person",
+      "https://pub.orcid.org/v3.0/0000-0003-1621-0486/activities",
+      "https://pub.orcid.org/v3.0/0009-0002-4332-1384/activities"
+    ],
+    "dois": [
+      "10.1016/j.brainres.2012.02.070",
+      "10.1042/bj20141321"
+    ],
+    "status": "reviewed_corrected_wrong_owner",
+    "reason": "Rejected ORCID identifies Jiuyue Yang, a China Medical University student; published author is Jay Yang, whose ORCID describes US anesthesiology appointments."
+  },
+  {
+    "profile": "https://openalex.org/A5036878613",
+    "name": "Holly Moore",
+    "authorships_reviewed": 4,
+    "observed_orcids": [
+      "0009-0001-7320-6347",
+      "0009-0006-0860-2534"
+    ],
+    "sources": [
+      "https://pub.orcid.org/v3.0/0009-0001-7320-6347/person",
+      "https://pub.orcid.org/v3.0/0009-0006-0860-2534/person",
+      "https://pub.orcid.org/v3.0/0009-0001-7320-6347/activities",
+      "https://pub.orcid.org/v3.0/0009-0006-0860-2534/activities"
+    ],
+    "dois": [
+      "10.1016/j.neuron.2013.02.011",
+      "10.1016/j.pscychresns.2015.06.001",
+      "10.1038/npp.2009.58",
+      "10.17615/fdtc-c008"
+    ],
+    "status": "reviewed_corrected_wrong_owner",
+    "reason": "Rejected ORCID identifies Harry Moore at Certara/Simcyp; publication identifies Holly Moore."
+  },
+  {
+    "profile": "https://openalex.org/A5038134435",
+    "name": "Jordi Segura",
+    "authorships_reviewed": 15,
+    "observed_orcids": [
+      "0000-0002-2463-752X",
+      "0000-0002-6709-7092"
+    ],
+    "sources": [
+      "https://pub.orcid.org/v3.0/0000-0002-2463-752X/person",
+      "https://pub.orcid.org/v3.0/0000-0002-6709-7092/person",
+      "https://pub.orcid.org/v3.0/0000-0002-2463-752X/activities",
+      "https://pub.orcid.org/v3.0/0000-0002-6709-7092/activities"
+    ],
+    "dois": [
+      "10.1002/rcm.919",
+      "10.1016/s0024-3205(01)01373-x",
+      "10.1016/s0024-3205(99)00555-x",
+      "10.1021/tx010051p",
+      "10.1093/clinchem/47.10.1788",
+      "10.1093/clinchem/48.1.174",
+      "10.1093/jat/26.3.157",
+      "10.1093/jat/27.5.294",
+      "10.1097/00007691-200404000-00009",
+      "10.1111/j.1360-0443.2007.01805.x",
+      "10.1111/j.1749-6632.2000.tb05198.x",
+      "10.1111/j.1749-6632.2000.tb05199.x",
+      "10.1111/j.1749-6632.2002.tb04183.x",
+      "10.1124/jpet.103.061374",
+      "10.2165/00003088-200544060-00006"
+    ],
+    "status": "reviewed_corrected_wrong_owner",
+    "reason": "Rejected ORCID identifies Jorge Alfredo Bojorquez Segura, an industrial/systems professional in Peru; published author is Jordi Segura."
+  },
+  {
+    "profile": "https://openalex.org/A5054206531",
+    "name": "Gregory M. Miller",
+    "authorships_reviewed": 5,
+    "observed_orcids": [
+      "0000-0002-7595-7996",
+      "0009-0005-7397-9277"
+    ],
+    "sources": [
+      "https://pub.orcid.org/v3.0/0000-0002-7595-7996/person",
+      "https://pub.orcid.org/v3.0/0009-0005-7397-9277/person",
+      "https://pub.orcid.org/v3.0/0000-0002-7595-7996/activities",
+      "https://pub.orcid.org/v3.0/0009-0005-7397-9277/activities"
+    ],
+    "dois": [
+      "10.1002/jnr.22367",
+      "10.1007/s00213-005-0174-5",
+      "10.1016/j.pbb.2011.10.025",
+      "10.1124/jpet.105.084459",
+      "10.1177/0269881107083639"
+    ],
+    "status": "reviewed_unresolved_identifier_ownership",
+    "reason": "Reviewed both ORCID owner records, available affiliations/works and publication author lists. Matching or abbreviated/transliterated names do not establish that the ORCID accounts belong to the same person or which identifier applies across this profile. Preserve the existing conflict flag; do not infer a merge from name alone.",
+    "public_record_affiliations": {
+      "0000-0002-7595-7996": [],
+      "0009-0005-7397-9277": []
+    },
+    "public_work_dois": {
+      "0000-0002-7595-7996": [],
+      "0009-0005-7397-9277": []
+    }
+  },
+  {
+    "profile": "https://openalex.org/A5100367445",
+    "name": "Gang Wang",
+    "authorships_reviewed": 2,
+    "observed_orcids": [
+      "0000-0003-1499-2031",
+      "0009-0001-6266-0026"
+    ],
+    "sources": [
+      "https://pub.orcid.org/v3.0/0000-0003-1499-2031/person",
+      "https://pub.orcid.org/v3.0/0009-0001-6266-0026/person",
+      "https://pub.orcid.org/v3.0/0000-0003-1499-2031/activities",
+      "https://pub.orcid.org/v3.0/0009-0001-6266-0026/activities"
+    ],
+    "dois": [
+      "10.1016/j.jad.2019.02.044",
+      "10.1093/nsr/nwaf367"
+    ],
+    "status": "reviewed_unresolved_identifier_ownership",
+    "reason": "Reviewed both ORCID owner records, available affiliations/works and publication author lists. Matching or abbreviated/transliterated names do not establish that the ORCID accounts belong to the same person or which identifier applies across this profile. Preserve the existing conflict flag; do not infer a merge from name alone.",
+    "public_record_affiliations": {
+      "0000-0003-1499-2031": [],
+      "0009-0001-6266-0026": []
+    },
+    "public_work_dois": {
+      "0000-0003-1499-2031": [],
+      "0009-0001-6266-0026": []
+    }
+  },
+  {
+    "profile": "https://openalex.org/A5100417026",
+    "name": "Cheng Wang",
+    "authorships_reviewed": 5,
+    "observed_orcids": [
+      "0000-0002-8315-6232",
+      "0009-0006-5666-5329"
+    ],
+    "sources": [
+      "https://pub.orcid.org/v3.0/0000-0002-8315-6232/person",
+      "https://pub.orcid.org/v3.0/0009-0006-5666-5329/person",
+      "https://pub.orcid.org/v3.0/0000-0002-8315-6232/activities",
+      "https://pub.orcid.org/v3.0/0009-0006-5666-5329/activities"
+    ],
+    "dois": [
+      "10.1002/jat.1207",
+      "10.1016/j.neuro.2019.12.005",
+      "10.1016/j.reprotox.2004.10.003",
+      "10.1093/toxsci/kfp167",
+      "10.4172/2157-7609.1000151"
+    ],
+    "status": "reviewed_unresolved_identifier_ownership",
+    "reason": "Reviewed both ORCID owner records, available affiliations/works and publication author lists. Matching or abbreviated/transliterated names do not establish that the ORCID accounts belong to the same person or which identifier applies across this profile. Preserve the existing conflict flag; do not infer a merge from name alone.",
+    "public_record_affiliations": {
+      "0000-0002-8315-6232": [],
+      "0009-0006-5666-5329": [
+        {
+          "organization": {
+            "name": "Jilin Medical University",
+            "address": {
+              "city": "Jilin City",
+              "region": "Jilin",
+              "country": "CN"
+            },
+            "disambiguated-organization": {
+              "disambiguated-organization-identifier": "https://ror.org/03mzw7781",
+              "disambiguation-source": "ROR"
+            }
+          },
+          "department-name": null,
+          "role-title": null
+        }
+      ]
+    },
+    "public_work_dois": {
+      "0000-0002-8315-6232": [],
+      "0009-0006-5666-5329": []
+    }
+  },
+  {
+    "profile": "https://openalex.org/A5100603563",
+    "name": "Xiaoyuan Li",
+    "authorships_reviewed": 7,
+    "observed_orcids": [
+      "0000-0002-4483-1960",
+      "0000-0002-8328-3207"
+    ],
+    "sources": [
+      "https://pub.orcid.org/v3.0/0000-0002-4483-1960/person",
+      "https://pub.orcid.org/v3.0/0000-0002-8328-3207/person",
+      "https://pub.orcid.org/v3.0/0000-0002-4483-1960/activities",
+      "https://pub.orcid.org/v3.0/0000-0002-8328-3207/activities"
+    ],
+    "dois": [
+      "10.1016/j.biopsych.2010.12.015",
+      "10.1016/j.biopsych.2011.09.030",
+      "10.1016/j.biopsych.2018.12.014",
+      "10.1073/pnas.1814709116",
+      "10.1126/science.1190287",
+      "10.1172/jci130808",
+      "10.1176/appi.ajp.2018.17121368"
+    ],
+    "status": "reviewed_unresolved_identifier_ownership",
+    "reason": "Reviewed both ORCID owner records, available affiliations/works and publication author lists. Matching or abbreviated/transliterated names do not establish that the ORCID accounts belong to the same person or which identifier applies across this profile. Preserve the existing conflict flag; do not infer a merge from name alone.",
+    "public_record_affiliations": {
+      "0000-0002-8328-3207": [],
+      "0000-0002-4483-1960": []
+    },
+    "public_work_dois": {
+      "0000-0002-8328-3207": [
+        "10.3390/vetsci12020165"
+      ],
+      "0000-0002-4483-1960": [
+        "10.1016/j.euroneuro.2019.11.002",
+        "10.1172/JCI130808"
+      ]
+    }
+  },
+  {
+    "profile": "https://openalex.org/A5100657954",
+    "name": "Yang Lu",
+    "authorships_reviewed": 2,
+    "observed_orcids": [
+      "0000-0003-0004-0486",
+      "0000-0003-1012-6494"
+    ],
+    "sources": [
+      "https://pub.orcid.org/v3.0/0000-0003-0004-0486/person",
+      "https://pub.orcid.org/v3.0/0000-0003-1012-6494/person",
+      "https://pub.orcid.org/v3.0/0000-0003-0004-0486/activities",
+      "https://pub.orcid.org/v3.0/0000-0003-1012-6494/activities"
+    ],
+    "dois": [
+      "10.1016/j.neuroscience.2017.03.057",
+      "10.3389/fnins.2020.576813"
+    ],
+    "status": "reviewed_unresolved_identifier_ownership",
+    "reason": "Reviewed both ORCID owner records, available affiliations/works and publication author lists. Matching or abbreviated/transliterated names do not establish that the ORCID accounts belong to the same person or which identifier applies across this profile. Preserve the existing conflict flag; do not infer a merge from name alone.",
+    "public_record_affiliations": {
+      "0000-0003-1012-6494": [],
+      "0000-0003-0004-0486": []
+    },
+    "public_work_dois": {
+      "0000-0003-1012-6494": [],
+      "0000-0003-0004-0486": []
+    }
+  },
+  {
+    "profile": "https://openalex.org/A5113861251",
+    "name": "Yeow Kuan Chong",
+    "authorships_reviewed": 2,
+    "observed_orcids": [
+      "0000-0003-2743-2316",
+      "0009-0006-7700-5856"
+    ],
+    "sources": [
+      "https://pub.orcid.org/v3.0/0000-0003-2743-2316/person",
+      "https://pub.orcid.org/v3.0/0009-0006-7700-5856/person",
+      "https://pub.orcid.org/v3.0/0000-0003-2743-2316/activities",
+      "https://pub.orcid.org/v3.0/0009-0006-7700-5856/activities"
+    ],
+    "dois": [
+      "10.1016/j.forsciint.2018.07.014",
+      "10.1016/j.forsciint.2020.110327"
+    ],
+    "status": "reviewed_corrected_wrong_owner",
+    "reason": "Rejected ORCID identifies Yuling Chong at Kunming University; corpus author is Yeow-Kuan Chong and paper credits Y.K. Chong in the established forensic author team."
+  },
+  {
+    "profile": "https://openalex.org/A5120143119",
+    "name": "Hongjun Tian",
+    "authorships_reviewed": 5,
+    "observed_orcids": [
+      "0000-0002-3919-3749",
+      "0000-0003-0417-5759"
+    ],
+    "sources": [
+      "https://pub.orcid.org/v3.0/0000-0002-3919-3749/person",
+      "https://pub.orcid.org/v3.0/0000-0003-0417-5759/person",
+      "https://pub.orcid.org/v3.0/0000-0002-3919-3749/activities",
+      "https://pub.orcid.org/v3.0/0000-0003-0417-5759/activities"
+    ],
+    "dois": [
+      "10.1002/brb3.1600",
+      "10.1016/j.psychres.2020.112907",
+      "10.1080/24750573.2019.1699726",
+      "10.3389/fnbeh.2021.771975",
+      "10.3760/cma.j.issn.1674-6554.2019.03.018"
+    ],
+    "status": "reviewed_unresolved_identifier_ownership",
+    "reason": "Reviewed both ORCID owner records, available affiliations/works and publication author lists. Matching or abbreviated/transliterated names do not establish that the ORCID accounts belong to the same person or which identifier applies across this profile. Preserve the existing conflict flag; do not infer a merge from name alone.",
+    "public_record_affiliations": {
+      "0000-0003-0417-5759": [
+        {
+          "organization": {
+            "name": "Tianjin 4th Central Hospital",
+            "address": {
+              "city": "Tianjin",
+              "region": "Hebei District, Tianjin",
+              "country": "CN"
+            },
+            "disambiguated-organization": {
+              "disambiguated-organization-identifier": "159424",
+              "disambiguation-source": "RINGGOLD"
+            }
+          },
+          "department-name": null,
+          "role-title": "director"
+        },
+        {
+          "organization": {
+            "name": "Tianjin 4th Central Hospital",
+            "address": {
+              "city": "Tianjin",
+              "region": "Tianjin",
+              "country": "CN"
+            },
+            "disambiguated-organization": {
+              "disambiguated-organization-identifier": "159424",
+              "disambiguation-source": "RINGGOLD"
+            }
+          },
+          "department-name": null,
+          "role-title": null
+        },
+        {
+          "organization": {
+            "name": "Tianjin 4th Central Hospital",
+            "address": {
+              "city": "Tianjin",
+              "region": "Tianjin",
+              "country": "CN"
+            },
+            "disambiguated-organization": {
+              "disambiguated-organization-identifier": "159424",
+              "disambiguation-source": "RINGGOLD"
+            }
+          },
+          "department-name": null,
+          "role-title": null
+        }
+      ],
+      "0000-0002-3919-3749": [
+        {
+          "organization": {
+            "name": "Tongji University",
+            "address": {
+              "city": "Shanghai",
+              "region": "Shanghai",
+              "country": "CN"
+            },
+            "disambiguated-organization": {
+              "disambiguated-organization-identifier": "12476",
+              "disambiguation-source": "RINGGOLD"
+            }
+          },
+          "department-name": "college of electric and information engineering",
+          "role-title": "Doctor"
+        }
+      ]
+    },
+    "public_work_dois": {
+      "0000-0003-0417-5759": [],
+      "0000-0002-3919-3749": [
+        "10.1002/cpe.70924",
+        "10.3390/sym18071123",
+        "10.3390/photonics13050429",
+        "10.31881/TLR.2026.2235",
+        "10.1002/cpe.70719",
+        "10.3390/s26041313",
+        "10.3390/jmse14040384",
+        "10.3390/jmse14010082",
+        "10.3390/jmse13081593",
+        "10.1155/2016/6761545"
+      ]
+    }
+  }
+]

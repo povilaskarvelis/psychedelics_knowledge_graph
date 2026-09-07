@@ -39,6 +39,7 @@ const explorerFocusPath = document.getElementById("explorerFocusPath");
 const explorerFocusBack = document.getElementById("explorerFocusBack");
 const explorerFocusParent = document.getElementById("explorerFocusParent");
 const explorerFocusCurrent = document.getElementById("explorerFocusCurrent");
+const researchStatus = document.getElementById("researchStatus");
 const compareContext = document.getElementById("compareContext");
 const compareKindToggle = document.querySelector("[data-compare-kind-toggle]");
 const compareKindButtons = document.querySelectorAll("[data-compare-kind]");
@@ -50,6 +51,7 @@ const GRAPH_PAYLOAD_PUBLIC_PREVIEW_POINTER_URL = "/__preview__/published.json";
 const GRAPH_PAYLOAD_LOCAL_POINTER_URL = "/__preview__/active.json";
 const LOCAL_GRAPH_DATA_HOSTS = new Set(["", "localhost", "127.0.0.1", "::1"]);
 const LOCAL_DATA_SOURCE_QUERY_PARAMETER = "data-source";
+const CURRENT_RELEASE_VERSION = document.querySelector('meta[name="kg-release"]')?.content || "";
 
 if (tooltip && tooltip.parentElement !== document.body) {
   document.body.appendChild(tooltip);
@@ -89,11 +91,6 @@ const COMPARE_EVIDENCE_SOURCES = Object.freeze([
   { key: "meta_analyses", label: "Meta-analyses" },
   { key: "reviews", label: "Reviews" },
 ]);
-const ANALYSIS_EVIDENCE_COLORS = Object.freeze({
-  primary: "#55b7ab",
-  meta_analyses: "#a88bd1",
-  reviews: "#82a9d8",
-});
 const ANALYSIS_COMPARISON_COLORS = Object.freeze([
   "#55b7ab",
   "#82a9d8",
@@ -158,6 +155,11 @@ const CATEGORY_COLORS = [
   "#766a7b",
   "#79716a",
 ];
+const ANALYSIS_EVIDENCE_COLORS = Object.freeze({
+  primary: CATEGORY_COLORS[0],
+  meta_analyses: CATEGORY_COLORS[2],
+  reviews: CATEGORY_COLORS[1],
+});
 const PALETTE_BLUE_FIRST = CATEGORY_COLORS;
 const PALETTE_TEAL_FIRST = CATEGORY_COLORS;
 const PALETTE_ROSE_FIRST = CATEGORY_COLORS;
@@ -485,6 +487,7 @@ let explorerFocus = null;
 let explorerAreaKey = "";
 let explorerFocusNetworkOrder = "areas";
 let explorerFocusRelationshipKey = "";
+let explorerFocusTimelineView = "areas";
 let explorerScopeAreaKey = "";
 let explorerScopeConceptKey = "";
 let explorerVisibleRowCount = EXPLORER_INITIAL_ROW_LIMIT;
@@ -512,12 +515,14 @@ let activeAnalysisIndexResult = null;
 let activeAnalysisIndexQueryKey = "";
 let analysisClaimsByStudyMemo = null;
 const analysisIndexQueryCache = new Map();
+const analysisIndexQueryTasks = new Map();
 const ANALYSIS_INDEX_QUERY_CACHE_LIMIT = 36;
 let compareKind = "evidence";
 let compareSelection = null;
 let analysisPublicationMode = "volume";
 let analysisPublicationCompoundKey = "";
 let analysisPublicationAreaKey = "";
+let analysisPublicationRenderSerial = 0;
 let renderScheduled = false;
 let findingSearchTimer = 0;
 let findingSearchRenderToken = 0;
@@ -531,6 +536,10 @@ let activeDetailItems = [];
 let activeDetailAllAccessItems = [];
 let detailGraphFilter = null;
 let accessView = "open";
+let restoringExplorerUrlState = false;
+let sharedViewWarnings = [];
+let sharedViewRelease = "";
+let sharedViewStatusTimer = 0;
 const chartVisibleCounts = new Map();
 const DEFAULT_RANKED_CHART_VISIBLE_COUNT = 10;
 const RANKED_CHART_EXPANSION_STEP = 10;
@@ -1607,11 +1616,18 @@ function defaultYearFilterRange(bounds) {
   };
 }
 
+function yearFilterBounds(data) {
+  // Analyze shares one date range across paper types and entity profiles.
+  // A narrower selection must not clamp that range or widen an empty result.
+  const corpus = explorerMode === "analysis" ? claimStores.normalized.bySource.all : null;
+  return yearBoundsFromClaims(corpus?.length ? corpus.filter((claim) => !isHiddenMainGraphItem(claim)) : data);
+}
+
 function syncYearFilterControls(data, forceReset = false) {
   if (!yearMinFilter || !yearMaxFilter) return;
   const filterKey = currentYearFilterKey();
 
-  const bounds = yearBoundsFromClaims(data);
+  const bounds = yearFilterBounds(data);
   if (!bounds) {
     yearMinFilter.value = "";
     yearMaxFilter.value = "";
@@ -1660,7 +1676,7 @@ function activeYearRange(data) {
     return { constrained: false, min: null, max: null };
   }
 
-  const bounds = yearBoundsFromClaims(data);
+  const bounds = yearFilterBounds(data);
   if (!bounds) {
     return { constrained: false, min: null, max: null };
   }
@@ -3636,6 +3652,7 @@ function clearSelection() {
   clearSelectedStyles();
   clearDetailForTransition();
   hideTooltip();
+  updateExplorerUrlState({ history: "push" });
   scheduleRender();
 }
 
@@ -6255,11 +6272,11 @@ function renderTrendStats(
         type="button"
         data-access-view="open"
         aria-pressed="${accessView === "open" ? "true" : "false"}"
-        aria-label="Show ${escapeHtml(labels.plural)} extracted from full text. ${formatCompactNumber(
+        aria-label="Show open access ${escapeHtml(labels.plural)}. ${formatCompactNumber(
           openAccessStudyCount
         )}, ${openAccessPercent}% of ${escapeHtml(labels.plural)}."
       >
-        <span>Full-text extraction</span>
+        <span>Open access</span>
         <strong>${formatCompactNumber(openAccessStudyCount)}</strong>
         <small>${openAccessPercent}% of ${escapeHtml(labels.plural)}</small>
       </button>
@@ -7433,7 +7450,7 @@ function selectExplorerSearchEntry(entry) {
   explorerAreaKey = explorerScopeAreaKey || "";
   compareSelection = null;
   updateExplorerControls();
-  updateExplorerUrlState();
+  updateExplorerUrlState({ history: "push" });
   loadAnalysisAndRender({ resetYears: false });
 }
 
@@ -7548,7 +7565,7 @@ function syncAnalysisScopeControls() {
     explorerScopeConceptSelect.disabled = !explorerScopeAreaKey;
     explorerScopeConceptSelect.innerHTML = explorerScopeAreaKey
       ? `<option value="">All topics</option>${concepts.map((concept) => `<option value="${escapeHtml(concept.key)}">${escapeHtml(`${concept.label} (${formatCompactNumber(concept.count)})`)}</option>`).join("")}`
-      : '<option value="">Choose a research area first</option>';
+      : '<option value="">All topics</option>';
     explorerScopeConceptSelect.value = explorerScopeConceptKey;
   }
   if (explorerScopeClear) explorerScopeClear.hidden = false;
@@ -7576,7 +7593,7 @@ function explorerBaseFilteredClaims(options = {}) {
         ignoreAccess: Boolean(options.ignoreAccess),
       }).filter(isMainGraphAdmitted);
   const entityClaims = explorerLens === "compound" ? filteredClaims.filter(claimHasAnalysisCompound) : filteredClaims;
-  return researchFilterClaims(indexed ? entityClaims : analysisClaimsWithCurrentEntity(entityClaims));
+  return indexed ? entityClaims : analysisClaimsWithCurrentEntity(entityClaims);
 }
 
 function explorerFilteredClaims(options = {}) {
@@ -7801,41 +7818,146 @@ function explorerRowForFocus(matrix) {
   return matrix.entries.find((entry) => entry.key === explorerFocus.key) || null;
 }
 
-function updateExplorerUrlState() {
-  const url = new URL(window.location.href);
-  if (explorerMode === "overview") {
-    url.searchParams.delete("mode");
-    url.searchParams.delete("section");
-    url.searchParams.delete("lens");
-    url.searchParams.delete("focus");
-    url.searchParams.delete("area");
-    url.searchParams.delete("scope-area");
-    url.searchParams.delete("concept");
-    url.searchParams.delete("papers");
-    url.searchParams.delete("access");
-    url.searchParams.delete("compare");
-    url.searchParams.delete("view");
-  } else {
-    url.searchParams.set("mode", "analysis");
-    url.searchParams.set("section", explorerLens);
-    url.searchParams.delete("lens");
-    if (explorerFocus?.key) url.searchParams.set("focus", explorerFocus.key);
-    else url.searchParams.delete("focus");
-    if (explorerAreaKey) url.searchParams.set("area", explorerAreaKey);
-    else url.searchParams.delete("area");
-    if (explorerScopeAreaKey) url.searchParams.set("scope-area", explorerScopeAreaKey);
-    else url.searchParams.delete("scope-area");
-    if (explorerScopeConceptKey) url.searchParams.set("concept", explorerScopeConceptKey);
-    else url.searchParams.delete("concept");
-    if (evidenceView !== "all") url.searchParams.set("papers", evidenceView);
-    else url.searchParams.delete("papers");
-    if (accessView !== "all") url.searchParams.set("access", accessView);
-    else url.searchParams.delete("access");
-    url.searchParams.delete("compare");
-    url.searchParams.delete("view");
+function graphSelectionForViewState() {
+  if (selected?.type === "compound" && selected.name) {
+    return { kind: "compound", compound: selected.name };
   }
-  researchUrlState(url);
-  window.history.replaceState(null, "", url);
+  if (selected?.type === "target" && selected.name) {
+    return { kind: "target", target: selected.name };
+  }
+  if (selected?.type === "edge" && selected.compound && selected.target) {
+    return { kind: "edge", compound: selected.compound, target: selected.target };
+  }
+  return null;
+}
+
+function viewStateGraphSelection(value) {
+  if (value?.kind === "compound") return { type: "compound", name: value.compound };
+  if (value?.kind === "target") return { type: "target", name: value.target };
+  if (value?.kind === "edge") return { type: "edge", compound: value.compound, target: value.target };
+  return null;
+}
+
+function meaningfulCoverageState() {
+  const state = researchCaptureState();
+  return state.axes.join() !== "population,design" || state.queries.some(Boolean) || state.cell
+    ? state
+    : null;
+}
+
+function captureExplorerViewState({ forSharing = false } = {}) {
+  if (explorerMode === "overview") {
+    const sourceClaims = activeClaimsForMode();
+    const range = activeYearRange(sourceClaims);
+    const graphSelection = graphSelectionForViewState();
+    const isDefault =
+      currentEntityViewKey() === "condition_indication" &&
+      evidenceView === "primary" &&
+      accessView === "open" &&
+      !range.constrained &&
+      !graphSelection;
+    if (isDefault) return null;
+    return {
+      mode: "overview",
+      view: currentEntityViewKey() === "condition_indication" ? "" : currentEntityViewKey(),
+      papers: evidenceView === "primary" ? "" : evidenceView,
+      access: accessView === "open" ? "" : accessView,
+      from: range.constrained ? range.min : "",
+      to: range.constrained ? range.max : "",
+      graphSelection,
+      release: forSharing ? CURRENT_RELEASE_VERSION : sharedViewRelease,
+    };
+  }
+
+  return {
+    mode: "analysis",
+    section: explorerLens,
+    papers: evidenceView === "all" ? "" : evidenceView,
+    access: accessView === "all" ? "" : accessView,
+    from: yearMinFilter?.value || "",
+    to: yearMaxFilter?.value || "",
+    focus: explorerFocus?.key || "",
+    area: explorerAreaKey,
+    scopeArea: explorerScopeAreaKey,
+    concept: explorerScopeConceptKey,
+    coverage: meaningfulCoverageState(),
+    result: compareSelection,
+    networkOrder: explorerFocusNetworkOrder === "areas" ? "" : explorerFocusNetworkOrder,
+    relationship: explorerFocusRelationshipKey,
+    focusTimelineView: explorerFocusTimelineView === "areas" ? "" : normalizedExplorerFocusTimelineView(),
+    momentum: explorerMomentumWindowYears === 5 ? null : explorerMomentumWindowYears,
+    publicationMode: analysisPublicationMode === "volume" ? "" : analysisPublicationMode,
+    publicationCompound: analysisPublicationCompoundKey,
+    publicationArea: analysisPublicationAreaKey,
+    release: forSharing ? CURRENT_RELEASE_VERSION : sharedViewRelease,
+  };
+}
+
+function explorerViewUrl({ forSharing = false } = {}) {
+  const canonicalHref = document.querySelector('link[rel="canonical"]')?.href;
+  const base = forSharing && canonicalHref ? new URL(canonicalHref) : new URL(window.location.href);
+  if (!forSharing) PKGViewState.clear(base);
+  return PKGViewState.write(base, captureExplorerViewState({ forSharing }));
+}
+
+function explorerViewTitle() {
+  const focus = explorerMode === "analysis" ? explorerFocus?.label || explorerFocus?.key : graphSelectionLabel(selected);
+  if (focus && focus !== "this selection") return `${focus} · Psychedelics Knowledge Graph`;
+  if (explorerMode === "analysis") return "Analyze · Psychedelics Knowledge Graph";
+  const view = ENTITY_CATEGORY_OPTIONS.find((option) => option.key === currentEntityViewKey());
+  return view && view.key !== "condition_indication"
+    ? `${view.label} · Psychedelics Knowledge Graph`
+    : "Psychedelics Knowledge Graph";
+}
+
+function updateExplorerUrlState({ history = "replace" } = {}) {
+  const url = explorerViewUrl();
+  document.title = explorerViewTitle();
+  if (restoringExplorerUrlState || url.href === window.location.href) return url;
+  const method = history === "push" ? "pushState" : "replaceState";
+  window.history[method](null, "", url);
+  return url;
+}
+
+function announceSharedView(message, { duration = 2600 } = {}) {
+  if (!researchStatus) return;
+  if (sharedViewStatusTimer) window.clearTimeout(sharedViewStatusTimer);
+  researchStatus.textContent = message;
+  sharedViewStatusTimer = window.setTimeout(() => {
+    researchStatus.textContent = "";
+    sharedViewStatusTimer = 0;
+  }, duration);
+}
+
+function copyTextFallback(value) {
+  const textarea = document.createElement("textarea");
+  textarea.value = value;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  const copied = document.execCommand("copy");
+  textarea.remove();
+  return copied;
+}
+
+async function copyExplorerViewLink() {
+  const url = explorerViewUrl({ forSharing: true });
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(url.href);
+    } else if (!copyTextFallback(url.href)) {
+      throw new Error("Clipboard unavailable");
+    }
+    announceSharedView("Link copied");
+  } catch (_) {
+    if (copyTextFallback(url.href)) {
+      announceSharedView("Link copied");
+    } else {
+      announceSharedView("Copy the page address to share this view.");
+    }
+  }
 }
 
 function updateExplorerControls() {
@@ -7868,6 +7990,7 @@ function updateExplorerControls() {
   if (evidenceViewToggle) evidenceViewToggle.hidden = inAnalysis;
   if (allEvidenceViewButton) allEvidenceViewButton.hidden = true;
   if (explorerWorkspace) explorerWorkspace.dataset.workspaceMode = explorerMode;
+  document.body.dataset.workspaceMode = explorerMode;
   if (graphDetail) graphDetail.hidden = explorerMode !== "overview";
   if (!inAnalysis || !inEntitySection || hasEntityFocus) closeExplorerSearchOptions();
   researchUpdateControls();
@@ -8038,6 +8161,21 @@ function analyticsYearCountsFromYears(years, minYear, maxYear) {
   );
 }
 
+function analyticsTopRoundedBarPath(x, y, width, height, preferredRadius = 2.5) {
+  const radius = Math.max(0, Math.min(preferredRadius, width / 2, height / 2));
+  const right = x + width;
+  const bottom = y + height;
+  return [
+    `M ${x.toFixed(2)} ${bottom.toFixed(2)}`,
+    `V ${(y + radius).toFixed(2)}`,
+    `Q ${x.toFixed(2)} ${y.toFixed(2)} ${(x + radius).toFixed(2)} ${y.toFixed(2)}`,
+    `H ${(right - radius).toFixed(2)}`,
+    `Q ${right.toFixed(2)} ${y.toFixed(2)} ${right.toFixed(2)} ${(y + radius).toFixed(2)}`,
+    `V ${bottom.toFixed(2)}`,
+    "Z",
+  ].join(" ");
+}
+
 function renderAnalyticsGroupedYearHistogram(series, options = {}) {
   const activeSeries = series.filter((entry) => entry?.items?.length);
   const years = analyticsStudyYears(activeSeries.flatMap((entry) => entry.items));
@@ -8067,8 +8205,9 @@ function renderAnalyticsGroupedYearHistogram(series, options = {}) {
       const x = margin.left + yearIndex * slotWidth + (slotWidth - clusterWidth) / 2 + seriesIndex * barWidth;
       const barHeight = (value / maxCount) * plotHeight;
       const y = margin.top + plotHeight - barHeight;
+      const renderedWidth = Math.max(0.65, barWidth - 0.35);
       const dataAttributes = entry.dataAttributes || "";
-      return `<rect class="analytics-histogram-bar ${entry.key === options.selectedKey ? "is-selected" : ""}" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${Math.max(0.65, barWidth - 0.35).toFixed(2)}" height="${barHeight.toFixed(2)}" rx="0.7" style="--series-color:${entry.color}" ${dataAttributes}><title>${escapeHtml(`${entry.label}, ${year}: ${value} unique ${value === 1 ? "paper" : "papers"}`)}</title></rect>`;
+      return `<path class="analytics-histogram-bar ${entry.key === options.selectedKey ? "is-selected" : ""}" d="${analyticsTopRoundedBarPath(x, y, renderedWidth, barHeight)}" style="--series-color:${entry.color}" ${dataAttributes}><title>${escapeHtml(`${entry.label}, ${year}: ${value} unique ${value === 1 ? "paper" : "papers"}`)}</title></path>`;
     }).join("")
   ).join("");
   const yGrid = [0, 0.25, 0.5, 0.75, 1].map((ratio) => {
@@ -8085,9 +8224,9 @@ function renderAnalyticsGroupedYearHistogram(series, options = {}) {
   const baselineY = margin.top + plotHeight;
   const xAxis = `<line x1="${margin.left}" x2="${width - margin.right}" y1="${baselineY}" y2="${baselineY}" class="analytics-year-axis"></line>${xTicks}<text x="${margin.left + plotWidth / 2}" y="${height - 20}" class="analytics-axis-title analytics-year-axis-title" text-anchor="middle">Publication year</text>`;
   return `
-    <div class="analytics-chart-legend compare-series-legend">
+    ${options.showLegend === false ? "" : `<div class="analytics-chart-legend compare-series-legend">
       ${seriesWithValues.map((entry) => `<span style="--series-color:${entry.color}"><i></i>${escapeHtml(entry.label)}</span>`).join("")}
-    </div>
+    </div>`}
     <svg class="analytics-timeline-svg analytics-histogram-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(options.ariaLabel || "Publications per year")}">${yGrid}${bars}${xAxis}</svg>
   `;
 }
@@ -8859,6 +8998,7 @@ function renderExplorerMatrix(matrix, items, allAccessItems) {
       ${coverage.html}
     </div>
   `;
+  researchAppendCoverage(graphEl.firstElementChild);
   autosizeExplorerWorkspace(graphEl.firstElementChild, coverage.height);
   activeDetailItems = items;
   activeDetailAllAccessItems = allAccessItems;
@@ -8870,6 +9010,7 @@ function renderExplorerMatrix(matrix, items, allAccessItems) {
       detailToken !== explorerRenderToken ||
       explorerMode !== "analysis" ||
       explorerFocus ||
+      researchCoverageCell ||
       !isAnalysisEntitySection()
     ) return;
     renderExplorerOverviewDetail(items, allAccessItems);
@@ -9124,43 +9265,186 @@ function explorerFocusHierarchyProfile(row, selectedArea) {
   };
 }
 
+function analyticsPartitionStackSeries(items, candidates, selectedKey = "", limit = 5) {
+  const ranked = candidates.filter((entry) => entry?.items?.length);
+  let displayed = ranked.slice(0, limit);
+  const selected = selectedKey ? ranked.find((entry) => entry.key === selectedKey) : null;
+  if (selected && !displayed.some((entry) => entry.key === selected.key)) {
+    displayed = [...displayed.slice(0, Math.max(0, limit - 1)), selected];
+  }
+  const paperByKey = new Map();
+  const paperKeyByClaim = new WeakMap();
+  items.forEach((claim, index) => {
+    const key = studyKey(claim, index);
+    paperKeyByClaim.set(claim, key);
+    if (!paperByKey.has(key)) paperByKey.set(key, { claim, scores: Array(displayed.length).fill(0) });
+  });
+  displayed.forEach((entry, seriesIndex) => {
+    entry.items.forEach((claim) => {
+      const key = paperKeyByClaim.get(claim);
+      const paper = key ? paperByKey.get(key) : null;
+      if (paper) paper.scores[seriesIndex] += 1;
+    });
+  });
+  const partitioned = displayed.map((entry) => ({ ...entry, items: [] }));
+  const otherItems = [];
+  paperByKey.forEach((paper) => {
+    let bestIndex = -1;
+    let bestScore = 0;
+    paper.scores.forEach((score, index) => {
+      if (score > bestScore) {
+        bestIndex = index;
+        bestScore = score;
+      }
+    });
+    if (bestIndex >= 0) partitioned[bestIndex].items.push(paper.claim);
+    else otherItems.push(paper.claim);
+  });
+  if (otherItems.length) {
+    partitioned.push({ key: "other", label: "Other", color: "#7f8c8a", items: otherItems });
+  }
+  return partitioned.filter((entry) => entry.items.length);
+}
+
+function renderAnalyticsStackedYearHistogram(series, options = {}) {
+  const activeSeries = series.filter((entry) => entry?.items?.length);
+  const years = analyticsStudyYears(activeSeries.flatMap((entry) => entry.items));
+  if (!years.length || !activeSeries.length) {
+    return '<div class="analytics-empty compact">No publication years available.</div>';
+  }
+  const minYear = Math.min(...years);
+  const maxYear = Math.max(...years);
+  const yearCount = Math.max(1, maxYear - minYear + 1);
+  const width = 760;
+  const height = 318;
+  const margin = { top: 18, right: 24, bottom: 68, left: 46 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
+  const slotWidth = plotWidth / yearCount;
+  const barWidth = Math.max(1.5, Math.min(18, slotWidth * 0.74));
+  const seriesWithValues = activeSeries.map((entry) => ({
+    ...entry,
+    values: analyticsYearCounts(entry.items, minYear, maxYear),
+  }));
+  const totals = Array.from({ length: yearCount }, (_value, yearIndex) =>
+    seriesWithValues.reduce((sum, entry) => sum + (entry.values[yearIndex] || 0), 0)
+  );
+  const maxTotal = Math.max(1, ...totals);
+  const baselineY = margin.top + plotHeight;
+  const chartRenderId = ++analysisPublicationRenderSerial;
+  const clipDefs = totals.map((total, yearIndex) => {
+    if (!total) return "";
+    const x = margin.left + yearIndex * slotWidth + (slotWidth - barWidth) / 2;
+    const barHeight = (total / maxTotal) * plotHeight;
+    return `<clipPath id="focus-publication-bar-${chartRenderId}-${yearIndex}" clipPathUnits="userSpaceOnUse"><path d="${analyticsTopRoundedBarPath(x, baselineY - barHeight, barWidth, barHeight)}"></path></clipPath>`;
+  }).join("");
+  const bars = totals.map((total, yearIndex) => {
+    if (!total) return "";
+    const year = minYear + yearIndex;
+    const x = margin.left + yearIndex * slotWidth + (slotWidth - barWidth) / 2;
+    let stackedHeight = 0;
+    const segments = seriesWithValues.map((entry) => {
+      const count = entry.values[yearIndex] || 0;
+      if (!count) return "";
+      const segmentHeight = (count / maxTotal) * plotHeight;
+      const y = baselineY - stackedHeight - segmentHeight;
+      stackedHeight += segmentHeight;
+      return `<rect class="analysis-publication-segment" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${segmentHeight.toFixed(2)}" style="--series-color:${entry.color}"></rect>`;
+    }).join("");
+    const breakdown = seriesWithValues
+      .map((entry) => `${entry.label}: ${entry.values[yearIndex] || 0}`)
+      .filter((label) => !label.endsWith(": 0"))
+      .join(", ");
+    const aria = `${year}: ${total} unique ${total === 1 ? "paper" : "papers"}; ${breakdown}`;
+    return `<g class="analysis-publication-year is-static" role="img" aria-label="${escapeHtml(aria)}"><title>${escapeHtml(aria)}</title><g clip-path="url(#focus-publication-bar-${chartRenderId}-${yearIndex})">${segments}</g></g>`;
+  }).join("");
+  const yGrid = [0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+    const y = margin.top + plotHeight - ratio * plotHeight;
+    return `<line x1="${margin.left}" x2="${width - margin.right}" y1="${y}" y2="${y}" class="analytics-gridline"></line><text x="${margin.left - 8}" y="${y + 3}" class="analytics-axis-label" text-anchor="end">${formatCompactNumber(Math.round(maxTotal * ratio))}</text>`;
+  }).join("");
+  const xTicks = [minYear, Math.round(minYear + (maxYear - minYear) * 0.25), Math.round((minYear + maxYear) / 2), Math.round(minYear + (maxYear - minYear) * 0.75), maxYear]
+    .filter((year, index, array) => array.indexOf(year) === index)
+    .map((year) => {
+      const x = margin.left + (year - minYear + 0.5) * slotWidth;
+      return `<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${baselineY}" y2="${baselineY + 6}" class="analytics-year-tick"></line><text x="${x.toFixed(1)}" y="${baselineY + 20}" class="analytics-axis-label analytics-year-label" text-anchor="middle">${year}</text>`;
+    }).join("");
+  const xAxis = `<line x1="${margin.left}" x2="${width - margin.right}" y1="${baselineY}" y2="${baselineY}" class="analytics-year-axis"></line>${xTicks}<text x="${margin.left + plotWidth / 2}" y="${height - 20}" class="analytics-axis-title analytics-year-axis-title" text-anchor="middle">Publication year</text>`;
+  return `
+    <div class="analytics-chart-legend compare-series-legend">
+      ${seriesWithValues.map((entry) => `<span style="--series-color:${entry.color}"><i></i>${escapeHtml(entry.label)}</span>`).join("")}
+    </div>
+    <svg class="analytics-timeline-svg analytics-histogram-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(options.ariaLabel || "Stacked publications per year")}"><defs>${clipDefs}</defs>${yGrid}${bars}${xAxis}</svg>
+  `;
+}
+
+function explorerFocusTimelineOptions() {
+  const options = [{ key: "areas", label: explorerScopeAreaKey ? "Topics" : "Areas" }];
+  if (["author", "journal"].includes(explorerLens)) {
+    options.push({ key: "compounds", label: "Compounds" });
+  }
+  return options;
+}
+
+function normalizedExplorerFocusTimelineView() {
+  const options = explorerFocusTimelineOptions();
+  return options.some((option) => option.key === explorerFocusTimelineView)
+    ? explorerFocusTimelineView
+    : "areas";
+}
+
+function renderExplorerFocusTimelineToggle() {
+  const options = explorerFocusTimelineOptions();
+  if (options.length < 2) return "";
+  return `
+    <div class="analytics-focus-timeline-toolbar">
+      <div class="analytics-compact-toggle analytics-focus-history-mode" role="group" aria-label="Publication history breakdown">
+        ${options.map((option) => `<button type="button" class="${explorerFocusTimelineView === option.key ? "active" : ""}" data-explorer-timeline-view="${option.key}" aria-pressed="${explorerFocusTimelineView === option.key}">${escapeHtml(option.label)}</button>`).join("")}
+      </div>
+    </div>
+  `;
+}
+
 function renderExplorerTimelineChart(row, selectedArea) {
-  if (explorerScopeAreaKey) {
+  explorerFocusTimelineView = normalizedExplorerFocusTimelineView();
+  let candidates = [];
+  let selectedKey = "";
+  let breakdownLabel = "research area";
+  if (explorerFocusTimelineView === "compounds") {
+    candidates = summarizeExplorerDetails(row.claims, Number.POSITIVE_INFINITY)
+      .map((compound, index) => ({
+        key: compound.key,
+        label: compound.label,
+        color: CATEGORY_COLORS[index % CATEGORY_COLORS.length],
+        items: compound.claims,
+      }));
+    breakdownLabel = "compound";
+  } else if (explorerScopeAreaKey) {
     const area = ENTITY_CATEGORY_OPTIONS.find((option) => option.key === explorerScopeAreaKey);
-    const concepts = area ? summarizeExplorerConcepts(row.claims, area.key).slice(0, 5) : [];
-    return renderAnalyticsGroupedYearHistogram(
-      concepts.map((concept, index) => ({
+    candidates = (area ? summarizeExplorerConcepts(row.claims, area.key, Number.POSITIVE_INFINITY) : [])
+      .map((concept, index) => ({
         key: concept.key,
         label: concept.label,
         color: CATEGORY_COLORS[index % CATEGORY_COLORS.length],
         items: concept.claims,
-      })),
-      {
-        selectedKey: explorerScopeConceptKey || "",
-        ariaLabel: `${row.label} publications per year by ${area?.lowerPlural || "topic"}`,
-      }
-    );
+      }));
+    selectedKey = explorerScopeConceptKey || "";
+    breakdownLabel = area?.singular?.toLowerCase() || "topic";
+  } else {
+    candidates = summarizeExplorerAreas(row.claims)
+      .map((area) => ({
+        ...area,
+        items: area.bucket.claims,
+        count: area.studyCount,
+        color: explorerAreaColor(area.key),
+      }))
+      .sort((left, right) => right.count - left.count);
+    selectedKey = selectedArea?.key || "";
   }
-  const availableAreas = summarizeExplorerAreas(row.claims)
-    .map((area) => ({ ...area, items: area.bucket.claims, count: area.studyCount }))
-    .sort((left, right) => right.count - left.count);
-  const selected = selectedArea ? availableAreas.find((area) => area.key === selectedArea.key) : null;
-  const series = [selected, ...availableAreas]
-    .filter(Boolean)
-    .filter((area, index, array) => array.findIndex((candidate) => candidate.key === area.key) === index)
-    .slice(0, 5);
-  return renderAnalyticsGroupedYearHistogram(
-    series.map((area) => ({
-      key: area.key,
-      label: area.label,
-      color: explorerAreaColor(area.key),
-      items: area.items,
-    })),
-    {
-      selectedKey: selectedArea?.key || "",
-      ariaLabel: `${row.label} publications per year by research area`,
-    }
-  );
+  const series = analyticsPartitionStackSeries(row.claims, candidates, selectedKey);
+  const chart = renderAnalyticsStackedYearHistogram(series, {
+    ariaLabel: `${row.label} total publications per year, stacked by ${breakdownLabel}`,
+  });
+  return `${renderExplorerFocusTimelineToggle()}${chart}`;
 }
 
 function explorerFocusTimelineMeta() {
@@ -9252,16 +9536,16 @@ function buildExplorerRelationshipNetwork(row, allAccessRow, relationships, rela
         }).filter((area) => area.studyCount > 0)
     ).map((entry) => [entry.key, entry])
   );
-  const width = 960;
-  const height = Math.max(760, 100 + Math.max(relationships.length * 54, dimensions.length * 54));
-  const rootX = 95;
-  const relationshipX = 385;
-  const dimensionX = 735;
+  const width = 820;
+  const height = Math.max(500, 76 + Math.max(relationships.length * 40, dimensions.length * 40));
+  const rootX = 80;
+  const relationshipX = 315;
+  const dimensionX = 610;
   const rootY = height / 2;
-  const relationshipTop = 48;
-  const relationshipStep = relationships.length > 1 ? (height - 96) / (relationships.length - 1) : 0;
-  const dimensionTop = 48;
-  const dimensionStep = dimensions.length > 1 ? (height - 96) / (dimensions.length - 1) : 0;
+  const relationshipTop = 38;
+  const relationshipStep = relationships.length > 1 ? (height - 76) / (relationships.length - 1) : 0;
+  const dimensionTop = 38;
+  const dimensionStep = dimensions.length > 1 ? (height - 76) / (dimensions.length - 1) : 0;
   const destinationLabel = conceptsVisible ? "topics" : "research areas";
   const svg = explorerSvgElement("svg", {
     viewBox: `0 0 ${width} ${height}`,
@@ -9290,13 +9574,13 @@ function buildExplorerRelationshipNetwork(row, allAccessRow, relationships, rela
   root.appendChild(explorerSvgElement("circle", { cx: rootX, cy: rootY, r: rootRadius.toFixed(2) }));
   const rootLabelY = rootY - rootRadius - 13;
   const rootLabel = explorerSvgElement("text", { x: rootX, y: rootLabelY, class: "explorer-focused-root-label" });
-  setWrappedSvgLabel(rootLabel, row.label, 170, rootX, rootLabelY, 3);
+  setWrappedSvgLabel(rootLabel, row.label, 150, rootX, rootLabelY, 3);
   root.appendChild(rootLabel);
   bindExplorerFocusedNode(root, `<strong>${escapeHtml(row.label)}</strong><br/><span class="tooltip-meta">${formatCompactNumber(row.studyCount)} source papers</span>`, () => {
     explorerFocus = null;
     explorerAreaKey = "";
     explorerFocusRelationshipKey = "";
-    updateExplorerUrlState();
+    updateExplorerUrlState({ history: "push" });
     updateExplorerControls();
     loadAnalysisAndRender({ resetYears: false });
   });
@@ -9321,7 +9605,7 @@ function buildExplorerRelationshipNetwork(row, allAccessRow, relationships, rela
     group.appendChild(explorerSvgElement("circle", { cx: relationshipX, cy: y, r: radius.toFixed(2) }));
     const labelX = relationshipX + Math.max(12, radius + 8);
     const label = explorerSvgElement("text", { x: labelX, y, class: "explorer-focused-label" });
-    setWrappedSvgLabel(label, entry.label, 180, labelX, y, 2);
+    setWrappedSvgLabel(label, entry.label, 165, labelX, y, 2);
     group.appendChild(label);
     bindExplorerFocusedNode(group, `<strong>${escapeHtml(entry.label)}</strong><br/><span class="tooltip-meta">${formatCompactNumber(entry.studyCount)} shared source papers</span>`, () => {
       explorerFocusRelationshipKey = entry.key;
@@ -9349,7 +9633,7 @@ function buildExplorerRelationshipNetwork(row, allAccessRow, relationships, rela
     group.appendChild(explorerSvgElement("circle", { cx: dimensionX, cy: y, r: radius.toFixed(2) }));
     const labelX = dimensionX + Math.max(12, radius + 8);
     const label = explorerSvgElement("text", { x: labelX, y, class: "explorer-focused-label" });
-    setWrappedSvgLabel(label, entry.label, 195, labelX, y, 2);
+    setWrappedSvgLabel(label, entry.label, 175, labelX, y, 2);
     group.appendChild(label);
     bindExplorerFocusedNode(group, `<strong>${escapeHtml(entry.label)}</strong><br/><span class="tooltip-meta">${formatCompactNumber(entry.studyCount)} source papers</span>`, () => {
       renderExplorerSelectionDetail(
@@ -9393,16 +9677,16 @@ function renderExplorerFocused(row, allAccessRow = row) {
   const allAccessDetails = new Map(
     summarizeExplorerDetails(allAccessAreaBucket.claims || [], Number.POSITIVE_INFINITY).map((detail) => [detail.key, detail])
   );
-  const width = 960;
-  const height = Math.max(760, 100 + Math.max(areas.length * 62, details.length * 46));
-  const rootX = 95;
-  const areaX = 385;
-  const detailX = 735;
+  const width = 820;
+  const height = Math.max(500, 76 + Math.max(areas.length * 44, details.length * 34));
+  const rootX = 80;
+  const areaX = 315;
+  const detailX = 610;
   const rootY = height / 2;
-  const areaTop = 48;
-  const areaStep = areas.length > 1 ? (height - 96) / (areas.length - 1) : 0;
-  const detailTop = 48;
-  const detailStep = details.length > 1 ? (height - 96) / (details.length - 1) : 0;
+  const areaTop = 38;
+  const areaStep = areas.length > 1 ? (height - 76) / (areas.length - 1) : 0;
+  const detailTop = 38;
+  const detailStep = details.length > 1 ? (height - 76) / (details.length - 1) : 0;
   const svg = explorerSvgElement("svg", { viewBox: `0 0 ${width} ${height}`, role: "group", "aria-label": `${row.label} across research areas` });
   const edgeLayer = explorerSvgElement("g");
   const nodeLayer = explorerSvgElement("g");
@@ -9426,12 +9710,12 @@ function renderExplorerFocused(row, allAccessRow = row) {
   root.appendChild(explorerSvgElement("circle", { cx: rootX, cy: rootY, r: rootRadius.toFixed(2) }));
   const rootLabelY = rootY - rootRadius - 13;
   const rootLabel = explorerSvgElement("text", { x: rootX, y: rootLabelY, class: "explorer-focused-root-label" });
-  setWrappedSvgLabel(rootLabel, row.label, 170, rootX, rootLabelY, 3);
+  setWrappedSvgLabel(rootLabel, row.label, 150, rootX, rootLabelY, 3);
   root.appendChild(rootLabel);
   bindExplorerFocusedNode(root, `<strong>${escapeHtml(row.label)}</strong><br/><span class="tooltip-meta">${formatCompactNumber(row.studyCount)} source papers · ${formatCompactNumber(row.areaCount)} research areas</span>`, () => {
     explorerFocus = null;
     explorerAreaKey = "";
-    updateExplorerUrlState();
+    updateExplorerUrlState({ history: "push" });
     updateExplorerControls();
     loadAnalysisAndRender({ resetYears: false });
   });
@@ -9456,11 +9740,11 @@ function renderExplorerFocused(row, allAccessRow = row) {
     group.appendChild(explorerSvgElement("circle", { cx: areaX, cy: y, r: radius.toFixed(2) }));
     const labelX = areaX + Math.max(12, radius + 8);
     const label = explorerSvgElement("text", { x: labelX, y, class: "explorer-focused-label" });
-    setWrappedSvgLabel(label, area.label, 178, labelX, y, 2);
+    setWrappedSvgLabel(label, area.label, 165, labelX, y, 2);
     group.appendChild(label);
     bindExplorerFocusedNode(group, `<strong>${escapeHtml(area.label)}</strong><br/><span class="tooltip-meta">${formatCompactNumber(area.studyCount)} source papers</span>`, () => {
       explorerAreaKey = area.key;
-      updateExplorerUrlState();
+      updateExplorerUrlState({ history: "push" });
       renderAnalysisSurface();
     });
     nodeLayer.appendChild(group);
@@ -9485,7 +9769,7 @@ function renderExplorerFocused(row, allAccessRow = row) {
     group.appendChild(explorerSvgElement("circle", { cx: detailX, cy: y, r: radius.toFixed(2) }));
     const labelX = detailX + Math.max(12, radius + 8);
     const label = explorerSvgElement("text", { x: labelX, y, class: "explorer-focused-label" });
-    setWrappedSvgLabel(label, detail.label, 195, labelX, y, 2);
+    setWrappedSvgLabel(label, detail.label, 175, labelX, y, 2);
     group.appendChild(label);
     bindExplorerFocusedNode(group, `<strong>${escapeHtml(detail.label)}</strong><br/><span class="tooltip-meta">${formatCompactNumber(detail.studyCount)} source papers</span>`, () => {
       renderExplorerSelectionDetail(
@@ -9531,7 +9815,7 @@ function renderExplorerFocused(row, allAccessRow = row) {
     <div class="analytics-panel-heading analytics-network-heading">
       <h3>Connections</h3>
       ${relationshipNetworkAvailable ? `
-        <div class="analytics-network-order" role="group" aria-label="Organize connection graph">
+        <div class="analytics-compact-toggle analytics-network-order" role="group" aria-label="Organize connection graph">
           <button type="button" class="${explorerFocusNetworkOrder === "areas" ? "active" : ""}" data-explorer-network-order="areas" aria-pressed="${explorerFocusNetworkOrder === "areas"}">Areas first</button>
           <button type="button" class="${explorerFocusNetworkOrder === "relationships" ? "active" : ""}" data-explorer-network-order="relationships" aria-pressed="${explorerFocusNetworkOrder === "relationships"}">${escapeHtml(relationship.networkLabel)}</button>
         </div>
@@ -9560,6 +9844,7 @@ function renderExplorerFocused(row, allAccessRow = row) {
   dashboardSections.push(networkPanel);
   dashboard.append(...dashboardSections);
   graphEl.replaceChildren(dashboard);
+  researchAppendCoverage(dashboard);
   autosizeExplorerWorkspace(dashboard);
   renderExplorerSelectionDetail(
     selectedArea ? `${row.label} · ${selectedArea.label}` : row.label,
@@ -9691,7 +9976,7 @@ function analysisEvidenceRows(options = {}) {
     ? COMPARE_EVIDENCE_SOURCES.filter((source) => source.key === currentSourceKey())
     : COMPARE_EVIDENCE_SOURCES;
   return sources.map((source) => {
-    let items = researchFilterClaims(compareFilteredClaimsForSource(source.key, yearRange, filterOptions));
+    let items = compareFilteredClaimsForSource(source.key, yearRange, filterOptions);
     if (explorerLens === "compound") items = items.filter(claimHasAnalysisCompound);
     items = analysisClaimsWithCurrentEntity(items);
     items = analysisClaimsWithinScope(items);
@@ -10031,6 +10316,7 @@ function renderAllAnalysis() {
       ${overlapPanel}
     </div>
   `;
+  researchAppendCoverage(graphEl.firstElementChild);
   autosizeExplorerWorkspace(graphEl.firstElementChild);
   activeDetailItems = items;
   activeDetailAllAccessItems = allAccessItems;
@@ -10078,10 +10364,10 @@ function renderCompareDetail(title, items, allAccessItems = items, { showRecords
 }
 
 function renderEvidenceComposition(rows) {
-  const evidenceAreaColor = (areaKey) => {
-    const index = ENTITY_CATEGORY_OPTIONS.findIndex((area) => area.key === areaKey);
-    return CATEGORY_COLORS[(index >= 0 ? index : 0) % CATEGORY_COLORS.length];
-  };
+  const evidenceAreaColors = new Map(
+    ENTITY_CATEGORY_OPTIONS.map((area, index) => [area.key, CATEGORY_COLORS[index % CATEGORY_COLORS.length]])
+  );
+  const evidenceAreaColor = (areaKey) => evidenceAreaColors.get(areaKey) || CATEGORY_COLORS[0];
   return `
     <div class="compare-composition-list">
       ${rows.map((row) => {
@@ -10202,6 +10488,15 @@ function renderEvidenceTrajectory(rows, options = {}) {
   );
   const maxTotal = Math.max(1, ...totals);
   const baselineY = margin.top + plotHeight;
+  const chartRenderId = ++analysisPublicationRenderSerial;
+  const clipDefs = totals.map((total, yearIndex) => {
+    if (!total) return "";
+    const x = margin.left + yearIndex * slotWidth + (slotWidth - barWidth) / 2;
+    const barHeight = displayMode === "mix" ? plotHeight : (total / maxTotal) * plotHeight;
+    const y = baselineY - barHeight;
+    const clipPath = analyticsTopRoundedBarPath(x, y, barWidth, barHeight);
+    return `<clipPath id="analysis-publication-bar-${chartRenderId}-${yearIndex}" clipPathUnits="userSpaceOnUse"><path d="${clipPath}"></path></clipPath>`;
+  }).join("");
   const bars = totals.map((total, yearIndex) => {
     if (!total) return "";
     const year = minYear + yearIndex;
@@ -10222,7 +10517,7 @@ function renderEvidenceTrajectory(rows, options = {}) {
       <g class="analysis-publication-year ${embedded ? "is-static" : ""}" ${embedded ? 'role="img"' : 'tabindex="0" role="button"'} aria-label="${escapeHtml(aria)}" data-analysis-publication-year="${year}" data-total-count="${total}" data-primary-count="${countsByKey.get("primary") || 0}" data-review-count="${countsByKey.get("reviews") || 0}" data-meta-count="${countsByKey.get("meta_analyses") || 0}">
         ${embedded ? `<title>${escapeHtml(aria)}</title>` : ""}
         <rect class="analysis-publication-hit" x="${(margin.left + yearIndex * slotWidth).toFixed(2)}" y="${margin.top}" width="${slotWidth.toFixed(2)}" height="${plotHeight}"></rect>
-        ${segments}
+        <g clip-path="url(#analysis-publication-bar-${chartRenderId}-${yearIndex})">${segments}</g>
       </g>
     `;
   }).join("");
@@ -10247,7 +10542,7 @@ function renderEvidenceTrajectory(rows, options = {}) {
       ${series.map((entry) => `<span style="--series-color:${entry.color}"><i></i>${escapeHtml(entry.label)}</span>`).join("")}
       <small>${escapeHtml(scope || "All papers")}</small>
     </div>
-    <svg class="analytics-timeline-svg analysis-publication-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Publication history by evidence type">${yGrid}${bars}${xAxis}</svg>
+    <svg class="analytics-timeline-svg analysis-publication-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Publication history by evidence type"><defs>${clipDefs}</defs>${yGrid}${bars}${xAxis}</svg>
   `;
 }
 
@@ -10688,36 +10983,28 @@ function renderAnalysisSurface() {
   if (explorerMode !== "analysis") return;
   hideTooltip();
   syncAnalysisScopeControls();
-  researchCheckPendingSaved();
   researchUpdateControls();
   updateExplorerUrlState();
-  if (analysisTask === "evidence") {
-    renderResearchEvidence();
-    return;
-  }
-  if (analysisTask === "compare") {
-    renderResearchCompare();
-    return;
-  }
   if (explorerLens === "all") {
     renderAllAnalysis();
-    return;
-  }
-  if (explorerLens === "compound") {
+  } else if (explorerLens === "compound") {
     renderCompoundAnalysis();
-    return;
+  } else {
+    renderExplorerSurface();
   }
-  renderExplorerSurface();
+  if (researchCoverageCell) researchOpenCoverageCell({ scroll: false });
 }
 
-async function loadAnalysisAndRender({ resetYears = false } = {}) {
+async function loadAnalysisAndRender({ resetYears = false, showTransition = false } = {}) {
   const token = ++explorerRenderToken;
   const analysisDataReady = normalizedSourceLoaded.all;
+  const analysisIndexReadyTask = ensureAnalysisIndexReady();
   cancelExplorerSearchRender();
   closeExplorerSearchOptions();
   explorerSearchMatrix = null;
   stopExplorerWorkspaceAutosize();
-  if (!analysisDataReady) {
+  graphEl.setAttribute("aria-busy", "true");
+  if (showTransition || !analysisDataReady) {
     graphEl.innerHTML = '<div class="explorer-loading">Preparing the analysis…</div>';
     setExplorerWorkspaceHeight(GRAPH_BASE_HEIGHT_PX);
   }
@@ -10727,7 +11014,10 @@ async function loadAnalysisAndRender({ resetYears = false } = {}) {
   try {
     if (!analysisDataReady) await loadNormalizedClaimSource("all");
   } catch (error) {
-    if (token === explorerRenderToken) renderLoadError([`Analysis data: ${error.message}`]);
+    if (token === explorerRenderToken) {
+      graphEl.removeAttribute("aria-busy");
+      renderLoadError([`Analysis data: ${error.message}`]);
+    }
     return;
   }
   if (token !== explorerRenderToken || explorerMode !== "analysis") return;
@@ -10737,7 +11027,8 @@ async function loadAnalysisAndRender({ resetYears = false } = {}) {
     ? explorerSourceClaims().filter(claimHasAnalysisCompound)
     : explorerSourceClaims();
   syncYearFilterControls(sourceClaims, resetYears);
-  graphEl.setAttribute("aria-busy", "true");
+  await analysisIndexReadyTask;
+  if (token !== explorerRenderToken || explorerMode !== "analysis") return;
   const indexedResult = await queryAnalysisIndex().catch(() => null);
   if (token !== explorerRenderToken || explorerMode !== "analysis") return;
   activeAnalysisIndexResult = indexedResult;
@@ -10769,7 +11060,7 @@ function switchExplorerLens(nextLens, options = {}) {
   clearSelectedStyles();
   if (explorerSearchInput) explorerSearchInput.value = "";
   updateExplorerControls();
-  updateExplorerUrlState();
+  updateExplorerUrlState({ history: "push" });
   loadAnalysisAndRender({ resetYears: false });
 }
 
@@ -10812,7 +11103,6 @@ function captureAnalysisWorkspaceSnapshot() {
   analysisWorkspaceSnapshot = {
     state: {
       research: researchCaptureState(),
-      researchUi: { page: researchPage, changes: researchChangeReview, subset: researchChangeSubset },
       claimLayer,
       explorerLens,
       explorerLastAnalysisLens,
@@ -10821,6 +11111,7 @@ function captureAnalysisWorkspaceSnapshot() {
       explorerAreaKey,
       explorerFocusNetworkOrder,
       explorerFocusRelationshipKey,
+      explorerFocusTimelineView,
       explorerScopeAreaKey,
       explorerScopeConceptKey,
       explorerVisibleRowCount,
@@ -10880,11 +11171,6 @@ function restoreAnalysisWorkspaceSnapshot() {
 
   const state = snapshot.state;
   if (state.research) researchApplyState(state.research);
-  if (state.researchUi) {
-    researchPage = state.researchUi.page;
-    researchChangeReview = state.researchUi.changes;
-    researchChangeSubset = state.researchUi.subset;
-  }
   explorerLens = state.explorerLens;
   explorerLastAnalysisLens = state.explorerLastAnalysisLens;
   explorerLastEntityLens = state.explorerLastEntityLens;
@@ -10892,6 +11178,7 @@ function restoreAnalysisWorkspaceSnapshot() {
   explorerAreaKey = state.explorerAreaKey;
   explorerFocusNetworkOrder = state.explorerFocusNetworkOrder || "areas";
   explorerFocusRelationshipKey = state.explorerFocusRelationshipKey || "";
+  explorerFocusTimelineView = state.explorerFocusTimelineView || "areas";
   explorerScopeAreaKey = state.explorerScopeAreaKey;
   explorerScopeConceptKey = state.explorerScopeConceptKey;
   explorerVisibleRowCount = state.explorerVisibleRowCount;
@@ -10971,6 +11258,7 @@ function resetExplorerTransitionState() {
   closeExplorerSearchOptions();
   explorerSearchMatrix = null;
   stopExplorerWorkspaceAutosize();
+  graphEl.removeAttribute("aria-busy");
   hideTooltip();
   resetGraphSelectionState();
   detailGraphFilter = null;
@@ -10997,7 +11285,7 @@ function switchExplorerMode(nextMode) {
     accessView = overviewWorkspaceFilterState.accessView;
   } else if (restoreAnalysisWorkspaceSnapshot()) {
     updateModeUI();
-    updateExplorerUrlState();
+    updateExplorerUrlState({ history: "push" });
     return;
   } else {
     explorerLens = ANALYSIS_SECTIONS.has(explorerLastAnalysisLens) ? explorerLastAnalysisLens : "all";
@@ -11005,14 +11293,14 @@ function switchExplorerMode(nextMode) {
     accessView = "all";
   }
   updateExplorerControls();
-  updateExplorerUrlState();
+  updateExplorerUrlState({ history: "push" });
   if (nextMode === "overview") {
     applyClaimLayerStore();
     syncYearFilterControls(activeClaimsForMode(), false);
     loadCurrentClaimsAndRender({ showLoading: false, resetDetail: true, showGraphBootstrap: true });
     return;
   }
-  loadAnalysisAndRender({ resetYears: true });
+  loadAnalysisAndRender({ resetYears: true, showTransition: true });
 }
 
 function switchCompareKind(nextKind) {
@@ -11453,6 +11741,7 @@ function buildGraph(data) {
 
       rememberGraphSelection({ type: "edge", compound, target });
       isolateSelection = true;
+      updateExplorerUrlState({ history: "push" });
       requestGraphCenterAfterRender();
       clearSelectedStyles();
       path.classList.add("selected");
@@ -11525,6 +11814,7 @@ function buildGraph(data) {
 
       rememberGraphSelection({ type: "compound", name: compound });
       isolateSelection = true;
+      updateExplorerUrlState({ history: "push" });
       requestGraphCenterAfterRender();
       clearSelectedStyles();
       node.classList.add("selected");
@@ -11613,6 +11903,7 @@ function buildGraph(data) {
 
       rememberGraphSelection({ type: "target", name: target });
       isolateSelection = true;
+      updateExplorerUrlState({ history: "push" });
       requestGraphCenterAfterRender();
       clearSelectedStyles();
       node.classList.add("selected");
@@ -11865,7 +12156,7 @@ function centerGraphInViewport() {
 
 function updateSearchPlaceholder() {
   if (!searchInput) return;
-  searchInput.placeholder = `Search finding cards by keyword, compound, ${lowerRightEntityLabel(false)}, method, or source report`;
+  searchInput.placeholder = `Search finding cards by keyword, compound, ${lowerRightEntityLabel(false)}, method, or paper`;
 }
 
 function entityCategoryCounts() {
@@ -11973,6 +12264,7 @@ function switchEvidenceView(nextView) {
     detailGraphFilter = null;
     clearSelectedStyles();
     updateModeUI();
+    updateExplorerUrlState();
     loadAnalysisAndRender({ resetYears: false });
     return;
   }
@@ -11989,6 +12281,7 @@ function switchEvidenceView(nextView) {
   clearSelectedStyles();
   updateModeUI();
   syncYearFilterControls(activeClaimsForMode(), true);
+  updateExplorerUrlState();
   const detailRestored = !selected && restoreCachedOverviewDetail();
   if (!detailRestored) clearDetailForTransition();
   if (selected) requestGraphCenterAfterRender();
@@ -12008,6 +12301,7 @@ function switchEntityView(nextView) {
   clearSelectedStyles();
   updateModeUI();
   syncYearFilterControls(activeClaimsForMode(), true);
+  updateExplorerUrlState({ history: "push" });
   const detailRestored = restoreCachedOverviewDetail();
   if (!detailRestored) clearDetailForTransition();
   loadCurrentClaimsAndRender({
@@ -12151,7 +12445,6 @@ async function ensureAnalysisIndexReady() {
   if (!("Worker" in window)) return false;
   analysisIndexReadyPromise = (async () => {
     const config = await loadGraphPayloadConfig();
-    researchRelease = config.public_release_id || config.release_id || config.run_id || "";
     const path = cleanDisplayText(config?.active_analysis_index || "");
     if (!path) return false;
     analysisIndexWorker = new Worker("/ui/analysis-worker.js?v=20260904-contextual-scope-v4");
@@ -12192,16 +12485,43 @@ async function queryAnalysisIndex(params = analysisIndexParams()) {
     analysisIndexQueryCache.set(queryKey, cached);
     return cached;
   }
-  if (!(await ensureAnalysisIndexReady())) return null;
-  const result = await analysisIndexPost("query", { params });
-  rememberAnalysisIndexQuery(queryKey, result);
-  return result;
+  if (analysisIndexQueryTasks.has(queryKey)) return analysisIndexQueryTasks.get(queryKey);
+  const task = (async () => {
+    if (!(await ensureAnalysisIndexReady())) return null;
+    const result = await analysisIndexPost("query", { params });
+    rememberAnalysisIndexQuery(queryKey, result);
+    return result;
+  })();
+  analysisIndexQueryTasks.set(queryKey, task);
+  try {
+    return await task;
+  } finally {
+    analysisIndexQueryTasks.delete(queryKey);
+  }
+}
+
+function prewarmInitialAnalysisIndexView() {
+  const source = claimStores.normalized.bySource.all || [];
+  const bounds = yearBoundsFromClaims(source);
+  if (!source.length || !bounds) return Promise.resolve(null);
+  const initialYearMin = clampNumber(ANALYSIS_DEFAULT_START_YEAR, bounds.min, bounds.max);
+  return queryAnalysisIndex({
+    lens: ANALYSIS_SECTIONS.has(explorerLastAnalysisLens) ? explorerLastAnalysisLens : "all",
+    evidenceView: "all",
+    accessView: "all",
+    yearMin: String(initialYearMin),
+    yearMax: String(bounds.max),
+    areaKey: "",
+    conceptKey: "",
+    focusKey: "",
+  }).catch(() => null);
 }
 
 function scheduleAnalysisIndexViewPrewarm() {
   const source = claimStores.normalized.bySource.all || [];
   const bounds = yearBoundsFromClaims(source);
   if (!source.length || !bounds) return;
+  const initialYearMin = clampNumber(ANALYSIS_DEFAULT_START_YEAR, bounds.min, bounds.max);
   scheduleIdleTask(async () => {
     for (const lens of ["all", "compound", "author", "journal"]) {
       for (const accessKey of ["open", "all"]) {
@@ -12210,7 +12530,7 @@ function scheduleAnalysisIndexViewPrewarm() {
           lens,
           evidenceView: "all",
           accessView: accessKey,
-          yearMin: String(bounds.min),
+          yearMin: String(initialYearMin),
           yearMax: String(bounds.max),
           areaKey: "",
           conceptKey: "",
@@ -12223,7 +12543,6 @@ function scheduleAnalysisIndexViewPrewarm() {
 
 function activeAnalysisIndexMatchesCurrent() {
   return Boolean(
-    !Object.values(researchFilters).some(Boolean) &&
     activeAnalysisIndexResult &&
     activeAnalysisIndexQueryKey === analysisIndexQueryKey()
   );
@@ -12828,16 +13147,15 @@ function updateAnalysisPrewarmState(state) {
 }
 
 function prewarmDefaultAnalysisData() {
-  if (normalizedSourceLoaded.all) {
-    updateAnalysisPrewarmState("ready");
-    return Promise.resolve(true);
-  }
   if (defaultAnalysisPrewarmTask) return defaultAnalysisPrewarmTask;
 
   updateAnalysisPrewarmState("loading");
-  defaultAnalysisPrewarmTask = loadNormalizedClaimSource("all")
+  defaultAnalysisPrewarmTask = Promise.all([
+    normalizedSourceLoaded.all ? Promise.resolve() : loadNormalizedClaimSource("all"),
+    ensureAnalysisIndexReady(),
+  ])
     .then(async () => {
-      await ensureAnalysisIndexReady();
+      await prewarmInitialAnalysisIndexView();
       scheduleAnalysisIndexViewPrewarm();
       updateAnalysisPrewarmState("ready");
       return true;
@@ -12855,7 +13173,6 @@ function prewarmDefaultAnalysisData() {
 function scheduleDefaultAnalysisPrewarm() {
   if (
     defaultAnalysisPrewarmScheduled ||
-    normalizedSourceLoaded.all ||
     !analysisPrewarmAllowed()
   ) {
     return;
@@ -12865,10 +13182,6 @@ function scheduleDefaultAnalysisPrewarm() {
 
   const queuePrewarm = () => {
     scheduleIdleTask(() => {
-      if (normalizedSourceLoaded.all) {
-        updateAnalysisPrewarmState("ready");
-        return;
-      }
       if (explorerMode !== "overview") return;
       prewarmDefaultAnalysisData();
     }, 600);
@@ -13050,6 +13363,116 @@ async function loadCurrentClaimsAndRender({ showLoading = true, resetDetail = tr
   scheduleRender();
 }
 
+function applyExplorerViewState(decoded) {
+  const warnings = [...(decoded.warnings || [])];
+  const validArea = (key) => ENTITY_CATEGORY_OPTIONS.some((area) => area.key === key);
+  sharedViewRelease = decoded.release || "";
+
+  researchApplyState(decoded.coverage || {});
+  explorerFocusNetworkOrder = decoded.networkOrder || "areas";
+  explorerFocusRelationshipKey = decoded.relationship || "";
+  explorerFocusTimelineView = decoded.focusTimelineView || "areas";
+  explorerMomentumWindowYears = decoded.momentum || 5;
+  compareSelection = decoded.result || null;
+  analysisPublicationMode = decoded.publicationMode || "volume";
+  analysisPublicationCompoundKey = decoded.publicationCompound || "";
+  analysisPublicationAreaKey = validArea(decoded.publicationArea) ? decoded.publicationArea : "";
+  if (decoded.publicationArea && !analysisPublicationAreaKey) warnings.push("publication-area");
+  explorerVisibleRowCount = EXPLORER_INITIAL_ROW_LIMIT;
+  explorerMatrixMemo = null;
+  explorerSearchMatrix = null;
+  selected = null;
+  isolateSelection = false;
+  evidenceSelectionIntent = null;
+  evidenceSelectionRestorePending = false;
+  detailGraphFilter = null;
+  if (searchInput) searchInput.value = "";
+  if (bibliographySearchInput) bibliographySearchInput.value = "";
+  if (explorerSearchInput) explorerSearchInput.value = "";
+
+  if (decoded.mode === "analysis") {
+    explorerMode = "analysis";
+    explorerLens = ANALYSIS_SECTIONS.has(decoded.section) ? decoded.section : "all";
+    if (decoded.section && !ANALYSIS_SECTIONS.has(decoded.section)) warnings.push("section");
+    explorerLastAnalysisLens = explorerLens;
+    if (EXPLORER_ENTITY_LENSES.has(explorerLens)) explorerLastEntityLens = explorerLens;
+    evidenceView = decoded.papers || "all";
+    accessView = decoded.access || "all";
+    explorerFocus = decoded.focus && EXPLORER_ENTITY_LENSES.has(explorerLens)
+      ? { key: decoded.focus, label: decoded.focus }
+      : null;
+    if (decoded.focus && !explorerFocus) warnings.push("focus");
+    explorerAreaKey = validArea(decoded.area) ? decoded.area : "";
+    explorerScopeAreaKey = validArea(decoded.scopeArea) ? decoded.scopeArea : "";
+    explorerScopeConceptKey = explorerScopeAreaKey ? normalizeValue(decoded.concept) : "";
+    if (decoded.area && !explorerAreaKey) warnings.push("area");
+    if (decoded.scopeArea && !explorerScopeAreaKey) warnings.push("scope-area");
+    yearFilterState["analysis:research"] = { min: decoded.from || "", max: decoded.to || "" };
+  } else {
+    explorerMode = "overview";
+    explorerLens = "domain";
+    entityViewKey = validArea(decoded.view) ? decoded.view : "condition_indication";
+    if (decoded.view && !validArea(decoded.view)) warnings.push("view");
+    evidenceView = decoded.papers || "primary";
+    accessView = decoded.access || "open";
+    explorerFocus = null;
+    explorerAreaKey = "";
+    explorerScopeAreaKey = "";
+    explorerScopeConceptKey = "";
+    compareSelection = null;
+    selected = viewStateGraphSelection(decoded.graphSelection);
+    isolateSelection = Boolean(selected);
+    evidenceSelectionIntent = cloneGraphSelection(selected);
+    evidenceSelectionRestorePending = Boolean(selected);
+    yearFilterState[currentEntityViewKey()] = { min: decoded.from || "", max: decoded.to || "" };
+    overviewWorkspaceFilterState = { evidenceView, accessView };
+  }
+
+  if (decoded.release && CURRENT_RELEASE_VERSION && decoded.release !== CURRENT_RELEASE_VERSION) {
+    warnings.push("release");
+  }
+  sharedViewWarnings = [...new Set(warnings)];
+}
+
+function sharedViewWarningMessage() {
+  if (!sharedViewWarnings.length) return "";
+  if (sharedViewWarnings.includes("release")) {
+    return "This shared view was created with an earlier graph release; current data are shown.";
+  }
+  return "Some parts of this shared view are no longer available; the remaining view was restored.";
+}
+
+async function restoreExplorerViewFromUrl({ initial = false } = {}) {
+  restoringExplorerUrlState = true;
+  if (!initial) {
+    analysisWorkspaceSnapshot = null;
+    resetExplorerTransitionState();
+    clearDetailForTransition();
+  }
+  applyExplorerViewState(PKGViewState.read(window.location.href));
+  updateModeUI();
+  try {
+    if (explorerMode === "analysis") {
+      await loadAnalysisAndRender({ resetYears: false, showTransition: !initial });
+    } else {
+      scheduleDefaultAnalysisPrewarm();
+      applyClaimLayerStore();
+      await loadCurrentClaimsAndRender({
+        showLoading: initial,
+        resetDetail: true,
+        // A shared node or edge may not be present in the aggregate bootstrap.
+        // Wait for its complete view before validating and rendering the focus.
+        showGraphBootstrap: !selected,
+      });
+    }
+  } finally {
+    restoringExplorerUrlState = false;
+  }
+  updateExplorerUrlState();
+  const warning = sharedViewWarningMessage();
+  if (warning) announceSharedView(warning, { duration: 7000 });
+}
+
 function scheduleIdleTask(callback, delay = 0) {
   window.setTimeout(() => {
     if ("requestIdleCallback" in window) {
@@ -13068,49 +13491,7 @@ async function init() {
     return;
   }
   loadGraphManifestStats();
-  const params = new URLSearchParams(window.location.search);
-  const requestedMode = params.get("mode") || "";
-  const requestedLens = params.get("lens") || "domain";
-  const requestedSection = params.get("section") || "";
-  const requestedPaperView = params.get("papers") || "all";
-  const requestedAccessView = params.get("access") || "all";
-  if (
-    requestedMode === "analysis" ||
-    requestedMode === "compare" ||
-    requestedMode === "explore" ||
-    EXPLORER_ENTITY_LENSES.has(requestedLens)
-  ) {
-    explorerMode = "analysis";
-    if (requestedMode === "compare") {
-      explorerLens = "compound";
-    } else if (ANALYSIS_SECTIONS.has(requestedSection)) {
-      explorerLens = requestedSection;
-    } else if (EXPLORER_ENTITY_LENSES.has(requestedLens)) {
-      explorerLens = requestedLens;
-    } else {
-      explorerLens = "all";
-    }
-    explorerLastAnalysisLens = explorerLens;
-    if (EXPLORER_ENTITY_LENSES.has(explorerLens)) explorerLastEntityLens = explorerLens;
-    evidenceView = ["all", "primary", "meta_analyses", "reviews"].includes(requestedPaperView)
-      ? requestedPaperView
-      : "all";
-    accessView = ["all", "open"].includes(requestedAccessView) ? requestedAccessView : "all";
-    const focusKey = cleanDisplayText(params.get("focus") || "");
-    explorerFocus = focusKey && EXPLORER_ENTITY_LENSES.has(explorerLens) ? { key: focusKey, label: focusKey } : null;
-    explorerAreaKey = cleanDisplayText(params.get("area") || "");
-    explorerScopeAreaKey = cleanDisplayText(params.get("scope-area") || "");
-    explorerScopeConceptKey = normalizeValue(params.get("concept") || "");
-    researchReadUrl(params);
-    updateModeUI();
-    updateExplorerUrlState();
-    await loadAnalysisAndRender({ resetYears: false });
-    return;
-  }
-  explorerMode = "overview";
-  explorerLens = "domain";
-  await loadCurrentClaimsAndRender({ showLoading: true, resetDetail: true, showGraphBootstrap: true });
-  scheduleDefaultAnalysisPrewarm();
+  await restoreExplorerViewFromUrl({ initial: true });
 }
 
 if (yearMinFilter) {
@@ -13119,6 +13500,7 @@ if (yearMinFilter) {
     rememberYearFilterControls();
     if (explorerMode === "analysis") researchScopeChanged();
     retainVisibleBootstrapGraph = false;
+    updateExplorerUrlState();
     if (explorerMode === "analysis") loadAnalysisAndRender({ resetYears: false });
     else scheduleRender();
   });
@@ -13129,6 +13511,7 @@ if (yearMaxFilter) {
     rememberYearFilterControls();
     if (explorerMode === "analysis") researchScopeChanged();
     retainVisibleBootstrapGraph = false;
+    updateExplorerUrlState();
     if (explorerMode === "analysis") loadAnalysisAndRender({ resetYears: false });
     else scheduleRender();
   });
@@ -13203,7 +13586,7 @@ if (detailBody) {
     event.preventDefault();
     const areaKey = areaButton.dataset.explorerAreaFilter || "";
     explorerAreaKey = explorerAreaKey === areaKey ? "" : areaKey;
-    updateExplorerUrlState();
+    updateExplorerUrlState({ history: "push" });
     renderAnalysisSurface();
   });
   detailBody.addEventListener("click", (event) => {
@@ -13416,10 +13799,6 @@ if (detailBody) {
   });
 }
 graphEl.addEventListener("input", (event) => {
-  if (event.target.matches?.("[data-research-candidate-query]")) {
-    researchRenderCandidates(event.target.value);
-    return;
-  }
   const momentumInput = event.target.closest?.("[data-explorer-momentum-window]");
   if (momentumInput && graphEl.contains(momentumInput) && explorerMode === "analysis") {
     const requestedWindow = Math.round(Number(momentumInput.value));
@@ -13427,6 +13806,7 @@ graphEl.addEventListener("input", (event) => {
       EXPLORER_MOMENTUM_MIN_YEARS,
       Math.min(EXPLORER_MOMENTUM_MAX_YEARS, requestedWindow || 5)
     );
+    updateExplorerUrlState();
     scheduleExplorerMomentumPanelUpdate();
     return;
   }
@@ -13440,6 +13820,7 @@ graphEl.addEventListener("input", (event) => {
   if (requestedKey && !hasOption) return;
   analysisPublicationCompoundKey = requestedKey;
   compareSelection = null;
+  updateExplorerUrlState();
   renderAnalysisSurface();
 });
 graphEl.addEventListener("change", (event) => {
@@ -13453,6 +13834,7 @@ graphEl.addEventListener("change", (event) => {
     );
     analysisPublicationCompoundKey = requestedKey && hasOption ? requestedKey : "";
     compareSelection = null;
+    updateExplorerUrlState();
     renderAnalysisSurface();
     return;
   }
@@ -13461,12 +13843,23 @@ graphEl.addEventListener("change", (event) => {
     const requestedKey = areaSelect.value || "";
     analysisPublicationAreaKey = ENTITY_CATEGORY_OPTIONS.some((area) => area.key === requestedKey) ? requestedKey : "";
     compareSelection = null;
+    updateExplorerUrlState();
     renderAnalysisSurface();
   }
 });
 graphEl.addEventListener("click", (event) => {
   if (researchHandleClick(event)) return;
   if (explorerMode === "analysis") {
+    const timelineView = event.target.closest?.("[data-explorer-timeline-view]");
+    if (timelineView && graphEl.contains(timelineView) && explorerFocus) {
+      const nextView = timelineView.dataset.explorerTimelineView;
+      if (explorerFocusTimelineOptions().some((option) => option.key === nextView)) {
+        explorerFocusTimelineView = nextView;
+        updateExplorerUrlState();
+        renderAnalysisSurface();
+      }
+      return;
+    }
     const studyFilterTarget = event.target.closest?.("[data-analysis-study-filter]");
     if (studyFilterTarget && graphEl.contains(studyFilterTarget)) {
       event.preventDefault();
@@ -13479,6 +13872,7 @@ graphEl.addEventListener("click", (event) => {
       const nextMode = publicationModeTarget.dataset.analysisPublicationMode;
       if (["volume", "mix"].includes(nextMode) && analysisPublicationMode !== nextMode) {
         analysisPublicationMode = nextMode;
+        updateExplorerUrlState();
         renderAnalysisSurface();
       }
       return;
@@ -13489,6 +13883,7 @@ graphEl.addEventListener("click", (event) => {
         type: "publication_history",
         year: Number(publicationYearTarget.dataset.analysisPublicationYear),
       };
+      updateExplorerUrlState({ history: "push" });
       renderAnalysisSurface();
       return;
     }
@@ -13500,6 +13895,7 @@ graphEl.addEventListener("click", (event) => {
           sourceKey: evidenceTarget.dataset.compareSourceKey || "",
           areaKey: evidenceTarget.dataset.compareAreaKey || "",
         };
+        updateExplorerUrlState({ history: "push" });
         renderAnalysisSurface();
         return;
       }
@@ -13528,6 +13924,7 @@ graphEl.addEventListener("click", (event) => {
         leftKey,
         rightKey: rightCandidate && rightCandidate !== leftKey ? rightCandidate : "",
       };
+      updateExplorerUrlState({ history: "push" });
       renderAnalysisSurface();
       return;
     }
@@ -13563,6 +13960,7 @@ graphEl.addEventListener("click", (event) => {
       const nextOrder = networkOrder.dataset.explorerNetworkOrder;
       if (["areas", "relationships"].includes(nextOrder)) {
         explorerFocusNetworkOrder = nextOrder;
+        updateExplorerUrlState();
         renderAnalysisSurface();
       }
       return;
@@ -13571,13 +13969,14 @@ graphEl.addEventListener("click", (event) => {
     if (focusRelationship && graphEl.contains(focusRelationship) && explorerFocus) {
       explorerFocusRelationshipKey = focusRelationship.dataset.explorerFocusRelationship || "";
       explorerFocusNetworkOrder = "relationships";
+      updateExplorerUrlState({ history: "push" });
       renderAnalysisSurface();
       return;
     }
     const focusArea = event.target.closest?.("[data-explorer-focus-area]");
     if (focusArea && graphEl.contains(focusArea) && explorerFocus) {
       explorerAreaKey = focusArea.dataset.explorerFocusArea || "";
-      updateExplorerUrlState();
+      updateExplorerUrlState({ history: "push" });
       renderAnalysisSurface();
       return;
     }
@@ -13609,7 +14008,7 @@ graphEl.addEventListener("click", (event) => {
       explorerFocus = { key: row.key, label: row.label };
       explorerAreaKey = explorerScopeAreaKey || "";
       updateExplorerControls();
-      updateExplorerUrlState();
+      updateExplorerUrlState({ history: "push" });
       loadAnalysisAndRender({ resetYears: false });
       return;
     }
@@ -13627,7 +14026,7 @@ graphEl.addEventListener("click", (event) => {
         explorerMatrixMemo = null;
       }
       updateExplorerControls();
-      updateExplorerUrlState();
+      updateExplorerUrlState({ history: "push" });
       loadAnalysisAndRender({ resetYears: false });
     }
     return;
@@ -13752,6 +14151,13 @@ evidenceViewButtons.forEach((button) => {
   });
 });
 if (explorerModeToggle) {
+  const analysisModeButton = explorerModeToggle.querySelector('[data-explorer-mode="analysis"]');
+  analysisModeButton?.addEventListener("pointerenter", () => {
+    if (explorerMode === "overview" && analysisPrewarmAllowed()) prewarmDefaultAnalysisData();
+  }, { once: true });
+  analysisModeButton?.addEventListener("focus", () => {
+    if (explorerMode === "overview" && analysisPrewarmAllowed()) prewarmDefaultAnalysisData();
+  }, { once: true });
   explorerModeToggle.addEventListener("click", (event) => {
     const button = event.target.closest?.("[data-explorer-mode]");
     if (!button || !explorerModeToggle.contains(button)) return;
@@ -13807,8 +14213,6 @@ if (explorerScopeClear) {
     explorerScopeAreaKey = "";
     explorerScopeConceptKey = "";
     explorerFocus = null;
-    researchFilters = {};
-    researchCompare = [];
     evidenceView = "all";
     accessView = "all";
     refreshAnalysisScope({ resetYears: true });
@@ -13822,7 +14226,7 @@ if (explorerFocusBack) {
     explorerAreaKey = "";
     compareSelection = null;
     updateExplorerControls();
-    updateExplorerUrlState();
+    updateExplorerUrlState({ history: "push" });
     loadAnalysisAndRender({ resetYears: false }).then(() => {
       explorerSearchInput?.focus({ preventScroll: true });
     });
@@ -13906,5 +14310,8 @@ if (entityKindToggle) {
   });
 }
 window.addEventListener("resize", scheduleRender);
+window.addEventListener("popstate", () => {
+  restoreExplorerViewFromUrl();
+});
 
 init();

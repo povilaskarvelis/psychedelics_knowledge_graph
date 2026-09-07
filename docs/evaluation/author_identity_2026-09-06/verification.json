@@ -1,0 +1,63 @@
+{
+  "authorship_rows_before": 116802,
+  "authorship_rows_after": 116802,
+  "changed_identity_rows": 7,
+  "author_identities_before": 64880,
+  "author_identities_after": 64873,
+  "robin_distinct_papers_after": 230,
+  "other_source_fields_unchanged": true,
+  "active_local_graph_updated": false,
+  "production_deployed": false,
+  "focused_tests_passed": 13,
+  "changed_authorships": [
+    {
+      "paper_id": "paper:10.1002/hbm.70596",
+      "doi": "10.1002/hbm.70596",
+      "display_name": "Robin L. Carhart\u2010Harris",
+      "author_id": "orcid:0000-0002-6062-7150",
+      "identity_confidence": "curated_openalex_to_orcid"
+    },
+    {
+      "paper_id": "paper:10.1080/09515089.2026.2657452",
+      "doi": "10.1080/09515089.2026.2657452",
+      "display_name": "Robin Carhart-Harris",
+      "author_id": "orcid:0000-0002-6062-7150",
+      "identity_confidence": "curated_name_to_orcid"
+    },
+    {
+      "paper_id": "paper:10.1093/nc/niaf069",
+      "doi": "10.1093/nc/niaf069",
+      "display_name": "Robin Carhart-Harris",
+      "author_id": "orcid:0000-0002-6062-7150",
+      "identity_confidence": "curated_openalex_to_orcid"
+    },
+    {
+      "paper_id": "paper:10.1177/28314425251382930",
+      "doi": "10.1177/28314425251382930",
+      "display_name": "Robin L. Carhart-Harris",
+      "author_id": "orcid:0000-0002-6062-7150",
+      "identity_confidence": "curated_openalex_to_orcid"
+    },
+    {
+      "paper_id": "paper:10.1177/28314425251392251",
+      "doi": "10.1177/28314425251392251",
+      "display_name": "Robin Carhart-Harris",
+      "author_id": "orcid:0000-0002-6062-7150",
+      "identity_confidence": "curated_openalex_to_orcid"
+    },
+    {
+      "paper_id": "paper:10.1192/bjp.2026.10687",
+      "doi": "10.1192/bjp.2026.10687",
+      "display_name": "Robin L. Carhart-Harris",
+      "author_id": "orcid:0000-0002-6062-7150",
+      "identity_confidence": "curated_openalex_to_orcid"
+    },
+    {
+      "paper_id": "paper:10.3389/fphar.2026.1840956",
+      "doi": "10.3389/fphar.2026.1840956",
+      "display_name": "Robin L. Carhart-Harris",
+      "author_id": "orcid:0000-0002-6062-7150",
+      "identity_confidence": "curated_openalex_to_orcid"
+    }
+  ]
+}

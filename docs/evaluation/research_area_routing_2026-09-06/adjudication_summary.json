@@ -1,0 +1,38 @@
+{
+  "adjudication_version": "research_area_adjudication_v1",
+  "reviewed_at": "2026-09-06",
+  "queue_records": 5405,
+  "record_type_counts": {
+    "finding": 3157,
+    "normalization_audit": 2248
+  },
+  "decision_counts": {
+    "unresolved": 4781,
+    "corrected": 624
+  },
+  "action_counts": {
+    "manual_semantic_review_required": 2533,
+    "normalization_record_requires_source_review": 2248,
+    "hold_legacy_high_confidence_projection": 194,
+    "hold_exposure_harm_projection": 110,
+    "route_to_existing_replacement_projection": 99,
+    "hold_observational_exposure_projection": 92,
+    "hold_disease_model_projection": 53,
+    "hold_context_or_policy_projection": 42,
+    "hold_therapeutic_outcome_safety_projection": 18,
+    "hold_retracted_claim": 13,
+    "hold_exposure_consequence_projection": 2,
+    "hold_serious_psychosis_transient_effect_projection": 1
+  },
+  "unique_adjudication_ids": 5405,
+  "finding_rows_with_adjudication": 3157,
+  "corrected_finding_rows": 624,
+  "corrected_finding_rows_held_in_paper_detail": 525,
+  "remaining_evidence_edges": 96694,
+  "unresolved_finding_rows": 2533,
+  "unresolved_normalization_audit_rows": 2248,
+  "legacy_audit_rows": 209,
+  "legacy_audit_exact_main_graph_projections_remaining": 0,
+  "source_overlay": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/kg_routed_runs/research_area_routing_20260906_adjudicated",
+  "active_release_changed": false
+}

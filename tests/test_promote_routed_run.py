@@ -205,6 +205,22 @@ class PromoteRoutedRunTest(unittest.TestCase):
 
             promotion.reject_legacy_v1_secondary_outputs(outputs)
 
+    def test_run_checked_adds_repository_to_pythonpath(self) -> None:
+        with mock.patch.object(promotion.subprocess, "run") as run:
+            promotion.run_checked(["python", "pipeline/example.py"], env={"PYTHONPATH": "seed"})
+
+        child_env = run.call_args.kwargs["env"]
+        self.assertEqual(
+            child_env["PYTHONPATH"],
+            f"{promotion.ROOT}{promotion.os.pathsep}seed",
+        )
+        run.assert_called_once_with(
+            ["python", "pipeline/example.py"],
+            cwd=promotion.ROOT,
+            env=child_env,
+            check=True,
+        )
+
     def test_promoted_extraction_inputs_are_materialized_under_the_active_run(
         self,
     ) -> None:

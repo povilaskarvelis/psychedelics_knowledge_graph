@@ -1,0 +1,495 @@
+{
+  "assessment_date": "2026-09-06",
+  "environment": {
+    "python": "3.13.11",
+    "python_executable": "/opt/homebrew/Caskroom/miniconda/base/bin/python",
+    "platform": "macOS-26.0.1-arm64-arm-64bit-Mach-O"
+  },
+  "baseline_tests": {
+    "command": "python -m pytest -q --disable-warnings --durations=15",
+    "passed": 1105,
+    "failed": 2,
+    "subtests_passed": 367,
+    "seconds": 22.74,
+    "failures": [
+      "tests/test_site_metadata.py::test_public_html_pages_use_current_favicon_assets",
+      "tests/test_ui_graph_categories.py::test_year_controls_stack_when_the_graph_column_is_constrained"
+    ]
+  },
+  "isolated_reproductions": {
+    "audit": "pipeline_audit_2026-09-06",
+    "offline": true,
+    "production_data_modified": false,
+    "probes": {
+      "jats_information_loss": {
+        "tables": 1,
+        "figures": 0,
+        "omitted_source_passages": [
+          "Values in milliseconds.",
+          "Negative values denote improvement.",
+          "No difference from placebo."
+        ],
+        "model_input": "[C001 Abstract] Study abstract.\n[C002 Results] Results are shown in Table 1 and Figure 1.\n[T001]  Arm Change A 5"
+      },
+      "scoped_route_table_replacement": {
+        "before_dois": [
+          "10.1000/a",
+          "10.1000/b"
+        ],
+        "after_scoped_build_dois": [
+          "10.1000/a"
+        ]
+      },
+      "interrupted_discovery_promotion": {
+        "after_interruption": [
+          "10.1000/existing",
+          "10.1000/new"
+        ],
+        "retry_counts": {
+          "canonical_discovery_records": 3,
+          "new_candidate_dois": 0,
+          "rediscovered_candidate_dois": 2,
+          "unresolved_records": 1,
+          "candidate_contexts_added_or_rediscovered": 2
+        },
+        "retry_new_candidate_dois_file": "",
+        "backup_after_retry": [
+          "10.1000/existing",
+          "10.1000/new"
+        ]
+      },
+      "batch_model_mismatch": {
+        "manifest_model": "task-configured-model",
+        "submitted_model": "gemini-3-flash-preview"
+      },
+      "repeated_stale_reprocessing": {
+        "latest_output_matches_current_task": true,
+        "stale_routes": [
+          "r1"
+        ],
+        "effective_completed_routes": []
+      },
+      "mutable_secondary_packet": {
+        "saved_source_fingerprint": "cf3c6de26ceb721c12bb1a80dba38367aef382233217863570d03b7315688051",
+        "actual_source_fingerprint": "100c024d720495e12f0d5b788e82582ca376ecc1e39174c6eb217117d2d21f68",
+        "review_accepts_changed_source": true,
+        "meta_accepts_changed_source": true
+      },
+      "concurrent_candidate_updates": {
+        "successful_updates_reported": 2,
+        "updates_persisted": 1,
+        "final_rows": [
+          {
+            "doi": "10.1000/a",
+            "value": "old"
+          },
+          {
+            "doi": "10.1000/b",
+            "value": "new"
+          }
+        ]
+      },
+      "schema_errors_not_retried": {
+        "retry_errors": true,
+        "excluded_from_retry": [
+          "schema-failure"
+        ]
+      },
+      "missing_batch_results_report_success": {
+        "expected_results": 1,
+        "result_file_exists": false,
+        "parsed_results": 0,
+        "reported_status": "ok",
+        "still_reserved_routes": [
+          "r1"
+        ]
+      },
+      "active_run_build_gate": {
+        "active_run_id": "full_corpus_normalization_patch_qa_20260724",
+        "active_output_directory_accepted": true,
+        "allow_current_overwrite_flag_supplied": false,
+        "build_writes_mocked": true
+      },
+      "worklist_conversion_omits_audit_refresh": {
+        "artifacts_written": 1,
+        "source_identity_audit_refreshed": false
+      }
+    }
+  },
+  "metadata_checkpoint_benchmark": {
+    "input_rows": 131099,
+    "input_bytes": 135268315,
+    "read_and_index_seconds": 3.155,
+    "merge_seconds": 0.905,
+    "write_seconds": 1.877,
+    "output_bytes": 135268315,
+    "checkpoint_interval_rows": 100,
+    "example_10000_row_refresh_checkpoint_count": 100,
+    "example_rewrite_bytes_at_current_cache_size": 13526831500,
+    "note": "One local temporary-file benchmark; timing is indicative, not a production throughput guarantee. Example excludes the additional final checkpoint and cache growth."
+  },
+  "corpus": {
+    "repository_head": "13bff62333c766090f501051fcdc982c5b6b5d76",
+    "active_run": {
+      "schema_version": "active_routed_extraction_run_v1",
+      "release_id": "full_corpus_normalization_patch_qa_20260724:60f0d4c24ef84f369509fc7974445274",
+      "updated_at_utc": "2026-07-24T03:19:36.557049+00:00",
+      "run_id": "full_corpus_normalization_patch_qa_20260724",
+      "outputs_jsonl": "data/processed/extraction/routed_runs/full_corpus_normalization_patch_qa_20260724/route_extraction_outputs.jsonl",
+      "evidence_rows_json": "data/processed/extraction/routed_runs/full_corpus_normalization_patch_qa_20260724/routed_evidence_rows.json",
+      "kg_dir": "data/processed/kg_routed_runs/full_corpus_normalization_patch_qa_20260724",
+      "graph_payload_manifest": "data/processed/graph_payload_runs/full_corpus_normalization_patch_qa_20260724/graph_payload_manifest.json"
+    },
+    "read_only_queries": {
+      "candidate_integrity": {
+        "sql": "SELECT count(*) records, count(distinct doi) unique_dois, count(*) FILTER (WHERE doi IS NULL OR doi='') missing_dois FROM candidate",
+        "rows": [
+          {
+            "records": 268221,
+            "unique_dois": 268221,
+            "missing_dois": 0
+          }
+        ]
+      },
+      "findings_by_family": {
+        "sql": "SELECT source_family, count(*) findings, count(distinct study_doi) reports FROM finding GROUP BY 1 ORDER BY 1",
+        "rows": [
+          {
+            "source_family": "primary_study",
+            "findings": 82297,
+            "reports": 16510
+          },
+          {
+            "source_family": "secondary_literature",
+            "findings": 14898,
+            "reports": 4873
+          }
+        ]
+      },
+      "active_ineligible": {
+        "sql": "SELECT count(distinct c.doi) reports FROM candidate c JOIN finding f ON c.doi=f.study_doi WHERE NOT c.retained_for_extraction_candidate OR c.post_retrieval_decision='exclude'",
+        "rows": [
+          {
+            "reports": 0
+          }
+        ]
+      },
+      "condition_split": {
+        "sql": "SELECT count(*) findings, count(distinct study_doi) reports FROM finding WHERE endpoint_label_source='condition_text_split'",
+        "rows": [
+          {
+            "findings": 520,
+            "reports": 123
+          }
+        ]
+      },
+      "corrupt_dose": {
+        "sql": "SELECT count(*) findings, count(distinct study_doi) reports FROM finding WHERE regexp_matches(dose, '[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f]')",
+        "rows": [
+          {
+            "findings": 57,
+            "reports": 17
+          }
+        ]
+      },
+      "corrupt_effect_size": {
+        "sql": "SELECT count(*) findings, count(distinct study_doi) reports FROM finding WHERE regexp_matches(effect_size, '[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f]')",
+        "rows": [
+          {
+            "findings": 28,
+            "reports": 9
+          }
+        ]
+      },
+      "primary_quotes": {
+        "sql": "SELECT count(*) findings,count(*) FILTER(WHERE supporting_quote IS NULL OR supporting_quote='') without_quote FROM finding WHERE source_family='primary_study'",
+        "rows": [
+          {
+            "findings": 82297,
+            "without_quote": 82297
+          }
+        ]
+      },
+      "no_abstract_screening": {
+        "sql": "SELECT prescreen_actions, count(*) records, count(*) FILTER (WHERE flag_has_local_pdf) flagged_local_pdf FROM candidate WHERE prescreen_actions LIKE '%abstract%' GROUP BY 1 ORDER BY 2 DESC",
+        "rows": [
+          {
+            "prescreen_actions": "exclude_no_usable_abstract",
+            "records": 86584,
+            "flagged_local_pdf": 172
+          }
+        ]
+      },
+      "status_distribution": {
+        "sql": "SELECT graph_inclusion_status, count(*) records FROM candidate GROUP BY 1 ORDER BY 2 DESC",
+        "rows": [
+          {
+            "graph_inclusion_status": "not_reached",
+            "records": 245169
+          },
+          {
+            "graph_inclusion_status": "represented",
+            "records": 21382
+          },
+          {
+            "graph_inclusion_status": "not_represented",
+            "records": 1670
+          }
+        ]
+      },
+      "active_missing_candidate": {
+        "sql": "SELECT study_doi,count(*) findings FROM finding f LEFT JOIN candidate c ON f.study_doi=c.doi WHERE c.doi IS NULL GROUP BY 1",
+        "rows": [
+          {
+            "study_doi": "10.26599/bsa.2024.9050006",
+            "findings": 1
+          },
+          {
+            "study_doi": "10.1016/j.cell.2017.12.011",
+            "findings": 1
+          }
+        ],
+        "note": "Raw DOI join diagnostic only: both unmatched DOIs resolve through the alias registry; not an orphan finding."
+      },
+      "active_reported_not_represented": {
+        "sql": "SELECT c.doi,c.graph_inclusion_status,count(*) findings FROM finding f JOIN candidate c ON f.study_doi=c.doi WHERE c.graph_inclusion_status<>'represented' GROUP BY 1,2",
+        "rows": [
+          {
+            "doi": "10.1080/14746700.2026.2637223",
+            "graph_inclusion_status": "not_represented",
+            "findings": 1
+          }
+        ]
+      }
+    },
+    "jats_source_scan": {
+      "counts": {
+        "jats_artifacts": 2717,
+        "jats_with_figures": 2153,
+        "source_jats_figures": 9012,
+        "jats_with_table_captions": 1688,
+        "source_table_captions": 4261,
+        "jats_with_table_notes": 1269,
+        "source_table_notes": 2827,
+        "current_parser_figures": 0,
+        "active_reports_with_jats_artifact": 2405,
+        "active_reports_with_jats_figures": 1993,
+        "active_reports_with_jats_table_captions": 1585
+      },
+      "saved_packet_counts": {
+        "saved_jats_packets": 2590,
+        "saved_jats_packets_with_figures": 0,
+        "saved_jats_tables": 4360,
+        "saved_jats_tables_with_caption": 0
+      },
+      "examples": [
+        {
+          "doi": "10.1001/archgenpsychiatry.2010.90",
+          "artifact": "data/processed/fulltext/articles/10_1001_archgenpsychiatry_2010_90.json",
+          "source_figures": 4,
+          "parsed_figures": 0,
+          "table_captions": 2,
+          "parsed_caption_sample": [
+            "",
+            ""
+          ],
+          "represented_in_active_findings": true
+        },
+        {
+          "doi": "10.1001/archgenpsychiatry.2011.156",
+          "artifact": "data/processed/fulltext/articles/10_1001_archgenpsychiatry_2011_156.json",
+          "source_figures": 2,
+          "parsed_figures": 0,
+          "table_captions": 4,
+          "parsed_caption_sample": [
+            "",
+            "",
+            ""
+          ],
+          "represented_in_active_findings": true
+        },
+        {
+          "doi": "10.1001/jamahealthforum.2025.3489",
+          "artifact": "data/processed/fulltext/articles/10_1001_jamahealthforum_2025_3489.json",
+          "source_figures": 1,
+          "parsed_figures": 0,
+          "table_captions": 4,
+          "parsed_caption_sample": [
+            "",
+            "",
+            ""
+          ],
+          "represented_in_active_findings": true
+        },
+        {
+          "doi": "10.1001/jamanetworkopen.2023.9321",
+          "artifact": "data/processed/fulltext/articles/10_1001_jamanetworkopen_2023_9321.json",
+          "source_figures": 2,
+          "parsed_figures": 0,
+          "table_captions": 3,
+          "parsed_caption_sample": [
+            "",
+            "",
+            ""
+          ],
+          "represented_in_active_findings": false
+        },
+        {
+          "doi": "10.1001/jamanetworkopen.2025.2853",
+          "artifact": "data/processed/fulltext/articles/10_1001_jamanetworkopen_2025_2853.json",
+          "source_figures": 2,
+          "parsed_figures": 0,
+          "table_captions": 3,
+          "parsed_caption_sample": [
+            "",
+            "",
+            ""
+          ],
+          "represented_in_active_findings": true
+        },
+        {
+          "doi": "10.1001/jamanetworkopen.2026.0972",
+          "artifact": "data/processed/fulltext/articles/10_1001_jamanetworkopen_2026_0972.json",
+          "source_figures": 3,
+          "parsed_figures": 0,
+          "table_captions": 2,
+          "parsed_caption_sample": [
+            "",
+            ""
+          ],
+          "represented_in_active_findings": true
+        },
+        {
+          "doi": "10.1001/jamanetworkopen.2026.11029",
+          "artifact": "data/processed/fulltext/articles/10_1001_jamanetworkopen_2026_11029.json",
+          "source_figures": 2,
+          "parsed_figures": 0,
+          "table_captions": 3,
+          "parsed_caption_sample": [
+            "",
+            "",
+            ""
+          ],
+          "represented_in_active_findings": true
+        },
+        {
+          "doi": "10.1001/jamanetworkopen.2026.12589",
+          "artifact": "data/processed/fulltext/articles/10_1001_jamanetworkopen_2026_12589.json",
+          "source_figures": 4,
+          "parsed_figures": 0,
+          "table_captions": 1,
+          "parsed_caption_sample": [
+            ""
+          ],
+          "represented_in_active_findings": true
+        }
+      ]
+    },
+    "input_snapshots": [
+      {
+        "path": "data/processed/extraction/active_routed_run.json",
+        "bytes": 765,
+        "sha256": "c01f4d565472610c0ac3f67a2ed89422c6ca2520af57df1d7fb1f83d47928975"
+      },
+      {
+        "path": "data/processed/graph_payload_active.json",
+        "bytes": 6915,
+        "sha256": "75f2d1ea92f546c2cbf3547e93c4886ea12e68b5421fa182d1b306b17bf4208d"
+      },
+      {
+        "path": "data/processed/corpus/candidate_papers.parquet",
+        "bytes": 198290370,
+        "sha256": "c6b03e85b3d3305fadb61c633c4589fd4eee621b31204eb16bba10a2cd5a825f"
+      },
+      {
+        "path": "data/processed/kg_routed_runs/full_corpus_normalization_patch_qa_20260724/findings.parquet",
+        "bytes": 149744080,
+        "sha256": "ff1cda018282e582ed588943cd26ee2626ad9271402f866ad9af890aef9415bf"
+      },
+      {
+        "path": "data/processed/extraction/fulltext_packets.jsonl",
+        "bytes": 579070633,
+        "sha256": "3629e9eee31fb9dba7b6ce3740ae9aeb696c090b4a9768c9d34168321b84e77f"
+      }
+    ],
+    "release_consistency_checks": {
+      "active_pointer_pair": {
+        "status": "passed",
+        "run_id": "full_corpus_normalization_patch_qa_20260724",
+        "release_id": "full_corpus_normalization_patch_qa_20260724:60f0d4c24ef84f369509fc7974445274"
+      },
+      "active_public_release": {
+        "status": "passed",
+        "run_id": "full_corpus_normalization_patch_qa_20260724",
+        "release_id": "full_corpus_normalization_patch_qa_20260724:public:4f661238dac14f52ac399b50bf30a1d6"
+      },
+      "generated_at": {
+        "kg": "2026-07-28T09:38:45.861679+00:00",
+        "payload": "2026-07-28T13:17:53.518738+00:00",
+        "methods": "2026-07-24T12:43:21.145454+00:00"
+      },
+      "alias_aware_ledger": {
+        "unmatched_finding_dois": [],
+        "represented_but_no_finding": [],
+        "non_alias_findings_marked_not_represented": [
+          {
+            "doi": "10.1080/14746700.2026.2637223",
+            "resolved_doi": "10.1080/14746700.2026.2637223",
+            "graph_inclusion_status": "not_represented"
+          }
+        ],
+        "excluded_alias_rows_not_expected_to_be_represented": 65
+      }
+    }
+  },
+  "code_snapshots": [
+    {
+      "path": "pipeline/fulltext/build_llm_evidence_packets.py",
+      "sha256": "47c822cde604de9445e9cc22a4152da8e5cc2cdd8acee9cb4c192732ae24d5d2"
+    },
+    {
+      "path": "pipeline/extract/build_extraction_routes.py",
+      "sha256": "903c7db0820de07765f06a257485c2b965e0197e5323b4e1db4d315403592706"
+    },
+    {
+      "path": "pipeline/discovery/promote_search_run.py",
+      "sha256": "1febffe7994acdb9e442ba54986755dd45646b7dd57ea242aa50fc9fe4d57ade"
+    },
+    {
+      "path": "pipeline/ingest/candidate_status.py",
+      "sha256": "5aaedfbb6829d9ee3a6f962987342ee2b518fa217cfaafa7fe85a8bac47c608b"
+    },
+    {
+      "path": "pipeline/kg/build_evidence_tables.py",
+      "sha256": "eb90cadfa2cb880079efc245c5076844e6454e40e3e305f9bbdb8f58c6252289"
+    },
+    {
+      "path": "pipeline/extract/run_route_extraction_batch_api.py",
+      "sha256": "d6dfadcaafa5adf3118366d9dc31e532a58a1acf11941e34c97f9bdf561a188c"
+    },
+    {
+      "path": "pipeline/extract/run_routed_extraction_batch.py",
+      "sha256": "86bd3d3763ec70ad93db0f95cb993d7fae4209f3bd4865175ad80f6e66579617"
+    },
+    {
+      "path": "pipeline/extract/run_review_relationship_extraction.py",
+      "sha256": "b2f355253255e95d5360c9b12ae27f3b0dbd87fd8f48286d15f263ac07c3fa5b"
+    },
+    {
+      "path": "pipeline/extract/run_meta_analysis_v2_batch_api.py",
+      "sha256": "e43eaab80faa8635d1ecf8445ad511b904b1cfa635c91c6916524ac66544aa77"
+    },
+    {
+      "path": "pipeline/fulltext/convert_routed_local_pdfs.py",
+      "sha256": "a5f186302fe8281c768bb8b92280b78828cd9bfba7051a8a5a257a2add9659ac"
+    },
+    {
+      "path": "pipeline/ingest/enrich_paper_metadata.py",
+      "sha256": "7cff700d441d4c9978a238c4c9f4032de84cf868719f6a6366b285208db3ab6a"
+    },
+    {
+      "path": "pipeline/publish/promote_routed_run.py",
+      "sha256": "691896260d419517f6e5b5c7c27de31d5f4ec54d89fc9eb1d8b0c7cd1923ab0f"
+    }
+  ]
+}

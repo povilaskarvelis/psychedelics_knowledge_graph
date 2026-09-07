@@ -1,0 +1,154 @@
+{
+  "run_id": "author_identity_20260906_reviewed",
+  "counts": {
+    "papers": 22137,
+    "authors": 64852,
+    "authorships": 116698
+  },
+  "unchanged_evidence_files": {
+    "papers.parquet": true,
+    "findings.parquet": true,
+    "entities.parquet": true,
+    "evidence_edges.parquet": true,
+    "openalex_author_cache.json": true
+  },
+  "sample_paper_lists": {
+    "10.1089/psymed.2024.0003": [
+      {
+        "author_position": 1,
+        "display_name": "Sara G. Gloeckler",
+        "author_id": "orcid:0009-0000-8316-0672",
+        "author_list_review_id": "author-list-20260906-046"
+      },
+      {
+        "author_position": 2,
+        "display_name": "Alexandre Lehmann",
+        "author_id": "orcid:0000-0002-6703-872X",
+        "author_list_review_id": "author-list-20260906-046"
+      },
+      {
+        "author_position": 3,
+        "display_name": "Sara de la Salle",
+        "author_id": "orcid:0000-0002-1698-5938",
+        "author_list_review_id": "author-list-20260906-046"
+      },
+      {
+        "author_position": 4,
+        "display_name": "Kyle T. Greenway",
+        "author_id": "orcid:0000-0002-7829-493X",
+        "author_list_review_id": "author-list-20260906-046"
+      },
+      {
+        "author_position": 5,
+        "display_name": "Philippe Lucas",
+        "author_id": "orcid:0000-0003-1948-3842",
+        "author_list_review_id": "author-list-20260906-046"
+      }
+    ],
+    "10.1096/fj.06-6394fje": [
+      {
+        "author_position": 1,
+        "display_name": "Dao\u2010Yao He",
+        "author_id": "openalex:A5110028201",
+        "author_list_review_id": "author-list-20260906-067"
+      },
+      {
+        "author_position": 2,
+        "display_name": "Dorit Ron",
+        "author_id": "orcid:0000-0001-5161-967X",
+        "author_list_review_id": "author-list-20260906-067"
+      }
+    ],
+    "10.14302/issn.2574-612x.ijpr-18-2503": [
+      {
+        "author_position": 1,
+        "display_name": "Jan M. Keppel Hesselink",
+        "author_id": "orcid:0000-0002-0186-8050",
+        "author_list_review_id": "author-list-20260906-069"
+      }
+    ],
+    "10.1016/j.jpsychires.2023.01.009": [
+      {
+        "author_position": 1,
+        "display_name": "Ming\u2010Chyi Huang",
+        "author_id": "orcid:0000-0001-9751-9834",
+        "author_list_review_id": "author-list-20260906-066"
+      },
+      {
+        "author_position": 2,
+        "display_name": "Chun\u2010Hsin Chen",
+        "author_id": "openalex:A5051293801",
+        "author_list_review_id": "author-list-20260906-066"
+      },
+      {
+        "author_position": 3,
+        "display_name": "Tung\u2010Hsia Liu",
+        "author_id": "orcid:0000-0003-3026-1810",
+        "author_list_review_id": "author-list-20260906-066"
+      },
+      {
+        "author_position": 4,
+        "display_name": "Annie Chung",
+        "author_id": "orcid:0000-0002-3072-7038",
+        "author_list_review_id": "author-list-20260906-066"
+      },
+      {
+        "author_position": 5,
+        "display_name": "Yu\u2010Li Liu",
+        "author_id": "orcid:0000-0001-7519-2965",
+        "author_list_review_id": "author-list-20260906-066"
+      },
+      {
+        "author_position": 6,
+        "display_name": "Boris B. Quednow",
+        "author_id": "orcid:0000-0001-7933-2865",
+        "author_list_review_id": "author-list-20260906-066"
+      },
+      {
+        "author_position": 7,
+        "display_name": "Francesco Bavato",
+        "author_id": "orcid:0000-0002-3787-6706",
+        "author_list_review_id": "author-list-20260906-066"
+      }
+    ]
+  },
+  "applied_authorship_reviews": 103,
+  "applied_author_list_reviews": 69,
+  "removed_source_entries": 104,
+  "focused_tests": {
+    "passed": 58,
+    "suites": [
+      "test_build_author_tables.py",
+      "test_audit_author_identities.py",
+      "test_export_evidence_payload.py",
+      "test_export_query_api.py",
+      "test_promote_routed_run.py"
+    ]
+  },
+  "exported_corrected_citations": {
+    "10.1089/psymed.2024.0003": "Sara G. Gloeckler; Alexandre Lehmann; Sara de la Salle; Kyle T. Greenway; Philippe Lucas",
+    "10.1096/fj.06-6394fje": "Dao\u2010Yao He; Dorit Ron"
+  },
+  "local_preview": {
+    "url": "http://127.0.0.1:8011/?data-source=local",
+    "run_id": "author_identity_20260906_reviewed",
+    "evidence_release_id": "author_identity_20260906_reviewed:380a2d4dc6314e219c09196d50914902",
+    "public_release_id": "author_identity_20260906_reviewed:public:947f000220844993b95ebf242c68b114",
+    "active_pair_check": "passed",
+    "local_bundle_check": "passed",
+    "browser_author_search": "Carhart returns one Robin Carhart-Harris result; author view loads",
+    "browser_corrected_citation": "10.1096/fj.06-6394fje displays Dao-Yao He and Dorit Ron once each on both finding cards",
+    "browser_displayed_totals": {
+      "papers": 21375,
+      "primary": 16510,
+      "reviews": 4544,
+      "meta_analyses": 321
+    },
+    "production_deployed": false
+  },
+  "unfiltered_export_author_role_counts_2000_2026": {
+    "primary": 85,
+    "reviews": 20,
+    "meta_analyses": 0
+  }
+}

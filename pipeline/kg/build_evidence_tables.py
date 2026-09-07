@@ -37,6 +37,11 @@ try:
         materialize_open_science,
         subset_open_science_assertions,
     )
+    from pipeline.kg.research_area_review import (
+        FIELDS as RESEARCH_AREA_FIELDS, action as research_area_action,
+        build_review_queue, apply_boundaries as apply_research_area_boundaries,
+        psychosis_anchor_is_context, serious_psychosis,
+    )
     from pipeline.kg.compound_combinations import (
         aliases_for_components,
         canonical_components,
@@ -65,6 +70,11 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     from pipeline.ingest.materialize_paper_open_science import (
         materialize_open_science,
         subset_open_science_assertions,
+    )
+    from pipeline.kg.research_area_review import (
+        FIELDS as RESEARCH_AREA_FIELDS, action as research_area_action,
+        build_review_queue, apply_boundaries as apply_research_area_boundaries,
+        psychosis_anchor_is_context, serious_psychosis,
     )
     from pipeline.kg.compound_combinations import (
         aliases_for_components,
@@ -233,7 +243,7 @@ PAPER_FIELDS = (
     "unpaywall_license",
 )
 
-CLAIM_FIELDS = (
+CLAIM_FIELDS = RESEARCH_AREA_FIELDS + (
     "claim_type",
     "graph_subject_label",
     "graph_subject_kind",
@@ -8998,7 +9008,22 @@ def apply_psychosis_family_boundary(row: dict, domain: str) -> tuple[dict, str]:
         normalize(row.get(field, ""))
         for field in ("finding_summary", "support", "supporting_quote", "effect_or_statistic")
     )
-    if PSYCHOTOMIMETIC_STATEMENT_RE.search(statement):
+    if domain == "clinical_outcome" and psychosis_anchor_is_context(anchor, statement):
+        research_area_action(row, "psychosis_population_or_negation_not_safety")
+        endpoint = normalize(row.get("clinical_endpoint", "")).casefold()
+        if endpoint in {"depression severity", "depressive symptoms", "depression symptoms"}:
+            row["kg_entity_kind_override"] = "symptom_problem"
+            row["graph_entity_label"] = "Low mood & depressive symptoms"
+            row["endpoint_label_source"] = "psychosis_context_explicit_clinical_endpoint"
+        elif endpoint in {"suicidal ideation", "suicidality"}:
+            row["kg_entity_kind_override"] = "condition_indication"
+            row["graph_entity_label"] = "Suicidality"
+            row["endpoint_label_source"] = "psychosis_context_explicit_clinical_endpoint"
+        else:
+            row["graph_admission_status"] = "paper_detail"
+            row["graph_admission_reason"] = "psychosis_population_anchor_without_resolved_endpoint"
+        return row, domain
+    if PSYCHOTOMIMETIC_STATEMENT_RE.search(statement) and not serious_psychosis(statement):
         domain = "cognitive_behavioral"
         row["domain"] = domain
         row["domain_route"] = domain
@@ -9060,7 +9085,7 @@ def entity_row(
 
 
 def normalize_claim_metadata(row: dict, domain: str) -> dict:
-    out = dict(row)
+    out = apply_research_area_boundaries({"domain": domain, **row})
     out = apply_review_context_metadata(out)
     out = apply_meta_analysis_context_metadata(out)
     out = apply_review_safety_role_boundary(out)
@@ -9516,6 +9541,10 @@ def nontherapeutic_substance_use_condition_reason(row: dict) -> str:
 def nontherapeutic_clinical_context_reason(row: dict) -> str:
     """Identify clinical-looking rows that do not report therapeutic outcomes."""
 
+    if (normalized_entity_kind(row.get("kg_entity_kind_override", "")) == "condition_indication"
+            and label_key(row.get("graph_entity_label", "") or row.get("entity_label", "")) == "ketamine associated uropathy"
+            and label_key(row.get("compound", "")) == "ketamine"):
+        return "exposure_caused_uropathy_not_ketamine_indication"
     substance_use_reason = nontherapeutic_substance_use_condition_reason(row)
     if substance_use_reason:
         return substance_use_reason
@@ -10555,6 +10584,7 @@ def build_tables(
                 audits.append(audit_row(row, source_name, domain, dataset))
 
     proposition_summary = finalize_proposition_groups(findings, evidence_edges, finding_id_field)
+    research_area_queue, research_area_summary = build_review_queue(findings, audits)
     papers_df = dataframe(list(papers.values()))
     doi_aliases = load_doi_aliases(doi_alias_registry_path)
     funding_assertions = pd.DataFrame()
@@ -10666,6 +10696,11 @@ def build_tables(
         finding_table_name: dataframe(findings),
         "evidence_edges": dataframe(evidence_edges),
         "normalization_audit": dataframe(audits),
+        "research_area_review_queue": dataframe(research_area_queue, columns=(
+            "finding_id", "claim_id", "record_type", "normalization_status", "study_doi", "compound", "domain", "entity_label",
+            "kg_entity_kind_override", "graph_admission_status", "support", "supporting_quote",
+            "evidence_location", "evidence_locator", *RESEARCH_AREA_FIELDS,
+        )),
     }
     molecular_subtopic_coverage = molecular_subtopic_coverage_summary(tables[finding_table_name])
     if route_native and molecular_subtopic_coverage["status"] != "ok":
@@ -10715,6 +10750,7 @@ def build_tables(
         "entity_counts_by_type_kind": entity_counts(entity_df),
         "molecular_subtopic_coverage": molecular_subtopic_coverage,
         "proposition_summary": proposition_summary,
+        "research_area_review": research_area_summary,
         "funding_metadata": funding_report,
         "open_science_metadata": open_science_report,
         "graph_admission_counts": dict(Counter(normalize(row.get("graph_admission_status", "")) for row in findings)),

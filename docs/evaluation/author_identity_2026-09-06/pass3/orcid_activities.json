@@ -1,0 +1,583 @@
+{
+  "0000-0002-0063-5044": {
+    "source_url": "https://pub.orcid.org/v3.0/0000-0002-0063-5044/activities",
+    "affiliations": [],
+    "work_dois": [
+      "10.1186/s12871-021-01509-0",
+      "10.1177/0269215520972648",
+      "10.1002/jcp.29973"
+    ]
+  },
+  "0000-0002-2463-752X": {
+    "source_url": "https://pub.orcid.org/v3.0/0000-0002-2463-752X/activities",
+    "affiliations": [],
+    "work_dois": []
+  },
+  "0000-0002-3919-3749": {
+    "source_url": "https://pub.orcid.org/v3.0/0000-0002-3919-3749/activities",
+    "affiliations": [
+      {
+        "organization": {
+          "name": "Tongji University",
+          "address": {
+            "city": "Shanghai",
+            "region": "Shanghai",
+            "country": "CN"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "12476",
+            "disambiguation-source": "RINGGOLD"
+          }
+        },
+        "department-name": "college of electric and information engineering",
+        "role-title": "Doctor"
+      }
+    ],
+    "work_dois": [
+      "10.1002/cpe.70924",
+      "10.3390/sym18071123",
+      "10.3390/photonics13050429",
+      "10.31881/TLR.2026.2235",
+      "10.1002/cpe.70719",
+      "10.3390/s26041313",
+      "10.3390/jmse14040384",
+      "10.3390/jmse14010082",
+      "10.3390/jmse13081593",
+      "10.1155/2016/6761545"
+    ]
+  },
+  "0000-0002-4483-1960": {
+    "source_url": "https://pub.orcid.org/v3.0/0000-0002-4483-1960/activities",
+    "affiliations": [],
+    "work_dois": [
+      "10.1016/j.euroneuro.2019.11.002",
+      "10.1172/JCI130808"
+    ]
+  },
+  "0000-0002-6709-7092": {
+    "source_url": "https://pub.orcid.org/v3.0/0000-0002-6709-7092/activities",
+    "affiliations": [
+      {
+        "organization": {
+          "name": "Universidad Privada del Norte",
+          "address": {
+            "city": "Lima",
+            "region": "Lima",
+            "country": "PE"
+          },
+          "disambiguated-organization": null
+        },
+        "department-name": "Lima",
+        "role-title": "Docente tiempo completo "
+      },
+      {
+        "organization": {
+          "name": "Universidad Tecnológica del Perú",
+          "address": {
+            "city": "Lima",
+            "region": "Lima",
+            "country": "PE"
+          },
+          "disambiguated-organization": null
+        },
+        "department-name": "Lima",
+        "role-title": "Docente tiempo parcial "
+      },
+      {
+        "organization": {
+          "name": "Dinamo Solutions SAC",
+          "address": {
+            "city": "Lima",
+            "region": "Lima",
+            "country": "PE"
+          },
+          "disambiguated-organization": null
+        },
+        "department-name": "Lima",
+        "role-title": "Gerente de Proyectos"
+      },
+      {
+        "organization": {
+          "name": "Textil San Ramón S.A.",
+          "address": {
+            "city": "Lima",
+            "region": "Lima",
+            "country": "PE"
+          },
+          "disambiguated-organization": null
+        },
+        "department-name": "Lima",
+        "role-title": "Jefe de Sistemas"
+      },
+      {
+        "organization": {
+          "name": "Precotex S.A.C. / Textil Only Star S.A.C. ",
+          "address": {
+            "city": "Lima",
+            "region": "Lima",
+            "country": "PE"
+          },
+          "disambiguated-organization": null
+        },
+        "department-name": "Lima",
+        "role-title": "Jefe de Sistemas"
+      },
+      {
+        "organization": {
+          "name": "Escuela de Administración de Negocios para Graduados",
+          "address": {
+            "city": "Lima",
+            "region": "Lima",
+            "country": "PE"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "70127",
+            "disambiguation-source": "RINGGOLD"
+          }
+        },
+        "department-name": "Lima",
+        "role-title": "Magister en Dirección de Tecnologías de Información"
+      },
+      {
+        "organization": {
+          "name": "Pontificia Universidad Católica del Perú",
+          "address": {
+            "city": "Lima",
+            "region": "Lima",
+            "country": "PE"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "http://dx.doi.org/10.13039/501100011871",
+            "disambiguation-source": "FUNDREF"
+          }
+        },
+        "department-name": "Lima",
+        "role-title": "Ingeniero Industrial"
+      }
+    ],
+    "work_dois": [
+      "10.1145/3704323.3704367"
+    ]
+  },
+  "0000-0002-7595-7996": {
+    "source_url": "https://pub.orcid.org/v3.0/0000-0002-7595-7996/activities",
+    "affiliations": [],
+    "work_dois": []
+  },
+  "0000-0002-8315-6232": {
+    "source_url": "https://pub.orcid.org/v3.0/0000-0002-8315-6232/activities",
+    "affiliations": [],
+    "work_dois": []
+  },
+  "0000-0002-8328-3207": {
+    "source_url": "https://pub.orcid.org/v3.0/0000-0002-8328-3207/activities",
+    "affiliations": [],
+    "work_dois": [
+      "10.3390/vetsci12020165"
+    ]
+  },
+  "0000-0002-8741-9394": {
+    "source_url": "https://pub.orcid.org/v3.0/0000-0002-8741-9394/activities",
+    "affiliations": [],
+    "work_dois": []
+  },
+  "0000-0003-0004-0486": {
+    "source_url": "https://pub.orcid.org/v3.0/0000-0003-0004-0486/activities",
+    "affiliations": [],
+    "work_dois": []
+  },
+  "0000-0003-0417-5759": {
+    "source_url": "https://pub.orcid.org/v3.0/0000-0003-0417-5759/activities",
+    "affiliations": [
+      {
+        "organization": {
+          "name": "Tianjin 4th Central Hospital",
+          "address": {
+            "city": "Tianjin",
+            "region": "Hebei District, Tianjin",
+            "country": "CN"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "159424",
+            "disambiguation-source": "RINGGOLD"
+          }
+        },
+        "department-name": null,
+        "role-title": "director"
+      },
+      {
+        "organization": {
+          "name": "Tianjin 4th Central Hospital",
+          "address": {
+            "city": "Tianjin",
+            "region": "Tianjin",
+            "country": "CN"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "159424",
+            "disambiguation-source": "RINGGOLD"
+          }
+        },
+        "department-name": null,
+        "role-title": null
+      },
+      {
+        "organization": {
+          "name": "Tianjin 4th Central Hospital",
+          "address": {
+            "city": "Tianjin",
+            "region": "Tianjin",
+            "country": "CN"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "159424",
+            "disambiguation-source": "RINGGOLD"
+          }
+        },
+        "department-name": null,
+        "role-title": null
+      }
+    ],
+    "work_dois": []
+  },
+  "0000-0003-1012-6494": {
+    "source_url": "https://pub.orcid.org/v3.0/0000-0003-1012-6494/activities",
+    "affiliations": [],
+    "work_dois": []
+  },
+  "0000-0003-1499-2031": {
+    "source_url": "https://pub.orcid.org/v3.0/0000-0003-1499-2031/activities",
+    "affiliations": [],
+    "work_dois": []
+  },
+  "0000-0003-1621-0486": {
+    "source_url": "https://pub.orcid.org/v3.0/0000-0003-1621-0486/activities",
+    "affiliations": [
+      {
+        "organization": {
+          "name": "Hokkaido University",
+          "address": {
+            "city": "Sapporo",
+            "region": "Hokkaidô",
+            "country": "JP"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "grid.39158.36",
+            "disambiguation-source": "GRID"
+          }
+        },
+        "department-name": "GI Surgery 2",
+        "role-title": "Visiting Professor"
+      },
+      {
+        "organization": {
+          "name": "University of Wisconsin–Madison",
+          "address": {
+            "city": "Madison",
+            "region": "Wisconsin",
+            "country": "US"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "grid.14003.36",
+            "disambiguation-source": "GRID"
+          }
+        },
+        "department-name": "Anesthesiology",
+        "role-title": "Bamforth Professor and Vice Chair for Research"
+      },
+      {
+        "organization": {
+          "name": "Columbia University",
+          "address": {
+            "city": "New York",
+            "region": "NY",
+            "country": "US"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "5798",
+            "disambiguation-source": "RINGGOLD"
+          }
+        },
+        "department-name": "Anesthesiology",
+        "role-title": "Professor and Director of Neuroscience Research"
+      },
+      {
+        "organization": {
+          "name": "University of Rochester",
+          "address": {
+            "city": "Rochester",
+            "region": "NY",
+            "country": "US"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "6927",
+            "disambiguation-source": "RINGGOLD"
+          }
+        },
+        "department-name": "Anesthesiology and Pharmacology",
+        "role-title": "Professor"
+      },
+      {
+        "organization": {
+          "name": "The University of Texas Southwestern Medical Center Medical School",
+          "address": {
+            "city": "Dallas",
+            "region": "TX",
+            "country": "US"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "25989",
+            "disambiguation-source": "RINGGOLD"
+          }
+        },
+        "department-name": "Anesthesiology",
+        "role-title": "Associate Professor"
+      },
+      {
+        "organization": {
+          "name": "University of Maryland Baltimore",
+          "address": {
+            "city": "Baltimore",
+            "region": "MD",
+            "country": "US"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "12265",
+            "disambiguation-source": "RINGGOLD"
+          }
+        },
+        "department-name": "Anesthesiology and Pharmacology",
+        "role-title": "Assistant Professor"
+      },
+      {
+        "organization": {
+          "name": "Brown University ",
+          "address": {
+            "city": "Providence",
+            "region": "Rhode Island",
+            "country": "US"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "grid.40263.33",
+            "disambiguation-source": "GRID"
+          }
+        },
+        "department-name": "Neuroscience",
+        "role-title": "PhD"
+      },
+      {
+        "organization": {
+          "name": "Brown University",
+          "address": {
+            "city": "Providence",
+            "region": "Rhode Island",
+            "country": "US"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "grid.40263.33",
+            "disambiguation-source": "GRID"
+          }
+        },
+        "department-name": "Engineering",
+        "role-title": "MSEE"
+      },
+      {
+        "organization": {
+          "name": "Brown University",
+          "address": {
+            "city": "Providence",
+            "region": "Rhode Island",
+            "country": "US"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "grid.40263.33",
+            "disambiguation-source": "GRID"
+          }
+        },
+        "department-name": null,
+        "role-title": "BS"
+      }
+    ],
+    "work_dois": [
+      "10.3390/ijms24043525",
+      "10.3390/ijms23147778",
+      "10.1039/D0CC08109D"
+    ]
+  },
+  "0000-0003-2743-2316": {
+    "source_url": "https://pub.orcid.org/v3.0/0000-0003-2743-2316/activities",
+    "affiliations": [],
+    "work_dois": [
+      "10.1016/j.pathol.2025.10.019",
+      "10.1016/j.pathol.2025.05.010",
+      "10.1080/15563650.2024.2423834",
+      "10.1016/j.pathol.2021.07.008",
+      "10.1016/j.cca.2021.06.025"
+    ]
+  },
+  "0009-0001-6266-0026": {
+    "source_url": "https://pub.orcid.org/v3.0/0009-0001-6266-0026/activities",
+    "affiliations": [],
+    "work_dois": []
+  },
+  "0009-0001-7320-6347": {
+    "source_url": "https://pub.orcid.org/v3.0/0009-0001-7320-6347/activities",
+    "affiliations": [],
+    "work_dois": [
+      "10.1007/s10389-025-02433-0"
+    ]
+  },
+  "0009-0001-8797-4822": {
+    "source_url": "https://pub.orcid.org/v3.0/0009-0001-8797-4822/activities",
+    "affiliations": [
+      {
+        "organization": {
+          "name": "Changchun Institute of Applied Chemistry",
+          "address": {
+            "city": "Changchun",
+            "region": "Jilin",
+            "country": "CN"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "https://ror.org/00h52n341",
+            "disambiguation-source": "ROR"
+          }
+        },
+        "department-name": "Laboratory of Chemical Biology",
+        "role-title": null
+      }
+    ],
+    "work_dois": []
+  },
+  "0009-0002-4332-1384": {
+    "source_url": "https://pub.orcid.org/v3.0/0009-0002-4332-1384/activities",
+    "affiliations": [
+      {
+        "organization": {
+          "name": "China Medical University",
+          "address": {
+            "city": "Shenyang",
+            "region": null,
+            "country": "CN"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "https://ror.org/032d4f246",
+            "disambiguation-source": "ROR"
+          }
+        },
+        "department-name": "China Medical University",
+        "role-title": "student"
+      }
+    ],
+    "work_dois": []
+  },
+  "0009-0003-3484-3735": {
+    "source_url": "https://pub.orcid.org/v3.0/0009-0003-3484-3735/activities",
+    "affiliations": [],
+    "work_dois": []
+  },
+  "0009-0005-7397-9277": {
+    "source_url": "https://pub.orcid.org/v3.0/0009-0005-7397-9277/activities",
+    "affiliations": [],
+    "work_dois": []
+  },
+  "0009-0005-8777-4248": {
+    "source_url": "https://pub.orcid.org/v3.0/0009-0005-8777-4248/activities",
+    "affiliations": [],
+    "work_dois": []
+  },
+  "0009-0006-0860-2534": {
+    "source_url": "https://pub.orcid.org/v3.0/0009-0006-0860-2534/activities",
+    "affiliations": [
+      {
+        "organization": {
+          "name": "Certara (United States)",
+          "address": {
+            "city": "St Louis",
+            "region": "Missouri",
+            "country": "US"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "https://ror.org/02kxjqp24",
+            "disambiguation-source": "ROR"
+          }
+        },
+        "department-name": null,
+        "role-title": null
+      },
+      {
+        "organization": {
+          "name": "Simcyp (United Kingdom)",
+          "address": {
+            "city": "Sheffield",
+            "region": "England",
+            "country": "GB"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "https://ror.org/02j65kc59",
+            "disambiguation-source": "ROR"
+          }
+        },
+        "department-name": null,
+        "role-title": null
+      }
+    ],
+    "work_dois": [
+      "10.1208/s12248-025-01162-2"
+    ]
+  },
+  "0009-0006-4378-3502": {
+    "source_url": "https://pub.orcid.org/v3.0/0009-0006-4378-3502/activities",
+    "affiliations": [],
+    "work_dois": [
+      "10.1088/1748-0221/21/02/P02008",
+      "10.3390/instruments9030017",
+      "10.1007/s41365-024-01498-y",
+      "10.1007/s41365-024-01443-z"
+    ]
+  },
+  "0009-0006-5666-5329": {
+    "source_url": "https://pub.orcid.org/v3.0/0009-0006-5666-5329/activities",
+    "affiliations": [
+      {
+        "organization": {
+          "name": "Jilin Medical University",
+          "address": {
+            "city": "Jilin City",
+            "region": "Jilin",
+            "country": "CN"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "https://ror.org/03mzw7781",
+            "disambiguation-source": "ROR"
+          }
+        },
+        "department-name": null,
+        "role-title": null
+      }
+    ],
+    "work_dois": []
+  },
+  "0009-0006-7700-5856": {
+    "source_url": "https://pub.orcid.org/v3.0/0009-0006-7700-5856/activities",
+    "affiliations": [
+      {
+        "organization": {
+          "name": "Kunming University of Science and Technology",
+          "address": {
+            "city": "Kunming",
+            "region": null,
+            "country": "CN"
+          },
+          "disambiguated-organization": {
+            "disambiguated-organization-identifier": "https://ror.org/00xyeez13",
+            "disambiguation-source": "ROR"
+          }
+        },
+        "department-name": null,
+        "role-title": null
+      }
+    ],
+    "work_dois": []
+  }
+}

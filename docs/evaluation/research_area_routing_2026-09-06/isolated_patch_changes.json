@@ -1,0 +1,831 @@
+{
+  "baseline_builder_git_revision": "13bff62333c766090f501051fcdc982c5b6b5d76",
+  "baseline_builder_sha256": "eb90cadfa2cb880079efc245c5076844e6454e40e3e305f9bbdb8f58c6252289",
+  "source_rows_sha256": "afe8928cd12d5ccc07884b28cb2efbc1b92c70358e553cbac083c4a195431c13",
+  "scoped_source_rows": 909,
+  "baseline_rows": 1075,
+  "candidate_rows": 1074,
+  "audited_bad_main_projections_removed_by_patch": 53,
+  "removed_projection_keys": 57,
+  "added_projection_keys": 45,
+  "removed": [
+    {
+      "study_doi": "10.1002/ccr3.9305",
+      "compound": "LSD",
+      "support": "The patient experienced significant psychological improvement, including feelings of ecstasy and peace during the session and a sustained reduction in existential distress. At 6 months, he remained motivated to make life plans, reported improved mood, and had discontinued the use of analgesics and anxiolytics.",
+      "entity_label": "Psychosis risk",
+      "kg_entity_kind_override": "safety_adverse_event",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1002/nau.22477",
+      "compound": "Ketamine",
+      "support": "Augmentation enterocystoplasty significantly reduced severe bladder pain in patients with refractory ketamine cystitis.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1002/nau.22477",
+      "compound": "Ketamine",
+      "support": "Surgical intervention significantly increased bladder capacity in patients with ketamine-induced contracted bladders.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1002/nau.22996",
+      "compound": "Ketamine",
+      "support": "Long-term ketamine abuse resulted in severely inflamed bladder and intractable bladder pain (ketamine cystitis). Patients with contracted bladders (<300 ml) required surgical intervention (AE) for better outcomes compared to conservative management.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1002/nau.23514",
+      "compound": "Ketamine",
+      "support": "Patients with moderate or severe neutrophils or lymphocytes infiltration in the bladder mucosa had significantly more severe bladder pain and smaller bladder capacity.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1007/s11884-026-00807-y",
+      "compound": "Ketamine",
+      "support": "Recreational ketamine abuse causes Ketamine-induced cystitis (KIC) through mechanisms including urothelial barrier dysfunction, oxidative stress, and a shift from cholinergic to purinergic signaling.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1016/j.ijscr.2015.01.008",
+      "compound": "Ketamine",
+      "support": "Chronic recreational ketamine abuse led to severe ulcerative cystitis, bilateral ureteric obstruction, pyonephrosis, and acute kidney injury requiring surgical intervention with metallic stents.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1016/j.jad.2025.01.059",
+      "compound": "Ketamine",
+      "support": "No ketamine-treated patient experienced a manic switch during the four-week observation period.",
+      "entity_label": "Bipolar disorder",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1016/j.juro.2014.05.084",
+      "compound": "Ketamine",
+      "support": "Patients with ketamine cystitis exhibited higher serum IgE levels which correlated significantly with increased bladder pain severity (VAS) and decreased maximal bladder capacity.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1016/j.psycr.2022.100100",
+      "compound": "Ketamine",
+      "support": "Suicidal ideation was completely resolved after the fourth ketamine infusion session.",
+      "entity_label": "Psychosis risk",
+      "kg_entity_kind_override": "safety_adverse_event",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1016/j.psycr.2022.100100",
+      "compound": "Ketamine",
+      "support": "The patient maintained clinical improvement and remission of depressive symptoms at the one-month follow-up visit post-discharge.",
+      "entity_label": "Psychosis risk",
+      "kg_entity_kind_override": "safety_adverse_event",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1016/j.psycr.2022.100100",
+      "compound": "Ketamine",
+      "support": "The patient showed a rapid and significant reduction in depressive symptoms following five sessions of intravenous ketamine, achieving near-complete remission.",
+      "entity_label": "Psychosis risk",
+      "kg_entity_kind_override": "safety_adverse_event",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1016/j.urols.2014.11.003",
+      "compound": "Ketamine",
+      "support": "Chronic ketamine abuse causes ketamine cystitis (KC), characterized by severe lower urinary tract symptoms including dysuria, urinary frequency, urgency, urge incontinence, and bladder pain.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1016/j.urols.2015.06.154",
+      "compound": "Ketamine",
+      "support": "Patients with ketamine cystitis exhibited significantly thicker bladder walls compared to nonulcer IC and controls, which correlated with increased pain scores and decreased bladder capacity.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1016/j.urols.2016.05.130",
+      "compound": "Ketamine",
+      "support": "Ketamine abuse led to severely contracted bladder capacity, which was surgically improved by augmentation enterocystoplasty; however, reuse of ketamine caused recurrence of symptoms.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1016/j.urols.2016.05.130",
+      "compound": "Ketamine",
+      "support": "Patients who resumed ketamine use after surgical treatment experienced recurrence of bladder pain and urinary tract infections.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1038/s41598-021-84734-4",
+      "compound": "Ketamine",
+      "support": "Ketamine cystitis is characterized by significantly reduced bladder capacity, which is more pronounced in patients classified with severe bladder dysfunction.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1038/s41598-021-84734-4",
+      "compound": "Ketamine",
+      "support": "Severe ketamine cystitis is associated with stronger bladder contractility, indicated by a greater velocity to reach maximal detrusor pressure compared to mild cases.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1089/psymed.2024.0032",
+      "compound": "Psilocybin",
+      "support": "Manic symptomatology remained stable throughout the study with no evidence of treatment-emergent mania or hypomania.",
+      "entity_label": "Bipolar II disorder",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1089/psymed.2024.0032",
+      "compound": "Psilocybin",
+      "support": "Manic symptomatology remained stable throughout the study with no evidence of treatment-emergent mania or hypomania.",
+      "entity_label": "Mania/hypomania",
+      "kg_entity_kind_override": "symptom_problem",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1097/md.0000000000011500",
+      "compound": "Ketamine",
+      "support": "Chronic ketamine abuse resulted in severe ketamine cystitis characterized by dysuria, urgency, frequency, hematuria, and asymmetrical bladder wall thickening mimicking malignancy.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1111/bdi.13296",
+      "compound": "S-ketamine",
+      "support": "There was no significant difference in the risk of manic switch or treatment-emergent affective switch between B-TRD and TRD groups.",
+      "entity_label": "Bipolar depression",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1111/bju.14094",
+      "compound": "Ketamine",
+      "support": "A significant proportion of patients with ketamine-induced urinary tract disease were found to have reduced cystoscopic bladder capacity of <300 mL (mean 196 mL).",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1111/bju.14094",
+      "compound": "Ketamine",
+      "support": "Patients undergoing major urinary tract reconstruction for ketamine-induced damage were at high risk of significant perioperative complications, including anastomotic leaks, strictures, and sepsis.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1111/j.1464-410x.2011.10780.x",
+      "compound": "Ketamine",
+      "support": "Patients with ketamine cystitis had significantly higher interstitial cystitis symptom and problem scores compared to controls.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1111/j.1757-5672.2011.00101.x",
+      "compound": "Ketamine",
+      "support": "Among patients with ketamine-induced uropathy, 90% of those who quit ketamine experienced symptomatic relief of lower urinary tract symptoms.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.11622/smedj.2015185",
+      "compound": "Ketamine",
+      "support": "The pathogenesis of ketamine-induced cystitis is hypothesized to involve the direct toxic effects of ketamine and its metabolites (norketamine and hydroxynorketamine) on the urinary tract.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1186/s12894-019-0524-y",
+      "compound": "Ketamine",
+      "support": "Following surgical intervention (TURP) and complete ketamine cessation, the patient's dysuria was relieved completely, and hydronephrosis and hydroureter were alleviated at one-year follow-up.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1186/s13256-023-04147-x",
+      "compound": "MDMA",
+      "support": "Chronic MDMA use was identified as a likely precipitating factor for the development of early onset Parkinson's disease at age 38 in a patient with a positive family history of the condition.",
+      "entity_label": "Parkinson's disease",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1186/s43045-024-00420-x",
+      "compound": "Ketamine",
+      "support": "Significant reduction in depression scores from baseline to the fifth session, with 95% of patients achieving remission (score <= 7).",
+      "entity_label": "Psychosis risk",
+      "kg_entity_kind_override": "safety_adverse_event",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1186/s43045-024-00420-x",
+      "compound": "Ketamine",
+      "support": "Significant reduction in depression scores from baseline to the fifth session, with 95% of patients achieving remission (score <= 9).",
+      "entity_label": "Psychosis risk",
+      "kg_entity_kind_override": "safety_adverse_event",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1186/s43045-024-00420-x",
+      "compound": "Ketamine",
+      "support": "Significant reduction in suicidal ideation scores from baseline, with scores reducing to zero in almost all patients by the fifth session.",
+      "entity_label": "Psychosis risk",
+      "kg_entity_kind_override": "safety_adverse_event",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.12809/hkmj134013",
+      "compound": "Ketamine",
+      "support": "Ketamine-induced cystitis involves significant bladder pathology, including wall thickening, reduced capacity, and mucosal ulceration similar to interstitial cystitis.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.12809/hkmj177086",
+      "compound": "Ketamine",
+      "support": "Chronic ketamine abuse causes a distinct urological syndrome characterized by lower-urinary tract symptoms (LUTS) such as frequency, urgency, and painful haematuria, which can progress to upper-urinary tract pathology like hydronephrosis.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.12809/hkmj209194",
+      "compound": "Ketamine",
+      "support": "Hydronephrosis, indicating upper urinary tract involvement, had a pooled prevalence of 30.2% in KAU patients.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.12809/hkmj209194",
+      "compound": "Ketamine",
+      "support": "In patients with ketamine-associated uropathy, urinary frequency was the most common manifestation with a pooled prevalence of 77.1%.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.12809/hkmj209194",
+      "compound": "Ketamine",
+      "support": "The pooled functional bladder capacity in patients with KAU was significantly reduced to 95.23 mL.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.12809/hkmj209194",
+      "compound": "Ketamine",
+      "support": "The pooled maximum urine flow rate (Qmax) in KAU patients was 8.69 mL/s.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1371/journal.pone.0160578",
+      "compound": "Ketamine",
+      "support": "KC patients showed severely reduced maximum bladder capacity during hydrodistention.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1371/journal.pone.0160578",
+      "compound": "Ketamine",
+      "support": "Ketamine-induced cystitis patients reported significantly greater problems related to urinary symptoms than controls.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1590/1516-4446-2014-1496",
+      "compound": "Ayahuasca",
+      "support": "Ayahuasca administration did not induce episodes of mania or hypomania, as indicated by nonsignificant changes in YMRS scores.",
+      "entity_label": "Major depressive disorder",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1590/1516-4446-2014-1496",
+      "compound": "Ayahuasca",
+      "support": "Ayahuasca administration did not induce episodes of mania or hypomania, as indicated by nonsignificant changes in YMRS scores.",
+      "entity_label": "Mania/hypomania",
+      "kg_entity_kind_override": "symptom_problem",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.18502/ijps.v18i4.13627",
+      "compound": "Ketamine",
+      "support": "Ketamine administration did not result in significant differences in mania scores compared to placebo, and no clinical manic symptoms were observed.",
+      "entity_label": "Bipolar disorder",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.18502/ijps.v18i4.13627",
+      "compound": "Ketamine",
+      "support": "Ketamine administration did not result in significant differences in mania scores compared to placebo, and no clinical manic symptoms were observed.",
+      "entity_label": "Mania/hypomania",
+      "kg_entity_kind_override": "symptom_problem",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.21037/tau-21-188",
+      "compound": "Ketamine",
+      "support": "BATV resulted in a significantly higher maximum cystometric capacity compared to bladder hydrodistention at 12-month follow-up.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.21037/tau-21-188",
+      "compound": "Ketamine",
+      "support": "Both surgical interventions (BATV and BH) significantly improved subjective symptom scores (PUF) from baseline at 12 months.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.21037/tau-21-188",
+      "compound": "Ketamine",
+      "support": "There was no significant difference between BATV and BH in pain reduction (VAS) at 12 months, though both improved from baseline.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.2147/ndt.s325000",
+      "compound": "Ketamine",
+      "support": "No affective switch or new onset of mania was observed according to YMRS scores during the ketamine treatment course.",
+      "entity_label": "Bipolar depression",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.2147/ndt.s325000",
+      "compound": "Ketamine",
+      "support": "No affective switch or new onset of mania was observed according to YMRS scores during the ketamine treatment course.",
+      "entity_label": "Mania/hypomania",
+      "kg_entity_kind_override": "symptom_problem",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.3390/ijerph9072283",
+      "compound": "MDMA",
+      "support": "Ecstasy use was associated with the genesis of acute psychotic symptoms requiring hospitalization in patients with no prior history of psychopathology.",
+      "entity_label": "Psychotomimetic effects",
+      "kg_entity_kind_override": "cognitive_behavioral_construct",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.36076/ppj.2017.e436",
+      "compound": "Ketamine",
+      "support": "A high percentage of chronic ketamine abusers presented with intractable bladder pain.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.36076/ppj.2017.e436",
+      "compound": "Ketamine",
+      "support": "Chronic ketamine abuse resulted in severely contracted bladders with significantly reduced cystometric bladder capacity.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.36076/ppj.2017.e436",
+      "compound": "Ketamine",
+      "support": "Chronic ketamine abuse was associated with poor bladder compliance.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.4103/tcmj.tcmj_94_23",
+      "compound": "Ketamine",
+      "support": "Chronic ketamine abuse causes severe inflammation, urothelial barrier deficits, and bladder wall fibrosis, leading to reduced functional bladder capacity and detrusor overactivity.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.4103/uros.uros_46_18",
+      "compound": "Ketamine",
+      "support": "Chronic ketamine abuse was associated with severe refractory bladder and micturition pain.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.4103/uros.uros_46_18",
+      "compound": "Ketamine",
+      "support": "Long-term ketamine abuse resulted in refractory ketamine-induced cystitis characterized by severely contracted bladder capacity, which required surgical augmentation enterocystoplasty.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.52965/001c.38247",
+      "compound": "Ketamine",
+      "support": "Pharmacological treatments (NSAIDs, anticholinergics) and invasive therapies (Botulinum toxin-A, surgery) are more effective when combined with ketamine cessation.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "main_graph"
+    }
+  ],
+  "added": [
+    {
+      "study_doi": "10.1002/nau.22477",
+      "compound": "Ketamine",
+      "support": "Augmentation enterocystoplasty significantly reduced severe bladder pain in patients with refractory ketamine cystitis.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1002/nau.22477",
+      "compound": "Ketamine",
+      "support": "Surgical intervention significantly increased bladder capacity in patients with ketamine-induced contracted bladders.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1002/nau.22996",
+      "compound": "Ketamine",
+      "support": "Long-term ketamine abuse resulted in severely inflamed bladder and intractable bladder pain (ketamine cystitis). Patients with contracted bladders (<300 ml) required surgical intervention (AE) for better outcomes compared to conservative management.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1002/nau.23514",
+      "compound": "Ketamine",
+      "support": "Patients with moderate or severe neutrophils or lymphocytes infiltration in the bladder mucosa had significantly more severe bladder pain and smaller bladder capacity.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1007/s11884-026-00807-y",
+      "compound": "Ketamine",
+      "support": "Recreational ketamine abuse causes Ketamine-induced cystitis (KIC) through mechanisms including urothelial barrier dysfunction, oxidative stress, and a shift from cholinergic to purinergic signaling.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1016/j.ijscr.2015.01.008",
+      "compound": "Ketamine",
+      "support": "Chronic recreational ketamine abuse led to severe ulcerative cystitis, bilateral ureteric obstruction, pyonephrosis, and acute kidney injury requiring surgical intervention with metallic stents.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1016/j.juro.2014.05.084",
+      "compound": "Ketamine",
+      "support": "Patients with ketamine cystitis exhibited higher serum IgE levels which correlated significantly with increased bladder pain severity (VAS) and decreased maximal bladder capacity.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1016/j.urols.2014.11.003",
+      "compound": "Ketamine",
+      "support": "Chronic ketamine abuse causes ketamine cystitis (KC), characterized by severe lower urinary tract symptoms including dysuria, urinary frequency, urgency, urge incontinence, and bladder pain.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1016/j.urols.2015.06.154",
+      "compound": "Ketamine",
+      "support": "Patients with ketamine cystitis exhibited significantly thicker bladder walls compared to nonulcer IC and controls, which correlated with increased pain scores and decreased bladder capacity.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1016/j.urols.2016.05.130",
+      "compound": "Ketamine",
+      "support": "Ketamine abuse led to severely contracted bladder capacity, which was surgically improved by augmentation enterocystoplasty; however, reuse of ketamine caused recurrence of symptoms.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1016/j.urols.2016.05.130",
+      "compound": "Ketamine",
+      "support": "Patients who resumed ketamine use after surgical treatment experienced recurrence of bladder pain and urinary tract infections.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1038/s41598-021-84734-4",
+      "compound": "Ketamine",
+      "support": "Ketamine cystitis is characterized by significantly reduced bladder capacity, which is more pronounced in patients classified with severe bladder dysfunction.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1038/s41598-021-84734-4",
+      "compound": "Ketamine",
+      "support": "Severe ketamine cystitis is associated with stronger bladder contractility, indicated by a greater velocity to reach maximal detrusor pressure compared to mild cases.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1089/psymed.2024.0032",
+      "compound": "Psilocybin",
+      "support": "Manic symptomatology remained stable throughout the study with no evidence of treatment-emergent mania or hypomania.",
+      "entity_label": "Mania/hypomania",
+      "kg_entity_kind_override": "safety_adverse_event",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1097/md.0000000000011500",
+      "compound": "Ketamine",
+      "support": "Chronic ketamine abuse resulted in severe ketamine cystitis characterized by dysuria, urgency, frequency, hematuria, and asymmetrical bladder wall thickening mimicking malignancy.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1111/bdi.13296",
+      "compound": "S-ketamine",
+      "support": "There was no significant difference in the risk of manic switch or treatment-emergent affective switch between B-TRD and TRD groups.",
+      "entity_label": "Mania/hypomania",
+      "kg_entity_kind_override": "safety_adverse_event",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.1111/bju.14094",
+      "compound": "Ketamine",
+      "support": "A significant proportion of patients with ketamine-induced urinary tract disease were found to have reduced cystoscopic bladder capacity of <300 mL (mean 196 mL).",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1111/bju.14094",
+      "compound": "Ketamine",
+      "support": "Patients undergoing major urinary tract reconstruction for ketamine-induced damage were at high risk of significant perioperative complications, including anastomotic leaks, strictures, and sepsis.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1111/j.1464-410x.2011.10780.x",
+      "compound": "Ketamine",
+      "support": "Patients with ketamine cystitis had significantly higher interstitial cystitis symptom and problem scores compared to controls.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1111/j.1757-5672.2011.00101.x",
+      "compound": "Ketamine",
+      "support": "Among patients with ketamine-induced uropathy, 90% of those who quit ketamine experienced symptomatic relief of lower urinary tract symptoms.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.11622/smedj.2015185",
+      "compound": "Ketamine",
+      "support": "The pathogenesis of ketamine-induced cystitis is hypothesized to involve the direct toxic effects of ketamine and its metabolites (norketamine and hydroxynorketamine) on the urinary tract.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1186/s12894-019-0524-y",
+      "compound": "Ketamine",
+      "support": "Following surgical intervention (TURP) and complete ketamine cessation, the patient's dysuria was relieved completely, and hydronephrosis and hydroureter were alleviated at one-year follow-up.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1186/s13256-023-04147-x",
+      "compound": "MDMA",
+      "support": "Chronic MDMA use was identified as a likely precipitating factor for the development of early onset Parkinson's disease at age 38 in a patient with a positive family history of the condition.",
+      "entity_label": "Neurotoxicity/cytotoxicity",
+      "kg_entity_kind_override": "safety_adverse_event",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.12809/hkmj134013",
+      "compound": "Ketamine",
+      "support": "Ketamine-induced cystitis involves significant bladder pathology, including wall thickening, reduced capacity, and mucosal ulceration similar to interstitial cystitis.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.12809/hkmj177086",
+      "compound": "Ketamine",
+      "support": "Chronic ketamine abuse causes a distinct urological syndrome characterized by lower-urinary tract symptoms (LUTS) such as frequency, urgency, and painful haematuria, which can progress to upper-urinary tract pathology like hydronephrosis.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.12809/hkmj209194",
+      "compound": "Ketamine",
+      "support": "Hydronephrosis, indicating upper urinary tract involvement, had a pooled prevalence of 30.2% in KAU patients.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.12809/hkmj209194",
+      "compound": "Ketamine",
+      "support": "In patients with ketamine-associated uropathy, urinary frequency was the most common manifestation with a pooled prevalence of 77.1%.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.12809/hkmj209194",
+      "compound": "Ketamine",
+      "support": "The pooled functional bladder capacity in patients with KAU was significantly reduced to 95.23 mL.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.12809/hkmj209194",
+      "compound": "Ketamine",
+      "support": "The pooled maximum urine flow rate (Qmax) in KAU patients was 8.69 mL/s.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1371/journal.pone.0160578",
+      "compound": "Ketamine",
+      "support": "KC patients showed severely reduced maximum bladder capacity during hydrodistention.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1371/journal.pone.0160578",
+      "compound": "Ketamine",
+      "support": "Ketamine-induced cystitis patients reported significantly greater problems related to urinary symptoms than controls.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.1590/1516-4446-2014-1496",
+      "compound": "Ayahuasca",
+      "support": "Ayahuasca administration did not induce episodes of mania or hypomania, as indicated by nonsignificant changes in YMRS scores.",
+      "entity_label": "Mania/hypomania",
+      "kg_entity_kind_override": "safety_adverse_event",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.18502/ijps.v18i4.13627",
+      "compound": "Ketamine",
+      "support": "Ketamine administration did not result in significant differences in mania scores compared to placebo, and no clinical manic symptoms were observed.",
+      "entity_label": "Mania/hypomania",
+      "kg_entity_kind_override": "safety_adverse_event",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.21037/tau-21-188",
+      "compound": "Ketamine",
+      "support": "BATV resulted in a significantly higher maximum cystometric capacity compared to bladder hydrodistention at 12-month follow-up.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.21037/tau-21-188",
+      "compound": "Ketamine",
+      "support": "Both surgical interventions (BATV and BH) significantly improved subjective symptom scores (PUF) from baseline at 12 months.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.21037/tau-21-188",
+      "compound": "Ketamine",
+      "support": "There was no significant difference between BATV and BH in pain reduction (VAS) at 12 months, though both improved from baseline.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.2147/ndt.s325000",
+      "compound": "Ketamine",
+      "support": "No affective switch or new onset of mania was observed according to YMRS scores during the ketamine treatment course.",
+      "entity_label": "Mania/hypomania",
+      "kg_entity_kind_override": "safety_adverse_event",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.3390/ijerph9072283",
+      "compound": "MDMA",
+      "support": "Ecstasy use was associated with the genesis of acute psychotic symptoms requiring hospitalization in patients with no prior history of psychopathology.",
+      "entity_label": "Psychosis risk",
+      "kg_entity_kind_override": "safety_adverse_event",
+      "graph_admission_status": "main_graph"
+    },
+    {
+      "study_doi": "10.36076/ppj.2017.e436",
+      "compound": "Ketamine",
+      "support": "A high percentage of chronic ketamine abusers presented with intractable bladder pain.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.36076/ppj.2017.e436",
+      "compound": "Ketamine",
+      "support": "Chronic ketamine abuse resulted in severely contracted bladders with significantly reduced cystometric bladder capacity.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.36076/ppj.2017.e436",
+      "compound": "Ketamine",
+      "support": "Chronic ketamine abuse was associated with poor bladder compliance.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.4103/tcmj.tcmj_94_23",
+      "compound": "Ketamine",
+      "support": "Chronic ketamine abuse causes severe inflammation, urothelial barrier deficits, and bladder wall fibrosis, leading to reduced functional bladder capacity and detrusor overactivity.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.4103/uros.uros_46_18",
+      "compound": "Ketamine",
+      "support": "Chronic ketamine abuse was associated with severe refractory bladder and micturition pain.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.4103/uros.uros_46_18",
+      "compound": "Ketamine",
+      "support": "Long-term ketamine abuse resulted in refractory ketamine-induced cystitis characterized by severely contracted bladder capacity, which required surgical augmentation enterocystoplasty.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    },
+    {
+      "study_doi": "10.52965/001c.38247",
+      "compound": "Ketamine",
+      "support": "Pharmacological treatments (NSAIDs, anticholinergics) and invasive therapies (Botulinum toxin-A, surgery) are more effective when combined with ketamine cessation.",
+      "entity_label": "Ketamine-associated uropathy",
+      "kg_entity_kind_override": "condition_indication",
+      "graph_admission_status": "paper_detail"
+    }
+  ]
+}

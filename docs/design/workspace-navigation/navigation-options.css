@@ -1,0 +1,108 @@
+/* Review controls are separate from the proposed product navigation. */
+.design-review{padding:7px 8vw;background:#080a0b;border-bottom:1px solid rgba(188,200,201,.07);font:12px 'IBM Plex Sans',sans-serif}
+.design-options{display:flex;gap:5px;flex-wrap:wrap}
+.design-options button{padding:5px 10px;border:1px solid transparent;border-radius:6px;background:transparent;color:#89908e;font:inherit;cursor:pointer;box-shadow:none}
+.design-options button[aria-pressed=true]{color:#d9ddda;background:rgba(188,200,201,.08);border-color:rgba(188,200,201,.14)}
+.design-options button:hover{color:#eef0eb;transform:none}
+/* Reuse the existing graphite surfaces and neutral selected state. */
+body:not([data-design=original]) .workspace-tab{font-size:14px;font-weight:500;color:#a0a6a3;cursor:pointer;letter-spacing:0}
+body:not([data-design=original]) .workspace-tab.active{color:#eef0eb;background:rgba(188,200,201,.115);box-shadow:none}
+body:not([data-design=original]) .workspace-tab:hover{color:#eef0eb;transform:none}
+body:not([data-design=original]) .workspace-tab:focus-visible{outline:1px solid #aeb5b4;outline-offset:3px}
+/* A: keep the familiar position; improve only legibility and target size. */
+body[data-design=a] .workspace-tabs{height:34px;top:-23px;padding:3px;gap:3px}
+body[data-design=a] .workspace-tab{height:26px;min-width:86px;padding:0 14px}
+/* B: labels sit in a small break in the existing panel rim. */
+body[data-design=b] .workspace-tabs{top:-22px;left:17px;height:34px;padding:0 8px;gap:21px;border:0;border-radius:0;background:#080a0b;box-shadow:none}
+body[data-design=b] .workspace-tab{height:32px;min-width:0;padding:0 3px;border-radius:0;background:transparent}
+body[data-design=b] .workspace-tab.active{background:transparent;box-shadow:inset 0 -1px rgba(220,227,223,.6)}
+/* C: retain the header placement and compact introduction. */
+body[data-design=c] .site-header-inner{justify-content:space-between;gap:28px}
+body[data-design=c] .site-nav{margin-left:auto}
+body[data-design=c] .workspace-tabs{position:static;height:46px;width:auto;gap:24px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
+body[data-design=c] .workspace-tab{height:46px;min-width:0;padding:0 4px;border-radius:0;background:transparent;font-size:15px}
+body[data-design=c] .workspace-tab.active{background:transparent;box-shadow:inset 0 -1px rgba(220,227,223,.65)}
+body[data-design=c] .hero{padding-top:30px;padding-bottom:30px;align-items:center}
+body[data-design=c] .hero-inner h1{font-size:36px}
+body[data-design=c] .hero-version{margin-top:16px}
+body[data-design=c] .hero-stats{gap:10px}
+body[data-design=c] .stat{padding:12px 16px}
+body[data-design=c] .stat-value{font-size:24px}
+/* D: small physical tabs meet the existing panel edge. */
+body[data-design=d] .graph-panel{margin-top:13px}
+body[data-design=d] .workspace-tabs{top:-34px;left:16px;height:34px;gap:4px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;align-items:stretch}
+body[data-design=d] .workspace-tab{height:34px;min-width:91px;padding:0 17px;border:1px solid transparent;border-radius:8px 8px 0 0;background:transparent}
+body[data-design=d] .workspace-tab.active{background:#0c0f10;border-color:rgba(188,200,201,.22);border-bottom-color:#0c0f10}
+@media(max-width:650px){.design-review{padding-left:6vw;padding-right:6vw}.design-options{gap:0}.design-options button{padding:5px 7px;font-size:11px}body[data-design=c] .site-header-inner{gap:12px}body[data-design=c] .workspace-tabs{gap:12px}body[data-design=c] .hero-inner h1{font-size:30px}}
+
+
+/* D1: one continuous silhouette; the tab group owns the upper-left corner. */
+body[data-design=d1] .graph-panel{margin-top:13px;border-top-left-radius:0}
+body[data-design=d1] .workspace-tabs{left:-1px;top:-35px;height:35px;gap:0;padding:0;border:1px solid rgba(188,200,201,.22);border-bottom:0;border-radius:12px 12px 0 0;background:#0c0f10;box-shadow:none;align-items:stretch;overflow:hidden}
+body[data-design=d1] .workspace-tab{height:34px;min-width:96px;padding:0 18px;border:0;border-radius:0;background:transparent;box-shadow:inset 0 -1px rgba(188,200,201,.22)}
+body[data-design=d1] .workspace-tab.active{background:rgba(188,200,201,.055);box-shadow:none}
+/* D1 selection study: all three keep the same shared-corner geometry. */
+body[data-design=d1a] .graph-panel,body[data-design=d1b] .graph-panel,body[data-design=d1c] .graph-panel{margin-top:13px;border-top-left-radius:0}
+body[data-design=d1a] .workspace-tabs,body[data-design=d1b] .workspace-tabs,body[data-design=d1c] .workspace-tabs{left:-1px;top:-35px;height:35px;gap:0;padding:0;border:1px solid rgba(188,200,201,.22);border-bottom:0;border-radius:12px 12px 0 0;background:#0c0f10;box-shadow:none;align-items:stretch;overflow:hidden}
+body[data-design=d1a] .workspace-tab,body[data-design=d1b] .workspace-tab,body[data-design=d1c] .workspace-tab{height:34px;min-width:96px;padding:0 18px;border:0;border-radius:0;background:transparent;box-shadow:inset 0 -1px rgba(188,200,201,.22)}
+body[data-design=d1a] .workspace-tab.active{background:rgba(188,200,201,.10);box-shadow:none}
+body[data-design=d1a] .workspace-tab{box-shadow:none}
+/* Quiet-fill refinements: no competing underline on the inactive tab. */
+body[data-design=q1] .graph-panel,body[data-design=q2] .graph-panel,body[data-design=q3] .graph-panel{margin-top:13px;border-top-left-radius:0}
+body[data-design=q1] .workspace-tabs,body[data-design=q2] .workspace-tabs,body[data-design=q3] .workspace-tabs{left:-1px;top:-35px;height:35px;gap:0;padding:0;border:1px solid rgba(188,200,201,.22);border-bottom:0;border-radius:12px 12px 0 0;background:#0c0f10;box-shadow:none;align-items:stretch;overflow:hidden}
+body[data-design=q1] .workspace-tab,body[data-design=q2] .workspace-tab,body[data-design=q3] .workspace-tab{height:34px;min-width:96px;padding:0 18px;border:0;border-radius:0;background:transparent;box-shadow:none}
+body[data-design=q1] .workspace-tab.active{background:rgba(188,200,201,.085);color:#eef0eb}
+body[data-design=q2] .workspace-tab.active{background:rgba(188,200,201,.075);color:#eef0eb;box-shadow:inset 0 1px rgba(238,240,235,.12)}
+body[data-design=q3] .workspace-tab.active{background:linear-gradient(180deg,rgba(188,200,201,.105),rgba(188,200,201,.055));color:#eef0eb}
+/* Reverse the contrast: the selected tab becomes the panel surface, and the alternative recedes. */
+body[data-design=q4] .graph-panel,body[data-design=q5] .graph-panel,body[data-design=q6] .graph-panel{margin-top:13px;border-top-left-radius:0}
+body[data-design=q4] .workspace-tabs,body[data-design=q5] .workspace-tabs,body[data-design=q6] .workspace-tabs{left:-1px;top:-35px;height:35px;gap:0;padding:0;border:1px solid rgba(188,200,201,.22);border-bottom:0;border-radius:12px 12px 0 0;background:#0c0f10;box-shadow:none;align-items:stretch;overflow:hidden}
+body[data-design=q4] .workspace-tab,body[data-design=q5] .workspace-tab,body[data-design=q6] .workspace-tab{height:34px;min-width:96px;padding:0 18px;border:0;border-radius:0;background:transparent;box-shadow:none}
+body[data-design=q4] .workspace-tab{color:rgba(160,166,163,.66)}
+body[data-design=q4] .workspace-tab.active{position:relative;z-index:2;background:#0c0f10;color:#eef0eb;border:0;margin-bottom:0}
+body[data-design=q4] .workspace-tab.active::after,body[data-design=q6] .workspace-tab.active::after{content:"";position:absolute;z-index:3;left:0;right:0;bottom:-1px;height:1px;background:#0c0f10}
+/* Open-cutout accents: contained inside the tab so the panel outline stays quiet. */
+body[data-design=q4a] .graph-panel,body[data-design=q4b] .graph-panel,body[data-design=q4c] .graph-panel{margin-top:13px;border-top-left-radius:0}
+body[data-design=q4a] .workspace-tabs,body[data-design=q4b] .workspace-tabs,body[data-design=q4c] .workspace-tabs{left:-1px;top:-35px;height:35px;gap:0;padding:0;border:1px solid rgba(188,200,201,.22);border-bottom:0;border-radius:12px 12px 0 0;background:#0c0f10;box-shadow:none;align-items:stretch;overflow:hidden}
+body[data-design=q4a] .workspace-tab,body[data-design=q4b] .workspace-tab,body[data-design=q4c] .workspace-tab{height:34px;min-width:96px;padding:0 18px;border:0;border-radius:0;background:transparent;box-shadow:none}
+body[data-design=q4a] .workspace-tab.active{position:relative;z-index:2;background:rgba(128,176,157,.09);color:#eaf3ed}
+body[data-design=q4a] .workspace-tab.active::after{content:"";position:absolute;z-index:3;left:0;right:0;bottom:-1px;height:1px;background:#0c0f10}
+body[data-design=q4b] .workspace-tab.active{position:relative;z-index:2;background:#0c0f10;color:#eef5f0;box-shadow:inset 2px 0 rgba(128,176,157,.62)}
+body[data-design=q4b] .workspace-tab.active::after{content:"";position:absolute;z-index:3;left:0;right:0;bottom:-1px;height:1px;background:#0c0f10}
+body[data-design=q4c] .workspace-tab.active{position:relative;z-index:2;background:#0c0f10;color:#eef5f0;box-shadow:inset 0 1px rgba(128,176,157,.36)}
+body[data-design=q4c] .workspace-tab.active::after{content:"";position:absolute;z-index:3;left:0;right:0;bottom:-1px;height:1px;background:#0c0f10}
+body[data-design=q5] .workspace-tab{color:rgba(160,166,163,.52)}
+body[data-design=q5] .workspace-tab:not(.active){background:#090b0c}
+body[data-design=q5] .workspace-tab.active{position:relative;z-index:2;background:#0c0f10;color:#eef0eb;border:0;margin-bottom:0}
+body[data-design=q6] .workspace-tab{color:rgba(160,166,163,.72)}
+body[data-design=q6] .workspace-tab:not(.active){background:rgba(188,200,201,.085);color:#c2c8c4}
+body[data-design=q6] .workspace-tab.active{position:relative;z-index:2;background:#0c0f10;color:#f1f3ef;border:0;margin-bottom:0}
+/* Inverted-fill refinements: cover the panel seam beneath the selected tab. */
+body[data-design=q6a] .graph-panel,body[data-design=q6b] .graph-panel{margin-top:13px;border-top-left-radius:0}
+body[data-design=q6a] .workspace-tabs,body[data-design=q6b] .workspace-tabs{left:-1px;top:-35px;height:35px;gap:0;padding:0;border:1px solid rgba(188,200,201,.22);border-bottom:0;border-radius:12px 12px 0 0;background:#0c0f10;box-shadow:none;align-items:stretch;overflow:hidden}
+body[data-design=q6a] .workspace-tab,body[data-design=q6b] .workspace-tab{height:34px;min-width:96px;padding:0 18px;border:0;border-radius:0;background:transparent;box-shadow:none}
+body[data-design=q6a] .workspace-tab:not(.active){background:rgba(188,200,201,.09);color:#c2c8c4}
+body[data-design=q6a] .workspace-tab.active{position:relative;z-index:2;background:#0c0f10;color:#f1f3ef}
+body[data-design=q6a] .workspace-tab.active::after,body[data-design=q6b] .workspace-tab.active::after{content:"";position:absolute;z-index:3;left:0;right:0;bottom:-1px;height:1px;background:#0c0f10}
+body[data-design=q6b] .workspace-tab:not(.active){background:#090b0c;color:rgba(160,166,163,.58)}
+body[data-design=q6b] .workspace-tab.active{position:relative;z-index:2;background:#0c0f10;color:#f1f3ef}
+body[data-design=d1b] .workspace-tab.active{background:transparent;box-shadow:inset 0 -2px #a9b0ae}
+body[data-design=d1c] .workspace-tab.active{background:transparent;box-shadow:none;color:#f0f2ee;font-weight:600}
+/* D1d: the active tab is a folder tab; its lower edge disappears into the panel. */
+body[data-design=d1d] .graph-panel,body[data-design=d1e] .graph-panel,body[data-design=d1f] .graph-panel{margin-top:13px;border-top-left-radius:0}
+body[data-design=d1d] .workspace-tabs,body[data-design=d1e] .workspace-tabs,body[data-design=d1f] .workspace-tabs{left:-1px;top:-35px;height:35px;gap:0;padding:0;border:1px solid rgba(188,200,201,.22);border-bottom:0;border-radius:12px 12px 0 0;background:#0c0f10;box-shadow:none;align-items:stretch;overflow:hidden}
+body[data-design=d1d] .workspace-tab,body[data-design=d1e] .workspace-tab,body[data-design=d1f] .workspace-tab{height:34px;min-width:96px;padding:0 18px;border:0;border-radius:0;background:transparent;box-shadow:inset 0 -1px rgba(188,200,201,.22)}
+body[data-design=d1d] .workspace-tab.active{position:relative;z-index:2;margin-bottom:-1px;background:#0c0f10;border:1px solid rgba(188,200,201,.22);border-bottom-color:#0c0f10;box-shadow:none}
+body[data-design=d1e] .workspace-tab.active{position:relative;z-index:2;margin-bottom:-1px;background:#0c0f10;box-shadow:inset 0 -2px rgba(188,200,201,.30)}
+body[data-design=d1f] .workspace-tabs{border-color:transparent;background:transparent;overflow:visible}
+body[data-design=d1f] .workspace-tab.active{position:relative;z-index:2;background:#0c0f10;border:1px solid rgba(188,200,201,.22);border-bottom-color:#0c0f10;border-radius:12px 12px 0 0;box-shadow:none}
+/* D2: keep the panel outline intact and place navigation on its own surface. */
+body[data-design=d2] .graph-panel{margin-top:13px;padding-top:12px}
+body[data-design=d2] .workspace-tabs{position:relative;inset:auto;height:34px;gap:4px;margin:0 0 16px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
+body[data-design=d2] .workspace-tab{height:34px;min-width:91px;padding:0 15px;border:1px solid transparent;border-radius:8px;background:transparent}
+body[data-design=d2] .workspace-tab.active{background:rgba(188,200,201,.075);border-color:rgba(188,200,201,.14)}
+/* D3: retain the original connection, match the panel radius, give it space. */
+body[data-design=d3] .graph-panel{margin-top:13px}
+body[data-design=d3] .workspace-tabs{top:-34px;left:32px;height:34px;gap:4px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;align-items:stretch}
+body[data-design=d3] .workspace-tab{height:34px;min-width:96px;padding:0 19px;border:1px solid transparent;border-radius:12px 12px 0 0;background:transparent}
+body[data-design=d3] .workspace-tab.active{background:#0c0f10;border-color:rgba(188,200,201,.22);border-bottom-color:#0c0f10}

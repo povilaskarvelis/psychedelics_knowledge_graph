@@ -1,0 +1,122 @@
+{
+  "10.3929/ethz-c-000799490": {
+    "source_url": "https://api.datacite.org/dois/10.3929/ethz-c-000799490",
+    "title": [
+      {
+        "lang": "",
+        "title": "Integrating the Mystical Experience Questionnaire Into a Broader Psychometric Framework: English Validation of the Psychedelic Experience Scale and Comparison of Psilocybin and LSD Sessions Across Two Controlled Settings"
+      }
+    ],
+    "creators": [
+      {
+        "name": "Stocker, Kurt",
+        "nameType": "Personal",
+        "givenName": "Kurt",
+        "familyName": "Stocker",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Hartmann, Matthias",
+        "nameType": "Personal",
+        "givenName": "Matthias",
+        "familyName": "Hartmann",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Barrett, Frederick S.",
+        "nameType": "Personal",
+        "givenName": "Frederick S.",
+        "familyName": "Barrett",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Richards, William A.",
+        "nameType": "Personal",
+        "givenName": "William A.",
+        "familyName": "Richards",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sepeda, Nathan D.",
+        "nameType": "Personal",
+        "givenName": "Nathan D.",
+        "familyName": "Sepeda",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ley, Laura",
+        "nameType": "Personal",
+        "givenName": "Laura",
+        "familyName": "Ley",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Becker, Anna M.",
+        "nameType": "Personal",
+        "givenName": "Anna M.",
+        "familyName": "Becker",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Holze, Friederike",
+        "nameType": "Personal",
+        "givenName": "Friederike",
+        "familyName": "Holze",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Liechti, Matthias E.",
+        "nameType": "Personal",
+        "givenName": "Matthias E.",
+        "familyName": "Liechti",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  "10.5167/uzh-284344": {
+    "source_url": "https://api.datacite.org/dois/10.5167/uzh-284344",
+    "title": [
+      {
+        "lang": "",
+        "title": "An international Delphi consensus for reporting of setting in psychedelic clinical trials"
+      }
+    ],
+    "creators": [
+      {
+        "name": "Pronovost-Morgan, Chloé",
+        "givenName": "Chloé",
+        "familyName": "Pronovost-Morgan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Greenway, Kyle T",
+        "givenName": "Kyle T",
+        "familyName": "Greenway",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Roseman, Leor",
+        "givenName": "Leor",
+        "familyName": "Roseman",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "ReSPCT Experts",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  }
+}

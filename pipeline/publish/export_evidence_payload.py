@@ -800,12 +800,18 @@ def load_author_identities(kg_dir: Path) -> dict[str, dict]:
         [column for column in ("paper_id", "author_position") if column in paper_authors.columns]
     )
     for record in ordered.to_dict(orient="records"):
-        if not public_author_row(record):
-            continue
         paper_id = normalize(record.get("paper_id"))
         if not paper_id:
             continue
         entry = identities.setdefault(paper_id, {"author_identities": []})
+        # Reviewed publication lists also govern citation text. Keep credited
+        # names even when a reliable structured identity could not be established.
+        if normalize(record.get("author_list_review_id")):
+            credited_name = normalize(record.get("display_name"))
+            if credited_name:
+                entry.setdefault("reviewed_author_names", []).append(credited_name)
+        if not public_author_row(record):
+            continue
         author_id = normalize(record.get("author_id"))
         author = author_lookup.get(author_id, {})
         credited_name = normalize(record.get("display_name"))
@@ -1047,6 +1053,8 @@ def finding_from_record(
             finding[field] = value
 
     paper_authors = author_identities.get(finding.get("paper_id", ""), {})
+    if paper_authors.get("reviewed_author_names"):
+        finding["authors"] = "; ".join(paper_authors["reviewed_author_names"])
     if paper_authors.get("first_author"):
         finding["first_author"] = paper_authors["first_author"]
     if paper_authors.get("last_author"):

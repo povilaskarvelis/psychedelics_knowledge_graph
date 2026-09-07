@@ -1,0 +1,50 @@
+[
+  {
+    "doi": "10.1002/hup.1242",
+    "status": "reviewed_unresolved",
+    "reason": "Crossref/institutional record and available article PDF disagree on author list (32 versus 28). Earlier excess entries corrected, remaining repeated names retained until publication-version discrepancy is resolved.",
+    "source_url": "https://researchprofiles.herts.ac.uk/en/publications/phenomenon-of-new-drugs-on-the-internet-the-case-of-ketamine-deri/"
+  },
+  {
+    "doi": "10.1002/advs.202303503",
+    "status": "reviewed_unresolved",
+    "reason": "Two Yi Fan entries remain in published list with different affiliations. Cannot establish whether same person or homonyms; no unsupported identity split/merge applied.",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/38155473/"
+  },
+  {
+    "doi": "10.1016/j.jad.2020.01.002",
+    "status": "reviewed_unresolved",
+    "reason": "Two Wei Zheng entries remain in published list with different affiliations. Cannot establish whether same person or homonyms; excess Xiang entries corrected separately.",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/31957693/"
+  },
+  {
+    "doi": "10.1136/bcr.08.2008.0669",
+    "source_url": "https://api.crossref.org/works/10.1136%2Fbcr.08.2008.0669",
+    "source_rows": 10,
+    "published_rows": 10,
+    "removed_source_positions": [],
+    "identity_reassignments": [],
+    "status": "reviewed_unresolved_source_repeat",
+    "reason": "Published source also repeats the author name. Review did not establish whether this is an editorial duplicate or distinct credit; retained pending stronger evidence."
+  },
+  {
+    "doi": "10.1161/circoutcomes.124.011905",
+    "source_url": "https://api.crossref.org/works/10.1161%2Fcircoutcomes.124.011905",
+    "source_rows": 92,
+    "published_rows": 92,
+    "removed_source_positions": [],
+    "identity_reassignments": [],
+    "status": "reviewed_unresolved_source_repeat",
+    "reason": "Published source also repeats the author name. Review did not establish whether this is an editorial duplicate or distinct credit; retained pending stronger evidence."
+  },
+  {
+    "doi": "10.1300/j041v16n02_01",
+    "source_url": "https://api.crossref.org/works/10.1300%2Fj041v16n02_01",
+    "source_rows": 4,
+    "published_rows": 4,
+    "removed_source_positions": [],
+    "identity_reassignments": [],
+    "status": "reviewed_unresolved_source_repeat",
+    "reason": "Published source also repeats the author name. Review did not establish whether this is an editorial duplicate or distinct credit; retained pending stronger evidence."
+  }
+]

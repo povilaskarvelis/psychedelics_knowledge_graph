@@ -139,7 +139,11 @@ def test_initial_load_shows_the_fast_graph_bootstrap() -> None:
     source = APP_JS.read_text(encoding="utf-8")
 
     init = source.split("async function init()", 1)[1].split("if (yearMinFilter)", 1)[0]
-    assert "showGraphBootstrap: true" in init
+    restore = source.split("async function restoreExplorerViewFromUrl", 1)[1].split(
+        "async function init()", 1
+    )[0]
+    assert "await restoreExplorerViewFromUrl({ initial: true })" in init
+    assert "showGraphBootstrap: !selected" in restore
 
 
 def test_initial_dashboard_bootstrap_renders_before_full_detail_payload() -> None:
@@ -484,8 +488,9 @@ def test_cross_domain_overlap_uses_consistent_labels_and_edge_markers() -> None:
     column_label = source.split(".analytics-overlap-column span {", 1)[1].split("}", 1)[0]
     row_label = source.split(".analytics-overlap-row-label {", 1)[1].split("}", 1)[0]
 
-    assert "grid-template-rows: 170px;" in grid
-    assert "padding-right: 120px;" in grid
+    assert "--overlap-label-width: 116px;" in grid
+    assert "grid-template-rows: 94px;" in grid
+    assert "padding-right: 72px;" in grid
     assert "writing-mode: horizontal-tb;" in column_label
     assert "transform: rotate(-45deg);" in column_label
     assert "transform-origin: left bottom;" in column_label
@@ -745,10 +750,13 @@ def test_card_progressive_rendering_uses_a_real_scroll_root() -> None:
 def test_manifest_stats_do_not_block_the_initial_graph() -> None:
     source = APP_JS.read_text(encoding="utf-8")
     init = source.split("async function init()", 1)[1].split("if (yearMinFilter)", 1)[0]
+    restore = source.split("async function restoreExplorerViewFromUrl", 1)[1].split(
+        "async function init()", 1
+    )[0]
 
     assert "loadGraphManifestStats();" in init
     assert "await loadGraphManifestStats()" not in init
-    assert "await loadCurrentClaimsAndRender" in init
+    assert "await loadCurrentClaimsAndRender" in restore
 
 
 def test_versioned_static_assets_are_browser_immutable() -> None:
@@ -758,10 +766,11 @@ def test_versioned_static_assets_are_browser_immutable() -> None:
 
     assert headers["/ui/*.js"]["Cache-Control"] == "public, max-age=31536000, immutable"
     assert headers["/ui/*.css"]["Cache-Control"] == "public, max-age=31536000, immutable"
-    assert 'styles.css?v=20260905-research-workspace-v61' in html_source
-    assert 'app.js?v=20260905-research-workspace-v53' in html_source
-    for asset in ("research-model.js", "research-analysis.js", "research-analysis.css"):
-        assert f'{asset}?v=20260905-v1' in html_source
+    assert 'styles.css?v=20260907-analysis-type-v9' in html_source
+    assert 'app.js?v=20260907-focused-history-v11' in html_source
+    assert 'research-model.js?v=20260905-v1' in html_source
+    assert 'research-analysis.js?v=20260907-evidence-coverage-v5' in html_source
+    assert 'research-analysis.css?v=20260907-evidence-coverage-v6' in html_source
     assert 'rel="canonical" href="https://psychedelicskg.com/"' in html_source
     assert '"@type": "Dataset"' in html_source
 
@@ -811,10 +820,10 @@ def test_topic_overlap_has_room_for_diagonal_column_labels() -> None:
         ".analysis-concept-overlap-grid .analytics-overlap-column span {", 1
     )[1].split("}", 1)[0]
 
-    assert "--overlap-label-width: 220px;" in grid
-    assert "grid-template-rows: 190px;" in grid
-    assert "padding-right: 140px;" in grid
-    assert "width: 190px;" in labels
+    assert "--overlap-label-width: 190px;" in grid
+    assert "grid-template-rows: 164px;" in grid
+    assert "padding-right: 124px;" in grid
+    assert "width: 180px;" in labels
 
 
 def test_analysis_scope_counts_follow_the_selected_entity() -> None:

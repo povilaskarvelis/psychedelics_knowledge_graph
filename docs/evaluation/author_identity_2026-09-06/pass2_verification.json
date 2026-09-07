@@ -1,0 +1,22 @@
+{
+  "source_run": "data/processed/kg_routed_runs/research_area_routing_20260906_release_candidate",
+  "staged_author_tables": "data/processed/release_staging/author_identity_20260906_pass2",
+  "authorship_rows_before": 116802,
+  "authorship_rows_after": 116802,
+  "author_identities_before": 64880,
+  "author_identities_after": 64849,
+  "changed_identity_rows_total": 134,
+  "changed_identity_rows_this_pass": 127,
+  "scoped_reviewed_authorships": 98,
+  "original_names_order_and_paper_links_preserved": true,
+  "profile_paper_counts": {
+    "Robin Carhart-Harris": 230,
+    "Matthias E. Liechti": 181,
+    "David Nutt": 136,
+    "Joshua D. Rosenblat": 121,
+    "Leor Roseman": 78
+  },
+  "tests_passed": 17,
+  "active_local_graph_updated": false,
+  "production_deployed": false
+}

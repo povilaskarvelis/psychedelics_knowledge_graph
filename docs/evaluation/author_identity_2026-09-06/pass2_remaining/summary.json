@@ -1,0 +1,17 @@
+{
+  "schema_version": "author_identity_audit_v1",
+  "kg_dir": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/release_staging/author_identity_20260906_pass2",
+  "author_identities": 64849,
+  "authorship_rows": 116802,
+  "candidate_name_groups": 2417,
+  "candidate_identities": 5800,
+  "groups_with_multiple_orcids": 835,
+  "orcid_conflict_profiles": 13,
+  "orcid_conflict_authorship_rows": 122,
+  "repeated_author_on_same_paper_rows": 245,
+  "papers_with_repeated_authors": 76,
+  "repeated_identity_groups_with_different_names": 0,
+  "duplicate_position_rows": 0,
+  "orphan_authorship_rows": 0,
+  "limitations": "Candidate groups are not verified duplicates. Common names, different middle names, and multiple ORCIDs require source review. Shared coauthors only prioritize review. Initial-only names and reordered surnames are not exhaustively matched."
+}

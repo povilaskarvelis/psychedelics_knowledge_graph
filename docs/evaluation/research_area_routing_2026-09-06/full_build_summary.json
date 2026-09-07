@@ -1,0 +1,48 @@
+{
+  "run_id": "research_area_routing_20260906",
+  "tables": {
+    "papers": 22137,
+    "paper_funding": 66162,
+    "paper_open_science_assertions": 2151,
+    "entities": 8983,
+    "findings": 97132,
+    "evidence_edges": 97219,
+    "normalization_audit": 24737,
+    "research_area_review_queue": 5405
+  },
+  "research_area_review": {
+    "version": "research_area_routing_v1",
+    "flagged_rows": 5405,
+    "not_flagged_rows": 116464,
+    "reason_counts": {
+      "therapeutic_response_in_safety": 403,
+      "clinical_safety_role_ambiguity": 1677,
+      "psychosis_model_risk_or_therapeutic_role": 331,
+      "possible_exposure_related_harm": 445,
+      "measured_endpoint_versus_population": 783,
+      "other_intervention_or_withdrawal_role": 473,
+      "same_statement_in_clinical_and_safety": 1506,
+      "observational_exposure_versus_treatment": 387,
+      "temporal_harm_versus_therapeutic_outcome": 39,
+      "context_policy_or_preferences_versus_outcome": 126,
+      "retracted_claim_context": 20,
+      "disease_may_be_exposure_consequence": 128,
+      "disease_model_versus_indication": 87,
+      "extracted_role_disagrees_with_clinical_projection": 195,
+      "serious_psychosis_in_transient_effect_view": 1,
+      "psychosis_population_anchor_without_resolved_endpoint": 2
+    },
+    "rule_action_counts": {
+      "psychosis_population_or_negation_not_safety": 8,
+      "explicit_safety_endpoint_routed_from_clinical": 11
+    },
+    "flag_policy": "advisory; not_flagged does not mean reviewed or correct",
+    "normalized_finding_rows": 97132,
+    "normalization_audit_rows_checked": 24737,
+    "flagged_record_types": {
+      "finding": 3157,
+      "normalization_audit": 2248
+    }
+  },
+  "active_run_unchanged": "full_corpus_normalization_patch_qa_20260724"
+}

@@ -78,68 +78,129 @@ function workspaceContext() {
   return context;
 }
 
-test('shared and locally saved question state is bounded and validated before use', () => {
+test('coverage links validate distinct axes and bound category searches and selections', () => {
   const context = workspaceContext();
-  context.input = {
-    task: 'invalid', lens: 'missing', area: 'unrecognized', access: 'anything',
-    filters: { design: 'RCT', arbitrary: 'drop', minSample: '-12', query: 'x'.repeat(5000) },
-    compare: Array.from({ length: 8 }, (_, index) => ({ kind: 'compound', key: String(index), label: 'Compound' })),
-    axes: ['bogus', 'outcome'],
-  };
+  context.input = { axes: ['population', 'population'], queries: ['x'.repeat(500), ''], cell: ['a', 'b'], filters: { design: 'RCT' }, task: 'compare' };
   const state = JSON.parse(vm.runInContext('JSON.stringify(researchValidateState(input))', context));
-  assert.equal(state.task, 'landscape');
-  assert.equal(state.lens, 'all');
-  assert.equal(state.area, '');
-  assert.equal(state.access, 'all');
-  assert.equal(state.filters.design, 'RCT');
-  assert.equal(state.filters.query.length, 1000);
-  assert.equal(state.filters.minSample, undefined);
-  assert.equal(state.filters.arbitrary, undefined);
-  assert.equal(state.compare.length, 4);
   assert.deepEqual(state.axes, ['population', 'design']);
+  assert.equal(state.queries[0].length, 200);
+  assert.deepEqual(state.cell, ['a', 'b']);
+  assert.equal(state.filters, undefined);
+  assert.equal(state.task, undefined);
+  context.input = { axes: ['__proto__', 'design'], cell: [5, null] };
+  assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(researchValidateState(input))', context)), { axes: ['population', 'design'], queries: ['', ''], cell: null });
 });
 
-test('empty evidence is a legitimate empty result, never a fallback to the full corpus', () => {
-  assert.deepEqual(research.filter([], { design: 'RCT' }), []);
-  assert.deepEqual(research.papers([]), []);
-  assert.equal(research.coverage([], 'design', 'outcome').cells.size, 0);
-  assert.deepEqual(research.snapshot([]), {});
-});
-
-test('saved coverage selections and pinned date scopes survive state restoration', () => {
+test('copyable view URLs round-trip scope, axes, category searches and cell selection', () => {
   const context = workspaceContext();
-  Object.assign(context, { yearFilterState: {}, currentYearFilterKey: () => 'analysis:research' });
-  context.input = {
-    task: 'evidence', lens: 'compound', focus: { key: 'psilocybin', label: 'Psilocybin' },
-    min: '2010', max: '2020', axes: ['outcome', 'followup'], cell: ['Depression', 'Long'],
-    compare: [{ kind: 'set', key: 'all', label: 'Earlier trials', filters: { design: 'RCT' },
-      scope: { min: '2000', max: '2010', area: 'condition_indication', evidence: 'primary' },
-      coverage: { axes: ['outcome', 'followup'], cell: ['Depression', 'Long'] } }],
-  };
-  vm.runInContext('researchApplyState(input)', context);
-  assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(researchCoverageCell)', context)), ['Depression', 'Long']);
-  assert.equal(context.yearFilterState['analysis:research'].min, '2010');
-  const pinned = JSON.parse(vm.runInContext('JSON.stringify(researchCompare[0])', context));
-  assert.equal(pinned.scope.min, '2000');
-  assert.equal(pinned.filters.design, 'RCT');
-  assert.deepEqual(pinned.coverage.cell, ['Depression', 'Long']);
-  vm.runInContext('researchApplyState({...input, task: "compare"})', context);
-  assert.equal(context.explorerLens, 'all');
-  assert.equal(context.explorerFocus, null);
+  Object.assign(context, { explorerMode: 'analysis', yearMinFilter: { value: '1932' }, yearMaxFilter: { value: '2026' }, yearFilterState: {}, currentYearFilterKey: () => 'analysis:research' });
+  context.url = new URL('https://example.test/?mode=analysis&section=compound&focus=psilocybin&scope-area=condition_indication&papers=reviews&task=evidence');
+  context.state = { axes: ['outcome', 'followup'], queries: ['depression', 'long'], cell: ['Depression', 'Long'] };
+  vm.runInContext('researchApplyState(state); researchUrlState(url); researchApplyState({}); researchReadUrl(url.searchParams)', context);
+  assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(researchCaptureState())', context)), context.state);
+  assert.equal(context.url.searchParams.get('focus'), 'psilocybin');
+  assert.equal(context.url.searchParams.get('papers'), 'reviews');
+  assert.equal(context.url.searchParams.has('task'), false);
+  assert.equal(context.yearFilterState['analysis:research'].min, '1932');
+  context.url.searchParams.delete('coverage');
+  context.url.searchParams.set('research', JSON.stringify({ filters: { design: 'RCT' }, compare: [{ kind: 'compound', key: 'LSD' }] }));
+  vm.runInContext('researchReadUrl(url.searchParams); researchUrlState(url)', context);
+  assert.equal(context.url.searchParams.has('research'), false);
+  assert.equal(context.url.searchParams.has('coverage'), false);
+  context.explorerMode = 'overview';
+  vm.runInContext('researchUrlState(url)', context);
+  assert.equal(context.url.searchParams.has('from'), false);
 });
 
-test('pinned comparisons apply their own dates, type and report coverage before counting', () => {
+test('category searches expose smaller groups without filtering or recounting the overview', () => {
   const context = workspaceContext();
-  Object.assign(context, {
-    PKGResearch: research, EXPLORER_ENTITY_LENSES: new Set(['compound', 'author', 'journal']),
-    isOpenAccessClaim: claim => claim.fullText,
-  });
+  context.PKGResearch = research;
+  context.rows = Array.from({ length: 30 }, (_, i) => finding(String(i), { population: [`Population ${String(i).padStart(2, '0')}`], design: ['RCT'] }));
+  const before = vm.runInContext('researchCoverageView(rows)', context);
+  assert.equal(before.rows.length, 18);
+  vm.runInContext('researchCategoryQueries = ["population 29", "rct"]', context);
+  const after = vm.runInContext('researchCoverageView(rows)', context);
+  assert.deepEqual(Array.from(after.rows), ['Population 29']);
+  assert.equal(after.matrix, before.matrix);
+  assert.equal(after.matrix.cells.size, 30);
+  vm.runInContext('researchCategoryQueries = ["", ""]; researchCoverageCell = ["Population 29", "RCT"]', context);
+  assert.ok(vm.runInContext('researchCoverageView(rows).rows.includes("Population 29")', context));
+  vm.runInContext('researchCategoryQueries = ["does not exist", ""]', context);
+  assert.equal(vm.runInContext('researchCoverageView(rows).rows.length', context), 0);
+});
+
+test('coverage cell drill-down opens only the matching reports through the existing findings view', () => {
+  const context = workspaceContext();
+  let opened = null;
+  Object.assign(context, { PKGResearch: research, renderExplorerSelectionDetail: (title, claims) => { opened = { title, claims }; } });
+  context.document.querySelector = () => null;
   context.rows = [
-    finding('a', { design: ['RCT'], outcome: ['Depression'], followup: ['Acute'], paperType: ['Primary studies'] }, { year: 2015, claim: { fullText: true } }),
-    finding('a', { design: ['RCT'], outcome: ['Brain'], followup: ['Long'], paperType: ['Primary studies'] }, { year: 2015, claim: { fullText: true } }),
-    finding('b', { design: ['RCT'], outcome: ['Depression'], followup: ['Long'], paperType: ['Primary studies'] }, { year: 2024, claim: { fullText: true } }),
-    finding('c', { design: ['RCT'], outcome: ['Depression'], followup: ['Long'], paperType: ['Reviews'] }, { year: 2015, claim: { fullText: true } }),
+    finding('a', { population: ['Human'], design: ['RCT'] }, { claim: { id: 'a1' } }),
+    finding('a', { population: ['Human'], design: ['RCT'] }, { claim: { id: 'a2' } }),
+    finding('b', { population: ['Mouse'], design: ['RCT'] }, { claim: { id: 'b' } }),
   ];
-  context.candidate = { kind: 'set', filters: { design: 'RCT' }, scope: { min: '2010', max: '2020', evidence: 'primary', access: 'open' }, coverage: { axes: ['outcome', 'followup'], cell: ['Depression', 'Long'] } };
-  assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(researchCandidateRows(rows, candidate).map(row => row.paperKey))', context)), ['a', 'a']);
+  vm.runInContext('researchCoverageRows = rows; researchCoverageCell = ["Human", "RCT"]; researchOpenCoverageCell()', context);
+  assert.deepEqual(Array.from(opened.claims, claim => claim.id), ['a1', 'a2']);
+  assert.equal(opened.title, 'Human · RCT');
+  vm.runInContext('researchScopeChanged()', context);
+  assert.equal(vm.runInContext('researchCoverageCell', context), null);
+});
+
+test('coverage respects paper type, year, access, area and entity scope on the actual findings', () => {
+  const context = workspaceContext();
+  const claims = [
+    { id: 'primary', type: 'primary', study_year: '2020', area: 'clinical', focus: true, full: true },
+    { id: 'meta', type: 'meta_analyses', study_year: '2020', area: 'clinical', focus: true, full: true },
+    { id: 'review', type: 'reviews', study_year: '2020', area: 'clinical', focus: true, full: true },
+    { id: 'other finding', type: 'reviews', study_year: '2020', area: 'brain', focus: true, full: true },
+    { id: 'old', type: 'reviews', study_year: '1950', area: 'clinical', focus: true, full: true },
+    { id: 'abstract', type: 'reviews', study_year: '2020', area: 'clinical', focus: true, full: false },
+    { id: 'other entity', type: 'reviews', study_year: '2020', area: 'clinical', focus: false, full: true },
+  ];
+  Object.assign(context, {
+    claimStores: { normalized: { bySource: { all: claims } } }, yearMinFilter: { value: '2000' }, yearMaxFilter: { value: '2026' },
+    evidenceView: 'all', accessView: 'open', parseYearValue: Number,
+    isHiddenMainGraphItem: () => false, isMainGraphAdmitted: () => true, isOpenAccessClaim: claim => claim.full,
+    isSecondaryLiteratureClaim: claim => claim.type !== 'primary', isMetaAnalysisClaim: claim => claim.type === 'meta_analyses', isReviewLiteratureClaim: claim => claim.type === 'reviews',
+    analysisClaimsWithinScope: rows => rows.filter(claim => claim.area === 'clinical'), analysisClaimsWithCurrentEntity: rows => rows,
+    analysisClaimsForFocusedEntity: rows => rows.filter(claim => claim.focus), researchRow: claim => claim,
+  });
+  assert.deepEqual(Array.from(vm.runInContext('researchBaseRows()', context), claim => claim.id), ['primary', 'meta', 'review']);
+  for (const type of ['primary', 'meta_analyses', 'reviews']) {
+    context.evidenceView = type;
+    assert.equal(vm.runInContext('researchBaseRows().length', context), 1);
+  }
+});
+
+test('Analyze date controls retain their range across narrower paper types and empty periods', () => {
+  const context = workspaceContext();
+  Object.assign(context, { explorerMode: "analysis", yearMinFilter: {}, yearMaxFilter: {}, yearFilterState: {}, currentYearFilterKey: () => "analysis:research" });
+  const corpus = [{ study_year: '1932' }, { study_year: '2026' }];
+  Object.assign(context, {
+    claimStores: { normalized: { bySource: { all: corpus } } },
+    isHiddenMainGraphItem: () => false, ANALYSIS_DEFAULT_START_YEAR: 2000,
+    selectedClaims: [{ study_year: '2003' }, { study_year: '2024' }],
+  });
+  const app = fs.readFileSync(path.join(__dirname, '../ui/app.js'), 'utf8');
+  for (const name of ['parseYearValue', 'yearBoundsFromClaims', 'defaultYearFilterRange', 'yearFilterBounds', 'syncYearFilterControls', 'activeYearRange', 'clampNumber']) {
+    vm.runInContext(app.match(new RegExp(`function ${name}\\([^]*?\\n\\}`))[0], context);
+  }
+  context.yearFilterState['analysis:research'] = { min: '1932', max: '2026' };
+  vm.runInContext('syncYearFilterControls(selectedClaims); activeYearRange(selectedClaims)', context);
+  assert.equal(context.yearMinFilter.value, '1932');
+  assert.equal(context.yearMaxFilter.value, '2026');
+  context.yearFilterState['analysis:research'] = { min: '1932', max: '1950' };
+  vm.runInContext('syncYearFilterControls(selectedClaims)', context);
+  const range = JSON.parse(vm.runInContext('JSON.stringify(activeYearRange(selectedClaims))', context));
+  assert.deepEqual(range, { constrained: true, min: 1932, max: 1950 });
+  assert.equal(context.selectedClaims.filter(claim => Number(claim.study_year) >= range.min && Number(claim.study_year) <= range.max).length, 0);
+  vm.runInContext('syncYearFilterControls([])', context);
+  assert.equal(context.yearMinFilter.value, '1932');
+  assert.equal(context.yearMaxFilter.value, '1950');
+  assert.equal(context.yearMinFilter.disabled, false);
+  // Explore continues using the bounds of its own dataset.
+  context.explorerMode = 'overview';
+  vm.runInContext('syncYearFilterControls(selectedClaims, true)', context);
+  assert.equal(context.yearMinFilter.value, '2003');
+  assert.equal(context.yearMaxFilter.value, '2024');
 });

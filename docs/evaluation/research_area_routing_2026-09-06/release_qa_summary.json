@@ -1,0 +1,33 @@
+{
+  "status": "ok",
+  "run_id": "research_area_routing_20260906_release_candidate",
+  "qa_version": "research_area_release_qa_v1",
+  "source_second_pass_dir": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/kg_routed_runs/research_area_routing_20260906_second_pass",
+  "out_dir": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/kg_routed_runs/research_area_routing_20260906_release_candidate",
+  "qa_rows": 715,
+  "reviewed_second_pass_corrections": 513,
+  "reviewed_confirmation_sample": 200,
+  "source_level_resolutions": 2,
+  "restored_finding_ids": 273,
+  "newly_held_finding_ids": 26,
+  "edge_rows_before_release_qa": 96181,
+  "edge_rows_after_release_qa": 96428,
+  "edge_row_delta": 247,
+  "final_scope_status_counts": {
+    "confirmed_current": 1766,
+    "corrected": 266
+  },
+  "combined_finding_status_counts": {
+    "confirmed_current": 1766,
+    "corrected": 890,
+    "unresolved": 501
+  },
+  "remaining_second_pass_unresolved_ids": [],
+  "integrity": {
+    "final_corrected_edges_remaining": 0,
+    "final_confirmed_edges_missing": 0,
+    "restored_edges_present": 273,
+    "newly_held_edges_remaining": 0
+  },
+  "active_release_changed": false
+}

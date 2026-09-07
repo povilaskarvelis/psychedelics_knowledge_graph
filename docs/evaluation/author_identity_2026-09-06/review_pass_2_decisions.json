@@ -1,0 +1,2331 @@
+{
+  "reviewer": "codex_source_review",
+  "reviewed_at": "2026-09-06",
+  "profile_merges": [
+    {
+      "group": "matthias liechti",
+      "status": "corrected_selected_profiles",
+      "source_author_ids": [
+        "local_author:40d9944bf88a5d21",
+        "openalex:A5134869311",
+        "openalex:A5130338438",
+        "openalex:A5130758039",
+        "openalex:A5133031295",
+        "openalex:A5132661929",
+        "openalex:A5135681019"
+      ],
+      "target_author_id": "orcid:0000-0002-1765-9659",
+      "sources": [
+        "https://biomedizin.unibas.ch/en/persons/liechti-matthias-emanuel/",
+        "https://pubmed.ncbi.nlm.nih.gov/41896202/",
+        "https://api.datacite.org/dois/10.3929/ethz-c-000799490"
+      ],
+      "authorships": [
+        {
+          "doi": "10.1007/s11064-026-04727-5",
+          "display_name": "Matthias E. Liechti",
+          "author_position": 3,
+          "openalex_author_id": "https://openalex.org/A5130338438"
+        },
+        {
+          "doi": "10.1038/s41386-026-02428-9",
+          "display_name": "Matthias E Liechti",
+          "author_position": 10,
+          "openalex_author_id": "https://openalex.org/A5134869311"
+        },
+        {
+          "doi": "10.1038/s41398-026-03987-7",
+          "display_name": "Matthias E. Liechti",
+          "author_position": 9,
+          "openalex_author_id": "https://openalex.org/A5130758039"
+        },
+        {
+          "doi": "10.1038/s41398-026-04148-6",
+          "display_name": "Matthias E. Liechti",
+          "author_position": 8,
+          "openalex_author_id": ""
+        },
+        {
+          "doi": "10.1038/s41591-026-04287-9",
+          "display_name": "Matthias E. Liechti",
+          "author_position": 16,
+          "openalex_author_id": "https://openalex.org/A5133031295"
+        },
+        {
+          "doi": "10.1080/2153599x.2026.2635353",
+          "display_name": "Matthias E. Liechti",
+          "author_position": 14,
+          "openalex_author_id": "https://openalex.org/A5132661929"
+        },
+        {
+          "doi": "10.2139/ssrn.4237108",
+          "display_name": "Matthias E. Liechti",
+          "author_position": 6,
+          "openalex_author_id": ""
+        },
+        {
+          "doi": "10.3929/ethz-c-000799490",
+          "display_name": "Matthias E. Liechti",
+          "author_position": 9,
+          "openalex_author_id": "https://openalex.org/A5135681019"
+        }
+      ],
+      "excluded_profiles": []
+    },
+    {
+      "group": "joshua rosenblat",
+      "status": "corrected_selected_profiles",
+      "source_author_ids": [
+        "openalex:A5125683879",
+        "openalex:A5132810846",
+        "openalex:A5133707727",
+        "openalex:A5127770447",
+        "openalex:A5133714746",
+        "openalex:A5133891430",
+        "openalex:A5121579344",
+        "openalex:A5134725718",
+        "openalex:A5128878615"
+      ],
+      "target_author_id": "orcid:0000-0002-4773-2191",
+      "sources": [
+        "https://pubmed.ncbi.nlm.nih.gov/41984443/",
+        "https://pubmed.ncbi.nlm.nih.gov/42055096/",
+        "https://pubmed.ncbi.nlm.nih.gov/41690631/"
+      ],
+      "authorships": [
+        {
+          "doi": "10.1001/jamapsychiatry.2026.0255",
+          "display_name": "Joshua D. Rosenblat",
+          "author_position": 18,
+          "openalex_author_id": "https://openalex.org/A5133714746"
+        },
+        {
+          "doi": "10.1016/j.genhosppsych.2026.04.005",
+          "display_name": "Joshua D. Rosenblat",
+          "author_position": 9,
+          "openalex_author_id": "https://openalex.org/A5133891430"
+        },
+        {
+          "doi": "10.1016/j.jad.2025.121081",
+          "display_name": "Joshua D. Rosenblat",
+          "author_position": 8,
+          "openalex_author_id": "https://openalex.org/A5121579344"
+        },
+        {
+          "doi": "10.1016/j.jad.2026.121385",
+          "display_name": "Joshua D. Rosenblat",
+          "author_position": 11,
+          "openalex_author_id": "https://openalex.org/A5125683879"
+        },
+        {
+          "doi": "10.1016/j.jpainsymman.2026.04.611",
+          "display_name": "Joshua D. Rosenblat",
+          "author_position": 14,
+          "openalex_author_id": "https://openalex.org/A5134725718"
+        },
+        {
+          "doi": "10.1016/j.jpsychires.2026.02.011",
+          "display_name": "Joshua D. Rosenblat",
+          "author_position": 11,
+          "openalex_author_id": "https://openalex.org/A5125683879"
+        },
+        {
+          "doi": "10.1016/j.psychres.2026.117152",
+          "display_name": "Joshua D Rosenblat",
+          "author_position": 7,
+          "openalex_author_id": "https://openalex.org/A5132810846"
+        },
+        {
+          "doi": "10.1016/s2215-0366(26)00018-0",
+          "display_name": "Joshua D Rosenblat",
+          "author_position": 8,
+          "openalex_author_id": "https://openalex.org/A5133707727"
+        },
+        {
+          "doi": "10.1080/14656566.2026.2637587",
+          "display_name": "Joshua D Rosenblat",
+          "author_position": 4,
+          "openalex_author_id": "https://openalex.org/A5127770447"
+        },
+        {
+          "doi": "10.1111/add.70363",
+          "display_name": "Joshua D. Rosenblat",
+          "author_position": 7,
+          "openalex_author_id": "https://openalex.org/A5128878615"
+        }
+      ],
+      "excluded_profiles": []
+    },
+    {
+      "group": "leor roseman",
+      "status": "corrected_selected_profiles",
+      "source_author_ids": [
+        "openalex:A5139783089",
+        "openalex:A5130392590",
+        "openalex:A5133050232",
+        "openalex:A5135012927",
+        "openalex:A5124837407"
+      ],
+      "target_author_id": "orcid:0000-0001-9990-6029",
+      "sources": [
+        "https://profiles.imperial.ac.uk/leor.roseman13",
+        "https://www.imperial.ac.uk/psychedelic-research-centre/research/publications/?id=1661749&noscript=noscript&respub-t4-action=citation.html",
+        "https://api.datacite.org/dois/10.5167/uzh-284344"
+      ],
+      "authorships": [
+        {
+          "doi": "10.1002/hbm.70596",
+          "display_name": "Leor Roseman",
+          "author_position": 8,
+          "openalex_author_id": "https://openalex.org/A5139783089"
+        },
+        {
+          "doi": "10.1016/j.neubiorev.2026.106657",
+          "display_name": "Leor Roseman",
+          "author_position": 10,
+          "openalex_author_id": "https://openalex.org/A5130392590"
+        },
+        {
+          "doi": "10.1038/s41591-026-04287-9",
+          "display_name": "Leor Roseman",
+          "author_position": 3,
+          "openalex_author_id": "https://openalex.org/A5133050232"
+        },
+        {
+          "doi": "10.1177/02698811261443677",
+          "display_name": "Leor Roseman",
+          "author_position": 5,
+          "openalex_author_id": "https://openalex.org/A5135012927"
+        },
+        {
+          "doi": "10.5167/uzh-284344",
+          "display_name": "Leor Roseman",
+          "author_position": 3,
+          "openalex_author_id": "https://openalex.org/A5124837407"
+        }
+      ],
+      "excluded_profiles": []
+    },
+    {
+      "group": "david nutt",
+      "status": "corrected_selected_profiles",
+      "source_author_ids": [
+        "openalex:A5113982589",
+        "openalex:A5133013863",
+        "openalex:A5126096438"
+      ],
+      "target_author_id": "orcid:0000-0002-1286-1401",
+      "sources": [
+        "https://api.crossref.org/works/10.1038%2Fs41591-025-04154-z",
+        "https://api.crossref.org/works/10.1038%2Fs41591-026-04287-9",
+        "https://api.crossref.org/works/10.15288%2Fjsad.23-00032"
+      ],
+      "authorships": [
+        {
+          "doi": "10.1016/j.eclinm.2024.102799",
+          "display_name": "David Nutt",
+          "author_position": 10,
+          "openalex_author_id": "https://openalex.org/A5113982589"
+        },
+        {
+          "doi": "10.1016/j.pnpbp.2025.111455",
+          "display_name": "David Nutt",
+          "author_position": 5,
+          "openalex_author_id": "https://openalex.org/A5113982589"
+        },
+        {
+          "doi": "10.1038/s41591-025-04154-z",
+          "display_name": "David Nutt",
+          "author_position": 15,
+          "openalex_author_id": "https://openalex.org/A5126096438"
+        },
+        {
+          "doi": "10.1038/s41591-026-04287-9",
+          "display_name": "David J. Nutt",
+          "author_position": 24,
+          "openalex_author_id": "https://openalex.org/A5133013863"
+        },
+        {
+          "doi": "10.15288/jsad.23-00032",
+          "display_name": "David Nutt",
+          "author_position": 1,
+          "openalex_author_id": "https://openalex.org/A5113982589"
+        }
+      ],
+      "excluded_profiles": []
+    },
+    {
+      "group": "david nutt existing corpus profile",
+      "status": "corrected_profile_association",
+      "source_author_ids": [
+        "orcid:0000-0002-6423-9411"
+      ],
+      "target_author_id": "orcid:0000-0002-1286-1401",
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "directly_listed_dois": [
+        "10.1002/hbm.22562",
+        "10.1002/hbm.22833",
+        "10.1002/hbm.23224",
+        "10.1002/hbm.23234",
+        "10.1007/s00213-014-3714-z",
+        "10.1007/s00213-017-4754-y",
+        "10.1007/s00213-017-4820-5",
+        "10.1007/s00213-021-05999-1",
+        "10.1007/s00213-022-06187-5",
+        "10.1007/s11469-024-01253-9",
+        "10.1016/j.biopsych.2013.12.015",
+        "10.1016/j.concog.2020.103070",
+        "10.1016/j.euroneuro.2016.03.018",
+        "10.1016/j.jad.2018.01.006",
+        "10.1016/j.neuroimage.2019.05.060",
+        "10.1016/j.neuropharm.2017.10.039",
+        "10.1016/j.neuropharm.2017.12.040",
+        "10.1016/j.neuropharm.2017.12.041",
+        "10.1016/j.neuropharm.2022.109294",
+        "10.1016/j.neuropsychologia.2016.04.005",
+        "10.1017/neu.2019.15",
+        "10.1017/s0033291715002901",
+        "10.1017/s1461145713001405",
+        "10.1021/acschemneuro.3c00289",
+        "10.1038/npp.2017.35",
+        "10.1038/s41598-017-13282-7",
+        "10.1038/s41598-018-26656-2",
+        "10.1038/s41598-019-51974-4",
+        "10.1038/s41598-024-53363-y",
+        "10.1056/nejmoa2032994",
+        "10.1073/pnas.1518377113",
+        "10.1080/02791072.2013.825034",
+        "10.1080/23273798.2016.1217030",
+        "10.1093/braincomms/fcae049",
+        "10.1093/ijnp/pyac074",
+        "10.1177/0022167817709585",
+        "10.1177/0269881116628430",
+        "10.1177/0269881119895520",
+        "10.1177/0269881120926673",
+        "10.1177/02698811211008567",
+        "10.1177/02698811211069100",
+        "10.1177/02698811221125354",
+        "10.1177/02698811231224217",
+        "10.1177/02698811241237870",
+        "10.31887/dcns.2019.21.2/dnutt",
+        "10.3389/fnhum.2014.00020",
+        "10.3389/fnhum.2014.00204",
+        "10.3389/fnhum.2016.00269",
+        "10.3389/fphar.2017.00974",
+        "10.3389/fphar.2018.00897",
+        "10.3389/fphar.2021.788155",
+        "10.3389/fpsyg.2018.01424",
+        "10.3389/fpsyt.2019.00138",
+        "10.7554/elife.59784"
+      ],
+      "remaining_profile_dois": [
+        "10.1002/hbm.70209",
+        "10.1007/s12152-023-09536-z",
+        "10.1016/j.bpsc.2023.03.009",
+        "10.1016/j.comppsych.2025.152619",
+        "10.1016/j.euroneuro.2025.06.003",
+        "10.1016/j.jad.2023.04.081",
+        "10.1016/j.jad.2024.02.089",
+        "10.1017/s0033291722002963",
+        "10.1017/s0033291723001411",
+        "10.1017/s0033291723001514",
+        "10.1089/psymed.2022.0002",
+        "10.1093/alcalc/agaf031",
+        "10.1093/nsr/nwae124",
+        "10.1111/nyas.15391",
+        "10.1159/000540062",
+        "10.1162/imag_a_00420",
+        "10.1162/netn_a_00250",
+        "10.1167/16.12.133",
+        "10.1176/appi.ajp.20230751",
+        "10.1177/02698811221101061",
+        "10.1177/02698811221131994",
+        "10.1177/02698811241276788",
+        "10.1177/20503245251380511",
+        "10.1192/bjo.2022.565",
+        "10.3389/fpsyg.2025.1580663"
+      ]
+    }
+  ],
+  "authorship_corrections": [
+    {
+      "review_id": "author-review-20260906-001",
+      "doi": "10.1002/hup.2836",
+      "author_position": 16,
+      "expected": {
+        "display_name": "Lucas C. Quarantini",
+        "orcid": "0000-0002-0389-1940",
+        "openalex_author_id": ""
+      },
+      "replacement": {
+        "orcid": "0000-0002-8807-8464",
+        "openalex_author_id": ""
+      },
+      "reason": "Correct source identity assignment using independently identified ORCID owner and local authorship context.",
+      "sources": [
+        "https://www.scielo.br/j/ag/a/K77H35NQkHKS8VyqsS46cvj/"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-002",
+      "doi": "10.1007/s11306-023-02034-6",
+      "author_position": 3,
+      "expected": {
+        "display_name": "Sophie Geyrhofer",
+        "orcid": "0000-0001-5687-2586",
+        "openalex_author_id": ""
+      },
+      "replacement": {
+        "orcid": "0000-0002-7764-4053",
+        "openalex_author_id": "https://openalex.org/A5036328098"
+      },
+      "reason": "Direct ORCID owner record confirms Sophie Geyrhofer; replace the ORCID belonging to Joanne Harvey.",
+      "sources": [
+        "https://people.wgtn.ac.nz/joanne.harvey",
+        "https://link.springer.com/article/10.1007/s11306-023-02034-6",
+        "https://pub.orcid.org/v3.0/0000-0002-7764-4053/person"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-004",
+      "doi": "10.1007/s11306-023-02034-6",
+      "author_position": 5,
+      "expected": {
+        "display_name": "Robert A. Keyzers",
+        "orcid": "0000-0002-7786-8313",
+        "openalex_author_id": ""
+      },
+      "replacement": {
+        "orcid": "0000-0002-7658-7421",
+        "openalex_author_id": ""
+      },
+      "reason": "Correct source identity assignment using independently identified ORCID owner and local authorship context.",
+      "sources": [
+        "https://people.wgtn.ac.nz/robert.keyzers"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-005",
+      "doi": "10.1016/j.forsciint.2020.110298",
+      "author_position": 1,
+      "expected": {
+        "display_name": "Sarah Eller",
+        "orcid": "0000-0003-2594-8415",
+        "openalex_author_id": ""
+      },
+      "replacement": {
+        "orcid": "0000-0003-2200-6959",
+        "openalex_author_id": ""
+      },
+      "reason": "Correct source identity assignment using independently identified ORCID owner and local authorship context.",
+      "sources": [
+        "https://academic.oup.com/jat/article/48/5/314/7604377"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-006",
+      "doi": "10.1038/s41386-019-0569-3",
+      "author_position": 1,
+      "expected": {
+        "display_name": "Friederike Holze",
+        "orcid": "0000-0002-4582-6610",
+        "openalex_author_id": ""
+      },
+      "replacement": {
+        "orcid": "0000-0003-3143-1519",
+        "openalex_author_id": ""
+      },
+      "reason": "Correct source identity assignment using independently identified ORCID owner and local authorship context.",
+      "sources": [
+        "https://edoc.unibas.ch/entities/person/720a35ba-1cfd-41e6-a1bb-d2fb68124946",
+        "https://api.crossref.org/works/10.1038%2Fs41386-026-02428-9"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-007",
+      "doi": "10.1089/psymed.2024.0039",
+      "author_position": 3,
+      "expected": {
+        "display_name": "Rachel Sousa-Ho",
+        "orcid": "0000-0002-8768-1173",
+        "openalex_author_id": ""
+      },
+      "replacement": {
+        "orcid": "",
+        "openalex_author_id": ""
+      },
+      "reason": "Reject disputed or demonstrably cross-person ORCID assignment; retain a separate author identity without claiming a verified replacement ORCID.",
+      "sources": [
+        "https://www.f6publishing.com/PublishedArticleProcessDetail/36921"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-008",
+      "doi": "10.3389/fpubh.2024.1391390",
+      "author_position": 1,
+      "expected": {
+        "display_name": "Pablo Del Pozo‐Herce",
+        "orcid": "0000-0002-4141-6956",
+        "openalex_author_id": "https://openalex.org/A5055976026"
+      },
+      "replacement": {
+        "orcid": "",
+        "openalex_author_id": "https://openalex.org/A5055976026"
+      },
+      "reason": "Reject disputed or demonstrably cross-person ORCID assignment; retain a separate author identity without claiming a verified replacement ORCID.",
+      "sources": [
+        "https://advances.umw.edu.pl/en/closing-implementation-gap",
+        "https://pubmed.ncbi.nlm.nih.gov/38799691/"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-009",
+      "doi": "10.1016/j.jad.2025.01.054",
+      "author_position": 11,
+      "expected": {
+        "display_name": "Roger S. McIntyre",
+        "orcid": "0000-0003-4013-1112",
+        "openalex_author_id": "https://openalex.org/A5114229887"
+      },
+      "replacement": {
+        "orcid": "0000-0003-4733-2523",
+        "openalex_author_id": "https://openalex.org/A5114229887"
+      },
+      "reason": "Correct source identity assignment using independently identified ORCID owner and local authorship context.",
+      "sources": [
+        "https://ora.ox.ac.uk/objects/uuid%3A1f60f053-7dab-4bcf-a6c0-d349e36d299c",
+        "https://www.psychiatrist.com/wp-content/uploads/2025/07/global-population-based-study-association-ketamine-esketamine-suicidality-who-vigibase-24m15534.pdf"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-010",
+      "doi": "10.1016/j.jad.2025.04.119",
+      "author_position": 8,
+      "expected": {
+        "display_name": "Roger S McIntyre",
+        "orcid": "",
+        "openalex_author_id": "https://openalex.org/A5114229887"
+      },
+      "replacement": {
+        "orcid": "0000-0003-4733-2523",
+        "openalex_author_id": "https://openalex.org/A5114229887"
+      },
+      "reason": "Correct source identity assignment using independently identified ORCID owner and local authorship context.",
+      "sources": [
+        "https://ora.ox.ac.uk/objects/uuid%3A1f60f053-7dab-4bcf-a6c0-d349e36d299c",
+        "https://www.psychiatrist.com/wp-content/uploads/2025/07/global-population-based-study-association-ketamine-esketamine-suicidality-who-vigibase-24m15534.pdf"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-011",
+      "doi": "10.1016/j.jad.2025.120476",
+      "author_position": 13,
+      "expected": {
+        "display_name": "Roger S. McIntyre",
+        "orcid": "0000-0003-4013-1112",
+        "openalex_author_id": "https://openalex.org/A5114229887"
+      },
+      "replacement": {
+        "orcid": "0000-0003-4733-2523",
+        "openalex_author_id": "https://openalex.org/A5114229887"
+      },
+      "reason": "Correct source identity assignment using independently identified ORCID owner and local authorship context.",
+      "sources": [
+        "https://ora.ox.ac.uk/objects/uuid%3A1f60f053-7dab-4bcf-a6c0-d349e36d299c",
+        "https://www.psychiatrist.com/wp-content/uploads/2025/07/global-population-based-study-association-ketamine-esketamine-suicidality-who-vigibase-24m15534.pdf"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-012",
+      "doi": "10.1176/appi.ajp.20230902",
+      "author_position": 1,
+      "expected": {
+        "display_name": "Roger S. McIntyre",
+        "orcid": "0000-0003-4013-1112",
+        "openalex_author_id": "https://openalex.org/A5114229887"
+      },
+      "replacement": {
+        "orcid": "0000-0003-4733-2523",
+        "openalex_author_id": "https://openalex.org/A5114229887"
+      },
+      "reason": "Correct source identity assignment using independently identified ORCID owner and local authorship context.",
+      "sources": [
+        "https://ora.ox.ac.uk/objects/uuid%3A1f60f053-7dab-4bcf-a6c0-d349e36d299c",
+        "https://www.psychiatrist.com/wp-content/uploads/2025/07/global-population-based-study-association-ketamine-esketamine-suicidality-who-vigibase-24m15534.pdf"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-013",
+      "doi": "10.1177/07067437251328316",
+      "author_position": 10,
+      "expected": {
+        "display_name": "Roger S. McIntyre",
+        "orcid": "0000-0003-4013-1112",
+        "openalex_author_id": "https://openalex.org/A5114229887"
+      },
+      "replacement": {
+        "orcid": "0000-0003-4733-2523",
+        "openalex_author_id": "https://openalex.org/A5114229887"
+      },
+      "reason": "Correct source identity assignment using independently identified ORCID owner and local authorship context.",
+      "sources": [
+        "https://ora.ox.ac.uk/objects/uuid%3A1f60f053-7dab-4bcf-a6c0-d349e36d299c",
+        "https://www.psychiatrist.com/wp-content/uploads/2025/07/global-population-based-study-association-ketamine-esketamine-suicidality-who-vigibase-24m15534.pdf"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-014",
+      "doi": "10.3390/ijerph15040771",
+      "author_position": 13,
+      "expected": {
+        "display_name": "Roger S. McIntyre",
+        "orcid": "0000-0003-4013-1112",
+        "openalex_author_id": "https://openalex.org/A5114229887"
+      },
+      "replacement": {
+        "orcid": "0000-0003-4733-2523",
+        "openalex_author_id": "https://openalex.org/A5114229887"
+      },
+      "reason": "Correct source identity assignment using independently identified ORCID owner and local authorship context.",
+      "sources": [
+        "https://ora.ox.ac.uk/objects/uuid%3A1f60f053-7dab-4bcf-a6c0-d349e36d299c",
+        "https://www.psychiatrist.com/wp-content/uploads/2025/07/global-population-based-study-association-ketamine-esketamine-suicidality-who-vigibase-24m15534.pdf"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-015",
+      "doi": "10.4088/jcp.24m15534",
+      "author_position": 10,
+      "expected": {
+        "display_name": "Roger S. McIntyre",
+        "orcid": "0000-0003-4013-1112",
+        "openalex_author_id": "https://openalex.org/A5114229887"
+      },
+      "replacement": {
+        "orcid": "0000-0003-4733-2523",
+        "openalex_author_id": "https://openalex.org/A5114229887"
+      },
+      "reason": "Correct source identity assignment using independently identified ORCID owner and local authorship context.",
+      "sources": [
+        "https://ora.ox.ac.uk/objects/uuid%3A1f60f053-7dab-4bcf-a6c0-d349e36d299c",
+        "https://www.psychiatrist.com/wp-content/uploads/2025/07/global-population-based-study-association-ketamine-esketamine-suicidality-who-vigibase-24m15534.pdf"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-016",
+      "doi": "10.1016/j.pnpbp.2019.01.002",
+      "author_position": 6,
+      "expected": {
+        "display_name": "Zihang Pan",
+        "orcid": "",
+        "openalex_author_id": "https://openalex.org/A5110830165"
+      },
+      "replacement": {
+        "orcid": "",
+        "openalex_author_id": "https://openalex.org/A5110830165"
+      },
+      "reason": "Reject disputed or demonstrably cross-person ORCID assignment; retain a separate author identity without claiming a verified replacement ORCID.",
+      "sources": [
+        "https://ora.ox.ac.uk/objects/uuid%3A1f60f053-7dab-4bcf-a6c0-d349e36d299c"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-017",
+      "doi": "10.3390/ijerph15040771",
+      "author_position": 8,
+      "expected": {
+        "display_name": "Zihang Pan",
+        "orcid": "0000-0003-4733-2523",
+        "openalex_author_id": "https://openalex.org/A5110830165"
+      },
+      "replacement": {
+        "orcid": "",
+        "openalex_author_id": "https://openalex.org/A5110830165"
+      },
+      "reason": "Reject disputed or demonstrably cross-person ORCID assignment; retain a separate author identity without claiming a verified replacement ORCID.",
+      "sources": [
+        "https://ora.ox.ac.uk/objects/uuid%3A1f60f053-7dab-4bcf-a6c0-d349e36d299c"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-018",
+      "doi": "10.1016/j.concog.2019.01.011",
+      "author_position": 11,
+      "expected": {
+        "display_name": "Bruce Greyson",
+        "orcid": "0000-0001-7641-6916",
+        "openalex_author_id": ""
+      },
+      "replacement": {
+        "orcid": "0000-0002-2192-7898",
+        "openalex_author_id": ""
+      },
+      "reason": "Direct ORCID owner records identify the current cross-person error and the replacement owner. Publication author list supplies the paper-specific identity context.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-2192-7898/person",
+        "https://pub.orcid.org/v3.0/0000-0001-7641-6916/person",
+        "https://doi.org/10.1016/j.concog.2019.01.011"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-019",
+      "doi": "10.1016/j.jhazmat.2019.121577",
+      "author_position": 1,
+      "expected": {
+        "display_name": "Zhenglu Wang",
+        "orcid": "0000-0002-3162-5068",
+        "openalex_author_id": ""
+      },
+      "replacement": {
+        "orcid": "0000-0002-6873-3732",
+        "openalex_author_id": ""
+      },
+      "reason": "Direct ORCID owner records identify the current cross-person error and the replacement owner. Publication author list supplies the paper-specific identity context.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-6873-3732/person",
+        "https://pub.orcid.org/v3.0/0000-0002-3162-5068/person",
+        "https://doi.org/10.1016/j.jhazmat.2019.121577"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-020",
+      "doi": "10.4038/sljpsyc.v11i1.8240",
+      "author_position": 1,
+      "expected": {
+        "display_name": "N. Ravindran",
+        "orcid": "0000-0002-1655-2753",
+        "openalex_author_id": ""
+      },
+      "replacement": {
+        "orcid": "0000-0002-0468-1099",
+        "openalex_author_id": ""
+      },
+      "reason": "Direct ORCID owner records identify the current cross-person error and the replacement owner. Publication author list supplies the paper-specific identity context.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-0468-1099/person",
+        "https://pub.orcid.org/v3.0/0000-0002-1655-2753/person",
+        "https://doi.org/10.4038/sljpsyc.v11i1.8240"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-021",
+      "doi": "10.1002/hbm.22562",
+      "author_position": 4,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-022",
+      "doi": "10.1002/hbm.22833",
+      "author_position": 5,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-023",
+      "doi": "10.1002/hbm.23224",
+      "author_position": 8,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-024",
+      "doi": "10.1002/hbm.23234",
+      "author_position": 6,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-025",
+      "doi": "10.1002/hbm.70209",
+      "author_position": 8,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-026",
+      "doi": "10.1007/s00213-014-3714-z",
+      "author_position": 6,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-027",
+      "doi": "10.1007/s00213-017-4754-y",
+      "author_position": 6,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-028",
+      "doi": "10.1007/s00213-017-4820-5",
+      "author_position": 9,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-029",
+      "doi": "10.1007/s00213-021-05999-1",
+      "author_position": 7,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-030",
+      "doi": "10.1007/s00213-022-06187-5",
+      "author_position": 10,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-031",
+      "doi": "10.1007/s11469-024-01253-9",
+      "author_position": 4,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-032",
+      "doi": "10.1007/s12152-023-09536-z",
+      "author_position": 4,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-033",
+      "doi": "10.1016/j.biopsych.2013.12.015",
+      "author_position": 23,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-034",
+      "doi": "10.1016/j.bpsc.2023.03.009",
+      "author_position": 9,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-035",
+      "doi": "10.1016/j.comppsych.2025.152619",
+      "author_position": 13,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-036",
+      "doi": "10.1016/j.concog.2020.103070",
+      "author_position": 9,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-037",
+      "doi": "10.1016/j.euroneuro.2016.03.018",
+      "author_position": 14,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-038",
+      "doi": "10.1016/j.euroneuro.2025.06.003",
+      "author_position": 3,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-039",
+      "doi": "10.1016/j.jad.2018.01.006",
+      "author_position": 7,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-040",
+      "doi": "10.1016/j.jad.2023.04.081",
+      "author_position": 6,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-041",
+      "doi": "10.1016/j.jad.2024.02.089",
+      "author_position": 4,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-042",
+      "doi": "10.1016/j.neuroimage.2019.05.060",
+      "author_position": 7,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-043",
+      "doi": "10.1016/j.neuropharm.2017.10.039",
+      "author_position": 5,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-044",
+      "doi": "10.1016/j.neuropharm.2017.12.040",
+      "author_position": 3,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-045",
+      "doi": "10.1016/j.neuropharm.2017.12.041",
+      "author_position": 4,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-046",
+      "doi": "10.1016/j.neuropharm.2022.109294",
+      "author_position": 5,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-047",
+      "doi": "10.1016/j.neuropsychologia.2016.04.005",
+      "author_position": 6,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-048",
+      "doi": "10.1017/neu.2019.15",
+      "author_position": 5,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-049",
+      "doi": "10.1017/s0033291715002901",
+      "author_position": 8,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-050",
+      "doi": "10.1017/s0033291722002963",
+      "author_position": 6,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-051",
+      "doi": "10.1017/s0033291723001411",
+      "author_position": 6,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-052",
+      "doi": "10.1017/s0033291723001514",
+      "author_position": 9,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-053",
+      "doi": "10.1017/s1461145713001405",
+      "author_position": 16,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-054",
+      "doi": "10.1021/acschemneuro.3c00289",
+      "author_position": 5,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-055",
+      "doi": "10.1038/npp.2017.35",
+      "author_position": 6,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-056",
+      "doi": "10.1038/s41598-017-13282-7",
+      "author_position": 13,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-057",
+      "doi": "10.1038/s41598-018-26656-2",
+      "author_position": 6,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-058",
+      "doi": "10.1038/s41598-019-51974-4",
+      "author_position": 15,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-059",
+      "doi": "10.1038/s41598-024-53363-y",
+      "author_position": 4,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-060",
+      "doi": "10.1056/nejmoa2032994",
+      "author_position": 10,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-061",
+      "doi": "10.1073/pnas.1518377113",
+      "author_position": 26,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-062",
+      "doi": "10.1080/02791072.2013.825034",
+      "author_position": 2,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-063",
+      "doi": "10.1080/23273798.2016.1217030",
+      "author_position": 6,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-064",
+      "doi": "10.1089/psymed.2022.0002",
+      "author_position": 9,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-065",
+      "doi": "10.1093/alcalc/agaf031",
+      "author_position": 9,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-066",
+      "doi": "10.1093/braincomms/fcae049",
+      "author_position": 6,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-067",
+      "doi": "10.1093/ijnp/pyac074",
+      "author_position": 13,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-068",
+      "doi": "10.1093/nsr/nwae124",
+      "author_position": 6,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-069",
+      "doi": "10.1111/nyas.15391",
+      "author_position": 5,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-070",
+      "doi": "10.1159/000540062",
+      "author_position": 2,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-071",
+      "doi": "10.1162/imag_a_00420",
+      "author_position": 7,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-072",
+      "doi": "10.1162/netn_a_00250",
+      "author_position": 9,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-073",
+      "doi": "10.1167/16.12.133",
+      "author_position": 8,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-074",
+      "doi": "10.1176/appi.ajp.20230751",
+      "author_position": 7,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-075",
+      "doi": "10.1177/0022167817709585",
+      "author_position": 4,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-076",
+      "doi": "10.1177/0269881116628430",
+      "author_position": 6,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-077",
+      "doi": "10.1177/0269881119895520",
+      "author_position": 5,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-078",
+      "doi": "10.1177/0269881120926673",
+      "author_position": 15,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-079",
+      "doi": "10.1177/02698811211008567",
+      "author_position": 7,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-080",
+      "doi": "10.1177/02698811211069100",
+      "author_position": 5,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-081",
+      "doi": "10.1177/02698811221101061",
+      "author_position": 7,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-082",
+      "doi": "10.1177/02698811221125354",
+      "author_position": 4,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-083",
+      "doi": "10.1177/02698811221131994",
+      "author_position": 11,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-084",
+      "doi": "10.1177/02698811231224217",
+      "author_position": 5,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-085",
+      "doi": "10.1177/02698811241237870",
+      "author_position": 5,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-086",
+      "doi": "10.1177/02698811241276788",
+      "author_position": 4,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-087",
+      "doi": "10.1177/20503245251380511",
+      "author_position": 1,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-088",
+      "doi": "10.1192/bjo.2022.565",
+      "author_position": 6,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-089",
+      "doi": "10.31887/dcns.2019.21.2/dnutt",
+      "author_position": 1,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-090",
+      "doi": "10.3389/fnhum.2014.00020",
+      "author_position": 8,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-091",
+      "doi": "10.3389/fnhum.2014.00204",
+      "author_position": 4,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-092",
+      "doi": "10.3389/fnhum.2016.00269",
+      "author_position": 3,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-093",
+      "doi": "10.3389/fphar.2017.00974",
+      "author_position": 2,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-094",
+      "doi": "10.3389/fphar.2018.00897",
+      "author_position": 7,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-095",
+      "doi": "10.3389/fphar.2021.788155",
+      "author_position": 10,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-096",
+      "doi": "10.3389/fpsyg.2018.01424",
+      "author_position": 8,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-097",
+      "doi": "10.3389/fpsyg.2025.1580663",
+      "author_position": 9,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-098",
+      "doi": "10.3389/fpsyt.2019.00138",
+      "author_position": 3,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    },
+    {
+      "review_id": "author-review-20260906-099",
+      "doi": "10.7554/elife.59784",
+      "author_position": 3,
+      "expected": {
+        "display_name": "David Nutt",
+        "orcid": "0000-0002-6423-9411",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "replacement": {
+        "orcid": "0000-0002-1286-1401",
+        "openalex_author_id": "https://openalex.org/A5101507504"
+      },
+      "reason": "Reviewed profile A5101507504: 54 of its 79 corpus papers are listed in the Imperial-linked ORCID public works record for David Nutt (0000-0002-1286-1401). The profile uses the same full name and collaborator network; correct this corpus profile association. This does not declare the two ORCID accounts globally equivalent.",
+      "sources": [
+        "https://pub.orcid.org/v3.0/0000-0002-1286-1401/activities"
+      ],
+      "reviewed_at": "2026-09-06",
+      "reviewed_by": "codex_source_review"
+    }
+  ],
+  "unresolved": [],
+  "remaining_scope": "The other candidate-name groups and 13 profiles with conflicting ORCIDs have not been adjudicated in this pass. Some separated identities still lack a verified ORCID."
+}
