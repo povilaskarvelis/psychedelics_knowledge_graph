@@ -37,10 +37,13 @@ Poison-center data as mutually exclusive graph topics. Put the first six in
 `real_world_use_context` as semicolon-separated context tags; put the evidence
 source in `data_source_type`. Multiple context tags may apply to one finding.
 
-Fill `data_source_type` with the closest controlled value when stated: survey,
-poison center/toxicology, wastewater, drug checking, administrative/registry,
-qualitative/interview, or observational cohort. Use `study_design` for exact
-paper wording and `study_design_category` for the coarse design bucket.
+Fill `data_source_type` with the controlled value that matches the reported
+source: survey, poison center/toxicology, wastewater, drug checking,
+administrative/registry, qualitative interview, or observational cohort.
+Use `other_or_unclear` for a reported source outside those categories, such as
+analysis of online forum posts, and `not_reported` when the source is absent.
+Use `study_design` for exact paper wording and `study_design_category` for the
+coarse design bucket.
 
 Do not extract a result merely because participants are described as drug users
 in a mechanistic or clinical study.

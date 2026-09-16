@@ -1017,13 +1017,13 @@ button.primary:hover {
   margin-top: 0;
 }
 
-.explorer-search input {
+.explorer-search input[type="search"] {
   width: 100%;
   height: 42px;
   box-sizing: border-box;
   padding: 7px 36px 7px 13px;
   border-radius: 14px;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
 }
 
 .explorer-search input:disabled {
@@ -1271,6 +1271,10 @@ button.primary:hover {
   border: 1px solid var(--control-active-border);
   color: #eafffb;
   box-shadow: none;
+}
+
+.segmented-toggle button.active:hover {
+  transform: none;
 }
 
 .category-toggle {
@@ -4698,12 +4702,6 @@ button.primary:hover {
   padding-top: 9px;
 }
 
-.analysis-publication-legend small {
-  margin-left: auto;
-  color: rgba(174, 181, 180, 0.66);
-  font-size: 0.7rem;
-}
-
 .analysis-publication-year {
   cursor: pointer;
   outline: none;
@@ -4725,6 +4723,13 @@ button.primary:hover {
   transform-box: fill-box;
   transform-origin: bottom center;
   transition: filter 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+}
+
+.analysis-publication-separator {
+  stroke: rgba(7, 10, 10, 0.58);
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
 }
 
 .analysis-publication-segment-reviews {
@@ -4808,7 +4813,7 @@ button.primary:hover {
 .analytics-overlap-scroll {
   width: 100%;
   overflow-x: auto;
-  padding: 0 14px 38px 6px;
+  padding: 12px 14px 38px 6px;
   box-sizing: border-box;
   overscroll-behavior-x: contain;
   scrollbar-width: thin;
@@ -5579,10 +5584,17 @@ button.primary:hover {
 .explorer-matrix-total {
   display: grid;
   place-items: center;
+  border: 1px solid transparent;
   color: rgba(232, 236, 232, 0.72);
   background: rgba(238, 240, 235, 0.035);
   font-size: 0.72rem;
   font-weight: 600;
+}
+
+.explorer-matrix-total.hovered {
+  border-color: rgba(73, 214, 200, 0.22);
+  color: #d8fffa;
+  background: rgba(73, 214, 200, 0.07);
 }
 
 .explorer-matrix-cell {
@@ -9641,5 +9653,96 @@ a.compound-paper-title:focus-visible {
 
   .compound-graph {
     min-width: 780px;
+  }
+}
+
+/* Keep selected-state feedback in place while the indicator glides between options. */
+.workspace-tabs,
+.analysis-publication-mode,
+.analytics-compact-toggle {
+  position: relative;
+  isolation: isolate;
+}
+
+.workspace-tabs::before,
+.analysis-publication-mode::before,
+.analytics-compact-toggle::before {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  width: var(--selection-slider-width, 0px);
+  height: var(--selection-slider-height, 0px);
+  box-sizing: border-box;
+  border: 1px solid var(--selection-slider-border, transparent);
+  border-radius: var(--selection-slider-radius, 999px);
+  background: var(--selection-slider-background, transparent);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(var(--selection-slider-x, 0px), var(--selection-slider-y, 0px), 0);
+}
+
+.workspace-tabs.has-selection-slider::before,
+.analysis-publication-mode.has-selection-slider::before,
+.analytics-compact-toggle.has-selection-slider::before {
+  opacity: 1;
+}
+
+.workspace-tabs.is-selection-slider-ready::before,
+.analysis-publication-mode.is-selection-slider-ready::before,
+.analytics-compact-toggle.is-selection-slider-ready::before {
+  transition:
+    width 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.16s ease;
+}
+
+.workspace-tabs {
+  --selection-slider-background: rgba(188, 200, 201, 0.12);
+  --selection-slider-border: rgba(188, 200, 201, 0.1);
+  --selection-slider-radius: 6px;
+}
+
+.analysis-publication-mode,
+.analytics-compact-toggle {
+  --selection-slider-background: rgba(238, 240, 235, 0.1);
+  --selection-slider-border: transparent;
+  --selection-slider-radius: 6px;
+}
+
+.analytics-compact-toggle {
+  --selection-slider-background: rgba(95, 158, 181, 0.18);
+}
+
+.workspace-tabs.has-selection-slider > button.active,
+.workspace-tabs.has-selection-slider > button[aria-selected="true"],
+.workspace-tabs.has-selection-slider > button[aria-pressed="true"],
+.analysis-publication-mode.has-selection-slider > button.active,
+.analysis-publication-mode.has-selection-slider > button[aria-selected="true"],
+.analysis-publication-mode.has-selection-slider > button[aria-pressed="true"],
+.analytics-compact-toggle.has-selection-slider > button.active,
+.analytics-compact-toggle.has-selection-slider > button[aria-selected="true"],
+.analytics-compact-toggle.has-selection-slider > button[aria-pressed="true"] {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.workspace-tabs.has-selection-slider > button,
+.analysis-publication-mode.has-selection-slider > button,
+.analytics-compact-toggle.has-selection-slider > button {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace-tabs.is-selection-slider-ready::before,
+  .analysis-publication-mode.is-selection-slider-ready::before,
+  .analytics-compact-toggle.is-selection-slider-ready::before {
+    transition-duration: 1ms;
   }
 }

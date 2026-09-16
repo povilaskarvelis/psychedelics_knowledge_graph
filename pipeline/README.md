@@ -94,15 +94,20 @@ python pipeline/update/run_scoped_paper_update.py prepare \
 
 python pipeline/update/run_scoped_paper_update.py finalize \
   --update-id paper_fix_YYYYMMDD \
-  --patch-outputs path/to/scoped_route_extraction_outputs.jsonl
+  --patch-outputs path/to/scoped_route_extraction_outputs.jsonl \
+  --review-outputs path/to/scoped_review_relationship_outputs.jsonl \
+  --meta-analysis-outputs path/to/scoped_meta_analysis_v2_outputs.jsonl
 
 python pipeline/update/run_scoped_paper_update.py promote \
   --update-id paper_fix_YYYYMMDD
 ```
 
-The active graph changes only during the publication phase. Finalization
-replaces previous extraction outputs for the selected DOIs and requires a
-complete, current set of replacement outputs. See
+The active graph changes only during the publication phase. Preparation builds
+the primary/consensus, review, and meta-analysis task families from one routed
+DOI scope. Finalization applies each family's validator and converter, replaces
+previous extraction outputs for the selected DOIs, and requires a complete,
+current set of replacement outputs. Omit an output flag when its prepared task
+file is empty. See
 [`docs/scoped_paper_updates.md`](../docs/scoped_paper_updates.md) for batch API
 commands, exclusion-only updates, audits, and rollback behavior.
 
@@ -138,10 +143,10 @@ endpoints before initial screening:
 ```bash
 python pipeline/ingest/run_batch_abstract_enrichment.py \
   --run-id batch_abstract_enrichment_YYYYMMDD \
-  --doi-file data/processed/discovery/runs/<discovery_run_id>/new_candidate_dois.txt
+  --doi-file data/processed/discovery/runs/<discovery_run_id>/screening_candidate_dois.txt
 ```
 
-This queries PMC in identifier batches and Semantic Scholar in DOI batches,
+This queries PubMed and PMC in identifier batches and Semantic Scholar in DOI batches,
 checkpoints every completed batch, preserves existing abstracts, and backs up
 the metadata table before merging. A subsequent residual-only Crossref stage
 can be run with a new run ID and `--providers crossref`; it uses the configured
@@ -212,6 +217,13 @@ Advance the queue one submitted part at a time:
 ```bash
 python pipeline/review/advance_gemini_domain_routing_batch_queue.py --submit
 ```
+
+Queue token estimates include each paper prompt, the repeated system instruction,
+and the response JSON schema. They remain character-based approximations rather
+than provider token counts. Inspect per-record results even when a provider batch
+reports success: individual requests can contain internal errors. Preserve
+successful decisions and recover only failed DOIs before merging the complete
+screening cohort.
 
 Omit `--submit` to inspect the queue without sending pending jobs.
 
@@ -591,9 +603,25 @@ from primary studies, meta-analyses, and reviews. This preserves unaffected
 evidence when a small group of reports is reprocessed or corrected. The command
 below builds a versioned update for review:
 
+Include every runnable literature family, including guideline/consensus routes.
+For a fully processed update cohort, pass `--required-output-dois selected_dois.txt`
+to `assemble_combined_release.py`. Assembly then refuses to write a release if
+any selected DOI lacks a successful extraction output, including valid zero-row
+outcomes. This catches omitted families before the expensive graph build; final
+release disposition checks still run during local promotion.
+
 ```bash
 scripts/build_routed_kg_payload.sh "$RUN_ID"
 ```
+
+For an append-only update of an already reviewed graph, set
+`REVIEW_BASELINE_DIR` to the baseline KG directory. The build then carries
+forward reviewed research-area decisions before exports. It requires unchanged
+finding IDs, source fingerprints, and normalized projections; changed or missing
+reviewed findings stop the build for explicit reconciliation. This preserves
+reviewed edge holds rather than silently returning them to the main graph.
+Do not use this append-only carry-forward for intentionally re-extracted evidence
+without reviewing and reconciling the changed findings.
 
 After review, publish the prepared update:
 

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 from collections import defaultdict
 from difflib import SequenceMatcher
 from pathlib import Path
@@ -29,6 +30,15 @@ DEFAULT_CANDIDATES = ROOT / "data" / "processed" / "corpus" / "candidate_papers.
 DEFAULT_CONTEXTS = ROOT / "data" / "processed" / "corpus" / "candidate_contexts.parquet"
 DEFAULT_UNRESOLVED = ROOT / "data" / "processed" / "discovery" / "unresolved_candidate_records.parquet"
 PROMOTION_REPORT_NAME = "discovery_promotion_report.json"
+PROMOTION_INTENT_NAME = "promotion_intent.json"
+
+
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
 
 
 class DisjointSet:
@@ -202,6 +212,9 @@ def canonicalize_records(records: pd.DataFrame) -> list[dict]:
             for field in scalar_fields
         }
         row["title"] = title
+        # Language is categorical: a longer provider label is not better
+        # evidence than PubMed's explicit article-language metadata.
+        row["language"], _ = preferred_value(bibliographic_rows, "language")
         row["publication_year"], row["publication_date"] = coherent_publication_timing(
             bibliographic_rows
         )
@@ -539,13 +552,32 @@ def promote(
     if not Path(candidates_path).exists():
         raise FileNotFoundError(f"Canonical candidate table not found: {candidates_path}")
 
+    # Persist the handoff before the first canonical write. A retry merges
+    # idempotently into current tables but must retain the original new cohort.
+    intent_path = run_dir / PROMOTION_INTENT_NAME
+    identity = {
+        "run_id": manifest["run_id"],
+        "targets": [str(Path(p).resolve()) for p in
+                    (candidates_path, contexts_path, unresolved_path, history_path)],
+        "source_hashes": {p.name: file_sha256(p) for p in (records_path, hits_path)},
+    }
+    intent = read_json(intent_path) if intent_path.exists() else None
+    if intent is not None and intent["identity"] != identity:
+        raise RuntimeError("Promotion inputs or destinations changed since the saved promotion intent")
+
     records = pd.read_parquet(records_path)
     candidates = pd.read_parquet(candidates_path)
     contexts = pd.read_parquet(contexts_path) if Path(contexts_path).exists() else pd.DataFrame()
     unresolved_existing = pd.read_parquet(unresolved_path) if Path(unresolved_path).exists() else pd.DataFrame()
     canonical = canonicalize_records(records) if not records.empty else []
     unresolved = [row for row in canonical if not normalize_doi(row.get("doi"))]
-    promoted_at = utc_now()
+    abstracts = candidates["abstract"] if "abstract" in candidates else pd.Series("", index=candidates.index)
+    missing_abstract_dois = set(candidates.loc[abstracts.map(clean).eq(""), "doi"].map(normalize_doi))
+    restored_abstract_dois = sorted({
+        normalize_doi(row.get("doi")) for row in canonical
+        if normalize_doi(row.get("doi")) in missing_abstract_dois and clean(row.get("abstract"))
+    })
+    promoted_at = intent["promoted_at_utc"] if intent is not None else utc_now()
     merged_candidates, new_dois, rediscovered_dois = merge_candidates(
         candidates,
         canonical,
@@ -553,6 +585,11 @@ def promote(
         protocol_id=manifest["protocol_id"],
         promoted_at=promoted_at,
     )
+    if intent is not None:
+        new_dois = intent["new_dois"]
+        rediscovered_dois = intent["rediscovered_dois"]
+        restored_abstract_dois = intent.get("restored_abstract_dois", [])
+    screening_dois = sorted(set(new_dois) | set(restored_abstract_dois))
     doi_by_provider_record: dict[str, str] = {}
     for record in canonical:
         doi = normalize_doi(record.get("doi"))
@@ -581,6 +618,8 @@ def promote(
             "canonical_discovery_records": len(canonical),
             "new_candidate_dois": len(new_dois),
             "rediscovered_candidate_dois": len(rediscovered_dois),
+            "rediscovered_dois_with_restored_abstract": len(restored_abstract_dois),
+            "screening_candidate_dois": len(screening_dois),
             "unresolved_records": len(unresolved),
             "candidate_contexts_added_or_rediscovered": len(context_additions),
         },
@@ -589,6 +628,7 @@ def promote(
             "candidate_contexts": str(Path(contexts_path).resolve()),
             "unresolved_candidate_records": str(Path(unresolved_path).resolve()),
             "new_doi_file": str((run_dir / "new_candidate_dois.txt").resolve()),
+            "screening_doi_file": str((run_dir / "screening_candidate_dois.txt").resolve()),
             "history": str(Path(history_path).resolve()),
         },
     }
@@ -597,11 +637,18 @@ def promote(
 
     backup_dir = run_dir / "pre_promotion_backups"
     backup_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(candidates_path, backup_dir / Path(candidates_path).name)
-    if Path(contexts_path).exists():
-        shutil.copy2(contexts_path, backup_dir / Path(contexts_path).name)
-    if Path(unresolved_path).exists():
-        shutil.copy2(unresolved_path, backup_dir / Path(unresolved_path).name)
+    if intent is None:
+        for path in (candidates_path, contexts_path, unresolved_path, history_path):
+            if Path(path).exists():
+                shutil.copy2(path, backup_dir / Path(path).name)
+        atomic_write_json(intent_path, {
+            "schema_version": "discovery_promotion_intent_v1",
+            "identity": identity,
+            "promoted_at_utc": promoted_at,
+            "new_dois": new_dois,
+            "rediscovered_dois": rediscovered_dois,
+            "restored_abstract_dois": restored_abstract_dois,
+        })
     write_parquet_atomic(Path(candidates_path), merged_candidates)
     write_parquet_atomic(Path(contexts_path), merged_contexts)
     write_parquet_atomic(Path(unresolved_path), merged_unresolved)
@@ -610,6 +657,9 @@ def promote(
     )
     (run_dir / "rediscovered_candidate_dois.txt").write_text(
         "".join(f"{doi}\n" for doi in rediscovered_dois), encoding="utf-8"
+    )
+    (run_dir / "screening_candidate_dois.txt").write_text(
+        "".join(f"{doi}\n" for doi in screening_dois), encoding="utf-8"
     )
     atomic_write_json(report_path, report)
     update_history(Path(history_path), manifest, report)

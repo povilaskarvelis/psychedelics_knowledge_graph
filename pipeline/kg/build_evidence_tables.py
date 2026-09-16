@@ -5261,10 +5261,33 @@ MOLECULAR_SUBTOPIC_RULES_BY_PARENT: dict[str, tuple[tuple[str, re.Pattern[str]],
         ("Other", re.compile(r"genotype|polymorphism|allele|variant|rs\d+|gene interaction|phenotype interaction", re.I)),
     ),
     "Gut microbiome": (
-        ("Microbiome composition & taxa", re.compile(r"composition|species abundance|genus|class level|taxa|lactobac|ruminococc|bacteroid|mucispir|sarcina|turicibacter", re.I)),
+        (
+            "Microbiome composition & taxa",
+            re.compile(
+                r"composition|(?:relative |species )?abundance|genus|class level|taxa|"
+                r"lactobac|ruminococc|bacteroid|mucispir|sarcina|turicibacter|"
+                r"enterobacter|akkermans|lachnospir|colidextri",
+                re.I,
+            ),
+        ),
         ("Alpha diversity", re.compile(r"alpha[- ]?diversity|chao|shannon|simpson", re.I)),
         ("Beta diversity", re.compile(r"beta[- ]?diversity", re.I)),
-        ("Microbial metabolites & SCFAs", re.compile(r"short chain fatty|\bscfa\b|butyr|acetate|propionate|microbial metabolite", re.I)),
+        (
+            "Microbial metabolites & SCFAs",
+            re.compile(
+                r"short chain fatty|\bscfa\b|butyr|acetate|propionate|microbial metabolite|"
+                r"ferulic acid|methylmalonic acid|ammonia",
+                re.I,
+            ),
+        ),
+        (
+            "Microbial function & metabolism",
+            re.compile(
+                r"(?:bacterial|microbial) metabolic activity|bacterial protein|protein peaks?|"
+                r"\bbai\b.*(?:gene|operon)|bile acid (?:metabolism|conversion)",
+                re.I,
+            ),
+        ),
         ("Oral microbiome", re.compile(r"oral microbi", re.I)),
         ("Gut barrier & permeability", re.compile(r"gut barrier|intestinal permeability|leaky gut", re.I)),
         ("General gut–brain microbiome", re.compile(r"gut microbi|microbiome|microbiota|microbial density|dysbiosis", re.I)),

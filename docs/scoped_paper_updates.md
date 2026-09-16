@@ -52,8 +52,9 @@ python pipeline/update/run_scoped_paper_update.py prepare \
 `--refresh-derived` does not call a model. It runs, in order:
 
 1. DOI-scoped deterministic prescreening, merged into the canonical decision table;
-2. a full deterministic route-table rebuild, which also refreshes route status in
-   `candidate_papers.parquet`;
+2. a full deterministic route-table rebuild, which refreshes route status in
+   `candidate_papers.parquet` while preserving the prior selection state for
+   every DOI outside the requested scope;
 3. a full article-text-input rebuild; and
 4. a full extraction-task rebuild.
 
@@ -66,8 +67,11 @@ Prepared files are written under
 - `update_manifest.json`: counts, source hashes, and replacement audit;
 - `scope_dois.txt`: the exact tombstone/replacement boundary;
 - `ready_tasks.jsonl`: every runnable current task in the scope;
-- `ready_tasks_primary.jsonl`, `ready_tasks_reviews.jsonl`, and
-  `ready_tasks_meta_analyses.jsonl`: optional batch splits;
+- `ready_tasks_primary.jsonl`: generic routed primary and guideline/consensus tasks;
+- `ready_tasks_reviews.jsonl`: review-relationships v2 tasks built from the
+  current candidate ledger and source packets;
+- `ready_tasks_meta_analyses.jsonl`: meta-analysis v2 tasks built from those
+  same frozen inputs;
 - `no_current_task_dois.txt`: records now absent from the retained route/task set;
 - `no_runnable_task_dois.txt`: records that get no model replacement.
 - `scope_status.csv`: one row per DOI showing replacement versus deletion-only
@@ -82,8 +86,8 @@ update after checking that no needed batch output lives in its update directory.
 
 To run one literature family now while explicitly deferring the others, filter
 the effective DOI scope during preparation. For example, this keeps primary
-primary-study reports plus deletion-only records, while leaving review and meta-analysis DOIs
-untouched:
+study reports plus deletion-only records while leaving review and meta-analysis
+DOIs untouched:
 
 ```bash
 python pipeline/update/run_scoped_paper_update.py prepare \
@@ -96,11 +100,18 @@ python pipeline/update/run_scoped_paper_update.py prepare \
 The command refuses a DOI that has runnable tasks in both the selected family
 and another family, because replacement is DOI-wide.
 
-## 3. Extract only the prepared tasks
+`prepare` derives DOI ownership from the route table and builds all three task
+families automatically. Every ready route must resolve to a current ready task,
+and every DOI must belong to exactly one family. Preparation stops before model
+calls if either invariant fails. A DOI can receive a deletion-only disposition
+only when its current route is not runnable, such as a reviewed exclusion.
 
-The synchronous runner can use `ready_tasks.jsonl` directly. For the Gemini
-Batch API, keep batch work in a separate patch run and prepare one non-empty
-family file at a time:
+## 3. Extract the prepared family task files
+
+Use `ready_tasks_primary.jsonl` with the generic routed runner. The combined
+`ready_tasks.jsonl` is an audit inventory and must not be sent to a single
+family runner. For the Gemini Batch API, keep batch work in a separate patch
+run and prepare one non-empty family file at a time:
 
 ```bash
 PATCH_RUN="${UPDATE_ID}_extraction"
@@ -117,8 +128,7 @@ python pipeline/extract/run_route_extraction_batch_api.py submit \
   --batch-id primary
 ```
 
-Repeat `prepare` and `submit` with batch IDs `reviews` and `meta_analyses` for
-their non-empty task files. For each submitted batch:
+For each submitted generic batch:
 
 ```bash
 python pipeline/extract/run_route_extraction_batch_api.py status \
@@ -134,7 +144,31 @@ python pipeline/extract/run_route_extraction_batch_api.py parse \
 `--skip-rebuild` is important here: downstream replacement happens only after
 all scoped task families are complete and validated by the updater.
 
-## 4. Finalize a candidate replacement
+Run review tasks with the review-relationship runner:
+
+```bash
+python pipeline/extract/run_review_relationship_extraction.py \
+  --run-id "${UPDATE_ID}_reviews" \
+  --tasks-jsonl "$UPDATE_DIR/ready_tasks_reviews.jsonl"
+```
+
+Run meta-analysis tasks with the meta-analysis v2 batch runner:
+
+```bash
+python pipeline/extract/run_meta_analysis_v2_batch_api.py prepare \
+  --run-id "${UPDATE_ID}_meta" \
+  --batch-id meta \
+  --tasks-jsonl "$UPDATE_DIR/ready_tasks_meta_analyses.jsonl" \
+  --batch-size 100000
+
+python pipeline/extract/run_meta_analysis_v2_batch_api.py submit \
+  --run-id "${UPDATE_ID}_meta" --batch-id meta
+```
+
+Use its `status`, `download`, and `parse` subcommands with the same run and
+batch IDs. Skip a runner when its prepared family file is empty.
+
+## 4. Finalize one mixed-family candidate replacement
 
 After all prepared tasks have a successful current output:
 
@@ -142,14 +176,19 @@ After all prepared tasks have a successful current output:
 python pipeline/update/run_scoped_paper_update.py finalize \
   --update-id "$UPDATE_ID" \
   --patch-outputs \
-    "data/processed/extraction/routed_runs/${PATCH_RUN}/route_extraction_outputs.jsonl"
+    "data/processed/extraction/routed_runs/${PATCH_RUN}/route_extraction_outputs.jsonl" \
+  --review-outputs \
+    "data/processed/extraction/review_relationship_runs/${UPDATE_ID}_reviews/paper_relationship_bundles.jsonl" \
+  --meta-analysis-outputs \
+    "data/processed/extraction/meta_analysis_v2_runs/${UPDATE_ID}_meta/meta_analysis_extractions.jsonl"
 ```
 
 Finalize refuses to proceed if:
 
 - any prepared runnable task lacks a successful output;
-- a task ID, route ID, DOI, input fingerprint, domain, task manifest, route
-  table, or active base snapshot changed since preparation;
+- a task ID, route ID, DOI, source depth, input fingerprint, domain, task
+  manifest, route table, candidate table, source packet set, entity registry,
+  or active base snapshot changed since preparation;
 - a successful output is not one of the prepared current tasks; or
 - a non-runnable scoped DOI would retain a stale output.
 
@@ -157,8 +196,8 @@ On success it creates a versioned candidate at
 `data/processed/extraction/routed_runs/$UPDATE_ID/`:
 
 ```text
-candidate outputs = active outputs outside DOI scope + current patch outputs
-candidate evidence = active evidence outside DOI scope + evidence converted from current patch outputs
+candidate outputs = active outputs outside DOI scope + validated outputs from all prepared families
+candidate evidence = active evidence outside DOI scope + family-specific converted evidence
 ```
 
 The active KG still has not changed at this point. Inspect
@@ -166,6 +205,12 @@ The active KG still has not changed at this point. Inspect
 
 For an update containing only exclusions and no runnable tasks, omit
 `--patch-outputs`; finalize will produce the correctly reduced candidate.
+
+The updater validates each output with its family contract, runs the matching
+converter, and assembles all families in one candidate. Valid outputs with zero
+evidence rows still replace the paper's old evidence. The candidate is not
+written unless every prepared task in every family has a successful current
+output.
 
 ## 5. Promote the validated candidate
 

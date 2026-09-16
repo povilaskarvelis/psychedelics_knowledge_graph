@@ -255,7 +255,9 @@ output and keep it within the strength and scope of the abstract.
 
 Before returning the output, verify that:
 
-1. every major aspect is covered by a relationship with matching importance;
+1. every major aspect is covered by at least one relationship with matching
+   importance; additional major-supporting relationships may cover the same
+   paper-defining aspect without becoming paper-defining themselves;
 2. every paper-defining or major-supporting relationship covers at least one
    major aspect;
 3. the defining relationships collectively represent the stated objective and

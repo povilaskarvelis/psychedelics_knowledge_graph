@@ -63,7 +63,7 @@ const PRISMA_REASON_LABELS = {
   insufficient_source_text: "Available text too limited for reliable extraction",
   source_not_verified: "Source document could not be verified",
   not_results_report: "Not a results report",
-  unsupported_finding_detail: "Finding too broad or ambiguous for graph representation",
+  unsupported_finding_detail: "Finding could not be mapped to the graph",
   extraction_failed: "Evidence extraction failed",
 };
 const BIBLIOGRAPHY_GRAPH_STATUS_LABELS = {
@@ -76,7 +76,7 @@ const BIBLIOGRAPHY_GRAPH_STATUS_LABELS = {
   "Outside the evidence scope": "Outside the graph's evidence scope",
   "No specific finding to represent": "No specific finding available for graph representation",
   "Available text is too limited": "Available text too limited for reliable extraction",
-  "Finding too broad or ambiguous": "Finding too broad or ambiguous for graph representation",
+  "Finding too broad or ambiguous": "Finding could not be mapped to the graph",
   "Not reached": "Not assessed",
   "Not assessed": "Not assessed",
 };

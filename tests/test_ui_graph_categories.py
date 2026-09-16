@@ -484,10 +484,12 @@ def test_analysis_chart_titles_and_axis_labels_have_safe_insets() -> None:
 
 def test_cross_domain_overlap_uses_consistent_labels_and_edge_markers() -> None:
     source = STYLES_CSS.read_text(encoding="utf-8")
+    scroll = source.split(".analytics-overlap-scroll {", 1)[1].split("}", 1)[0]
     grid = source.split(".analytics-overlap-grid {", 1)[1].split("}", 1)[0]
     column_label = source.split(".analytics-overlap-column span {", 1)[1].split("}", 1)[0]
     row_label = source.split(".analytics-overlap-row-label {", 1)[1].split("}", 1)[0]
 
+    assert "padding: 12px 14px 38px 6px;" in scroll
     assert "--overlap-label-width: 116px;" in grid
     assert "grid-template-rows: 94px;" in grid
     assert "padding-right: 72px;" in grid
@@ -766,13 +768,34 @@ def test_versioned_static_assets_are_browser_immutable() -> None:
 
     assert headers["/ui/*.js"]["Cache-Control"] == "public, max-age=31536000, immutable"
     assert headers["/ui/*.css"]["Cache-Control"] == "public, max-age=31536000, immutable"
-    assert 'styles.css?v=20260907-analysis-type-v9' in html_source
-    assert 'app.js?v=20260907-focused-history-v11' in html_source
+    assert 'styles.css?v=20260907-matrix-intent-v13-selection-slider' in html_source
+    assert 'app.js?v=20260907-shared-facets-v14' in html_source
     assert 'research-model.js?v=20260905-v1' in html_source
-    assert 'research-analysis.js?v=20260907-evidence-coverage-v5' in html_source
-    assert 'research-analysis.css?v=20260907-evidence-coverage-v6' in html_source
+    assert 'research-analysis.js?v=20260907-shared-facets-v8' in html_source
+    assert 'research-analysis.css?v=20260907-evidence-coverage-v9' in html_source
     assert 'rel="canonical" href="https://psychedelicskg.com/"' in html_source
     assert '"@type": "Dataset"' in html_source
+
+
+def test_analysis_coverage_distinguishes_row_and_cell_intent() -> None:
+    app_source = APP_JS.read_text(encoding="utf-8")
+    style_source = STYLES_CSS.read_text(encoding="utf-8")
+    focused = app_source.split("function renderExplorerFocused", 1)[1].split(
+        "function renderExplorerSurface", 1
+    )[0]
+    matrix_click = app_source.split(
+        'const cell = event.target.closest?.(".explorer-matrix-cell[data-explorer-row-key]")', 1
+    )[1].split('graphEl.addEventListener("mouseover"', 1)[0]
+    matrix_hover = app_source.split('graphEl.addEventListener("mouseover"', 1)[1].split(
+        'graphEl.addEventListener("mousemove"', 1
+    )[0]
+
+    assert "areas.find((area) => area.key === explorerAreaKey)" in focused
+    assert "areas.find((area) => area.key === explorerScopeAreaKey)" in focused
+    assert "sort((a, b) => b.studyCount - a.studyCount)" not in focused
+    assert 'explorerAreaKey = cell?.dataset.explorerAreaKey || ""' in matrix_click
+    assert 'element === cell || element.matches(".explorer-matrix-row-button")' in matrix_hover
+    assert ".explorer-matrix-total.hovered" in style_source
 
 
 def test_lower_level_research_areas_are_labeled_as_topics() -> None:
@@ -947,6 +970,52 @@ def test_publication_year_hover_regions_do_not_overlap_at_chart_edges() -> None:
     assert "index === buckets.length - 1" in chart_source
     assert "? width - margin.right" in chart_source
     assert "clampNumber(x - (hitWidth - barWidth) / 2" not in chart_source
+
+
+def test_publication_history_stacks_use_thin_segment_separators() -> None:
+    app_source = APP_JS.read_text(encoding="utf-8")
+    styles = STYLES_CSS.read_text(encoding="utf-8")
+    separator = styles.split(".analysis-publication-separator {", 1)[1].split("}", 1)[0]
+
+    assert app_source.count('class="analysis-publication-separator"') == 2
+    assert "stroke: rgba(7, 10, 10, 0.58);" in separator
+    assert "stroke-width: 1px;" in separator
+    assert "vector-effect: non-scaling-stroke;" in separator
+
+
+def test_publication_history_legend_does_not_repeat_scope_label() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    publication_history = source.split("function renderEvidenceTrajectory", 1)[1].split(
+        "function renderSynthesisGap", 1
+    )[0]
+
+    assert "analysisScopeLabel()" not in publication_history
+    assert '<small>${escapeHtml(scope || "All papers")}</small>' not in publication_history
+
+
+def test_analysis_entity_search_matches_neighboring_control_type_scale() -> None:
+    source = STYLES_CSS.read_text(encoding="utf-8")
+    search = source.split('.explorer-search input[type="search"] {', 1)[1].split("}", 1)[0]
+
+    assert "font-size: 0.8rem;" in search
+
+
+def test_evidence_coverage_matrix_uses_controls_for_axes_and_centers_column_labels() -> None:
+    script = (ROOT / "ui" / "research-analysis.js").read_text(encoding="utf-8")
+    styles = (ROOT / "ui" / "research-analysis.css").read_text(encoding="utf-8")
+
+    assert 'class="research-matrix-column-labels"><th scope="col" aria-label="Row labels"></th>' in script
+    assert "research-matrix-axis-row" not in script
+    assert ".research-matrix-column-labels th:not(:first-child) { min-width: 96px; text-align: center; }" in styles
+
+
+def test_evidence_coverage_value_filters_use_unlabelled_dropdowns() -> None:
+    script = (ROOT / "ui" / "research-analysis.js").read_text(encoding="utf-8")
+
+    assert '<select data-research-category="${index}"' in script
+    assert '<option value="">All values</option>' in script
+    assert "<span>Search ${position.toLocaleLowerCase()}</span>" not in script
+    assert '<input type="search" data-research-category=' not in script
 
 
 def test_right_detail_panel_exposes_expandable_funders_without_coverage_subtitle() -> None:
@@ -1181,7 +1250,7 @@ def test_constrained_graph_category_tabs_are_a_single_horizontal_scroll_row() ->
     assert "margin-inline: 0 16px;" in category_styles
 
 
-def test_year_controls_stack_when_the_graph_column_is_constrained() -> None:
+def test_query_controls_scroll_when_the_graph_column_is_constrained() -> None:
     source = STYLES_CSS.read_text(encoding="utf-8")
     graph_column_styles = source.split(".graph-column {", 1)[1].split("}", 1)[0]
     constrained_styles = source.split(
@@ -1190,11 +1259,9 @@ def test_year_controls_stack_when_the_graph_column_is_constrained() -> None:
 
     assert "container-type: inline-size;" in graph_column_styles
     assert "container-name: graph-column;" in graph_column_styles
-    assert "grid-template-columns: minmax(0, 1fr);" in constrained_styles
-    assert ".evidence-view-toggle," in constrained_styles
-    assert ".year-range-inline" in constrained_styles
-    assert "grid-column: 1;" in constrained_styles
-    assert "justify-self: center;" in constrained_styles
+    assert "grid-template-columns: 124px 220px 176px 210px 150px 142px 188px auto;" in constrained_styles
+    assert "overflow-x: auto;" in constrained_styles
+    assert "scrollbar-width: thin;" in constrained_styles
 
 
 def test_graph_labels_use_two_lines_without_unspecified_therapy_special_case() -> None:

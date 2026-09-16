@@ -7,6 +7,7 @@ import pandas as pd
 
 from pipeline.ingest.metadata_utils import pdf_filename_for_doi
 from pipeline.fulltext.import_manual_pdfs import (
+    build_metadata_title_lookup,
     build_pii_lookup,
     build_source_filename_lookup,
     extract_dois_from_text,
@@ -136,6 +137,96 @@ class ImportManualPdfsTest(unittest.TestCase):
         self.assertEqual(doi, "10.1001/example")
         self.assertEqual(basis, "pdf_text_doi")
         self.assertEqual(candidates, [])
+
+    def test_select_match_accepts_first_page_footer_doi_after_long_abstract(self) -> None:
+        target_doi = "10.1097/cm9.0000000000004350"
+        target_title = (
+            "5-HT2A receptor activation is dispensable for psilocybin-induced "
+            "fear extinction and neuroplasticity in mice"
+        )
+        known = {
+            target_doi: {"doi": target_doi, "study_title": target_title},
+            "10.1016/j.neuroscience.2024.01.001": {
+                "doi": "10.1016/j.neuroscience.2024.01.001",
+                "study_title": "Effect of a single psilocybin treatment on Fos protein expression",
+            },
+        }
+        first_page = target_title + "\n" + ("Long abstract and affiliation text. " * 180)
+        first_page += f"\nDOI: {target_doi}"
+
+        doi, basis, candidates = select_match(
+            file_path=Path("download.pdf"),
+            known_records=known,
+            text=first_page + "\fSecond page references",
+            metadata_text="",
+            enable_title_match=True,
+            min_title_score=0.86,
+            min_title_margin=0.12,
+        )
+
+        self.assertEqual(doi, target_doi)
+        self.assertEqual(basis, "pdf_text_doi")
+        self.assertEqual(candidates, [])
+
+    def test_exact_pdf_metadata_title_wins_over_cited_doi_in_front_text(self) -> None:
+        current_doi = "10.1152/jn.00204.2026"
+        cited_doi = "10.1152/jn.00203.2025"
+        current_title = (
+            "An EEG-Based Evaluation of Antidepressant Effects of Ketamine "
+            "Enantiomers and Metabolites in Monkeys"
+        )
+        known = {
+            current_doi: {"doi": current_doi, "study_title": current_title},
+            cited_doi: {
+                "doi": cited_doi,
+                "study_title": (
+                    "Comparative EEG analysis of the effects of ketamine "
+                    "enantiomers and metabolites in rhesus macaques"
+                ),
+            },
+        }
+
+        doi, basis, candidates = select_match(
+            file_path=Path("download.pdf"),
+            known_records=known,
+            text=(
+                f"{current_title}\nTarget article citation: doi:{cited_doi}\n"
+                "This mini-review summarizes the target article."
+            ),
+            metadata_text=current_title,
+            enable_title_match=True,
+            min_title_score=0.86,
+            min_title_margin=0.12,
+            metadata_title_lookup=build_metadata_title_lookup(known),
+        )
+
+        self.assertEqual(doi, current_doi)
+        self.assertEqual(basis, "pdf_metadata_title")
+        self.assertEqual(candidates[0]["doi"], current_doi)
+
+    def test_pdf_metadata_doi_breaks_exact_title_tie_with_preprint(self) -> None:
+        published_doi = "10.1016/j.example.2026.100039"
+        preprint_doi = "10.31234/osf.io/example_v1"
+        title = "Exploring the interface of meditation and psychedelics"
+        known = {
+            published_doi: {"doi": published_doi, "study_title": title},
+            preprint_doi: {"doi": preprint_doi, "study_title": title},
+        }
+
+        doi, basis, candidates = select_match(
+            file_path=Path("download.pdf"),
+            known_records=known,
+            text=title,
+            metadata_text=f"{title}\nJournal article. doi:{published_doi}",
+            enable_title_match=True,
+            min_title_score=0.86,
+            min_title_margin=0.12,
+            metadata_title_lookup=build_metadata_title_lookup(known),
+        )
+
+        self.assertEqual(doi, published_doi)
+        self.assertEqual(basis, "pdf_metadata_title+doi")
+        self.assertEqual(candidates[-1], {"doi": published_doi, "basis": "pdf_metadata_doi_tiebreak"})
 
     def test_filename_doi_is_rejected_when_pdf_identifies_another_known_paper(self) -> None:
         known = {

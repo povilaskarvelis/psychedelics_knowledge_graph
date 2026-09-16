@@ -185,7 +185,12 @@ def test_build_selects_new_eligible_unprocessed_dois_without_routes(tmp_path: Pa
                 "pdf_download_failure_categories": "forbidden",
                 "pdf_download_retry_recommended": False,
             },
-            {"doi": "10.1000/unknown-access", "study_title": "Unknown-access paper"},
+            {
+                "doi": "10.1000/unknown-access",
+                "study_title": "Unknown-access paper",
+                "best_pdf_url": "nan",
+                "pdf_url_candidates": "NaN | <NA>",
+            },
             {"doi": "10.1000/processed", "study_title": "Old paper"},
             {"doi": "10.1000/context", "study_title": "Commentary"},
         ]
@@ -286,10 +291,10 @@ def test_build_selects_new_eligible_unprocessed_dois_without_routes(tmp_path: Pa
         "10.1000/retry\n10.1000/terminal\n10.1000/unknown-access\n"
     )
     assert access_metadata_refresh_output.read_text(encoding="utf-8") == "10.1000/unknown-access\n"
-    assert no_accessible_fulltext_output.read_text(encoding="utf-8") == (
-        "10.1000/closed\n10.1000/terminal\n"
+    assert no_accessible_fulltext_output.read_text(encoding="utf-8") == "10.1000/closed\n"
+    assert oa_landing_output.read_text(encoding="utf-8") == (
+        "10.1000/oa-landing\n10.1000/terminal\n"
     )
-    assert oa_landing_output.read_text(encoding="utf-8") == "10.1000/oa-landing\n"
     worklist = pd.read_parquet(table_output)
     assert worklist[["doi", "fulltext_enrichment_action"]].to_dict("records") == [
         {"doi": "10.1000/closed", "fulltext_enrichment_action": "no_accessible_fulltext"},
@@ -297,19 +302,21 @@ def test_build_selects_new_eligible_unprocessed_dois_without_routes(tmp_path: Pa
         {"doi": "10.1000/oa-landing", "fulltext_enrichment_action": "resolve_oa_landing_page"},
         {"doi": "10.1000/opaque", "fulltext_enrichment_action": "download_known_pdf"},
         {"doi": "10.1000/retry", "fulltext_enrichment_action": "download_known_pdf"},
-        {"doi": "10.1000/terminal", "fulltext_enrichment_action": "no_accessible_fulltext"},
+        {"doi": "10.1000/terminal", "fulltext_enrichment_action": "resolve_oa_landing_page"},
         {"doi": "10.1000/unknown-access", "fulltext_enrichment_action": "refresh_access_metadata"},
     ]
     terminal = worklist.loc[worklist["doi"].eq("10.1000/terminal")].iloc[0]
     assert terminal["pdf_download_status"] == "download_failed"
     assert terminal["pdf_download_failure_category"] == "forbidden"
     assert bool(terminal["pdf_download_terminal_failure"])
-    assert terminal["fulltext_enrichment_basis"] == "terminal_pdf_download_failure"
-    assert report["schema_version"] == "fulltext_enrichment_worklist_report_v4"
+    assert terminal["fulltext_enrichment_basis"] == "browser_recovery_after_terminal_direct_download_failure"
+    assert report["schema_version"] == "fulltext_enrichment_worklist_report_v5"
     assert report["counts"]["newly_selected_unprocessed_dois"] == 7
     assert report["counts"]["fulltext_enrichment_needed_dois"] == 7
     assert report["counts"]["fulltext_access_metadata_refresh_dois"] == 1
-    assert report["counts"]["fulltext_no_accessible_fulltext_dois"] == 2
-    assert report["counts"]["fulltext_oa_landing_dois"] == 1
+    assert report["counts"]["fulltext_no_accessible_fulltext_dois"] == 1
+    assert report["counts"]["fulltext_oa_landing_dois"] == 2
     assert report["counts"]["fulltext_terminal_pdf_failure_dois"] == 1
+    assert report["counts"]["fulltext_browser_recovery_after_terminal_direct_download_failure_dois"] == 1
+    assert report["counts"]["fulltext_terminal_pdf_failure_without_location_dois"] == 0
     assert report["counts"]["candidate_terminal_pdf_failure_status_dois"] == 1

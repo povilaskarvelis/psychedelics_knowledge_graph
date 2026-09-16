@@ -26,7 +26,7 @@ function researchRow(claim) {
     followup: researchList(clinicalFollowUpWindowFacetLabel(claim)),
     outcome: researchList(outcomeScaleLabelsForClaim(claim)),
     system: researchList(analysisExperimentalSystemFacetLabel(claim)),
-    assay: researchList(mechanisticAssayFamilyFacetLabel(claim), brainMeasureFacetLabels(claim)),
+    assay: researchList(mechanisticAssayFamilyFacetLabel(claim)),
     area: areas.map((area) => area.label),
     topic: researchList(areas.map((area) => analysisConceptLabelForClaim(claim, area.key))),
     compound: researchList(analysisCompoundSubjectsForClaim(claim).map((subject) => subject.label)),
@@ -138,7 +138,7 @@ function researchCoverageResults() {
   let max = 1;
   matrix.cells.forEach((keys) => { max = Math.max(max, keys.size); });
   const selectionCount = researchCoverageCell ? matrix.cells.get(JSON.stringify(researchCoverageCell))?.size || 0 : 0;
-  return `${rows.length && columns.length ? `<div class="research-table-scroll" tabindex="0" role="region" aria-label="Evidence coverage matrix"><table class="research-matrix"><thead><tr><th scope="col">${escapeHtml(RESEARCH_FIELDS[researchCoverageAxes[0]])}</th>${columns.map((label) => `<th scope="col">${escapeHtml(label)}</th>`).join("")}</tr></thead><tbody>${rows.map((a) => `<tr><th scope="row">${escapeHtml(a)}</th>${columns.map((b) => {
+  return `${rows.length && columns.length ? `<div class="research-table-scroll" tabindex="0" role="region" aria-label="Evidence coverage matrix"><table class="research-matrix"><thead><tr class="research-matrix-column-labels"><th scope="col" aria-label="Row labels"></th>${columns.map((label) => `<th scope="col">${escapeHtml(label)}</th>`).join("")}</tr></thead><tbody>${rows.map((a) => `<tr><th scope="row">${escapeHtml(a)}</th>${columns.map((b) => {
     const count = matrix.cells.get(JSON.stringify([a, b]))?.size || 0;
     const active = researchCoverageCell?.[0] === a && researchCoverageCell?.[1] === b;
     return `<td><button type="button" data-research-cell-a="${escapeHtml(a)}" data-research-cell-b="${escapeHtml(b)}" aria-pressed="${active}" aria-label="${escapeHtml(`${a}, ${b}: ${count} reports`)}" style="--coverage-strength:${count ? 0.12 + 0.65 * Math.sqrt(count / max) : 0}" ${count ? "" : "disabled"}>${count}</button></td>`;
@@ -149,6 +149,7 @@ function researchCoverageResults() {
 function researchAppendCoverage(content) {
   if (!content || explorerMode !== "analysis" || content.querySelector(".research-coverage")) return;
   researchCoverageRows = researchBaseRows();
+  const coverageMatrix = researchCoverageView(researchCoverageRows).matrix;
   const panel = document.createElement("section");
   panel.className = "analytics-panel research-coverage";
   panel.innerHTML = `<div class="analytics-panel-heading"><h3>Evidence coverage</h3></div>
@@ -156,7 +157,8 @@ function researchAppendCoverage(content) {
     <div class="research-coverage-controls">${researchCoverageAxes.map((axis, index) => {
       const position = index ? "Columns" : "Rows";
       const valueLabel = RESEARCH_FIELDS[axis].toLocaleLowerCase();
-      return `<div class="research-axis-controls"><label class="analysis-publication-field research-coverage-field"><span>${position}</span><select data-research-axis="${index}" aria-label="Evidence coverage ${position.toLocaleLowerCase()}">${Object.entries(RESEARCH_FIELDS).filter(([key]) => key !== researchCoverageAxes[1 - index]).map(([key, label]) => `<option value="${key}" ${key === axis ? "selected" : ""}>${escapeHtml(label)}</option>`).join("")}</select></label><label class="analysis-publication-field research-coverage-field"><span>Search ${position.toLocaleLowerCase()}</span><input type="search" data-research-category="${index}" aria-label="Search ${valueLabel} values used as ${position.toLocaleLowerCase()}" maxlength="200" autocomplete="off" spellcheck="false" value="${escapeHtml(researchCategoryQueries[index])}" placeholder="Search ${escapeHtml(valueLabel)}" /></label></div>`;
+      const categoryOptions = index ? coverageMatrix.columns : coverageMatrix.rows;
+      return `<div class="research-axis-controls"><label class="analysis-publication-field research-coverage-field"><span>${position}</span><select data-research-axis="${index}" aria-label="Evidence coverage ${position.toLocaleLowerCase()}">${Object.entries(RESEARCH_FIELDS).filter(([key]) => key !== researchCoverageAxes[1 - index]).map(([key, label]) => `<option value="${key}" ${key === axis ? "selected" : ""}>${escapeHtml(label)}</option>`).join("")}</select></label><label class="analysis-publication-field research-coverage-field research-category-field"><select data-research-category="${index}" aria-label="Choose ${valueLabel} value used as ${position.toLocaleLowerCase()}"><option value="">All values</option>${categoryOptions.map((label) => `<option value="${escapeHtml(label)}" ${label === researchCategoryQueries[index] ? "selected" : ""}>${escapeHtml(label)}</option>`).join("")}</select></label></div>`;
     }).join("")}</div>
     <div data-research-coverage-results>${researchCoverageResults()}</div></div>`;
   content.appendChild(panel);
@@ -205,10 +207,17 @@ function researchHandleClick(event) {
 }
 
 function researchHandleChange(event) {
-  const index = Number(event.target.dataset.researchAxis);
-  if (event.target.dataset.researchAxis === undefined || ![0, 1].includes(index)) return false;
-  if (!Object.hasOwn(RESEARCH_FIELDS, event.target.value) || event.target.value === researchCoverageAxes[1 - index]) return true;
-  researchCoverageAxes[index] = event.target.value;
+  const categoryIndex = Number(event.target.dataset.researchCategory);
+  if (event.target.dataset.researchCategory !== undefined && [0, 1].includes(categoryIndex)) {
+    researchCategoryQueries[categoryIndex] = event.target.value.slice(0, 200);
+    researchClearCoverageSelection();
+    researchRefreshCoverage();
+    return true;
+  }
+  const axisIndex = Number(event.target.dataset.researchAxis);
+  if (event.target.dataset.researchAxis === undefined || ![0, 1].includes(axisIndex)) return false;
+  if (!Object.hasOwn(RESEARCH_FIELDS, event.target.value) || event.target.value === researchCoverageAxes[1 - axisIndex]) return true;
+  researchCoverageAxes[axisIndex] = event.target.value;
   researchClearCoverageSelection();
   researchScopeChanged();
   const panel = graphEl.querySelector(".research-coverage");
@@ -216,17 +225,10 @@ function researchHandleChange(event) {
   panel?.remove();
   researchAppendCoverage(content);
   updateExplorerUrlState();
-  graphEl.querySelector(`[data-research-axis="${index}"]`)?.focus({ preventScroll: true });
+  graphEl.querySelector(`[data-research-axis="${axisIndex}"]`)?.focus({ preventScroll: true });
   return true;
 }
 
 document.addEventListener("click", (event) => {
   if (event.target.closest?.("#researchNavigation")) researchHandleClick(event);
-});
-document.addEventListener("input", (event) => {
-  const value = event.target.dataset.researchCategory;
-  if (value === undefined || !["0", "1"].includes(value)) return;
-  researchCategoryQueries[Number(value)] = event.target.value.slice(0, 200);
-  researchClearCoverageSelection();
-  researchRefreshCoverage();
 });

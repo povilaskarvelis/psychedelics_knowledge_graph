@@ -212,6 +212,29 @@ def test_openalex_search_surface_is_applied_to_the_actual_request() -> None:
     assert "title_and_abstract.search" not in broad_params["filter"]
 
 
+def test_pubmed_summary_cache_reuses_metadata_but_preserves_query_order_and_hits():
+    def search(ids):
+        return {"esearchresult": {"count": str(len(ids)), "idlist": ids}}
+    def summary(ids):
+        return {"result": {key: {"uid": key, "title": f"Report {key}", "articleids": []} for key in ids}}
+    client = CapturingClient([search(["1", "2"]), summary(["1", "2"]),
+        search(["2", "1", "3"]), summary(["3"]), search(["3"]),
+        search(["2"]), summary(["2"])])
+    provider = PubMedProvider(client)
+    provider.summary_cache_size = 2
+    query = execution(provider="pubmed")
+    first, _ = provider.fetch_page(query, "2026-07-01", "2026-09-15", token="", page_size=1000)
+    second, _ = provider.fetch_page(query, "2026-07-01", "2026-09-15", token="", page_size=1000)
+    assert [r["pmid"] for r in second] == ["2", "1", "3"]
+    assert [r["rank_in_partition"] for r in second] == [1, 2, 3]
+    assert first[0]["title"] == second[1]["title"]
+    provider.fetch_page(query, "2026-07-01", "2026-09-15", token="", page_size=1000)
+    provider.fetch_page(query, "2026-07-01", "2026-09-15", token="", page_size=1000)
+    assert [c["params"]["id"] for c in client.calls if c["method"] == "GET"] == ["1,2", "3", "2"]
+    assert len(provider._summary_cache) == 2
+    assert not PubMedProvider(CapturingClient([]))._summary_cache
+
+
 def test_pubmed_keeps_provider_records_without_dois() -> None:
     client = CapturingClient(
         [
@@ -221,6 +244,8 @@ def test_pubmed_keeps_provider_records_without_dois() -> None:
                     "11": {
                         "uid": "11",
                         "title": "Older report without DOI",
+                        "lang": ["chi"],
+                        "pubtype": ["English Abstract", "Journal Article"],
                         "pubdate": "1962",
                         "authors": [{"name": "A Author"}],
                         "articleids": [],
@@ -228,6 +253,7 @@ def test_pubmed_keeps_provider_records_without_dois() -> None:
                     "22": {
                         "uid": "22",
                         "title": "Report with DOI",
+                        "lang": ["eng", "fre"],
                         "pubdate": "2026",
                         "authors": [{"name": "B Author"}],
                         "articleids": [{"idtype": "doi", "value": "10.1000/example"}],
@@ -251,5 +277,7 @@ def test_pubmed_keeps_provider_records_without_dois() -> None:
     assert len(records) == 2
     assert records[0]["pmid"] == "11"
     assert records[0]["doi"] == ""
+    assert records[0]["language"] == "chi"
+    assert records[1]["language"] == "eng | fre"
     assert records[1]["doi"] == "10.1000/example"
     assert client.calls[0]["method"] == "POST"

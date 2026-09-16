@@ -1,6 +1,7 @@
 import unittest
 from pathlib import Path
 import tempfile
+from unittest.mock import patch
 
 import pandas as pd
 
@@ -11,6 +12,16 @@ from pipeline.review.build_gemini_domain_routing_batch_queue import (
 
 
 class BuildGeminiDomainRoutingBatchQueueTests(unittest.TestCase):
+    def test_split_accounts_for_repeated_system_and_schema_input(self) -> None:
+        module = "pipeline.review.build_gemini_domain_routing_batch_queue"
+        with (
+            patch(f"{module}.prompt_for_record", return_value="x" * 40),
+            patch(f"{module}.SYSTEM_INSTRUCTION", "s" * 400),
+            patch(f"{module}.DOMAIN_RESPONSE_SCHEMA", {"description": "r" * 400}),
+        ):
+            parts = split_records([{}, {}, {}], max_requests=100, max_approx_input_tokens=300)
+        self.assertEqual([size for _, size, _ in parts], [1, 1, 1])
+
     def test_split_records_respects_request_and_token_limits(self) -> None:
         records = [
             {

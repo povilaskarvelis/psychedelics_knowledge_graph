@@ -288,7 +288,10 @@ def title_match_score(title: str, text: str) -> float:
 
 
 PDF_IDENTITY_FRONT_CHAR_LIMIT = 2000
-PDF_IDENTITY_FRONT_RAW_CHAR_LIMIT = 4000
+# Some journal layouts place the article DOI in a footer after a long abstract
+# and author/affiliation block. Keep the evidence restricted to page one, but
+# retain enough raw text to reach those footer identifiers.
+PDF_IDENTITY_FRONT_RAW_CHAR_LIMIT = 12000
 
 
 def document_front_identity_text(text: str, metadata_text: str) -> str:
@@ -425,6 +428,29 @@ def build_title_token_lookup(known_records: dict[str, dict]) -> dict[str, list[s
     return lookup
 
 
+def build_metadata_title_lookup(known_records: dict[str, dict]) -> dict[str, list[str]]:
+    """Index exact article titles for PDF metadata identity checks.
+
+    PDF front matter often cites another paper before printing its own DOI, and
+    some publisher PDFs omit their own DOI from the extracted page text.  An
+    exact, sufficiently descriptive PDF metadata title is stronger identity
+    evidence than a DOI that appears only in the article prose or references.
+    """
+
+    lookup: dict[str, list[str]] = {}
+    for doi, record in known_records.items():
+        title = clean(record.get("study_title", "") or record.get("title", ""))
+        if len(title_tokens(title)) < 4:
+            continue
+        key = normalize_for_title_match(title)
+        if not key:
+            continue
+        lookup.setdefault(key, [])
+        if doi not in lookup[key]:
+            lookup[key].append(doi)
+    return lookup
+
+
 def load_validated_document_audits(
     paths: Iterable[Path],
     *,
@@ -536,6 +562,7 @@ def select_match(
     pdf_hash_attestations: dict[str, dict] | None = None,
     doi_aliases: dict[str, str] | None = None,
     title_token_lookup: dict[str, list[str]] | None = None,
+    metadata_title_lookup: dict[str, list[str]] | None = None,
 ) -> tuple[str, str, list[dict]]:
     known_dois = set(known_records)
     attestations = (
@@ -620,6 +647,41 @@ def select_match(
             source_filename_candidates = [{"doi": doi, "basis": "source_url_filename"} for doi in source_filename_dois]
     else:
         source_filename_candidates = []
+
+    if metadata_title_lookup and clean(metadata_text):
+        # extract_pdf_metadata_text writes the PDF Title first. Match only that
+        # line exactly; later metadata lines may contain subjects, authors, or
+        # DOI-bearing prose that is not the document's own identity.
+        metadata_title = clean(metadata_text).splitlines()[0]
+        metadata_title_key = normalize_for_title_match(metadata_title)
+        metadata_title_dois = metadata_title_lookup.get(metadata_title_key, [])
+        if len(metadata_title_dois) == 1:
+            doi = metadata_title_dois[0]
+            return doi, "pdf_metadata_title", [
+                {"doi": doi, "basis": "exact_pdf_metadata_title"}
+            ]
+        if len(metadata_title_dois) > 1:
+            # Published articles and their preprints can share an identical
+            # title.  When that happens, use a unique DOI from the PDF
+            # metadata only to break the title tie.  A unique title still
+            # wins above, so DOI-like citations in a metadata subject cannot
+            # override the document's own unambiguous title.
+            metadata_dois = [
+                doi for doi in extract_dois_from_text(metadata_text) if doi in known_dois
+            ]
+            title_metadata_dois = [
+                doi for doi in metadata_dois if doi in set(metadata_title_dois)
+            ]
+            if len(title_metadata_dois) == 1:
+                doi = title_metadata_dois[0]
+                return doi, "pdf_metadata_title+doi", [
+                    {"doi": candidate, "basis": "exact_pdf_metadata_title"}
+                    for candidate in metadata_title_dois
+                ] + [{"doi": doi, "basis": "pdf_metadata_doi_tiebreak"}]
+            return "", "ambiguous_pdf_metadata_title", [
+                {"doi": doi, "basis": "exact_pdf_metadata_title"}
+                for doi in metadata_title_dois
+            ]
 
     metadata_dois = [doi for doi in extract_dois_from_text(metadata_text) if doi in known_dois]
     if len(metadata_dois) == 1:
@@ -835,6 +897,7 @@ def import_manual_pdfs(
     source_filename_lookup = build_source_filename_lookup(known_records)
     pii_lookup = build_pii_lookup(known_records)
     title_token_lookup = build_title_token_lookup(known_records)
+    metadata_title_lookup = build_metadata_title_lookup(known_records)
     doi_aliases = load_doi_aliases(doi_alias_registry.resolve())
     validated_hashes = load_validated_document_audits(
         [Path(path).resolve() for path in validated_document_audits],
@@ -891,6 +954,7 @@ def import_manual_pdfs(
                 pdf_hash_attestations=pdf_hash_attestations,
                 doi_aliases=doi_aliases,
                 title_token_lookup=title_token_lookup,
+                metadata_title_lookup=metadata_title_lookup,
             )
         if not doi:
             row = {

@@ -465,7 +465,6 @@ def render_compound_page(payload: dict[str, Any]) -> str:
     <title>{escape(title)}</title>
     <link rel="canonical" href="https://psychedelicskg.com/compounds/{escape(slug)}/" />
     <link rel="icon" href="/favicon.ico" sizes="16x16 32x32" />
-    <link rel="icon" href="/favicon-search.png" type="image/png" sizes="192x192" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
     <meta property="og:type" content="website" />

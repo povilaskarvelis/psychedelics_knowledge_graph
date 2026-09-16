@@ -1549,7 +1549,7 @@ def add_unique(values: List[str], value: str) -> None:
 
 def join_candidates(values: Iterable[str]) -> str:
     out: List[str] = []
-    for value in values:
+    for value in split_candidates(list(values)):
         add_unique(out, value)
     return " | ".join(out)
 
@@ -1564,6 +1564,10 @@ def split_candidates(value: object) -> List[str]:
         raw_values = text.split(" | ") if " | " in text else text.split("|")
     out: List[str] = []
     for item in raw_values:
+        # Missing Parquet cells and earlier string conversions must not become
+        # actionable URL candidates (for example the literal string "nan").
+        if normalize(item).lower() in {"", "nan", "none", "null", "<na>", "nat"}:
+            continue
         add_unique(out, item)
     return out
 
@@ -1596,7 +1600,7 @@ def candidate_priority(url: str) -> Tuple[int, str]:
 
 def rank_pdf_candidates(values: Iterable[str]) -> List[str]:
     out: List[str] = []
-    for value in values:
+    for value in split_candidates(list(values)):
         add_unique(out, value)
     return sorted(out, key=candidate_priority)
 

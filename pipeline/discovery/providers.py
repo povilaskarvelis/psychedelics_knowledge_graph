@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from collections import OrderedDict
 import datetime as dt
 from http.client import IncompleteRead, RemoteDisconnected
 import json
@@ -335,11 +336,14 @@ def openalex_filters(execution: SearchExecution, start_date: str, end_date: str)
 class PubMedProvider:
     name = "pubmed"
     base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
+    summary_cache_size = 4096
 
     def __init__(self, client: RateLimitedHttpClient, *, email: str = "", api_key: str = "") -> None:
         self.client = client
         self.email = email
         self.api_key = api_key
+        # Scope metadata reuse to this adapter/session, never across updates.
+        self._summary_cache: OrderedDict[str, dict] = OrderedDict()
 
     def _common(self) -> dict[str, object]:
         return {
@@ -391,8 +395,15 @@ class PubMedProvider:
         )
         ids = [clean(value) for value in payload.get("esearchresult", {}).get("idlist", []) if clean(value)]
         summaries: dict[str, dict] = {}
-        for offset in range(0, len(ids), 200):
-            batch = ids[offset : offset + 200]
+        missing_ids: list[str] = []
+        for pmid in dict.fromkeys(ids):
+            if pmid in self._summary_cache:
+                summaries[pmid] = self._summary_cache[pmid]
+                self._summary_cache.move_to_end(pmid)
+            else:
+                missing_ids.append(pmid)
+        for offset in range(0, len(missing_ids), 200):
+            batch = missing_ids[offset : offset + 200]
             summary = self.client.get_json(
                 f"{self.base_url}/esummary.fcgi",
                 params={
@@ -405,6 +416,14 @@ class PubMedProvider:
             result = summary.get("result", {}) if isinstance(summary, dict) else {}
             if isinstance(result, dict):
                 summaries.update({key: value for key, value in result.items() if isinstance(value, dict)})
+                for pmid in batch:
+                    item = result.get(pmid)
+                    if not isinstance(item, dict) or not item or item.get("error"):
+                        continue
+                    self._summary_cache[pmid] = item
+                    self._summary_cache.move_to_end(pmid)
+                    while len(self._summary_cache) > self.summary_cache_size:
+                        self._summary_cache.popitem(last=False)
 
         records: list[dict] = []
         for index, pmid in enumerate(ids):
@@ -426,7 +445,8 @@ class PubMedProvider:
                     "publication_date": clean(item.get("sortpubdate")) or clean(item.get("pubdate")),
                     "journal": clean(item.get("fulljournalname")) or clean(item.get("source")),
                     "publication_type": " | ".join(item.get("pubtype", []) if isinstance(item.get("pubtype"), list) else []),
-                    "language": "",
+                    "language": " | ".join(clean(value) for value in item.get("lang", []) if clean(value))
+                    if isinstance(item.get("lang"), list) else clean(item.get("lang")),
                     "abstract": "",
                     "rank_in_partition": retstart + index + 1,
                 }

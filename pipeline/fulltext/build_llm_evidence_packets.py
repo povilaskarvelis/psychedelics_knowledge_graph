@@ -470,7 +470,7 @@ def nearest_section_heading(element: ET.Element, parents: dict[ET.Element, ET.El
     current = element
     while current in parents:
         current = parents[current]
-        if local_name(current.tag) == "div":
+        if element_is_section(current):
             return direct_heading(current)
     return ""
 
@@ -484,6 +484,27 @@ def child_text(element: ET.Element, child_names: set[str]) -> str:
     return ""
 
 
+def jats_table_context_text(element: ET.Element) -> str:
+    """Keep table row boundaries in the text consumed by extraction models."""
+    if local_name(element.tag) == "tr":
+        cells = []
+        for cell in element:
+            if local_name(cell.tag) not in {"td", "th"}:
+                continue
+            spans = [f"{key}={cell.attrib[key]}" for key in ("rowspan", "colspan")
+                     if cell.attrib.get(key, "1") != "1"]
+            text = element_text(cell)
+            cells.append(f"{text} [{', '.join(spans)}]" if spans else text)
+        return " | ".join(cells) if cells else element_text(element)
+    if not any(child is not element and local_name(child.tag) in {"table", "tr"}
+               for child in element.iter()):
+        return element_text(element)
+    parts = [normalize(element.text)]
+    for child in element:
+        parts.extend([jats_table_context_text(child), normalize(child.tail)])
+    return "\n".join(part for part in parts if part)
+
+
 def extract_tables_and_figures(tei_xml: str) -> tuple[list[dict], list[dict]]:
     root = parse_tei(tei_xml)
     if root is None:
@@ -494,18 +515,30 @@ def extract_tables_and_figures(tei_xml: str) -> tuple[list[dict], list[dict]]:
     seen_tables: set[int] = set()
 
     for element in root.iter():
-        if local_name(element.tag) != "figure":
+        name = local_name(element.tag)
+        if name not in {"figure", "fig", "table-wrap"}:
             continue
         figure_type = normalize(element.attrib.get("type", "")).lower()
         has_table = any(local_name(child.tag) == "table" for child in element.iter())
         payload = {
             "xml_id": xml_id(element),
             "label": child_text(element, {"label"}),
-            "caption": child_text(element, {"figDesc"}) or child_text(element, {"head"}),
+            "caption": child_text(element, {"caption"}) or child_text(element, {"figDesc"}) or child_text(element, {"head"}),
             "section_heading": nearest_section_heading(element, parents),
             "text": element_text(element),
         }
-        if figure_type == "table" or has_table:
+        if name == "table-wrap" or figure_type == "table" or has_table:
+            if name == "table-wrap":
+                payload["text"] = jats_table_context_text(element)
+                payload["notes"] = child_text(element, {"table-wrap-foot"})
+                payload["rows"] = [
+                    [{"text": element_text(cell),
+                      "rowspan": cell.attrib.get("rowspan", "1"),
+                      "colspan": cell.attrib.get("colspan", "1"),
+                      "header": local_name(cell.tag) == "th"}
+                     for cell in row if local_name(cell.tag) in {"td", "th"}]
+                    for row in element.iter() if local_name(row.tag) == "tr"
+                ]
             payload["table_id"] = f"T{len(tables) + 1:03d}"
             tables.append(payload)
             for child in element.iter():

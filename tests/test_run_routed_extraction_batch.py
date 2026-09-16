@@ -145,6 +145,18 @@ class RunRoutedExtractionBatchTest(unittest.TestCase):
 
         self.assertEqual([task["route_id"] for _, task in selected], ["route-2", "route-3"])
 
+    def test_schema_error_is_retryable_until_a_successful_output_exists(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            run_dir = Path(tmpdir)
+            failed = {"route_id": "schema-failed", "status": "schema_error"}
+            write_jsonl(run_dir / "route_extraction_outputs.jsonl", [failed])
+            write_jsonl(run_dir / "route_extraction_raw.jsonl", [failed])
+            self.assertEqual(attempted_task_keys(run_dir), {"schema-failed"})
+            self.assertEqual(attempted_task_keys(run_dir, retry_errors=True), set())
+            write_jsonl(run_dir / "route_extraction_outputs.jsonl", [
+                failed, {"route_id": "schema-failed", "status": "ok"}])
+            self.assertEqual(attempted_task_keys(run_dir, retry_errors=True), {"schema-failed"})
+
     def test_changed_input_fingerprint_releases_a_successful_route_for_reprocessing(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             run_dir = Path(tmpdir)

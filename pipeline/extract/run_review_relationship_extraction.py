@@ -233,8 +233,10 @@ def bundle_semantic_errors(bundle: dict) -> list[str]:
             errors.append(f"major_aspect_covered_by_noncentral_relationship:{item_id}")
         for aspect_id in sorted(covered):
             importance = importance_by_aspect.get(aspect_id, "")
-            if importance == "paper_defining" and prominence != "paper_defining":
-                errors.append(f"relationship_aspect_importance_mismatch:{item_id}:{importance}")
+            # Coverage is existential: every defining aspect needs at least
+            # one defining relationship (checked below). Additional major
+            # supporting relationships may cover the same aspect without
+            # being promoted to paper-defining importance themselves.
             if importance == "major_supporting" and prominence not in {"paper_defining", "major_supporting"}:
                 errors.append(f"relationship_aspect_importance_mismatch:{item_id}:{importance}")
         basis = {normalize(value) for value in item.get("centrality_basis", []) if normalize(value)}

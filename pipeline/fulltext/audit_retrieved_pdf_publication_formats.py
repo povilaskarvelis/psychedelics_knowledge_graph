@@ -191,7 +191,11 @@ def audit_file(
     elif thesis_title_page:
         action = "exclude_publication_format"
         publication_format = "dissertation_or_thesis"
-    elif explicit_meeting_abstract or multiple_dois or (abstract_header and meeting_language):
+    # Multiple DOI citations are normal in short case reports, brief reviews,
+    # and other legitimate articles. Treat them as conference evidence only
+    # when the document also contains meeting language; an explicit meeting-
+    # abstract label remains independently decisive.
+    elif explicit_meeting_abstract or (meeting_language and (multiple_dois or abstract_header)):
         action = "exclude_publication_format"
         publication_format = "conference_abstract"
     elif identity_status != "matched":

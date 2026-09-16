@@ -245,9 +245,18 @@ python pipeline/discovery/promote_search_run.py \
 
 Promotion backs up the canonical tables, appends new DOI-bearing records,
 updates rediscovery provenance, retains no-DOI records for identifier
-resolution, and writes `new_candidate_dois.txt`. Run metadata enrichment and
-screening on that DOI file; relationship routing occurs downstream rather than
+resolution, and writes `new_candidate_dois.txt`. The downstream handoff is
+`screening_candidate_dois.txt`: new candidates plus rediscovered candidates
+whose missing abstract was restored. Run metadata enrichment and screening on
+that file; relationship routing occurs downstream rather than
 through a provider-side pair grid.
+
+Before canonical writes, promotion saves `promotion_intent.json` with the
+original new/rediscovered DOI cohorts, source checksums, destination paths, and
+timestamp. If interrupted, rerun the same command: it reapplies the idempotent
+merges while preserving that handoff and the original backups. Changed source
+artifacts or destinations are rejected. Run corpus writers sequentially; this
+recovery mechanism does not make concurrent ledger writes safe.
 
 ## Retiring superseded runs
 

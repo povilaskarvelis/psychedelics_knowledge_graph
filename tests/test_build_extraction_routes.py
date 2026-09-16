@@ -12,6 +12,7 @@ from pipeline.extract.build_extraction_routes import (
     doi_to_slug,
     fulltext_status_for_doi,
     merged_extraction_metadata,
+    preserve_out_of_scope_route_selection,
     prescreen_context_by_doi,
     thesis_or_dissertation_flags,
 )
@@ -40,6 +41,31 @@ def write_source_identity_audit(
 
 
 class BuildExtractionRoutesTests(unittest.TestCase):
+    def test_scoped_full_rebuild_preserves_out_of_scope_selection_state(self) -> None:
+        candidates = pd.DataFrame(
+            [
+                {"doi": "10.1000/in-scope", "retained_for_extraction_candidate": False},
+                {"doi": "10.1000/selected", "retained_for_extraction_candidate": True},
+                {"doi": "10.1000/backlog", "retained_for_extraction_candidate": False},
+            ]
+        )
+        rows = [
+            {"doi": "10.1000/in-scope", "retained_for_extraction_candidate": True},
+            {"doi": "10.1000/selected", "retained_for_extraction_candidate": True},
+            {"doi": "10.1000/backlog", "retained_for_extraction_candidate": True},
+        ]
+
+        preserved = preserve_out_of_scope_route_selection(
+            rows,
+            candidate_df=candidates,
+            scoped_dois={"10.1000/in-scope"},
+        )
+
+        by_doi = {row["doi"]: row for row in preserved}
+        self.assertTrue(by_doi["10.1000/in-scope"]["retained_for_extraction_candidate"])
+        self.assertTrue(by_doi["10.1000/selected"]["retained_for_extraction_candidate"])
+        self.assertFalse(by_doi["10.1000/backlog"]["retained_for_extraction_candidate"])
+
     def test_thesis_url_does_not_override_explicit_journal_article(self) -> None:
         self.assertEqual(
             thesis_or_dissertation_flags(

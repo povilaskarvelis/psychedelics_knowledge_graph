@@ -409,13 +409,20 @@ def build(args: argparse.Namespace) -> dict:
             action = "fetch_pmc_xml"
             action_basis = "pmc_id_available"
             needed = True
+        elif terminal_pdf_download_failure and (pdf_candidates or open_access_positive):
+            # Exhausting unattended HTTP retries proves only that the direct
+            # downloader could not retrieve the candidate. Forbidden,
+            # interstitial, and non-PDF responses commonly remain recoverable
+            # through a normal browser. Keep them out of the automatic retry
+            # loop while preserving them for browser/manual review.
+            action = "resolve_oa_landing_page"
+            action_basis = "browser_recovery_after_terminal_direct_download_failure"
+            needed = True
         elif terminal_pdf_download_failure:
-            # A completed, non-retryable download attempt is durable workflow
-            # state. Do not silently replay the same failed URLs whenever the
-            # worklist is regenerated. A later successful/manual import or an
-            # explicitly retryable outcome will supersede this branch.
+            # No candidate location or positive access signal remains after
+            # the completed download attempt.
             action = "no_accessible_fulltext"
-            action_basis = "terminal_pdf_download_failure"
+            action_basis = "terminal_pdf_download_failure_without_location"
             needed = True
         elif pdf_candidates:
             action = "download_known_pdf"
@@ -445,7 +452,7 @@ def build(args: argparse.Namespace) -> dict:
         decision = eligibility[doi]
         rows.append(
             {
-                "table_version": "fulltext_enrichment_worklist_v4",
+                "table_version": "fulltext_enrichment_worklist_v5",
                 "generated_at_utc": generated_at_utc,
                 "doi": doi,
                 "selected_for_downstream": True,
@@ -526,7 +533,7 @@ def build(args: argparse.Namespace) -> dict:
     write_text_atomic(oa_landing_path, "".join(f"{doi}\n" for doi in oa_landing_dois))
     write_parquet_atomic(table_path, frame)
     report = {
-        "schema_version": "fulltext_enrichment_worklist_report_v4",
+        "schema_version": "fulltext_enrichment_worklist_report_v5",
         "generated_at_utc": generated_at_utc,
         "inputs": {
             "queue_json": str(queue_path),
@@ -560,7 +567,21 @@ def build(args: argparse.Namespace) -> dict:
             "fulltext_no_accessible_fulltext_dois": len(no_accessible_fulltext_dois),
             "fulltext_oa_landing_dois": len(oa_landing_dois),
             "fulltext_terminal_pdf_failure_dois": int(
-                frame["fulltext_enrichment_basis"].eq("terminal_pdf_download_failure").sum()
+                frame["pdf_download_terminal_failure"].sum()
+            )
+            if not frame.empty
+            else 0,
+            "fulltext_browser_recovery_after_terminal_direct_download_failure_dois": int(
+                frame["fulltext_enrichment_basis"]
+                .eq("browser_recovery_after_terminal_direct_download_failure")
+                .sum()
+            )
+            if not frame.empty
+            else 0,
+            "fulltext_terminal_pdf_failure_without_location_dois": int(
+                frame["fulltext_enrichment_basis"]
+                .eq("terminal_pdf_download_failure_without_location")
+                .sum()
             )
             if not frame.empty
             else 0,

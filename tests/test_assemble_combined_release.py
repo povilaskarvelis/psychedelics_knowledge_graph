@@ -9,10 +9,25 @@ from pipeline.kg.assemble_combined_release import (
     apply_candidate_metadata,
     assemble_layers,
     candidate_metadata,
+    check_required_outputs,
     explicit_metadata_clears,
     reject_non_v2_meta_analysis_evidence,
     remove_legacy_v1_secondary_outputs,
 )
+
+
+def test_required_cohort_catches_omitted_family_and_failed_outputs():
+    outputs = [{"study_doi": "10.1/primary", "status": "ok", "result": {}},
+               {"study_doi": "10.1/guideline", "status": "error", "result": {}}]
+    with pytest.raises(ValueError, match="guideline"):
+        check_required_outputs(outputs, {"10.1/primary", "10.1/guideline"}, {})
+
+
+def test_required_cohort_accepts_valid_zero_findings_and_nested_doi_alias():
+    outputs = [{"status": "ok", "result": {"study_doi": "10.1/alias", "items": []}}]
+    assert check_required_outputs(outputs, {"10.1/canonical"}, {"10.1/alias": "10.1/canonical"}) == {
+        "required_reports": 1, "completed_required_reports": 1,
+    }
 
 
 def evidence(doi: str, item: str, source_type: str = "primary") -> dict:
@@ -51,6 +66,21 @@ def test_declared_zero_row_outcome_replaces_old_paper_evidence():
     assert report["base_rows_replaced"] == 1
     assert report["overlays"]["v2"]["replacement_papers_declared"] == 1
     assert report["overlays"]["v2"]["replacement_papers_without_rows"] == 1
+
+
+def test_declared_output_tombstone_replaces_old_raw_output():
+    rows, report = assemble_layers(
+        [{"study_doi": "10.1/excluded", "status": "ok", "result": {}}],
+        [("exclusions", [])],
+        aliases={},
+        eligible={"10.1/excluded"},
+        row_kind="output",
+        replacement_dois_by_overlay={"exclusions": {"10.1/excluded"}},
+    )
+
+    assert rows == []
+    assert report["base_rows_replaced"] == 1
+    assert report["overlays"]["exclusions"]["replacement_papers_without_rows"] == 1
 
 
 def test_overlay_rows_must_be_in_declared_replacement_cohort():

@@ -84,7 +84,7 @@ GRAPH_DISPOSITION_LABELS = {
     "insufficient_source_text": "Available text too limited for reliable extraction",
     "source_not_verified": "Source document could not be verified",
     "not_results_report": "Not a results report",
-    "unsupported_finding_detail": "Finding too broad or ambiguous for graph representation",
+    "unsupported_finding_detail": "Finding could not be mapped to the graph",
     "extraction_failed": "Evidence extraction failed",
     # Transitional values remain readable for older override files, but a
     # completed release should not contain them.

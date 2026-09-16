@@ -90,9 +90,48 @@ class ScopedPaperUpdateTest(unittest.TestCase):
         self.current_task = task()
         write_jsonl(self.tasks_path, [self.current_task])
         self.routes_path = self.root / "routes.parquet"
-        pd.DataFrame([{"route_id": self.current_task["route_id"]}]).to_parquet(
+        pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/update",
+                    "route_id": self.current_task["route_id"],
+                    "route_action": "extract_from_abstract_only",
+                    "schema_profile": "primary_evidence_schema",
+                }
+            ]
+        ).to_parquet(
             self.routes_path,
             index=False,
+        )
+        self.candidates_path = self.root / "candidates.parquet"
+        pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/update",
+                    "study_title": "Primary paper",
+                    "abstract": "A public abstract.",
+                    "prescreen_decisions": "retain",
+                    "retained_for_extraction_candidate": True,
+                    "primary_secondary_source_type": "primary_study",
+                    "extraction_route_status": "ready_for_abstract_extraction",
+                },
+                {
+                    "doi": "10.1000/excluded",
+                    "study_title": "Excluded paper",
+                    "abstract": "",
+                    "prescreen_decisions": "exclude",
+                    "retained_for_extraction_candidate": False,
+                    "primary_secondary_source_type": "review",
+                    "extraction_route_status": "excluded",
+                },
+            ]
+        ).to_parquet(self.candidates_path, index=False)
+        self.packets_path = self.root / "packets.jsonl"
+        write_jsonl(self.packets_path, [])
+        self.entity_registry = self.root / "entity_registry.json"
+        self.entity_registry.write_text(
+            json.dumps({"compounds": [], "targets": [], "disorders": []}),
+            encoding="utf-8",
         )
         self.unaffected_output = old_output("10.1000/keep", "keep")
         self.base_outputs = self.root / "base_outputs.jsonl"
@@ -131,6 +170,9 @@ class ScopedPaperUpdateTest(unittest.TestCase):
             "update_dir": "",
             "tasks_jsonl": str(self.tasks_path),
             "route_table": str(self.routes_path),
+            "candidate_table": str(self.candidates_path),
+            "packets_jsonl": str(self.packets_path),
+            "entity_registry": str(self.entity_registry),
             "base_outputs": str(self.base_outputs),
             "base_evidence": str(self.base_evidence),
             "refresh_derived": False,
@@ -146,6 +188,8 @@ class ScopedPaperUpdateTest(unittest.TestCase):
             "update_id": "test_update",
             "update_dir": "",
             "patch_outputs": [str(patch_output)] if patch_output else [],
+            "review_outputs": [],
+            "meta_analysis_outputs": [],
             "overwrite": False,
         }
         values.update(overrides)
@@ -168,6 +212,100 @@ class ScopedPaperUpdateTest(unittest.TestCase):
         status_rows = pd.read_csv(self.update_root / "test_update" / "scope_status.csv").set_index("doi")
         self.assertEqual(status_rows.loc["10.1000/update", "disposition"], "replace_with_current_extraction")
         self.assertEqual(status_rows.loc["10.1000/excluded", "disposition"], "remove_without_replacement")
+
+    def test_refresh_preserves_selection_outside_requested_scope(self) -> None:
+        with patch.object(updater, "run_checked") as run_checked:
+            updater.refresh_deterministic_layers(self.scope_file)
+
+        commands = [call.args[0] for call in run_checked.call_args_list]
+        self.assertEqual(len(commands), 4)
+        self.assertIn("--preserve-selection-outside-doi-file", commands[1])
+        flag_index = commands[1].index("--preserve-selection-outside-doi-file")
+        self.assertEqual(commands[1][flag_index + 1], str(self.scope_file.resolve()))
+
+    def test_prepare_builds_dedicated_review_task(self) -> None:
+        pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/update",
+                    "route_id": self.current_task["route_id"],
+                    "route_action": "extract_from_abstract_only",
+                    "schema_profile": "primary_evidence_schema",
+                },
+                {
+                    "doi": "10.1000/excluded",
+                    "route_id": "route-review",
+                    "route_action": "extract_from_full_text",
+                    "schema_profile": "review_coverage_schema",
+                },
+            ]
+        ).to_parquet(self.routes_path, index=False)
+        candidates = pd.read_parquet(self.candidates_path)
+        candidates.loc[candidates["doi"] == "10.1000/excluded", [
+            "study_title",
+            "abstract",
+            "prescreen_decisions",
+            "retained_for_extraction_candidate",
+            "primary_secondary_source_type",
+            "extraction_route_status",
+        ]] = [
+            "Current review",
+            "Review abstract",
+            "retain",
+            True,
+            "review",
+            "ready_for_article_text_extraction",
+        ]
+        candidates.to_parquet(self.candidates_path, index=False)
+        write_jsonl(
+            self.packets_path,
+            [
+                {
+                    "packet_id": "article:10.1000/excluded",
+                    "study_doi": "10.1000/excluded",
+                    "paper_metadata": {"study_title": "Current review"},
+                    "llm_chunks": [{"chunk_id": "c1", "text": "Review full text."}],
+                }
+            ],
+        )
+
+        with patch.object(updater, "UPDATE_ROOT", self.update_root):
+            updater.prepare(self.prepare_args())
+
+        manifest = json.loads(
+            (self.update_root / "test_update" / "update_manifest.json").read_text(encoding="utf-8")
+        )
+        review_tasks = list(
+            updater.read_jsonl(self.update_root / "test_update" / "ready_tasks_reviews.jsonl")
+        )
+        self.assertEqual(manifest["current_scope"]["by_group"], {"primary": 1, "reviews": 1})
+        self.assertEqual(manifest["current_scope"]["no_runnable_task_dois"], 0)
+        self.assertEqual(len(review_tasks), 1)
+        self.assertTrue(review_tasks[0]["task_id"].startswith("reviewrel:"))
+
+    def test_prepare_refuses_ready_route_without_a_ready_task(self) -> None:
+        pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/update",
+                    "route_id": self.current_task["route_id"],
+                    "route_action": "extract_from_abstract_only",
+                    "schema_profile": "primary_evidence_schema",
+                },
+                {
+                    "doi": "10.1000/excluded",
+                    "route_id": "route-missing",
+                    "route_action": "extract_from_abstract_only",
+                    "schema_profile": "primary_evidence_schema",
+                },
+            ]
+        ).to_parquet(self.routes_path, index=False)
+
+        with (
+            patch.object(updater, "UPDATE_ROOT", self.update_root),
+            self.assertRaisesRegex(RuntimeError, "cannot classify these papers as deletion-only"),
+        ):
+            updater.prepare(self.prepare_args())
 
     def test_prepare_can_select_primary_plus_deletion_only_scope(self) -> None:
         review_task = task("10.1000/review", "review")
@@ -260,6 +398,184 @@ class ScopedPaperUpdateTest(unittest.TestCase):
             {row["study_doi"] for row in candidate_evidence},
             {"10.1000/keep", "10.1000/update"},
         )
+
+    def test_mixed_family_finalize_replaces_all_three_families_atomically(self) -> None:
+        review_doi = "10.1000/review"
+        meta_doi = "10.1000/meta"
+        self.scope_file.write_text(
+            "\n".join(["10.1000/update", review_doi, meta_doi, "10.1000/excluded"]) + "\n",
+            encoding="utf-8",
+        )
+        pd.DataFrame(
+            [
+                {
+                    "doi": "10.1000/update",
+                    "route_id": self.current_task["route_id"],
+                    "route_action": "extract_from_abstract_only",
+                    "schema_profile": "primary_evidence_schema",
+                },
+                {
+                    "doi": review_doi,
+                    "route_id": "route-review",
+                    "route_action": "extract_from_abstract_only",
+                    "schema_profile": "review_coverage_schema",
+                },
+                {
+                    "doi": meta_doi,
+                    "route_id": "route-meta",
+                    "route_action": "extract_from_abstract_only",
+                    "schema_profile": "meta_analysis_evidence_schema",
+                },
+                {
+                    "doi": "10.1000/excluded",
+                    "route_id": "route-excluded",
+                    "route_action": "exclude",
+                    "schema_profile": "excluded",
+                },
+            ]
+        ).to_parquet(self.routes_path, index=False)
+        candidates = [
+            {
+                "doi": "10.1000/update",
+                "study_title": "Primary paper",
+                "abstract": "Primary abstract.",
+                "prescreen_decisions": "retain",
+                "retained_for_extraction_candidate": True,
+                "primary_secondary_source_type": "primary_study",
+                "extraction_route_status": "ready_for_abstract_extraction",
+            },
+            {
+                "doi": review_doi,
+                "study_title": "Review paper",
+                "abstract": "Review abstract.",
+                "prescreen_decisions": "retain",
+                "retained_for_extraction_candidate": True,
+                "primary_secondary_source_type": "systematic_review",
+                "extraction_route_status": "ready_for_abstract_extraction",
+            },
+            {
+                "doi": meta_doi,
+                "study_title": "Meta-analysis paper",
+                "abstract": "Meta-analysis abstract.",
+                "prescreen_decisions": "retain",
+                "retained_for_extraction_candidate": True,
+                "primary_secondary_source_type": "meta_analysis",
+                "extraction_route_status": "ready_for_abstract_extraction",
+            },
+            {
+                "doi": "10.1000/excluded",
+                "study_title": "Excluded paper",
+                "abstract": "",
+                "prescreen_decisions": "exclude",
+                "retained_for_extraction_candidate": False,
+                "primary_secondary_source_type": "review",
+                "extraction_route_status": "excluded",
+            },
+        ]
+        pd.DataFrame(candidates).to_parquet(self.candidates_path, index=False)
+        write_jsonl(
+            self.base_outputs,
+            [
+                self.unaffected_output,
+                old_output("10.1000/update", "update-old"),
+                old_output(review_doi, "review-old"),
+                old_output(meta_doi, "meta-old"),
+                old_output("10.1000/excluded", "excluded-old"),
+            ],
+        )
+        self.base_evidence.write_text(
+            json.dumps(
+                [
+                    self.unaffected_evidence,
+                    {"study_doi": "10.1000/update", "compound": "old"},
+                    {"study_doi": review_doi, "compound": "old"},
+                    {"study_doi": meta_doi, "compound": "old"},
+                    {"study_doi": "10.1000/excluded", "compound": "old"},
+                ]
+            ),
+            encoding="utf-8",
+        )
+        primary_outputs = self.root / "primary_outputs.jsonl"
+        review_outputs = self.root / "review_outputs.jsonl"
+        meta_outputs = self.root / "meta_outputs.jsonl"
+        write_jsonl(primary_outputs, [successful_output(self.current_task)])
+
+        with (
+            patch.object(updater, "UPDATE_ROOT", self.update_root),
+            patch.object(updater, "ROUTED_RUNS_DIR", self.runs_root),
+        ):
+            updater.prepare(self.prepare_args())
+            review_task = next(
+                updater.read_jsonl(self.update_root / "test_update" / "ready_tasks_reviews.jsonl")
+            )
+            meta_task = next(
+                updater.read_jsonl(self.update_root / "test_update" / "ready_tasks_meta_analyses.jsonl")
+            )
+            write_jsonl(
+                review_outputs,
+                [
+                    {
+                        "task_id": review_task["task_id"],
+                        "study_doi": review_doi,
+                        "text_depth": "abstract_only",
+                        "status": "ok",
+                        "schema_errors": [],
+                        "result": {
+                            "schema_version": "review_relationship_bundle_v2",
+                            "source_depth": "abstract_only",
+                            "paper_frame": {},
+                            "relationships": [],
+                        },
+                    }
+                ],
+            )
+            write_jsonl(
+                meta_outputs,
+                [
+                    {
+                        "schema_version": "meta_analysis_evidence_v2",
+                        "task_id": meta_task["task_id"],
+                        "study_doi": meta_doi,
+                        "source_depth": "abstract_only",
+                        "source_fingerprint": meta_task["source"]["source_fingerprint"],
+                        "status": "ok",
+                        "schema_errors": [],
+                        "result": {
+                            "extraction_status": "extracted",
+                            "synthesis_results": [],
+                        },
+                    }
+                ],
+            )
+            updater.finalize(
+                self.finalize_args(
+                    primary_outputs,
+                    review_outputs=[str(review_outputs)],
+                    meta_analysis_outputs=[str(meta_outputs)],
+                )
+            )
+
+        candidate_outputs = list(
+            updater.read_jsonl(self.runs_root / "test_update" / "route_extraction_outputs.jsonl")
+        )
+        self.assertEqual(
+            {updater.doi_for_output(row) for row in candidate_outputs},
+            {"10.1000/keep", "10.1000/update", review_doi, meta_doi},
+        )
+        candidate_evidence = json.loads(
+            (self.runs_root / "test_update" / "routed_evidence_rows.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            {row["study_doi"] for row in candidate_evidence},
+            {"10.1000/keep", "10.1000/update"},
+        )
+        report = json.loads(
+            (self.update_root / "test_update" / "finalize_report.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(report["families"]["reviews"]["validated_outputs"], 1)
+        self.assertEqual(report["families"]["reviews"]["evidence_rows"], 0)
+        self.assertEqual(report["families"]["meta_analyses"]["validated_outputs"], 1)
+        self.assertEqual(report["families"]["meta_analyses"]["evidence_rows"], 0)
 
     def test_finalize_refuses_changed_base_after_prepare(self) -> None:
         patch_output = self.root / "patch.jsonl"

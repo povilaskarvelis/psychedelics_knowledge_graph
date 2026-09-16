@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import date
 import hashlib
 import json
 import os
@@ -392,7 +393,25 @@ def build_local_preview(
         "methods": methods,
         "files": remote_files,
     }
+    source_manifest = repository_root / "data/processed/extraction/routed_runs" / run_id / "source_update_manifest.json"
+    if source_manifest.is_file():
+        through = str((read_json(source_manifest).get("search_window") or {}).get("through") or "")
+        if through:
+            pointer["literature_updated"] = date.fromisoformat(through).isoformat()
     return pointer, allowed_files
+
+
+def render_local_preview_header(source: str, pointer: dict) -> str:
+    """Show candidate coverage without rewriting archived release/DOI metadata."""
+    source = re.sub(r"<span>Graph version: [^<]*</span>", "<span>Local preview</span>", source)
+    through = pointer.get("literature_updated")
+    if through:
+        through = date.fromisoformat(str(through)).isoformat()
+        source = re.sub(
+            r'(<span class="hero-version-date">)Literature updated: [^<]*(</span>)',
+            lambda match: f"{match[1]}Literature updated: {through}{match[2]}", source,
+        )
+    return source
 
 
 def validated_published_preview(pointer: dict) -> dict[str, str]:
@@ -569,6 +588,16 @@ class PreviewRequestHandler(SimpleHTTPRequestHandler):
         if self.redirect_local_page():
             return
         request_path = urlsplit(self.path).path
+        if self.local_pointer is not None and request_path in {"/", "/index.html"}:
+            source = (Path(self.directory) / "index.html").read_text(encoding="utf-8")
+            payload = render_local_preview_header(source, json.loads(self.local_pointer)).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            if not head_only:
+                self.wfile.write(payload)
+            return
         if (
             request_path == "/__preview__/published.json"
             and self.published_pointer is not None

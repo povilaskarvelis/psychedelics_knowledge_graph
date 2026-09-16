@@ -52,7 +52,7 @@ DEFAULT_EXTRACTION_TASKS_JSONL = (
 )
 DEFAULT_RECONCILIATION_REPORT = DEFAULT_CORPUS_DIR / "prescreen_workflow_reconciliation.json"
 TABLE_VERSION = "0.3"
-RULE_VERSION = "deterministic_prescreen_v2_9_20260722"
+RULE_VERSION = "deterministic_prescreen_v2_12_20260916"
 MINIMUM_ABSTRACT_WORD_COUNT = 50
 ENGLISH_LANGUAGE_CODES = {"en", "eng", "english"}
 CANDIDATE_PRESCREEN_DEFAULTS = {
@@ -263,6 +263,14 @@ OUT_OF_SCOPE_PUBLICATION_FORMAT_DOI_PATTERNS = (
         re.compile(r"^10\.1254/jpssuppl\.", re.IGNORECASE),
         "conference_abstract",
     ),
+    # Psychopharmacology Institute uses PI-VL (and localized PI-xx-VL)
+    # suffixes for educational video lectures. Providers currently label
+    # these records as generic reports, which is not enough to distinguish
+    # them from eligible evidence reports.
+    (
+        re.compile(r"^10\.64239/pi(?:-[a-z]{2})?-vl\d+$", re.IGNORECASE),
+        "video_lecture",
+    ),
     # FASEB annual-meeting abstracts use volume/supplement or volume/issue/A-page
     # identifiers. Ordinary FASEB research articles use the 10.1096/fj.* block.
     (
@@ -309,6 +317,12 @@ OUT_OF_SCOPE_PUBLICATION_FORMAT_DOI_PATTERNS = (
     # books or abstract volumes, not standalone journal reports.
     (
         re.compile(r"^10\.1016/b978-", re.IGNORECASE),
+        "book_chapter",
+    ),
+    # Wiley ISBN-13 plus an explicit chapter suffix identifies book chapters,
+    # including records whose provider publication type is only "other".
+    (
+        re.compile(r"^10\.1002/(?:978|979)\d{10}\.ch\d+$", re.IGNORECASE),
         "book_chapter",
     ),
     (
@@ -450,7 +464,9 @@ NON_EVIDENCE_TITLE_PATTERNS = (
     ),
     re.compile(r"\bstudy protocol\b", re.IGNORECASE),
     re.compile(r"\btrial protocol\b", re.IGNORECASE),
-    re.compile(r"\bprotocol for\b", re.IGNORECASE),
+    # A treatment/sedation protocol may be the intervention in a completed
+    # empirical study. Require a study/trial qualifier in this title branch.
+    re.compile(r"\bprotocol for\b[^.:\n]{0,120}\b(?:trial|study)\b", re.IGNORECASE),
     re.compile(r"\bstudy flow chart\b", re.IGNORECASE),
     re.compile(r"\bconsort diagram\b", re.IGNORECASE),
     re.compile(r"\bstudy-related adverse events\b", re.IGNORECASE),
@@ -944,7 +960,7 @@ def out_of_scope_publication_format_decision(row: dict) -> dict | None:
         "reason": (
             "Record is a book/monograph, book chapter, dataset or repository/index deposit, dissertation/thesis, "
             "conference paper, conference/poster/meeting abstract, abstract-book contribution, "
-            "journal-supplement contribution, peer-review/decision object, or visual essay rather "
+            "journal-supplement contribution, peer-review/decision object, video lecture, or visual essay rather "
             "than an eligible source article, review, or meta-analysis."
         ),
         "matched_terms": [*sorted(matched_formats), *matched_terms],

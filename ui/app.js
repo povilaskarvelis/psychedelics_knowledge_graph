@@ -2030,7 +2030,10 @@ function studyDesignLabel(design, claim = null) {
     return "Observational study";
   }
   if (/retrospective|chart review|single arm effectiveness/.test(text)) return "Retrospective study";
-  if (/randomi[sz]ed|randomised|double blind|controlled trial|placebo controlled|crossover|cross over/.test(text)) return "RCT";
+  const designText = normalized.replace(/[_/()+–—-]+/g, " ");
+  if (/\b(randomi[sz]ed|rct)\b/.test(designText) && !/\b(non randomi[sz]ed|not randomi[sz]ed|nonrandomi[sz]ed)\b/.test(designText)) return "RCT";
+  if (/\b(non randomi[sz]ed|nonrandomi[sz]ed|not randomi[sz]ed|quasi experimental)\b/.test(designText)) return "Nonrandomized study";
+  if (/double blind|controlled trial|placebo controlled|crossover|cross over/.test(designText)) return "Controlled study (randomization unclear)";
   if (/open label|open-label/.test(text)) return "Open-label trial";
   if (/single arm|single-arm|uncontrolled pilot|pre post|pre-post|phase\s*1/.test(text)) return "Single-arm trial";
   if (
@@ -2053,24 +2056,32 @@ function studyDesignFacetLabel(claim) {
   const explicit = controlledCategoryLabel(claim.study_design_category, STUDY_DESIGN_CATEGORY_LABELS);
   if (explicit) return explicit;
   const raw = meaningfulText(claim.study_design);
-  if (!raw) return "";
+  if (!raw) return meaningfulText(claim.study_design_category) ? "Other study designs" : "";
   const normalized = normalizeValue(raw).replace(/[_/()-]+/g, " ").replace(/\s+/g, " ").trim();
   if (!normalized || normalized === "secondary literature") return "";
   if (/network meta|meta analysis|meta-analysis/.test(normalized)) return "Meta-analysis";
   if (/systematic review/.test(normalized)) return "Systematic review";
   if (/scoping review/.test(normalized)) return "Scoping review";
   if (/narrative review|literature review|\breview\b/.test(normalized)) return "Review";
-  const label = studyDesignLabel(raw, claim);
+  // A title can mention a prior trial or a reviewed method. Group the reported
+  // design using population/system context, without inferring design from titles.
+  const label = studyDesignLabel(raw, { ...claim, study_title: "" });
   if (label) return label;
 
   const populationModel = populationModelFacetLabel(claim);
   if (populationModel === "Preclinical animals") return "Preclinical experiment";
   if (populationModel === "Cell & tissue studies") return "In vitro assay";
-  return displayFieldLabel(raw);
+  if (/\b(method|assay|analytical|bioanalytical)\b.*\b(development|validation|validated|optimization)\b/.test(normalized)) return "Method development / validation";
+  if (/\bcomparative|\bcomparison\b/.test(normalized)) return "Comparative study";
+  if (/\bcase study\b/.test(normalized)) return "Case report";
+  return "Other study designs";
 }
 
 const STUDY_DESIGN_ORDER = [
   "RCT",
+  "Nonrandomized study",
+  "Controlled study (randomization unclear)",
+  "Comparative study",
   "Open-label trial",
   "Single-arm trial",
   "Dose-finding trial",
@@ -2087,6 +2098,8 @@ const STUDY_DESIGN_ORDER = [
   "In vitro assay",
   "Binding assay",
   "Functional assay",
+  "Chemical assay",
+  "Method development / validation",
   "Computational",
   "Pharmacovigilance",
   "Wastewater surveillance",
@@ -2095,6 +2108,8 @@ const STUDY_DESIGN_ORDER = [
   "Review",
   "Systematic review",
   "Meta-analysis",
+  "Scoping review",
+  "Other study designs",
 ];
 
 function publicationTypeFacetLabel(claim) {
@@ -2297,6 +2312,7 @@ function populationModelFacetLabel(claim) {
   ].filter(Boolean);
   const uniqueBuckets = [...new Set(buckets)];
   if (uniqueBuckets.length === 1) return uniqueBuckets[0];
+  if (uniqueBuckets.length > 1) return "Mixed populations / models";
   return "Other";
 }
 
@@ -2305,6 +2321,7 @@ const POPULATION_MODEL_ORDER = [
   "Preclinical animals",
   "Cell & tissue studies",
   "In silico studies",
+  "Mixed populations / models",
   "Other",
 ];
 
@@ -3186,7 +3203,7 @@ function mechanisticAssayFamilyFacetLabel(claim) {
   const refined = assayFamilyFromText(assayFamilyText(claim));
   if (refined && refined !== "Other") return refined;
   const normalized = meaningfulText(claim.assay_family_normalized || claim.normalized_assay_family);
-  if (normalized) return ASSAY_FAMILY_DISPLAY_LABELS[normalizeValue(normalized)] || normalized;
+  if (normalized) return ASSAY_FAMILY_DISPLAY_LABELS[normalizeValue(normalized)] || assayFamilyFromText(assayFamilyText({ assay_family: normalized }));
   return refined;
 }
 
@@ -3286,7 +3303,8 @@ function clinicalComparatorDisplayLabel(value) {
     .replace(/[_/()+-]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
-  return CLINICAL_COMPARATOR_LABEL_ALIASES[key] || label;
+  return CLINICAL_COMPARATOR_LABEL_ALIASES[key] ||
+    CLINICAL_COMPARATOR_ORDER.find((category) => normalizeValue(category) === key) || label;
 }
 
 const CLINICAL_FOLLOW_UP_WINDOW_ORDER = [
@@ -3330,15 +3348,16 @@ const FOLLOW_UP_NUMBER_WORDS = {
 };
 
 function clinicalComparatorFacetLabel(claim) {
-  const normalized = meaningfulText(claim.comparator_normalized || claim.normalized_comparator);
-  if (normalized) return clinicalComparatorDisplayLabel(normalized);
+  const normalized = cleanDisplayText(claim.comparator_normalized || claim.normalized_comparator);
+  const canonical = clinicalComparatorDisplayLabel(normalized);
+  if (CLINICAL_COMPARATOR_ORDER.includes(canonical)) return canonical;
 
-  const text = normalizeValue(meaningfulText(claim.comparator))
+  const text = normalizeValue(normalized || cleanDisplayText(claim.comparator))
     .replace(/[_/()+-]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
   if (!text || ["not_reported", "not reported", "unknown", "uncertain"].includes(text)) return "Not reported";
-  if (["not_applicable", "not applicable", "n/a", "na"].includes(text)) return "Not applicable";
+  if (["not_applicable", "not applicable", "n a", "n/a", "na"].includes(text)) return "Not applicable";
   if (/\b(no comparator|no control|no comparative|uncontrolled|single arm|no treatment|no ketamine|no analgesia|none)\b/.test(text)) {
     return "No comparator";
   }
@@ -3452,10 +3471,13 @@ function followUpDurationDays(text) {
 }
 
 function clinicalFollowUpWindowFacetLabel(claim) {
-  const normalized = meaningfulText(claim.follow_up_window_normalized || claim.normalized_follow_up_window);
-  if (normalized) return normalized;
+  const normalized = cleanDisplayText(claim.follow_up_window_normalized || claim.normalized_follow_up_window);
+  const canonical = CLINICAL_FOLLOW_UP_WINDOW_ORDER.find((label) => normalizeValue(label) === normalizeValue(normalized));
+  if (canonical) return canonical;
 
-  const text = followUpTextFromClaim(claim);
+  const raw = normalized || [claim.follow_up_duration, claim.timepoint].map(cleanDisplayText).filter(Boolean).join(" ");
+  if (["not_applicable", "not applicable", "n/a", "na"].includes(normalizeValue(raw))) return "Not applicable";
+  const text = followUpTextFromClaim({ follow_up_duration: raw });
   if (!text || ["not_reported", "not reported", "unknown", "uncertain"].includes(text)) return "Follow-up not reported";
   if (["not_applicable", "not applicable", "n/a", "na"].includes(text)) return "Not applicable";
   if (/\b(lifetime|past year|past month|past week|past use|prior use|history of|retrospective|previous year)\b/.test(text)) {
@@ -6590,15 +6612,11 @@ function renderEvidenceDetailGroup(items) {
 function renderExperimentalSystemChart(items) {
   if (evidenceView !== "primary") return "";
   if (!currentDetailPanelProfile().experimentalSystem) return "";
-  const entries = sortCompositionEntries(countByField(items, "system"), "system").map((entry) => ({
-    label: displayFieldLabel(entry.label),
-    value: entry.label,
-    claims: entry.count,
-    studies: entry.studies,
-  }));
-  return renderFacetCompositionChart(entries, "Experimental system", "system", {
+  const entries = summarizeFacetEvidence(items, analysisExperimentalSystemFacetLabel);
+  return renderFacetCompositionChart(entries, "Experimental system", "experimental_system_facet", {
     emptyText: "No experimental-system metadata in this selection.",
-    maxEntries: 6,
+    maxEntries: EXPERIMENTAL_SYSTEM_ORDER.length,
+    order: EXPERIMENTAL_SYSTEM_ORDER,
   });
 }
 
@@ -8450,9 +8468,24 @@ function renderAnalyticsPanel(title, _meta, body, extraClass = "") {
   `;
 }
 
+const EXPERIMENTAL_SYSTEM_ORDER = [
+  "Clinical", "In vivo", "In vitro", "Ex vivo", "Computational",
+  "Mixed systems", "Other / unspecified system",
+];
+
 function analysisExperimentalSystemFacetLabel(claim) {
   const value = meaningfulText(claim.system || claim.experimental_system || claim.model_or_system);
-  return value ? displayFieldLabel(value) : "";
+  if (!value) return "";
+  const text = normalizeValue(value).replace(/[_/()+–—-]+/g, " ").replace(/\s+/g, " ");
+  const labels = [];
+  if (/\b(clinical|human participants?|patients?|volunteers?)\b/.test(text)) labels.push("Clinical");
+  if (/\b(in vivo|preclinical|animal models?|mice|rats?|rodents?)\b/.test(text) && !/\b(cells?|tissue|slices?|ex vivo|in vitro)\b/.test(text)) labels.push("In vivo");
+  if (/\bin vivo\b/.test(text) && !labels.includes("In vivo")) labels.push("In vivo");
+  if (/\b(ex vivo|isolated tissue|tissue slices?|brain slices?|synaptosomes?)\b/.test(text)) labels.push("Ex vivo");
+  if (/\b(in vitro|cell culture|cell lines?|cultured cells?|hek\w*|cho|htla|hela|oocytes?|organoids?|lysates?)\b/.test(text) || (/\bcells?\b/.test(text) && !labels.includes("Ex vivo"))) labels.push("In vitro");
+  if (/\b(computational|in silico|docking|molecular dynamics)\b/.test(text)) labels.push("Computational");
+  if (labels.length > 1) return "Mixed systems";
+  return labels[0] || "Other / unspecified system";
 }
 
 function analysisEvidenceSubset(items, type) {
@@ -9348,8 +9381,12 @@ function renderAnalyticsStackedYearHistogram(series, options = {}) {
       if (!count) return "";
       const segmentHeight = (count / maxTotal) * plotHeight;
       const y = baselineY - stackedHeight - segmentHeight;
+      const separatorY = baselineY - stackedHeight;
+      const separator = stackedHeight > 0
+        ? `<line class="analysis-publication-separator" x1="${x.toFixed(2)}" y1="${separatorY.toFixed(2)}" x2="${(x + barWidth).toFixed(2)}" y2="${separatorY.toFixed(2)}"></line>`
+        : "";
       stackedHeight += segmentHeight;
-      return `<rect class="analysis-publication-segment" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${segmentHeight.toFixed(2)}" style="--series-color:${entry.color}"></rect>`;
+      return `<rect class="analysis-publication-segment" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${segmentHeight.toFixed(2)}" style="--series-color:${entry.color}"></rect>${separator}`;
     }).join("");
     const breakdown = seriesWithValues
       .map((entry) => `${entry.label}: ${entry.values[yearIndex] || 0}`)
@@ -9666,7 +9703,6 @@ function renderExplorerFocused(row, allAccessRow = row) {
   const selectedArea =
     areas.find((area) => area.key === explorerAreaKey) ||
     areas.find((area) => area.key === explorerScopeAreaKey) ||
-    [...areas].sort((a, b) => b.studyCount - a.studyCount)[0] ||
     null;
   explorerAreaKey = selectedArea?.key || "";
   if (explorerAreaKey !== previousAreaKey) updateExplorerUrlState();
@@ -10508,8 +10544,12 @@ function renderEvidenceTrajectory(rows, options = {}) {
       const heightRatio = displayMode === "mix" ? count / total : count / maxTotal;
       const segmentHeight = heightRatio * plotHeight;
       const y = baselineY - stackedHeight - segmentHeight;
+      const separatorY = baselineY - stackedHeight;
+      const separator = stackedHeight > 0
+        ? `<line class="analysis-publication-separator" x1="${x.toFixed(2)}" y1="${separatorY.toFixed(2)}" x2="${(x + barWidth).toFixed(2)}" y2="${separatorY.toFixed(2)}"></line>`
+        : "";
       stackedHeight += segmentHeight;
-      return `<rect class="analysis-publication-segment analysis-publication-segment-${escapeHtml(entry.key)}" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${segmentHeight.toFixed(2)}" style="--series-color:${entry.color}"></rect>`;
+      return `<rect class="analysis-publication-segment analysis-publication-segment-${escapeHtml(entry.key)}" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${segmentHeight.toFixed(2)}" style="--series-color:${entry.color}"></rect>${separator}`;
     }).join("");
     const countsByKey = new Map(series.map((entry) => [entry.key, entry.values[yearIndex] || 0]));
     const aria = `${year}: ${total} unique ${total === 1 ? "paper" : "papers"}; ${countsByKey.get("primary") || 0} primary studies, ${countsByKey.get("reviews") || 0} reviews, ${countsByKey.get("meta_analyses") || 0} meta-analyses`;
@@ -10533,14 +10573,10 @@ function renderEvidenceTrajectory(rows, options = {}) {
       return `<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${baselineY}" y2="${baselineY + 6}" class="analytics-year-tick"></line><text x="${x.toFixed(1)}" y="${baselineY + 20}" class="analytics-axis-label analytics-year-label" text-anchor="middle">${year}</text>`;
     }).join("");
   const xAxis = `<line x1="${margin.left}" x2="${width - margin.right}" y1="${baselineY}" y2="${baselineY}" class="analytics-year-axis"></line>${xTicks}<text x="${margin.left + plotWidth / 2}" y="${height - 20}" class="analytics-axis-title analytics-year-axis-title" text-anchor="middle">Publication year</text>`;
-  const scope = embedded
-    ? analysisScopeLabel()
-    : [selectedCompound?.label, selectedArea?.label].filter(Boolean).join(" · ");
   return `
     ${controls}
     <div class="analytics-chart-legend compare-series-legend analysis-publication-legend">
       ${series.map((entry) => `<span style="--series-color:${entry.color}"><i></i>${escapeHtml(entry.label)}</span>`).join("")}
-      <small>${escapeHtml(scope || "All papers")}</small>
     </div>
     <svg class="analytics-timeline-svg analysis-publication-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Publication history by evidence type"><defs>${clipDefs}</defs>${yGrid}${bars}${xAxis}</svg>
   `;
@@ -14085,15 +14121,18 @@ graphEl.addEventListener("mouseover", (event) => {
   if (!target || !graphEl.contains(target)) return;
   if (event.relatedTarget && target.contains(event.relatedTarget)) return;
   const key = target.dataset.explorerRowKey;
+  const cell = target.matches(".explorer-matrix-cell") ? target : null;
   graphEl.querySelectorAll("[data-explorer-row-key]").forEach((element) => {
-    element.classList.toggle("hovered", element.dataset.explorerRowKey === key);
+    const sameRow = element.dataset.explorerRowKey === key;
+    const matchesCellIntent = !cell || element === cell || element.matches(".explorer-matrix-row-button");
+    element.classList.toggle("hovered", sameRow && matchesCellIntent);
   });
-  if (target.matches(".explorer-matrix-cell")) {
+  if (cell) {
     const rowLabel = graphEl.querySelector(`.explorer-matrix-row-button[data-explorer-row-key="${CSS.escape(key)}"] span`)?.textContent || "";
-    const area = ENTITY_CATEGORY_OPTIONS.find((option) => option.key === target.dataset.explorerAreaKey);
-    const dimensionLabel = target.dataset.explorerDimensionLabel || area?.label || "Research area";
+    const area = ENTITY_CATEGORY_OPTIONS.find((option) => option.key === cell.dataset.explorerAreaKey);
+    const dimensionLabel = cell.dataset.explorerDimensionLabel || area?.label || "Research area";
     showTooltip(
-      `<strong>${escapeHtml(rowLabel)} · ${escapeHtml(dimensionLabel)}</strong><br/><span class="tooltip-meta">${formatCompactNumber(Number(target.dataset.studyCount || 0))} source papers</span>`,
+      `<strong>${escapeHtml(rowLabel)} · ${escapeHtml(dimensionLabel)}</strong><br/><span class="tooltip-meta">${formatCompactNumber(Number(cell.dataset.studyCount || 0))} source papers</span>`,
       event
     );
   }
@@ -14126,6 +14165,25 @@ graphEl.addEventListener("mouseout", (event) => {
   if (event.relatedTarget?.closest?.(`[data-explorer-row-key="${CSS.escape(target.dataset.explorerRowKey || "")}"]`)) return;
   graphEl.querySelectorAll("[data-explorer-row-key].hovered").forEach((element) => element.classList.remove("hovered"));
   hideTooltip();
+});
+graphEl.addEventListener("focusin", (event) => {
+  if (!isAnalysisEntitySection()) return;
+  const target = event.target.closest?.(".explorer-matrix-row-button[data-explorer-row-key], .explorer-matrix-cell[data-explorer-row-key]");
+  if (!target || !graphEl.contains(target)) return;
+  const key = target.dataset.explorerRowKey;
+  const cell = target.matches(".explorer-matrix-cell") ? target : null;
+  graphEl.querySelectorAll("[data-explorer-row-key]").forEach((element) => {
+    const sameRow = element.dataset.explorerRowKey === key;
+    const matchesCellIntent = !cell || element === cell || element.matches(".explorer-matrix-row-button");
+    element.classList.toggle("hovered", sameRow && matchesCellIntent);
+  });
+});
+graphEl.addEventListener("focusout", (event) => {
+  if (!isAnalysisEntitySection()) return;
+  const target = event.target.closest?.(".explorer-matrix-row-button[data-explorer-row-key], .explorer-matrix-cell[data-explorer-row-key]");
+  if (!target || !graphEl.contains(target)) return;
+  if (event.relatedTarget?.closest?.(`[data-explorer-row-key="${CSS.escape(target.dataset.explorerRowKey || "")}"]`)) return;
+  graphEl.querySelectorAll("[data-explorer-row-key].hovered").forEach((element) => element.classList.remove("hovered"));
 });
 graphEl.addEventListener("keydown", (event) => {
   if (event.key !== "Enter" && event.key !== " ") return;

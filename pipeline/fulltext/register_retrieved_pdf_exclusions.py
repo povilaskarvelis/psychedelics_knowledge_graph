@@ -31,6 +31,7 @@ ALLOWED_FORMATS = {
     "dataset_or_data_deposit",
     "commentary_or_editorial",
     "preprint_or_unpublished",
+    "video_lecture",
 }
 def clean(value: object) -> str:
     if value is None or (isinstance(value, float) and pd.isna(value)):
@@ -90,6 +91,10 @@ def reason_for(publication_format: str) -> str:
         "preprint_or_unpublished": (
             "The retrieved record is a preprint or unpublished posted-content record rather than "
             "an eligible published article, review, or meta-analysis."
+        ),
+        "video_lecture": (
+            "The retrieved record is an educational video lecture rather than an eligible "
+            "published article, review, or meta-analysis."
         ),
     }[publication_format]
 

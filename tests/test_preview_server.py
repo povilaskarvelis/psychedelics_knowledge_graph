@@ -14,8 +14,27 @@ from scripts.serve_site import (
     build_local_preview,
     public_site_manifest_entries,
     public_site_source_snapshot,
+    render_local_preview_header,
     validated_published_preview,
 )
+
+
+def test_local_header_uses_candidate_coverage_without_changing_archived_doi():
+    source = '<span>Graph version: v1.0.0</span><span class="hero-version-date">Literature updated: 2026-07-15</span><a>10.5281/zenodo.21671976</a>'
+    rendered = render_local_preview_header(source, {"literature_updated": "2026-09-15"})
+    assert "Local preview" in rendered
+    assert "Literature updated: 2026-09-15" in rendered
+    assert "10.5281/zenodo.21671976" in rendered
+    assert "2026-07-15" in source
+
+
+def test_local_preview_reads_coverage_from_its_own_source_manifest(tmp_path):
+    write_preview_fixture(tmp_path)
+    path = tmp_path / "data/processed/extraction/routed_runs/candidate_run/source_update_manifest.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"search_window": {"through": "2026-09-15"}}))
+    pointer, _ = build_local_preview(tmp_path)
+    assert pointer["literature_updated"] == "2026-09-15"
 
 
 def write_preview_fixture(root: Path) -> None:

@@ -511,3 +511,35 @@ def test_parse_results_adds_deterministic_record_fields_outside_model_result(tmp
     assert output["source_depth"] == "abstract_only"
     assert "source_depth" not in output["result"]
     assert output["qa_flags"] == []
+
+
+def test_prompt_schema_mode_preserves_contract_and_source(tmp_path: Path) -> None:
+    args = prepare_args(tmp_path, tmp_path / 'tasks.jsonl')
+    client = batch_api.genai.Client(api_key='DUMMY')
+    kwargs = dict(api_client=client._api_client, task=task('10.1/abstract', 'abstract_only'),
+                  packet=None, prompt_path=batch_api.ABSTRACT_PROMPT,
+                  schema_path=batch_api.OUTPUT_SCHEMA, args=args)
+    native, _ = batch_api.request_for_task(**kwargs)
+    args.schema_mode = 'prompt'
+    prompted, _ = batch_api.request_for_task(**kwargs)
+    assert prompted['contents'] == native['contents']
+    assert 'responseJsonSchema' not in prompted['generationConfig']
+    assert prompted['generationConfig']['responseMimeType'] == 'application/json'
+    text = prompted['systemInstruction']['parts'][0]['text']
+    assert text.startswith(batch_api.ABSTRACT_PROMPT.read_text().strip())
+    supplied = json.loads(text.split('Supplied output JSON schema:\n', 1)[1])
+    assert supplied == native['generationConfig']['responseJsonSchema']
+    assert supplied['properties']['synthesis_results']['items']['properties']['evidence_locators']['items']['properties']['location']['enum'] == ['title', 'abstract']
+
+
+def test_null_optional_metadata_is_omitted_without_inventing_counts():
+    original = {'meta_analysis_overview': {'included_evidence': {
+        'study_count': None, 'participant_count': None, 'registration_or_protocol': None,
+        'effect_or_estimate_count': '12'}},
+        'synthesis_results': [{'timepoint_or_window': None, 'relationship_statement': None}]}
+    normalized, counts = batch_api.normalize_model_result(original, 'abstract_only')
+    assert normalized['meta_analysis_overview']['included_evidence'] == {'effect_or_estimate_count': '12'}
+    assert normalized['synthesis_results'][0]['timepoint_or_window'] is None
+    assert normalized['synthesis_results'][0]['relationship_statement'] is None
+    assert original['meta_analysis_overview']['included_evidence']['study_count'] is None
+    assert counts['omitted_null_optional_value'] == 3

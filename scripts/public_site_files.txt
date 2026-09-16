@@ -24,4 +24,5 @@ ui/styles.css
 ui/methods.html
 ui/methods.js
 ui/site-nav.js
+ui/segmented-controls.js
 ui/assets/gui-screenshot.png

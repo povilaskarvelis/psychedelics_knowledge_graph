@@ -23,7 +23,24 @@ from pipeline.ingest.metadata_utils import (
     row_needs_core_metadata_refresh,
     row_needs_oa_refresh,
     strip_markup,
+    split_candidates,
+    join_candidates,
+    rank_pdf_candidates,
 )
+
+
+def test_url_candidates_ignore_missing_cells_and_serialized_nulls():
+    for value in (None, float("nan"), "nan", "NaN", "None", "null", "<NA>", "NaT"):
+        assert split_candidates(value) == []
+    assert split_candidates("nan | https://example.org/paper.pdf | <NA>") == [
+        "https://example.org/paper.pdf"
+    ]
+    assert split_candidates([None, float("nan"), "https://example.org/paper.pdf"]) == [
+        "https://example.org/paper.pdf"
+    ]
+    values = [None, "nan", "https://example.org/paper.pdf", float("nan")]
+    assert rank_pdf_candidates(iter(values)) == ["https://example.org/paper.pdf"]
+    assert join_candidates(iter(values)) == "https://example.org/paper.pdf"
 
 
 class FakeClient:

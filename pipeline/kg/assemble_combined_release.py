@@ -568,6 +568,20 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--base-outputs", type=Path, required=True)
     parser.add_argument("--output-overlay", action="append", type=parse_layer, default=[])
+    parser.add_argument(
+        "--output-replacement-cohort",
+        action="append",
+        type=parse_layer,
+        default=[],
+        help=(
+            "Optional LABEL=JSON_OR_JSONL declaring every paper replaced by an "
+            "output overlay, including explicit deletion-only cohorts."
+        ),
+    )
+    parser.add_argument(
+        "--required-output-dois", type=Path,
+        help="One DOI per line for the update cohort; require a successful output for each before writing/building.",
+    )
     parser.add_argument("--candidate-table", type=Path, required=True)
     parser.add_argument(
         "--metadata-overrides",
@@ -584,11 +598,26 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def check_required_outputs(outputs: list[dict], required: set[str], aliases: dict[str, str]) -> dict:
+    expected = {resolve_doi(doi, aliases) for doi in required if normalize_doi(doi)}
+    completed = {
+        resolve_doi(output_doi(row), aliases) for row in outputs
+        if clean(row.get("status")) == "ok" and isinstance(row.get("result"), dict)
+    }
+    missing = sorted(expected - completed)
+    if missing:
+        raise ValueError(f"Update cohort lacks successful extraction outputs for {len(missing)} DOI(s): {missing}")
+    return {"required_reports": len(expected), "completed_required_reports": len(expected & completed)}
+
+
 def main() -> int:
     args = parse_args()
     aliases = read_aliases(args.doi_alias_registry)
     evidence_replacement_cohorts = replacement_cohorts(
         args.evidence_replacement_cohort, aliases
+    )
+    output_replacement_cohorts = replacement_cohorts(
+        args.output_replacement_cohort, aliases
     )
     eligible = eligible_dois(args.candidate_table, args.eligibility_field, aliases)
     metadata_clears = explicit_metadata_clears(args.metadata_overrides, aliases)
@@ -614,6 +643,7 @@ def main() -> int:
         aliases=aliases,
         eligible=eligible,
         row_kind="output",
+        replacement_dois_by_overlay=output_replacement_cohorts,
     )
     outputs, legacy_output_report = remove_legacy_v1_secondary_outputs(outputs)
     output_report.update(legacy_output_report)
@@ -623,6 +653,10 @@ def main() -> int:
     ]
     output_report["combined_rows"] = len(outputs)
     output_report["combined_papers"] = len({output_doi(row) for row in outputs})
+    if args.required_output_dois:
+        output_report["required_cohort"] = check_required_outputs(
+            outputs, set(args.required_output_dois.read_text().splitlines()), aliases
+        )
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     evidence_path = args.out_dir / "routed_evidence_rows.json"
@@ -652,6 +686,9 @@ def main() -> int:
             },
             "base_outputs": str(args.base_outputs.resolve()),
             "output_overlays": {label: str(path) for label, path in args.output_overlay},
+            "output_replacement_cohorts": {
+                label: str(path) for label, path in args.output_replacement_cohort
+            },
         },
         "artifacts": {
             "evidence": str(evidence_path.resolve()),

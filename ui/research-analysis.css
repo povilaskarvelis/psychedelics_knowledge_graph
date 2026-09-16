@@ -52,11 +52,13 @@
 .research-coverage-field > span { font-size: 0.64rem; }
 .research-coverage-field input,
 .research-coverage-field select { height: 36px; font: 400 0.76rem/1.2 "IBM Plex Sans", sans-serif; }
+.research-category-field { align-self: end; }
 .research-table-scroll { max-width: 100%; overflow: auto; scrollbar-width: thin; }
 .research-matrix { width: 100%; border-collapse: separate; border-spacing: 3px; text-align: left; font-size: 11px; line-height: 1.4; }
 .research-matrix th { min-width: 100px; max-width: 190px; padding: 6px 8px 8px; vertical-align: bottom; color: rgba(188, 200, 201, 0.68); background: transparent; font-size: 12px; font-weight: 500; overflow-wrap: anywhere; }
 .research-matrix thead th { border-bottom: 1px solid rgba(188, 200, 201, 0.1); }
 .research-matrix thead th:first-child { color: rgba(188, 200, 201, 0.48); }
+.research-matrix-column-labels th:not(:first-child) { min-width: 96px; text-align: center; }
 .research-matrix tbody th { min-width: 160px; padding-block: 7px; vertical-align: middle; border-right: 1px solid rgba(188, 200, 201, 0.08); color: rgba(206, 214, 211, 0.76); }
 .research-matrix td { padding: 0; text-align: center; }
 .research-matrix td button { width: 100%; min-height: 36px; padding: 6px; border: 1px solid transparent; border-radius: 5px; background: rgb(130 169 216 / var(--coverage-strength)); color: var(--fg); font: inherit; font-variant-numeric: tabular-nums; cursor: pointer; }

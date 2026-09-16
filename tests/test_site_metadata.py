@@ -136,9 +136,9 @@ def test_public_html_pages_use_current_favicon_assets() -> None:
     for relative_path in pages:
         source = (ROOT / relative_path).read_text(encoding="utf-8")
         assert 'href="/favicon.ico" sizes="16x16 32x32"' in source
-        assert 'href="/favicon-search.png" type="image/png" sizes="192x192"' in source
         assert 'href="/favicon.svg" type="image/svg+xml" sizes="any"' in source
         assert 'href="/apple-touch-icon.png" sizes="180x180"' in source
+        assert "favicon-search.png" not in source
 
 
 def test_sitemap_lists_only_public_canonical_urls_with_accurate_lastmods() -> None:

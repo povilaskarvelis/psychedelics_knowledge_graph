@@ -44,6 +44,13 @@
       "manual_reason": "User completed review of the full OA-landing DOI list; accessible PDFs were downloaded to the manual inbox and all other reviewed records had no accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1001/jamapsychiatry.2026.2658",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 1 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1002/(sici)1098-2396(199806)29:2<183::aid-syn9>3.0.co;2-3",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -141,6 +148,13 @@
       "doi": "10.1002/bcp.70140",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/bcp.70690",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1002/bdd.70008",
@@ -301,6 +315,13 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/dta.70139",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1002/elps.200390119",
@@ -833,6 +854,20 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1007/s00213-026-07119-3",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1007/s00213-026-07155-z",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1007/s002130050856",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -858,6 +893,13 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1007/s00216-026-06706-9",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1007/s00221-025-07085-w",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -868,6 +910,13 @@
     {
       "doi": "10.1007/s002210050594",
       "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1007/s00228-026-04151-2",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
       "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
@@ -915,9 +964,23 @@
       "manual_reason": "User-confirmed source-access review found no publicly available full text; retain the paper for public-abstract extraction and do not route to licensed or private-copy acquisition."
     },
     {
+      "doi": "10.1007/s00406-026-02361-4",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1007/s00414-022-02850-w",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1007/s00414-026-03993-w",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1007/s10461-007-9330-8",
@@ -1025,6 +1088,13 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1007/s12035-026-06086-2",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1007/s12160-007-9005-8",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -1064,9 +1134,37 @@
       "manual_reason": "User completed review of the full OA-landing DOI list; accessible PDFs were downloaded to the manual inbox and all other reviewed records had no accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1007/s13318-026-01033-x",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1007/s13361-017-1790-0",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1007/s40263-026-01325-5",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1007/s40263-026-01330-8",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1007/s40264-026-01722-1",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1007/s40519-020-01000-8",
@@ -1208,6 +1306,13 @@
       "manual_reason": "User completed review of the full OA-landing DOI list; accessible PDFs were downloaded to the manual inbox and all other reviewed records had no accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1016/j.addbeh.2026.108803",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1016/j.ajp.2025.104502",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -1294,6 +1399,13 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1016/j.bbr.2026.116438",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1016/j.bcp.2014.01.024",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -1328,6 +1440,13 @@
       "doi": "10.1016/j.biopsycho.2004.11.010",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.biosystems.2026.105905",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1016/j.bmc.2014.12.011",
@@ -1427,6 +1546,13 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1016/j.brainres.2026.150530",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1016/j.brainresbull.2023.110724",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -1447,6 +1573,27 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.cell.2026.07.028",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.celrep.2026.117707",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 2 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.celrep.2026.117830",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 2 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1016/j.chemosphere.2019.02.040",
@@ -1659,6 +1806,13 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1016/j.drugpo.2026.105507",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1016/j.ejmech.2016.03.073",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -1686,6 +1840,13 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.ejphar.2026.179153",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1016/j.etdah.2025.100206",
@@ -1762,6 +1923,20 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1016/j.expneurol.2026.115932",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.fct.2026.116324",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1016/j.fitote.2018.08.017",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -1770,6 +1945,13 @@
       "doi": "10.1016/j.fitote.2023.105622",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.forc.2026.100771",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 4 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1016/j.forsciint.2005.04.019",
@@ -1808,6 +1990,13 @@
       "doi": "10.1016/j.forsciint.2019.03.047",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.forsciint.2026.113085",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1016/j.genhosppsych.2025.12.019",
@@ -1862,11 +2051,46 @@
       "manual_reason": "User completed review of the remaining OA-landing DOI list; accessible PDFs were downloaded to the manual inbox and all other reviewed records had no accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1016/j.jad.2026.122266",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.jad.2026.122307",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.jad.2026.122333",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.jad.2026.122366",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1016/j.jadohealth.2024.01.027",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.jadr.2026.101127",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 2 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1016/j.jagp.2021.09.014",
@@ -1924,6 +2148,13 @@
       "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1016/j.jpain.2026.106404",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1016/j.jpainsymman.2012.12.005",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -1967,6 +2198,13 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1016/j.jpsychires.2026.09.005",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1016/j.juro.2018.02.2388",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -1977,6 +2215,27 @@
       "doi": "10.1016/j.lfs.2019.116790",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.mcn.2026.104114",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.medj.2026.101233",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.medj.2026.101259",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1016/j.nbd.2011.01.033",
@@ -1994,6 +2253,13 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1016/j.nedt.2026.107384",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1016/j.neubiorev.2021.05.003",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -2009,6 +2275,20 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User completed review of the remaining OA-landing DOI list; accessible PDFs were downloaded to the manual inbox and all other reviewed records had no accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.neubiorev.2026.106876",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.neubiorev.2026.106911",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1016/j.neulet.2009.12.031",
@@ -2031,6 +2311,13 @@
       "doi": "10.1016/j.neuro.2025.103372",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.neuro.2026.103558",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1016/j.neuroimage.2019.06.053",
@@ -2110,6 +2397,13 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1016/j.neuropharm.2026.111187",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 2 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1016/j.neuroscience.2006.08.073",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -2141,6 +2435,20 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.neuroscience.2026.07.059",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.neuroscience.2026.08.045",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1016/j.nlm.2013.10.018",
@@ -2242,6 +2550,13 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1016/j.pbb.2026.174248",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed the final manual review batch and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1016/j.pharep.2019.05.001",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -2336,6 +2651,20 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1016/j.pnpbp.2026.111853",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed the final manual review batch and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.pnpbp.2026.111873",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed the final manual review batch and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1016/j.pscychresns.2007.01.008",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -2422,6 +2751,13 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.tics.2026.07.009",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed the final manual review batch and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1016/j.vaa.2023.09.004",
@@ -2929,6 +3265,13 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1021/acs.jpcb.6c03569",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 2 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1021/acs.jproteome.8b00438",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -2969,6 +3312,13 @@
       "doi": "10.1021/acschemneuro.9b00302",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1021/acsestwater.6c00510",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 4 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1021/acsmedchemlett.5c00505",
@@ -3012,6 +3362,13 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User completed review of the full OA-landing DOI list; accessible PDFs were downloaded to the manual inbox and all other reviewed records had no accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1021/acsptsci.6c00489",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 4 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1021/bi050490d",
@@ -3253,6 +3610,13 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1037/pha0000876",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1037/rmh0000333",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -3384,6 +3748,20 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1038/s41380-026-03816-9",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed the final manual review batch and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/s41380-026-03894-9",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed the final manual review batch and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1038/s41386-019-0443-3",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -3411,6 +3789,13 @@
       "doi": "10.1038/s41386-025-02272-3",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/s41386-026-02536-6",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed the final manual review batch and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1038/s41397-026-00405-5",
@@ -3464,6 +3849,13 @@
       "doi": "10.1038/s41593-025-02021-1",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1038/s41593-026-02369-y",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed the final manual review batch and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1038/sj.bjp.0706318",
@@ -3992,6 +4384,13 @@
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1055/a-2945-3974",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 2 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1055/s-0030-1267942",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -4130,9 +4529,30 @@
       "manual_reason": "User completed review of the remaining OA-landing DOI list; accessible PDFs were downloaded to the manual inbox and all other reviewed records had no accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1080/00029157.2026.2704105",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/00224499.2026.2699330",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1080/00397911.2014.885053",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/00450618.2026.2720153",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1080/00952990.2025.2541212",
@@ -4143,6 +4563,20 @@
       "doi": "10.1080/01459740.2024.2410969",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/01480545.2026.2729765",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed the final manual review batch and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/01947648.2026.2713478",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1080/02791072.2004.10399728",
@@ -4211,9 +4645,79 @@
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1080/02791072.2026.2710054",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/02791072.2026.2710057",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/02791072.2026.2710059",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/02791072.2026.2727013",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/02791072.2026.2727014",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/02791072.2026.2727016",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 1 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/02791072.2026.2727030",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/02791072.2026.2729618",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1080/03007995.2023.2239045",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/07351690.2026.2721953",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 4 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/07351690.2026.2721958",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 4 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1080/08998280.2013.11928922",
@@ -4221,6 +4725,13 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User completed review of the full OA-landing DOI list; accessible PDFs were downloaded to the manual inbox and all other reviewed records had no accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/09515089.2026.2720478",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 4 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1080/09595239800187411",
@@ -4298,6 +4809,27 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1080/1472586x.2026.2697924",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 4 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/14737175.2026.2706794",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/14737175.2026.2714839",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1080/14786419.2024.2405875",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -4356,6 +4888,13 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1080/15622975.2026.2724510",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1080/16066350801983673",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -4400,6 +4939,27 @@
       "doi": "10.1080/17581869.2026.2658080",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/17581869.2026.2696883",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/17581869.2026.2714980",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 1 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/17843286.2026.2724290",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1080/23328940.2022.2069965",
@@ -5599,6 +6159,13 @@
       "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1093/milmed/usag396",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1093/ndt/11.11.2324",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -5668,6 +6235,13 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1093/qjmed/hcag168.110",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 4 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1093/qjmed/hcr170",
@@ -6100,6 +6674,20 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1097/hrp.0000000000000478",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 2 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1097/jan.0000000000000709",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 4 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1097/jcp.0000000000000436",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -6191,6 +6779,13 @@
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1108/eemcs-12-2025-0857",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 4 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1111/1467-8322.12849",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -6250,6 +6845,13 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/1556-4029.70429",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 1 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1111/acem.13330",
@@ -6394,6 +6996,13 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/bdi.70177",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 1 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1111/bioe.13196",
@@ -7345,6 +7954,13 @@
       "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1126/scisignal.adw6055",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1128/aem.00373-20",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -7497,11 +8113,25 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1136/jme-2025-111672",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1136/medethics-2021-108010",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1136/medhum-2025-013688",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed the final manual review batch and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1136/pgmj.56.656.421",
@@ -7523,6 +8153,20 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1139/cjc-2026-0041",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 2 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1139/cjpp-2025-0340",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed the final manual review batch and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1139/v63-378",
@@ -7650,6 +8294,13 @@
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1159/pps/aemag005",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 2 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.11591/.v5i4.4828",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -7729,6 +8380,41 @@
       "manual_reason": "User completed review of the full OA-landing DOI list; accessible PDFs were downloaded to the manual inbox and all other reviewed records had no accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1176/appi.focus.20250046",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 1 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1176/appi.focus.20260001",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 1 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1176/appi.focus.20260006",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 1 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1176/appi.focus.26024111",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 1 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1176/appi.focus.26024113",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 2 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1176/appi.prcp.20260041",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -7739,6 +8425,13 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/00031348261480799",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1177/0004867418783567",
@@ -8046,6 +8739,76 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1177/02698811261464979",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 1 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/02698811261464988",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/02698811261473385",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 1 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/02698811261473402",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/02698811261473436",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 1 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/02698811261473445",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 1 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/02698811261473451",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 2 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/02698811261478600",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/02698811261478613",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/02698811261478616",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 1 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1177/07067437261457220",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -8172,6 +8935,13 @@
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1177/10401237261473589",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.1177/1057567718769719",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -8180,6 +8950,13 @@
       "doi": "10.1177/108705710000500410",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual/user follow-up after local PDF conversion: the available PDF is an image-only scan. OCR and scan processing are intentionally out of scope; remove the unusable local PDF, suppress further PDF conversion/retrieval, and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/10892680261468208",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 4 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1177/1089313x231178088",
@@ -8293,6 +9070,27 @@
       "doi": "10.1177/28314425251404476",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/28314425261455416",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/28314425261472614",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/28314425261489067",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.1177/875647939701300301",
@@ -8472,6 +9270,13 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.12968/bjmh.2025.0020",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.12970/2310-8231.2019.07.02",
@@ -9027,6 +9832,48 @@
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.2174/0113816128462317260721102058",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.2174/011570159x465328260703100233",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.2174/0118715273452468260729080541",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.2174/0118715273480036260623080843",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.2174/0122103155484839260802040319",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.2174/0126659786465082260824103134",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.2174/13816128113196660652",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -9520,6 +10367,20 @@
       "manual_reason": "User completed review of the full OA-landing DOI list; accessible PDFs were downloaded to the manual inbox and all other reviewed records had no accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.4088/jcp.26f16110",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.4088/jcp.26f16563",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed the final manual review batch and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.4088/pcc.15l01881",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -9660,6 +10521,13 @@
       "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.47626/2237-6089-2026-1437",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 1 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
       "doi": "10.48141/sscon_48_2024.pdf",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -9740,6 +10608,13 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.52163/yhc.v67icd12.6285",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.52314/tjima.2021.v1i1.9",
@@ -9902,6 +10777,13 @@
       "doi": "10.61373/gp026p.0036",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.63932/3067-7106.1087",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "User completed batch 2 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
       "doi": "10.64719/pb.18534",

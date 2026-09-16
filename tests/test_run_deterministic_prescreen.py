@@ -14,6 +14,7 @@ from pipeline.review.run_deterministic_prescreen import (
     build_prescreen_decisions,
     build_summary_rows,
     candidate_prescreen_updates,
+    non_evidence_artifact_decision,
     run,
 )
 
@@ -31,6 +32,17 @@ def qualifying_abstract(text: str) -> str:
 
 
 class TableDeterministicPrescreenTest(unittest.TestCase):
+    def test_treatment_protocol_title_does_not_exclude_completed_empirical_study(self) -> None:
+        row = {
+            "study_doi": "10.1002/pan.70286",
+            "study_title": "A Sedation Protocol for Endoscopic Baton-Plate Adjustment in Neonates With Pierre Robin Sequence.",
+            "publication_type": "Journal Article",
+            "abstract": "This retrospective cohort study included 18 infants. Ketamine and dexmedetomidine were compared with prior sedation regimens. Five adverse events occurred.",
+        }
+        self.assertIsNone(non_evidence_artifact_decision(row))
+        row["study_title"] = "Ketamine-Assisted Recovery: protocol for an open-label pilot trial"
+        self.assertEqual(non_evidence_artifact_decision(row)["action"], "exclude_non_evidence_artifact")
+
     def test_candidate_updates_promote_prescreen_exclusions_and_preserve_later_exclusions(self) -> None:
         decisions = [
             {
@@ -171,6 +183,17 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
 
         self.assertIsNotNone(decision)
         self.assertIn("book_chapter", decision["matched_terms"])
+
+    def test_wiley_isbn_chapters_do_not_pass_as_generic_articles(self) -> None:
+        row = {
+            "study_doi": "10.1002/9781394215683.ch31",
+            "study_title": "Ketamine-Assisted Psychotherapy as an Approach to Psychedelic Healing",
+            "abstract": qualifying_abstract("This report discusses ketamine-assisted psychotherapy."),
+            "publication_type": "other",
+        }
+        self.assertIn("book_chapter", before_model_exclusion_decision(row)["matched_terms"])
+        row["study_doi"] = "10.1002/hup.70063"
+        self.assertIsNone(before_model_exclusion_decision(row))
 
     def test_shared_publisher_conference_dois_require_venue_corroboration(self) -> None:
         cases = (
@@ -1358,6 +1381,32 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
             self.assertFalse(by_doi[doi]["retained_for_extraction_candidate"])
 
         self.assertEqual(by_doi["10.1093/sleep/32.11.1513"]["prescreen_decision"], "retain")
+
+    def test_video_lecture_doi_namespace_is_excluded_before_screening(self) -> None:
+        papers = pd.DataFrame(
+            [
+                {
+                    "doi": "10.64239/pi-vl11508",
+                    "study_title": "QT Prolongation With Methadone, Donepezil, and Ibogaine",
+                    "abstract": qualifying_abstract(
+                        "This educational lecture discusses ibogaine and cardiac safety."
+                    ),
+                    "publication_type": "report",
+                }
+            ]
+        )
+
+        rows = build_prescreen_decisions(
+            papers,
+            pd.DataFrame(),
+            run_id="test_video_lecture",
+            generated_at_utc="2026-09-16T00:00:00+00:00",
+        )
+
+        self.assertEqual(rows[0]["prescreen_decision"], "exclude")
+        self.assertEqual(rows[0]["prescreen_action"], "exclude_non_evidence_artifact")
+        self.assertIn("video_lecture", rows[0]["deterministic_matched_terms"])
+        self.assertFalse(rows[0]["retained_for_extraction_candidate"])
 
     def test_commentary_dispatch_insight_and_conference_abstract_formats_are_excluded(self) -> None:
         papers = pd.DataFrame(

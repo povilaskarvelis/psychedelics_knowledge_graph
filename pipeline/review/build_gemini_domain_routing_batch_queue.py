@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 from pathlib import Path
 import sys
@@ -14,6 +15,8 @@ import pandas as pd
 try:
     from pipeline.review.run_gemini_domain_routing import (
         DEFAULT_OUTPUT_TABLE,
+        DOMAIN_RESPONSE_SCHEMA,
+        SYSTEM_INSTRUCTION,
         clean,
         normalize_doi,
         prompt_for_record,
@@ -32,6 +35,8 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.review.run_gemini_domain_routing import (
         DEFAULT_OUTPUT_TABLE,
+        DOMAIN_RESPONSE_SCHEMA,
+        SYSTEM_INSTRUCTION,
         clean,
         normalize_doi,
         prompt_for_record,
@@ -55,7 +60,14 @@ DEFAULT_PYTHON = "/opt/homebrew/Caskroom/miniconda/base/bin/python3"
 
 
 def approx_input_tokens_char4(record: dict) -> int:
-    return max(1, len(prompt_for_record(record)) // 4)
+    # Every request also repeats the system instruction and structured-output
+    # schema. Omitting them substantially understates the enqueued workload.
+    chars = (
+        len(prompt_for_record(record))
+        + len(SYSTEM_INSTRUCTION)
+        + len(json.dumps(DOMAIN_RESPONSE_SCHEMA, ensure_ascii=False))
+    )
+    return max(1, (chars + 3) // 4)
 
 
 def split_records(records: list[dict], *, max_requests: int, max_approx_input_tokens: int) -> list[tuple[int, int, list[dict]]]:
@@ -215,6 +227,7 @@ def build_queue(args: argparse.Namespace) -> dict:
             "max_requests": max(1, args.max_requests),
             "max_approx_input_tokens": max(1, args.max_approx_input_tokens),
             "prepared": bool(args.prepare),
+            "token_estimate_basis": "user_prompt_plus_system_instruction_plus_response_schema_char4",
         },
         "inputs": {
             "candidate_table": str(Path(args.candidate_table).resolve()),

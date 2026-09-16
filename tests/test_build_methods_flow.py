@@ -383,7 +383,7 @@ class MethodsFlowBuilderHelpersTest(unittest.TestCase):
         }
         for label in (
             "No specific finding available for graph representation",
-            "Finding too broad or ambiguous for graph representation",
+            "Finding could not be mapped to the graph",
             "Available text too limited for reliable extraction",
         ):
             self.assertEqual(flow_not_in_graph[label], bibliography["counts"]["by_kg_status"][label])

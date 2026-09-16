@@ -688,9 +688,30 @@ def rebuild_run_tables(args: argparse.Namespace) -> list[dict]:
     return results
 
 
+def reconciled_batch_results(manifest: dict, results_path: Path) -> list[dict]:
+    """Refuse incomplete or ambiguous result sets before materializing outputs."""
+    if not results_path.is_file():
+        raise FileNotFoundError(f"Batch results file is missing: {results_path}")
+    expected = [normalize(record.get("key", "")) for record in manifest.get("records", [])]
+    if not expected or any(not key for key in expected) or len(set(expected)) != len(expected):
+        raise ValueError("Batch manifest must have non-empty, unique request keys")
+    rows = read_jsonl(results_path)
+    returned = [batch_line_key(row, index) for index, row in enumerate(rows, start=1)]
+    duplicate_keys = [key for key, count in Counter(returned).items() if count > 1]
+    missing = set(expected) - set(returned)
+    unexpected = set(returned) - set(expected)
+    if missing or unexpected or duplicate_keys:
+        raise ValueError(
+            f"Batch result reconciliation failed: missing={len(missing)}, "
+            f"unexpected={len(unexpected)}, duplicate={len(duplicate_keys)}"
+        )
+    return rows
+
+
 def parse_batch_results(args: argparse.Namespace) -> dict:
     paths = batch_paths(args)
     manifest = json.loads(paths["manifest_json"].read_text(encoding="utf-8"))
+    result_rows = reconciled_batch_results(manifest, paths["results_jsonl"])
     manifest_by_key = records_by_key(manifest)
     tasks = task_by_route_key(read_jsonl(Path(args.input_jsonl).resolve()))
     env_values = load_dotenv(Path(args.env_file).resolve())
@@ -699,7 +720,7 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
     parsed_rows: list[dict] = []
     status_counts: Counter = Counter()
     usage_totals: Counter = Counter()
-    for line_index, row in enumerate(read_jsonl(paths["results_jsonl"]), start=1):
+    for line_index, row in enumerate(result_rows, start=1):
         key = batch_line_key(row, line_index)
         manifest_record = manifest_by_key.get(key, {})
         task = tasks.get(normalize(manifest_record.get("route_id", "")), {})
@@ -790,7 +811,7 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
         "generated_at_utc": now_utc(),
         "status": (
             "ok"
-            if not status_counts.get("error") and not status_counts.get("quality_error")
+            if all(status == "ok" for status in status_counts)
             else "issues_found"
         ),
         "run_id": safe_run_id(args.run_id),

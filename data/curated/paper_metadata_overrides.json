@@ -135,6 +135,160 @@
       "clear_fields": [
         "openalex_id"
       ]
+    },
+    {
+      "doi": "10.1007/s00115-026-01946-7",
+      "evidence_basis": "PubMed PMID 41627392 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/41627392/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_000.json",
+      "fields": {
+        "language": "ger"
+      }
+    },
+    {
+      "doi": "10.1016/j.encep.2026.04.004",
+      "evidence_basis": "PubMed PMID 42509061 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/42509061/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_001.json",
+      "fields": {
+        "language": "fre"
+      }
+    },
+    {
+      "doi": "10.21149/18350",
+      "evidence_basis": "PubMed PMID 42536901 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/42536901/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_002.json",
+      "fields": {
+        "language": "spa"
+      }
+    },
+    {
+      "doi": "10.19540/j.cnki.cjcmm.20260405.201",
+      "evidence_basis": "PubMed PMID 42543354 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/42543354/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_002.json",
+      "fields": {
+        "language": "chi"
+      }
+    },
+    {
+      "doi": "10.19540/j.cnki.cjcmm.20260414.701",
+      "evidence_basis": "PubMed PMID 42543364 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/42543364/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_002.json",
+      "fields": {
+        "language": "chi"
+      }
+    },
+    {
+      "doi": "10.19746/j.cnki.issn1009-2137.2026.03.028",
+      "evidence_basis": "PubMed PMID 42544673 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/42544673/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_002.json",
+      "fields": {
+        "language": "chi"
+      }
+    },
+    {
+      "doi": "10.17116/jnevro202612607151",
+      "evidence_basis": "PubMed PMID 42565399 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/42565399/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_002.json",
+      "fields": {
+        "language": "rus"
+      }
+    },
+    {
+      "doi": "10.17116/jnevro2026126071123",
+      "evidence_basis": "PubMed PMID 42565408 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/42565408/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_002.json",
+      "fields": {
+        "language": "rus"
+      }
+    },
+    {
+      "doi": "10.1007/s00115-026-02001-1",
+      "evidence_basis": "PubMed PMID 42606558 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/42606558/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_003.json",
+      "fields": {
+        "language": "ger"
+      }
+    },
+    {
+      "doi": "10.11406/rinketsu.67.950",
+      "evidence_basis": "PubMed PMID 42669511 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/42669511/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_004.json",
+      "fields": {
+        "language": "jpn"
+      }
+    },
+    {
+      "doi": "10.11406/rinketsu.67.957",
+      "evidence_basis": "PubMed PMID 42669512 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/42669512/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_004.json",
+      "fields": {
+        "language": "jpn"
+      }
+    },
+    {
+      "doi": "10.61409/v01260006",
+      "evidence_basis": "PubMed PMID 42671052 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/42671052/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_004.json",
+      "fields": {
+        "language": "dan"
+      }
+    },
+    {
+      "doi": "10.53738/revmed.2026.22.972.e47995",
+      "evidence_basis": "PubMed PMID 42682122 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/42682122/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_004.json",
+      "fields": {
+        "language": "fre"
+      }
+    },
+    {
+      "doi": "10.53738/revmed.2026.22.971.49031",
+      "evidence_basis": "PubMed PMID 42682126 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/42682126/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_004.json",
+      "fields": {
+        "language": "fre"
+      }
+    },
+    {
+      "doi": "10.19540/j.cnki.cjcmm.20260507.302",
+      "evidence_basis": "PubMed PMID 42693017 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/42693017/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_004.json",
+      "fields": {
+        "language": "chi"
+      }
+    },
+    {
+      "doi": "10.3724/zdxbyxb-2025-0893",
+      "evidence_basis": "PubMed PMID 42695204 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/42695204/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_004.json",
+      "fields": {
+        "language": "chi"
+      }
+    },
+    {
+      "doi": "10.20960/nh.07100",
+      "evidence_basis": "PubMed PMID 42704024 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/42704024/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_005.json",
+      "fields": {
+        "language": "spa"
+      }
+    },
+    {
+      "doi": "10.1016/j.soin.2026.07.015",
+      "evidence_basis": "PubMed PMID 42728009 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/42728009/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_005.json",
+      "fields": {
+        "language": "fre"
+      }
+    },
+    {
+      "doi": "10.12116/j.issn.1004-5619.2025.350801",
+      "evidence_basis": "PubMed PMID 42732987 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/42732987/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_005.json",
+      "fields": {
+        "language": "chi"
+      }
+    },
+    {
+      "doi": "10.12116/j.issn.1004-5619.2026.360307",
+      "evidence_basis": "PubMed PMID 42732988 ESummary lang identifies the article language; an English abstract does not change source language. DOI identity was verified. Source: https://pubmed.ncbi.nlm.nih.gov/42732988/ ; raw response: data/processed/corpus/living_update_20260915/screening_recovery/source_checks/pubmed_languages_005.json",
+      "fields": {
+        "language": "chi"
+      }
+    },
+    {
+      "doi": "10.1002/9781394215683.ch31",
+      "evidence_basis": "Crossref identifies The Wiley-Blackwell Handbook of Transpersonal Psychology as the container (saved source_checks/crossref_wiley_ch31.json); the book table of contents lists this as chapter 31, pages 653-672. Source: https://books.google.com/books?id=Mdj7EQAAQBAJ . Corrects generic provider type other and model review classification.",
+      "fields": {
+        "publication_type": "book-chapter"
+      }
+    },
+    {
+      "doi": "10.1002/adaw.35025",
+      "evidence_basis": "Crossref identifies Gary Enos, Alcoholism & Drug Abuse Weekly, volume 38 issue 33, with an abstract reporting on an external Phase 2a trial (saved source_checks/crossref_adaw_35025.json). Wiley describes this publication as weekly news and analysis: https://onlinelibrary.wiley.com/page/journal/15567591/homepage/productinformation.html . This record is a news report, not the original trial report.",
+      "fields": {
+        "publication_type": "news"
+      }
     }
   ]
 }

@@ -33,11 +33,45 @@ from collections import Counter
 from pathlib import Path
 from typing import Iterable, Iterator
 
+import pandas as pd
+
 try:
     from pipeline.kg.convert_routed_extractions_to_evidence_rows import convert_outputs
+    from pipeline.extract.build_meta_analysis_v2_tasks import (
+        build_tasks as build_meta_analysis_tasks,
+        production_cohort as meta_analysis_production_cohort,
+    )
+    from pipeline.extract.build_review_relationship_tasks import (
+        build_tasks as build_review_tasks,
+        production_cohort as review_production_cohort,
+    )
+    from pipeline.kg.convert_meta_analysis_v2_to_evidence_rows import (
+        convert_outputs as convert_meta_analysis_outputs,
+    )
+    from pipeline.kg.convert_review_relationship_bundles_to_evidence_rows import (
+        active_review_candidate_dois,
+        convert_bundles as convert_review_bundles,
+        enrich_canonical_metadata,
+    )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.kg.convert_routed_extractions_to_evidence_rows import convert_outputs
+    from pipeline.extract.build_meta_analysis_v2_tasks import (
+        build_tasks as build_meta_analysis_tasks,
+        production_cohort as meta_analysis_production_cohort,
+    )
+    from pipeline.extract.build_review_relationship_tasks import (
+        build_tasks as build_review_tasks,
+        production_cohort as review_production_cohort,
+    )
+    from pipeline.kg.convert_meta_analysis_v2_to_evidence_rows import (
+        convert_outputs as convert_meta_analysis_outputs,
+    )
+    from pipeline.kg.convert_review_relationship_bundles_to_evidence_rows import (
+        active_review_candidate_dois,
+        convert_bundles as convert_review_bundles,
+        enrich_canonical_metadata,
+    )
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -49,11 +83,19 @@ ACTIVE_EXTRACTION_POINTER = EXTRACTION_DIR / "active_routed_run.json"
 ACTIVE_GRAPH_POINTER = PROCESSED_DIR / "graph_payload_active.json"
 DEFAULT_TASKS = EXTRACTION_DIR / "route_extraction_tasks.jsonl"
 DEFAULT_ROUTES = PROCESSED_DIR / "corpus" / "paper_extraction_routes.parquet"
+DEFAULT_CANDIDATES = PROCESSED_DIR / "corpus" / "candidate_papers.parquet"
+DEFAULT_PACKETS = EXTRACTION_DIR / "fulltext_packets.jsonl"
+DEFAULT_ENTITY_REGISTRY = ROOT / "data" / "curated" / "entity_registry.json"
 
 DOI_RE = re.compile(r"^10\.\d{4,9}/\S+$", re.IGNORECASE)
 RUN_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 READY_STATUS = "ready_for_model"
-UPDATE_SCHEMA_VERSION = "scoped_paper_update_v1"
+READY_ROUTE_ACTIONS = {"extract_from_full_text", "extract_from_abstract_only"}
+SCHEMA_PROFILE_TO_GROUP = {
+    "review_coverage_schema": "reviews",
+    "meta_analysis_evidence_schema": "meta_analyses",
+}
+UPDATE_SCHEMA_VERSION = "scoped_paper_update_v2"
 
 
 def now_utc() -> str:
@@ -255,9 +297,16 @@ def task_contract(row: dict) -> dict:
 
 
 def task_group(row: dict) -> str:
+    schema_version = normalize(row.get("schema_version")).lower()
+    key = task_id(row).lower()
+    if schema_version == "review_relationship_task_v3" or key.startswith("reviewrel:"):
+        return "reviews"
+    if schema_version == "meta_analysis_v2_task_v1" or key.startswith("metav2:"):
+        return "meta_analyses"
     output_family = normalize(task_contract(row).get("output_family")).lower()
     return {
         "primary_evidence": "primary",
+        "recommendation_consensus": "primary",
         "review_coverage": "reviews",
         "meta_analysis_evidence": "meta_analyses",
     }.get(output_family, "other")
@@ -273,6 +322,19 @@ def route_id(row: dict) -> str:
 
 def fingerprint(row: dict) -> str:
     return normalize(row.get("input_fingerprint"))
+
+
+def task_text_mode(row: dict) -> str:
+    depth = normalize(row.get("text_depth"))
+    if depth:
+        return depth
+    text_source = row.get("text_source") if isinstance(row.get("text_source"), dict) else {}
+    mode = normalize(text_source.get("mode"))
+    return {
+        "abstract": "abstract_only",
+        "full_text_packet": "article_text",
+        "full_text_artifact": "article_text",
+    }.get(mode, mode)
 
 
 def current_task_index(tasks_path: Path) -> tuple[list[dict], dict[str, dict]]:
@@ -342,7 +404,14 @@ def refresh_deterministic_layers(doi_file: Path) -> None:
     )
     # Route-table scoped mode writes only the selected rows. A canonical refresh
     # must therefore rebuild the full (cheap, deterministic) table.
-    run_checked([python, str(ROOT / "pipeline" / "extract" / "build_extraction_routes.py")])
+    run_checked(
+        [
+            python,
+            str(ROOT / "pipeline" / "extract" / "build_extraction_routes.py"),
+            "--preserve-selection-outside-doi-file",
+            str(doi_file.resolve()),
+        ]
+    )
     run_checked([python, str(ROOT / "pipeline" / "fulltext" / "build_article_text_inputs.py")])
     run_checked([python, str(ROOT / "pipeline" / "extract" / "build_extraction_tasks.py")])
 
@@ -374,6 +443,100 @@ def count_scoped_evidence(path: Path, scope: set[str]) -> tuple[int, int, int, C
     )
 
 
+def route_family_dois(routes_path: Path, scope: set[str]) -> tuple[dict[str, set[str]], set[str]]:
+    """Return ready routed DOI ownership for each extraction family."""
+
+    route_frame = pd.read_parquet(routes_path)
+    required = {"doi", "route_action", "schema_profile"}
+    missing_columns = sorted(required - set(route_frame.columns))
+    if missing_columns:
+        raise ValueError(
+            "Route table is missing columns required for safe family ownership: "
+            + ", ".join(missing_columns)
+        )
+    if route_frame.empty:
+        return {"reviews": set(), "meta_analyses": set()}, set()
+    route_dois = route_frame["doi"].map(normalize_doi)
+    ready = route_frame["route_action"].map(normalize).isin(READY_ROUTE_ACTIONS)
+    in_scope = route_dois.isin(scope)
+    ready_frame = route_frame.loc[ready & in_scope].copy()
+    ready_frame["normalized_doi"] = route_dois[ready & in_scope]
+    by_family = {
+        group: set(
+            ready_frame.loc[
+                ready_frame["schema_profile"].map(normalize) == schema_profile,
+                "normalized_doi",
+            ]
+        )
+        for schema_profile, group in SCHEMA_PROFILE_TO_GROUP.items()
+    }
+    return by_family, set(ready_frame["normalized_doi"])
+
+
+def build_dedicated_tasks(
+    *,
+    family_dois: dict[str, set[str]],
+    candidate_path: Path,
+    packets_path: Path,
+) -> tuple[dict[str, list[dict]], dict[str, dict]]:
+    """Build the dedicated review and meta-analysis tasks for one scoped update."""
+
+    if not any(family_dois.values()):
+        return {"reviews": [], "meta_analyses": []}, {"reviews": {}, "meta_analyses": {}}
+    if not candidate_path.is_file():
+        raise FileNotFoundError(f"Candidate table does not exist: {candidate_path}")
+    if not packets_path.is_file():
+        raise FileNotFoundError(f"Full-text packet file does not exist: {packets_path}")
+
+    candidate_rows = pd.read_parquet(candidate_path).to_dict("records")
+    packet_rows = list(read_jsonl(packets_path))
+    review_cohort, review_selection = review_production_cohort(candidate_rows)
+    meta_cohort, meta_selection = meta_analysis_production_cohort(candidate_rows)
+    cohort_by_family = {
+        "reviews": [row for row in review_cohort if normalize_doi(row.get("doi")) in family_dois["reviews"]],
+        "meta_analyses": [
+            row for row in meta_cohort if normalize_doi(row.get("doi")) in family_dois["meta_analyses"]
+        ],
+    }
+    for group, expected_dois in family_dois.items():
+        cohort_dois = {normalize_doi(row.get("doi")) for row in cohort_by_family[group]}
+        missing = sorted(expected_dois - cohort_dois)
+        if missing:
+            raise RuntimeError(
+                f"Ready {group} routes are absent from the canonical retained/ready cohort: "
+                f"{len(missing)} DOI(s); examples={missing[:10]}"
+            )
+
+    review_tasks, review_report = build_review_tasks(
+        cohort_by_family["reviews"], candidate_rows, packet_rows, packets_path=packets_path
+    )
+    meta_tasks, meta_report = build_meta_analysis_tasks(
+        cohort_by_family["meta_analyses"], candidate_rows, packet_rows, packets_path=packets_path
+    )
+    reports = {
+        "reviews": {**review_report, "selection": review_selection},
+        "meta_analyses": {**meta_report, "selection": meta_selection},
+    }
+    return {"reviews": review_tasks, "meta_analyses": meta_tasks}, reports
+
+
+def validate_family_ownership(tasks: list[dict]) -> None:
+    owners: dict[str, str] = {}
+    conflicts: list[str] = []
+    for task in tasks:
+        doi = normalize_doi(task.get("study_doi"))
+        group = task_group(task)
+        previous = owners.get(doi)
+        if doi and previous and previous != group:
+            conflicts.append(f"{doi} ({previous}, {group})")
+        elif doi:
+            owners[doi] = group
+    if conflicts:
+        raise ValueError(
+            "A scoped DOI is owned by more than one extraction family: " + ", ".join(conflicts[:10])
+        )
+
+
 def prepare(args: argparse.Namespace) -> int:
     update_id = safe_update_id(args.update_id)
     doi_file = Path(args.doi_file).resolve()
@@ -383,7 +546,24 @@ def prepare(args: argparse.Namespace) -> int:
 
     tasks_path = Path(args.tasks_jsonl).resolve()
     routes_path = Path(args.route_table).resolve()
-    all_tasks, _ = current_task_index(tasks_path)
+    candidate_path = Path(getattr(args, "candidate_table", DEFAULT_CANDIDATES)).resolve()
+    packets_path = Path(getattr(args, "packets_jsonl", DEFAULT_PACKETS)).resolve()
+    entity_registry_path = Path(
+        getattr(args, "entity_registry", DEFAULT_ENTITY_REGISTRY)
+    ).resolve()
+    generic_tasks, _ = current_task_index(tasks_path)
+    family_dois, requested_ready_route_dois = route_family_dois(routes_path, requested_scope)
+    dedicated_tasks, dedicated_reports = build_dedicated_tasks(
+        family_dois=family_dois,
+        candidate_path=candidate_path,
+        packets_path=packets_path,
+    )
+    all_tasks = [*generic_tasks, *dedicated_tasks["reviews"], *dedicated_tasks["meta_analyses"]]
+    all_task_ids = [task_id(task) for task in all_tasks]
+    duplicate_task_ids = sorted(key for key, count in Counter(all_task_ids).items() if key and count > 1)
+    if duplicate_task_ids:
+        raise ValueError(f"Duplicate current task_id across extraction families: {duplicate_task_ids[:5]}")
+    validate_family_ownership(all_tasks)
     scope = set(requested_scope)
     only_task_group = normalize(getattr(args, "only_task_group", "")).lower()
     include_no_runnable = bool(getattr(args, "include_no_runnable", False))
@@ -416,6 +596,22 @@ def prepare(args: argparse.Namespace) -> int:
             raise ValueError(f"No DOIs remain after applying --only-task-group {only_task_group}")
     scoped_tasks = [task for task in all_tasks if normalize_doi(task.get("study_doi")) in scope]
     ready_tasks = [task for task in scoped_tasks if normalize(task.get("task_status")) == READY_STATUS]
+    unsupported_ready_tasks = [task_id(task) for task in ready_tasks if task_group(task) == "other"]
+    if unsupported_ready_tasks:
+        raise RuntimeError(
+            "Ready tasks use an unsupported extraction family: "
+            + ", ".join(unsupported_ready_tasks[:10])
+        )
+    current_task_dois = {normalize_doi(task.get("study_doi")) for task in scoped_tasks}
+    ready_dois = {normalize_doi(task.get("study_doi")) for task in ready_tasks}
+    expected_ready_route_dois = requested_ready_route_dois & scope
+    missing_ready_tasks = sorted(expected_ready_route_dois - ready_dois)
+    if missing_ready_tasks:
+        raise RuntimeError(
+            "A ready extraction route has no current ready task. The update cannot classify these papers "
+            "as deletion-only: "
+            f"{len(missing_ready_tasks)} DOI(s); examples={missing_ready_tasks[:10]}"
+        )
 
     base_run_id, base_outputs, base_evidence, base_pointer = resolve_active_base(
         base_outputs=Path(args.base_outputs) if args.base_outputs else None,
@@ -425,6 +621,15 @@ def prepare(args: argparse.Namespace) -> int:
     base_evidence_snapshot = file_snapshot(base_evidence)
     tasks_snapshot = file_snapshot(tasks_path)
     routes_snapshot = file_snapshot(routes_path)
+    has_dedicated_ready_tasks = any(
+        task_group(task) in {"reviews", "meta_analyses"} for task in ready_tasks
+    )
+    has_review_ready_tasks = any(task_group(task) == "reviews" for task in ready_tasks)
+    candidate_snapshot = file_snapshot(candidate_path) if has_dedicated_ready_tasks else None
+    packets_snapshot = file_snapshot(packets_path) if has_dedicated_ready_tasks else None
+    entity_registry_snapshot = (
+        file_snapshot(entity_registry_path) if has_review_ready_tasks else None
+    )
 
     old_output_count, old_scope_output_count, scope_output_status, old_outputs_by_doi = count_scoped_outputs(
         base_outputs,
@@ -455,10 +660,12 @@ def prepare(args: argparse.Namespace) -> int:
         group_rows = [task for task in ready_tasks if task_group(task) == group]
         group_path = update_dir / f"ready_tasks_{group}.jsonl"
         write_jsonl_atomic(group_path, group_rows)
-        task_files[group] = {"path": str(group_path.resolve()), "tasks": len(group_rows)}
+        task_files[group] = {
+            "path": str(group_path.resolve()),
+            "tasks": len(group_rows),
+            "snapshot": file_snapshot(group_path),
+        }
 
-    ready_dois = {normalize_doi(task.get("study_doi")) for task in ready_tasks}
-    current_task_dois = {normalize_doi(task.get("study_doi")) for task in scoped_tasks}
     no_current_task = sorted(scope - current_task_dois)
     no_runnable_task = sorted(scope - ready_dois)
     write_lines_atomic(update_dir / "no_current_task_dois.txt", no_current_task)
@@ -482,9 +689,9 @@ def prepare(args: argparse.Namespace) -> int:
                 "text_modes": " | ".join(
                     sorted(
                         {
-                            normalize(task.get("text_source", {}).get("mode"))
+                            task_text_mode(task)
                             for task in doi_ready
-                            if isinstance(task.get("text_source"), dict)
+                            if task_text_mode(task)
                         }
                     )
                 ),
@@ -547,6 +754,9 @@ def prepare(args: argparse.Namespace) -> int:
         "current_inputs": {
             "tasks": tasks_snapshot,
             "routes": routes_snapshot,
+            "candidate_table": candidate_snapshot,
+            "packets": packets_snapshot,
+            "entity_registry": entity_registry_snapshot,
         },
         "current_scope": {
             "tasks": len(scoped_tasks),
@@ -559,11 +769,13 @@ def prepare(args: argparse.Namespace) -> int:
             "by_group": dict(Counter(task_group(task) for task in ready_tasks)),
             "by_text_mode": dict(
                 Counter(
-                    normalize(task.get("text_source", {}).get("mode"))
+                    task_text_mode(task)
                     for task in ready_tasks
-                    if isinstance(task.get("text_source"), dict)
+                    if task_text_mode(task)
                 )
             ),
+            "ready_route_dois": len(expected_ready_route_dois),
+            "dedicated_task_builds": dedicated_reports,
         },
         "task_files": task_files,
         "files": {
@@ -684,6 +896,115 @@ def selected_patch_outputs(paths: list[Path], ready_by_id: dict[str, dict]) -> t
     }
 
 
+def dedicated_output_matches_task(row: dict, task: dict, group: str) -> tuple[bool, str]:
+    result = row.get("result") if isinstance(row.get("result"), dict) else {}
+    if not result:
+        return False, "missing_result"
+    actual_task_ids = {normalize(row.get("task_id")), normalize(result.get("task_id"))} - {""}
+    if actual_task_ids != {task_id(task)}:
+        return False, "task_id_mismatch"
+    if doi_for_output(row) != normalize_doi(task.get("study_doi")):
+        return False, "study_doi_mismatch"
+    expected_depth = normalize(task.get("text_depth"))
+    actual_depths = {
+        normalize(row.get("text_depth")),
+        normalize(row.get("source_depth")),
+        normalize(result.get("source_depth")),
+        normalize(result.get("text_depth")),
+    } - {""}
+    if expected_depth and actual_depths != {expected_depth}:
+        return False, "source_depth_mismatch"
+    schema_errors = row.get("schema_errors")
+    if not isinstance(schema_errors, list):
+        return False, "schema_validation_missing"
+    if schema_errors:
+        return False, "schema_errors_present"
+    if group == "reviews":
+        if normalize(result.get("schema_version")) != "review_relationship_bundle_v2":
+            return False, "review_schema_version_mismatch"
+        if not isinstance(result.get("paper_frame"), dict) or not isinstance(
+            result.get("relationships"), list
+        ):
+            return False, "review_result_structure_mismatch"
+    elif group == "meta_analyses":
+        if normalize(row.get("schema_version")) != "meta_analysis_evidence_v2":
+            return False, "meta_schema_version_mismatch"
+        if not normalize(result.get("extraction_status")) or not isinstance(
+            result.get("synthesis_results"), list
+        ):
+            return False, "meta_result_structure_mismatch"
+        source = task.get("source") if isinstance(task.get("source"), dict) else {}
+        expected_fingerprint = normalize(source.get("source_fingerprint"))
+        if expected_fingerprint and normalize(row.get("source_fingerprint")) != expected_fingerprint:
+            return False, "source_fingerprint_mismatch"
+    else:  # pragma: no cover - internal misuse guard
+        return False, "unsupported_task_group"
+    return True, ""
+
+
+def selected_family_outputs(
+    paths: list[Path], ready_by_id: dict[str, dict], group: str
+) -> tuple[list[dict], dict]:
+    selected: dict[str, dict] = {}
+    seen_rows = 0
+    skipped_status: Counter = Counter()
+    invalid: Counter = Counter()
+    unexpected: list[str] = []
+    superseded = 0
+    for path in paths:
+        if not path.is_file():
+            raise FileNotFoundError(f"{group} output file does not exist: {path}")
+        for row in read_jsonl(path):
+            seen_rows += 1
+            status = normalize(row.get("status"))
+            if status != "ok":
+                skipped_status[status or "missing"] += 1
+                continue
+            result = row.get("result") if isinstance(row.get("result"), dict) else {}
+            key = normalize(row.get("task_id")) or normalize(result.get("task_id"))
+            task = ready_by_id.get(key)
+            if task is None:
+                unexpected.append(key or "<missing>")
+                continue
+            matches, reason = dedicated_output_matches_task(row, task, group)
+            if not matches:
+                invalid[reason] += 1
+                continue
+            if key in selected:
+                superseded += 1
+            selected[key] = row
+    if unexpected:
+        raise ValueError(
+            f"{group} outputs contain successful records that are not current tasks: "
+            + ", ".join(unexpected[:10])
+        )
+    if invalid:
+        raise ValueError(f"{group} outputs do not match current tasks: {dict(invalid)}")
+    missing = sorted(set(ready_by_id) - set(selected))
+    if missing:
+        raise RuntimeError(
+            f"{group} output is incomplete: {len(missing)} current tasks have no successful output. "
+            f"Examples: {', '.join(missing[:10])}"
+        )
+    ordered = [selected[key] for key in sorted(selected)]
+    return ordered, {
+        "rows_read": seen_rows,
+        "successful_current_outputs": len(ordered),
+        "skipped_non_ok_status": dict(skipped_status),
+        "superseded_successful_retries": superseded,
+    }
+
+
+def task_index_from_rows(rows: list[dict]) -> dict[str, dict]:
+    indexed: dict[str, dict] = {}
+    for row in rows:
+        key = task_id(row)
+        if not key or key in indexed:
+            raise ValueError(f"Missing or duplicate prepared task ID: {key!r}")
+        indexed[key] = row
+    return indexed
+
+
 def iter_merged_outputs(base_path: Path, scope: set[str], patch_rows: list[dict]) -> Iterator[dict]:
     for row in read_jsonl(base_path):
         if doi_for_output(row) not in scope:
@@ -719,6 +1040,10 @@ def finalize(args: argparse.Namespace) -> int:
     update_dir = Path(args.update_dir).resolve() if args.update_dir else UPDATE_ROOT / update_id
     manifest_path = update_dir / "update_manifest.json"
     manifest = read_json_object(manifest_path)
+    if manifest.get("schema_version") != UPDATE_SCHEMA_VERSION:
+        raise ValueError(
+            f"Update manifest predates mixed-family orchestration; rerun prepare: {manifest_path}"
+        )
     if manifest.get("phase") != "prepared" or manifest.get("update_id") != update_id:
         raise ValueError(f"Not a prepared manifest for update {update_id}: {manifest_path}")
 
@@ -727,15 +1052,54 @@ def finalize(args: argparse.Namespace) -> int:
     base_evidence = verify_snapshot(manifest["base"]["evidence"], "Base evidence")
     verify_snapshot(manifest["current_inputs"]["tasks"], "Current task manifest")
     verify_snapshot(manifest["current_inputs"]["routes"], "Current route table")
+    family_tasks: dict[str, list[dict]] = {}
+    for group in ("primary", "reviews", "meta_analyses"):
+        task_file = manifest["task_files"][group]
+        verify_snapshot(task_file["snapshot"], f"Prepared {group} tasks")
+        family_tasks[group] = list(read_jsonl(Path(task_file["path"])))
+    ready_tasks = [
+        *family_tasks["primary"],
+        *family_tasks["reviews"],
+        *family_tasks["meta_analyses"],
+    ]
+    validate_family_ownership(ready_tasks)
 
-    ready_tasks_path = Path(manifest["files"]["ready_tasks"])
-    ready_tasks, ready_by_id = current_task_index(ready_tasks_path)
-    patch_paths = [Path(path).resolve() for path in args.patch_outputs]
-    if ready_tasks and not patch_paths:
-        raise RuntimeError(
-            f"This update has {len(ready_tasks)} ready tasks; supply their extraction output files with --patch-outputs."
-        )
-    patch_rows, patch_report = selected_patch_outputs(patch_paths, ready_by_id)
+    output_args = {
+        "primary": getattr(args, "patch_outputs", []),
+        "reviews": getattr(args, "review_outputs", []),
+        "meta_analyses": getattr(args, "meta_analysis_outputs", []),
+    }
+    family_outputs: dict[str, list[dict]] = {}
+    family_output_reports: dict[str, dict] = {}
+    for group in ("primary", "reviews", "meta_analyses"):
+        tasks = family_tasks[group]
+        paths = [Path(path).resolve() for path in output_args[group]]
+        if tasks and not paths:
+            flag = {
+                "primary": "--patch-outputs",
+                "reviews": "--review-outputs",
+                "meta_analyses": "--meta-analysis-outputs",
+            }[group]
+            raise RuntimeError(
+                f"This update has {len(tasks)} ready {group} tasks; supply their outputs with {flag}."
+            )
+        indexed = task_index_from_rows(tasks)
+        if group == "primary":
+            rows, report = selected_patch_outputs(paths, indexed)
+        else:
+            rows, report = selected_family_outputs(paths, indexed, group)
+        family_outputs[group] = rows
+        family_output_reports[group] = report
+
+    candidate_snapshot = manifest["current_inputs"].get("candidate_table")
+    packets_snapshot = manifest["current_inputs"].get("packets")
+    registry_snapshot = manifest["current_inputs"].get("entity_registry")
+    candidate_path = verify_snapshot(candidate_snapshot, "Candidate table") if candidate_snapshot else None
+    if packets_snapshot:
+        verify_snapshot(packets_snapshot, "Full-text packets")
+    entity_registry_path = (
+        verify_snapshot(registry_snapshot, "Entity registry") if registry_snapshot else None
+    )
 
     candidate_run_dir = ROUTED_RUNS_DIR / update_id
     if candidate_run_dir.exists() and any(candidate_run_dir.iterdir()):
@@ -746,22 +1110,85 @@ def finalize(args: argparse.Namespace) -> int:
         shutil.rmtree(candidate_run_dir)
     candidate_run_dir.mkdir(parents=True, exist_ok=True)
     candidate_outputs = candidate_run_dir / "route_extraction_outputs.jsonl"
+    all_output_rows = [
+        *family_outputs["primary"],
+        *family_outputs["reviews"],
+        *family_outputs["meta_analyses"],
+    ]
     combined_output_count = write_jsonl_atomic(
         candidate_outputs,
-        iter_merged_outputs(base_outputs, scope, patch_rows),
+        iter_merged_outputs(base_outputs, scope, all_output_rows),
     )
 
-    patch_tasks_path = candidate_run_dir / "scoped_route_extraction_tasks.jsonl"
-    patch_outputs_path = candidate_run_dir / "scoped_route_extraction_outputs.jsonl"
-    write_jsonl_atomic(patch_tasks_path, ready_tasks)
-    write_jsonl_atomic(patch_outputs_path, patch_rows)
-    patch_evidence, conversion_report = convert_outputs(
-        input_jsonl=patch_outputs_path,
-        tasks_jsonl=patch_tasks_path,
+    family_artifacts: dict[str, dict] = {}
+    family_evidence: dict[str, list[dict]] = {}
+    conversion_reports: dict[str, dict] = {}
+    artifact_names = {
+        "primary": ("scoped_route_extraction_tasks.jsonl", "scoped_route_extraction_outputs.jsonl"),
+        "reviews": ("scoped_review_relationship_tasks.jsonl", "scoped_review_relationship_outputs.jsonl"),
+        "meta_analyses": ("scoped_meta_analysis_v2_tasks.jsonl", "scoped_meta_analysis_v2_outputs.jsonl"),
+    }
+    for group, (task_name, output_name) in artifact_names.items():
+        task_path = candidate_run_dir / task_name
+        output_path = candidate_run_dir / output_name
+        write_jsonl_atomic(task_path, family_tasks[group])
+        write_jsonl_atomic(output_path, family_outputs[group])
+        family_artifacts[group] = {
+            "tasks": file_snapshot(task_path),
+            "outputs": file_snapshot(output_path),
+        }
+
+    primary_evidence, primary_report = convert_outputs(
+        input_jsonl=Path(family_artifacts["primary"]["outputs"]["path"]),
+        tasks_jsonl=Path(family_artifacts["primary"]["tasks"]["path"]),
         active_route_table=Path(manifest["current_inputs"]["routes"]["path"]),
     )
-    write_json_atomic(candidate_run_dir / "scoped_routed_evidence_rows.json", patch_evidence)
-    write_json_atomic(candidate_run_dir / "scoped_routed_evidence_rows_report.json", conversion_report)
+    family_evidence["primary"] = primary_evidence
+    conversion_reports["primary"] = primary_report
+
+    if family_tasks["reviews"]:
+        assert candidate_path is not None and entity_registry_path is not None
+        candidate_rows = pd.read_parquet(candidate_path).to_dict("records")
+        review_evidence, review_report = convert_review_bundles(
+            family_outputs["reviews"],
+            family_tasks["reviews"],
+            read_json_object(entity_registry_path),
+            active_candidate_dois=active_review_candidate_dois(candidate_rows),
+        )
+        review_report["canonical_metadata_papers_enriched"] = enrich_canonical_metadata(
+            review_evidence, candidate_rows
+        )
+        if review_report.get("skipped"):
+            raise RuntimeError(
+                "Validated review outputs were skipped during evidence conversion: "
+                f"{review_report['skipped']}"
+            )
+    else:
+        review_evidence, review_report = [], {"counts": {"bundle_rows": 0, "relationship_rows": 0}}
+    family_evidence["reviews"] = review_evidence
+    conversion_reports["reviews"] = review_report
+
+    meta_evidence, meta_report = convert_meta_analysis_outputs(
+        family_outputs["meta_analyses"],
+        task_index_from_rows(family_tasks["meta_analyses"]),
+    )
+    if meta_report.get("counts", {}).get("missing_task"):
+        raise RuntimeError("Validated meta-analysis outputs lost their prepared task during conversion")
+    family_evidence["meta_analyses"] = meta_evidence
+    conversion_reports["meta_analyses"] = meta_report
+
+    patch_evidence = [
+        *family_evidence["primary"],
+        *family_evidence["reviews"],
+        *family_evidence["meta_analyses"],
+    ]
+    for group in ("primary", "reviews", "meta_analyses"):
+        evidence_path = candidate_run_dir / f"scoped_{group}_evidence_rows.json"
+        report_path = candidate_run_dir / f"scoped_{group}_evidence_rows_report.json"
+        write_json_atomic(evidence_path, family_evidence[group])
+        write_json_atomic(report_path, conversion_reports[group])
+        family_artifacts[group]["evidence"] = file_snapshot(evidence_path)
+        family_artifacts[group]["conversion_report"] = file_snapshot(report_path)
 
     base_evidence_rows = read_json_array(base_evidence)
     unaffected_evidence = [row for row in base_evidence_rows if doi_for_evidence(row) not in scope]
@@ -796,6 +1223,18 @@ def finalize(args: argparse.Namespace) -> int:
             + ", ".join(stale_scope_dois[:10])
         )
 
+    family_report = {
+        group: {
+            "ready_tasks": len(family_tasks[group]),
+            "ready_dois": len({normalize_doi(row.get("study_doi")) for row in family_tasks[group]}),
+            "validated_outputs": len(family_outputs[group]),
+            "evidence_rows": len(family_evidence[group]),
+            "output_validation": family_output_reports[group],
+            "evidence_conversion": conversion_reports[group],
+            "artifacts": family_artifacts[group],
+        }
+        for group in ("primary", "reviews", "meta_analyses")
+    }
     final_report = {
         "schema_version": UPDATE_SCHEMA_VERSION,
         "phase": "finalized_candidate",
@@ -803,11 +1242,11 @@ def finalize(args: argparse.Namespace) -> int:
         "update_id": update_id,
         "scope_dois": len(scope),
         "ready_tasks_required": len(ready_tasks),
-        "patch": patch_report,
+        "families": family_report,
         "raw_outputs": {
             "base_rows": manifest["base"]["output_rows"],
             "base_scope_rows_removed": manifest["base"]["scope_output_rows_to_replace"],
-            "patch_rows_added": len(patch_rows),
+            "patch_rows_added": len(all_output_rows),
             "candidate_rows": combined_output_count,
             "out_of_scope_rows_base": base_unaffected_count,
             "out_of_scope_rows_candidate": candidate_unaffected_count,
@@ -819,14 +1258,15 @@ def finalize(args: argparse.Namespace) -> int:
             "base_scope_rows_removed": len(base_evidence_rows) - len(unaffected_evidence),
             "patch_rows_added": len(patch_evidence),
             "candidate_rows": len(candidate_evidence_rows),
-            "patch_conversion": conversion_report,
+            "patch_conversion": conversion_reports,
         },
         "candidate_run": {
             "run_dir": str(candidate_run_dir.resolve()),
             "outputs": file_snapshot(candidate_outputs),
             "evidence": file_snapshot(candidate_evidence),
-            "scoped_tasks": file_snapshot(patch_tasks_path),
-            "scoped_outputs": file_snapshot(patch_outputs_path),
+            "scoped_tasks": family_artifacts["primary"]["tasks"],
+            "scoped_outputs": family_artifacts["primary"]["outputs"],
+            "family_artifacts": family_artifacts,
         },
         "safety_checks": {
             "complete_successful_output_for_every_ready_task": True,
@@ -844,7 +1284,14 @@ def finalize(args: argparse.Namespace) -> int:
     write_json_atomic(manifest_path, manifest)
 
     print(f"Finalized candidate run: {update_id}")
-    print(f"Successful current outputs added: {len(patch_rows)}")
+    print(f"Successful current outputs added: {len(all_output_rows)}")
+    print(
+        "Families: "
+        + ", ".join(
+            f"{group}={len(family_outputs[group])}"
+            for group in ("primary", "reviews", "meta_analyses")
+        )
+    )
     print(f"Candidate evidence rows: {len(candidate_evidence_rows)}")
     print("The active KG has not changed. Run the promote subcommand after reviewing this report.")
     return 0
@@ -855,6 +1302,10 @@ def promote(args: argparse.Namespace) -> int:
     update_dir = Path(args.update_dir).resolve() if args.update_dir else UPDATE_ROOT / update_id
     manifest_path = update_dir / "update_manifest.json"
     manifest = read_json_object(manifest_path)
+    if manifest.get("schema_version") != UPDATE_SCHEMA_VERSION:
+        raise ValueError(
+            f"Update manifest predates mixed-family orchestration; rerun prepare: {manifest_path}"
+        )
     if manifest.get("phase") != "finalized_candidate" or manifest.get("update_id") != update_id:
         raise ValueError(f"Update must be finalized before promotion: {manifest_path}")
     report = read_json_object(Path(manifest["finalize_report"]))
@@ -913,6 +1364,9 @@ def parse_args() -> argparse.Namespace:
     prepare_parser.add_argument("--update-dir", default="")
     prepare_parser.add_argument("--tasks-jsonl", default=str(DEFAULT_TASKS))
     prepare_parser.add_argument("--route-table", default=str(DEFAULT_ROUTES))
+    prepare_parser.add_argument("--candidate-table", default=str(DEFAULT_CANDIDATES))
+    prepare_parser.add_argument("--packets-jsonl", default=str(DEFAULT_PACKETS))
+    prepare_parser.add_argument("--entity-registry", default=str(DEFAULT_ENTITY_REGISTRY))
     prepare_parser.add_argument("--base-outputs", default="")
     prepare_parser.add_argument("--base-evidence", default="")
     prepare_parser.add_argument(
@@ -944,7 +1398,19 @@ def parse_args() -> argparse.Namespace:
         "--patch-outputs",
         action="append",
         default=[],
-        help="JSONL output from a scoped extraction batch; repeat for primary/review/meta batches.",
+        help="Primary/consensus routed extraction JSONL; repeat for retries or multiple batches.",
+    )
+    finalize_parser.add_argument(
+        "--review-outputs",
+        action="append",
+        default=[],
+        help="Review relationship bundle JSONL; repeat for retries or multiple batches.",
+    )
+    finalize_parser.add_argument(
+        "--meta-analysis-outputs",
+        action="append",
+        default=[],
+        help="Meta-analysis v2 extraction JSONL; repeat for retries or multiple batches.",
     )
     finalize_parser.add_argument("--overwrite", action="store_true")
     finalize_parser.set_defaults(func=finalize)

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Recover missing abstracts with resumable provider batch endpoints.
 
-This command is intended for large, DOI-scoped discovery updates. It queries
-PMC first for records with PMC identifiers, then queries Semantic Scholar for
-the remaining DOI records. Each successful provider batch is checkpointed
+This command is intended for large, DOI-scoped discovery updates. By default it
+queries PubMed, then PMC and Semantic Scholar for remaining records. Crossref
+is an optional residual recovery pass. Each successful provider batch is checkpointed
 before the next request, making the run safe to resume with the same run ID.
 """
 

@@ -5,6 +5,15 @@ import pandas as pd
 import pytest
 
 from pipeline.discovery.promote_search_run import canonicalize_records, promote
+from pipeline.discovery import promote_search_run as promotion
+
+
+def test_canonical_language_prefers_pubmed_over_longer_inferred_label():
+    records = pd.DataFrame([
+        {"provider": "openalex", "doi": "10.1000/language", "title": "Research on the claustrum", "language": "English"},
+        {"provider": "pubmed", "doi": "10.1000/language", "title": "Research on the claustrum", "language": "chi"},
+    ])
+    assert canonicalize_records(records)[0]["language"] == "chi"
 
 
 def write_complete_run(run_dir: Path, *, complete: bool = True) -> None:
@@ -177,6 +186,68 @@ def test_promotion_refuses_incomplete_run(tmp_path: Path) -> None:
 
     with pytest.raises(RuntimeError, match="Refusing promotion"):
         promote(run_dir=run_dir, candidates_path=candidates)
+
+
+@pytest.mark.parametrize("failure_point", ["contexts", "unresolved", "history", "manifest"])
+def test_interrupted_promotion_preserves_handoff_and_original_backup(tmp_path, monkeypatch, failure_point):
+    run_dir = tmp_path / "run"
+    write_complete_run(run_dir)
+    records = pd.read_parquet(run_dir / "retrieved_records.parquet")
+    records.loc[0, "abstract"] = (
+        "We investigated psilocybin treatment in participants with depression. "
+        "Participants received treatment and completed symptom assessments. "
+        "The study measured clinical outcomes and adverse events during follow-up. "
+        "Symptoms improved after treatment compared with baseline measurements. "
+        "These results support further controlled studies to establish efficacy and safety "
+        "in larger samples with longer follow-up periods."
+    )
+    records.to_parquet(run_dir / "retrieved_records.parquet", index=False)
+    paths = {key: tmp_path / name for key, name in {
+        "candidates_path": "candidates.parquet", "contexts_path": "contexts.parquet",
+        "unresolved_path": "unresolved.parquet", "history_path": "history.json",
+    }.items()}
+    pd.DataFrame([{"doi": "10.1000/existing", "study_title": "Existing title",
+                   "source_types": "paper_library", "source_count": 1}]).to_parquet(
+        paths["candidates_path"], index=False)
+    original = paths["candidates_path"].read_bytes()
+    failed_path = {
+        "contexts": paths["contexts_path"], "unresolved": paths["unresolved_path"],
+        "history": paths["history_path"], "manifest": run_dir / "run_manifest.json",
+    }[failure_point]
+    parquet_writer = promotion.write_parquet_atomic
+    json_writer = promotion.atomic_write_json
+
+    def fail_parquet(path, frame):
+        if path == failed_path:
+            raise OSError("injected interruption")
+        return parquet_writer(path, frame)
+
+    def fail_json(path, payload):
+        if path == failed_path:
+            raise OSError("injected interruption")
+        return json_writer(path, payload)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(promotion, "write_parquet_atomic", fail_parquet)
+        patch.setattr(promotion, "atomic_write_json", fail_json)
+        with pytest.raises(OSError, match="injected interruption"):
+            promote(run_dir=run_dir, **paths)
+
+    assert "10.1000/new" in set(pd.read_parquet(paths["candidates_path"])["doi"])
+    preview = promote(run_dir=run_dir, dry_run=True, **paths)
+    assert preview["counts"]["new_candidate_dois"] == 1
+    report = promote(run_dir=run_dir, **paths)
+    assert report["counts"]["new_candidate_dois"] == 1
+    assert report["counts"]["rediscovered_candidate_dois"] == 1
+    assert report["counts"]["rediscovered_dois_with_restored_abstract"] == 1
+    assert report["counts"]["screening_candidate_dois"] == 2
+    assert (run_dir / "new_candidate_dois.txt").read_text() == "10.1000/new\n"
+    assert (run_dir / "screening_candidate_dois.txt").read_text() == "10.1000/existing\n10.1000/new\n"
+    assert (run_dir / "pre_promotion_backups" / "candidates.parquet").read_bytes() == original
+    assert len(pd.read_parquet(paths["contexts_path"])) == 2
+    assert len(pd.read_parquet(paths["unresolved_path"])) == 1
+    assert len(json.loads(paths["history_path"].read_text())["runs"]) == 1
+    assert promote(run_dir=run_dir, **paths) == report
 
 
 def test_promotion_refuses_composite_component(tmp_path: Path) -> None:

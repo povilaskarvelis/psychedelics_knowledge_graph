@@ -114,3 +114,20 @@ def test_fixed_fields_keep_source_depth_authoritative() -> None:
     assert fixed["schema_version"] == "review_relationship_bundle_v2"
     assert fixed["source_depth"] == "article_text"
     assert fixed["paper_frame"]["source_completeness"] == "article_text"
+
+
+def test_supporting_relationship_can_share_a_defining_aspect():
+    bundle = {'paper_frame': {'major_aspects': [{'aspect_id': 'mechanism', 'importance': 'paper_defining'}]},
+              'relationships': [
+                  {'item_id': 'main', 'source_item_ids': ['main'], 'covers_major_aspect_ids': ['mechanism'],
+                   'paper_prominence': 'paper_defining', 'graph_eligibility': 'main_graph',
+                   'centrality_basis': ['review_conclusion']},
+                  {'item_id': 'support', 'source_item_ids': ['support'], 'covers_major_aspect_ids': ['mechanism'],
+                   'paper_prominence': 'major_supporting', 'graph_eligibility': 'main_graph',
+                   'centrality_basis': ['dedicated_section']}]}
+    assert bundle_semantic_errors(bundle) == []
+    bundle['relationships'] = bundle['relationships'][1:]
+    assert 'major_aspect_without_matching_relationship:mechanism:paper_defining' in bundle_semantic_errors(bundle)
+    bundle['relationships'][0]['paper_prominence'] = 'secondary_context'
+    bundle['relationships'][0]['graph_eligibility'] = 'paper_detail_only'
+    assert 'major_aspect_covered_by_noncentral_relationship:support' in bundle_semantic_errors(bundle)

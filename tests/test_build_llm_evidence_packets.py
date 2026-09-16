@@ -185,6 +185,39 @@ class BuildLlmEvidencePacketsTest(unittest.TestCase):
         self.assertEqual(chunks[0]["document_char_start"], sections[0]["char_start"])
         self.assertIn("participants", chunks[0]["text"])
 
+    def test_jats_preserves_figure_and_table_context_without_duplicate_tables(self) -> None:
+        xml = '''<article xmlns="urn:jats"><body><sec id="results"><title>Results</title>
+        <fig id="f1"><label>Figure 1</label><caption><title>Primary endpoint</title>
+        <p>No difference from placebo.</p></caption><graphic href="figure.png"/></fig>
+        <table-wrap id="t1"><label>Table 1</label><caption><p>Plasma levels (ng/mL)</p></caption>
+        <table><thead><tr><th rowspan="2">Arm</th><th colspan="2">Change</th></tr></thead>
+        <tbody><tr><td>Drug</td><td>-2</td><td>0.4</td></tr></tbody></table>
+        <table-wrap-foot><fn><p>Negative values indicate improvement.</p></fn></table-wrap-foot>
+        </table-wrap></sec></body></article>'''
+        tables, figures = extract_tables_and_figures(xml)
+        self.assertEqual(len(tables), 1)
+        self.assertEqual(len(figures), 1)
+        self.assertEqual(figures[0]["xml_id"], "f1")
+        self.assertEqual(figures[0]["label"], "Figure 1")
+        self.assertIn("No difference from placebo.", figures[0]["caption"])
+        self.assertIn("No difference from placebo.", figures[0]["text"])
+        table = tables[0]
+        self.assertEqual(table["xml_id"], "t1")
+        self.assertEqual(table["section_heading"], "Results")
+        self.assertIn("ng/mL", table["caption"])
+        self.assertIn("Negative values indicate improvement.", table["notes"])
+        self.assertIn("Negative values indicate improvement.", table["text"])
+        self.assertEqual(table["rows"][0][0]["rowspan"], "2")
+        self.assertEqual(table["rows"][0][1]["colspan"], "2")
+        self.assertTrue(table["rows"][0][0]["header"])
+        self.assertEqual([cell["text"] for cell in table["rows"][1]], ["Drug", "-2", "0.4"])
+        from pipeline.extract.io_utils import text_parts_from_packet
+        model_input = "\n".join(text_parts_from_packet({"tables": tables, "figures": figures}))
+        self.assertIn("Arm [rowspan=2] | Change [colspan=2]\nDrug | -2 | 0.4", model_input)
+        self.assertIn("ng/mL", model_input)
+        self.assertIn("Negative values indicate improvement.", model_input)
+        self.assertIn("No difference from placebo.", model_input)
+
     def test_build_packet_includes_metadata_contexts_and_source_hints(self) -> None:
         artifact = {
             "study_doi": "10.1000/test",

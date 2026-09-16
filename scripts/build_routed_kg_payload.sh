@@ -23,6 +23,7 @@ Environment overrides:
   QUERY_DIR=/path/to/query-api-run
   EVIDENCE_RUN_ID=existing-run  # rebuild a new release from an existing evidence snapshot
   AUTHOR_CACHE_SEED=/path/to/cache  # required for a new run built with --offline
+  REVIEW_BASELINE_DIR=/path/to/reviewed-kg-run  # carry unchanged reviewed decisions before exports
   ACTIVATE_DEFAULT=1  # explicitly promote this run after the versioned build succeeds
   PUBLISH_QUERY_API_R2=1  # publish the promoted browser/API release and trigger the API deploy hook
 EOF
@@ -47,6 +48,7 @@ AUTHOR_CACHE="${KG_DIR}/openalex_author_cache.json"
 ACTIVATE_DEFAULT="${ACTIVATE_DEFAULT:-0}"
 PUBLISH_QUERY_API_R2="${PUBLISH_QUERY_API_R2:-0}"
 EVIDENCE_RUN_ID="${EVIDENCE_RUN_ID:-${RUN_ID}}"
+PYTHON_BIN="${PYTHON_BIN:-python3}"
 OFFLINE_REQUESTED=0
 
 for argument in "$@"; do
@@ -70,11 +72,17 @@ if [[ "${PUBLISH_QUERY_API_R2}" == "1" && "${ACTIVATE_DEFAULT}" != "1" ]]; then
   exit 2
 fi
 
-python3 "${ROOT_DIR}/pipeline/kg/build_evidence_tables.py" \
+"${PYTHON_BIN}" "${ROOT_DIR}/pipeline/kg/build_evidence_tables.py" \
   --source-preset routed \
   --run-id "${RUN_ID}" \
   --evidence-run-id "${EVIDENCE_RUN_ID}" \
   --out-dir "${KG_DIR}"
+
+if [[ -n "${REVIEW_BASELINE_DIR:-}" ]]; then
+  "${PYTHON_BIN}" "${ROOT_DIR}/pipeline/validate/carry_forward_research_area_reviews.py" \
+    --baseline-dir "${REVIEW_BASELINE_DIR}" \
+    --candidate-dir "${KG_DIR}"
+fi
 
 if [[ ! -f "${AUTHOR_CACHE}" && -n "${AUTHOR_CACHE_SEED:-}" ]]; then
   if [[ ! -f "${AUTHOR_CACHE_SEED}" ]]; then
@@ -91,29 +99,29 @@ if [[ "${OFFLINE_REQUESTED}" == "1" && ! -f "${AUTHOR_CACHE}" ]]; then
   exit 2
 fi
 
-python3 "${ROOT_DIR}/pipeline/kg/build_author_tables.py" \
+"${PYTHON_BIN}" "${ROOT_DIR}/pipeline/kg/build_author_tables.py" \
   --papers "${KG_DIR}/papers.parquet" \
   --out-dir "${KG_DIR}" \
   --cache "${AUTHOR_CACHE}" \
   "$@"
 
-python3 "${ROOT_DIR}/pipeline/publish/export_query_api.py" \
+"${PYTHON_BIN}" "${ROOT_DIR}/pipeline/publish/export_query_api.py" \
   --kg-dir "${KG_DIR}" \
   --out-dir "${QUERY_DIR}" \
   --run-id "${RUN_ID}"
 
-python3 "${ROOT_DIR}/pipeline/publish/export_evidence_payload.py" \
+"${PYTHON_BIN}" "${ROOT_DIR}/pipeline/publish/export_evidence_payload.py" \
   --kg-dir "${KG_DIR}" \
   --out-dir "${PAYLOAD_DIR}"
 
 if [[ "${ACTIVATE_DEFAULT}" == "1" ]]; then
-  python3 "${ROOT_DIR}/pipeline/publish/promote_routed_run.py" --run-id "${RUN_ID}"
+  "${PYTHON_BIN}" "${ROOT_DIR}/pipeline/publish/promote_routed_run.py" --run-id "${RUN_ID}"
 fi
 
 if [[ "${PUBLISH_QUERY_API_R2}" == "1" ]]; then
-  python3 "${ROOT_DIR}/pipeline/publish/publish_browser_payload_r2.py" --run-id "${RUN_ID}"
-  python3 "${ROOT_DIR}/pipeline/publish/publish_query_api_r2.py" --run-id "${RUN_ID}"
-  python3 "${ROOT_DIR}/pipeline/publish/prune_release_history.py" \
+  "${PYTHON_BIN}" "${ROOT_DIR}/pipeline/publish/publish_browser_payload_r2.py" --run-id "${RUN_ID}"
+  "${PYTHON_BIN}" "${ROOT_DIR}/pipeline/publish/publish_query_api_r2.py" --run-id "${RUN_ID}"
+  "${PYTHON_BIN}" "${ROOT_DIR}/pipeline/publish/prune_release_history.py" \
     --remote \
     --local \
     --execute

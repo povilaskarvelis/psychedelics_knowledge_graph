@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+import pytest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -10,10 +11,32 @@ from pipeline.extract.run_route_extraction_batch_api import (
     append_unique_jsonl,
     materialize_run_projection_from_batch_files,
     request_for_task,
+    reconciled_batch_results,
     reserved_manifest_task_keys,
     selected_for_batch,
     submit_batch,
 )
+
+
+@pytest.mark.parametrize("rows", [[], [{"key": "a"}],
+    [{"key": "a"}, {"key": "a"}, {"key": "b"}],
+    [{"key": "a"}, {"key": "b"}, {"key": "unknown"}]])
+def test_batch_result_reconciliation_rejects_incomplete_or_ambiguous_results(tmp_path, rows):
+    path = tmp_path / "results.jsonl"
+    path.write_text("".join(json.dumps(row) + "\n" for row in rows))
+    with pytest.raises(ValueError, match="reconciliation failed"):
+        reconciled_batch_results({"records": [{"key": "a"}, {"key": "b"}]}, path)
+
+
+def test_batch_result_reconciliation_requires_file_and_accepts_keyed_errors(tmp_path):
+    path = tmp_path / "results.jsonl"
+    manifest = {"records": [{"key": "a"}, {"key": "b"}]}
+    with pytest.raises(FileNotFoundError):
+        reconciled_batch_results(manifest, path)
+    rows = [{"key": "b", "error": {"message": "provider failure"}},
+            {"key": "a", "response": {}}]
+    path.write_text("".join(json.dumps(row) + "\n" for row in rows))
+    assert reconciled_batch_results(manifest, path) == rows
 
 
 class RouteExtractionBatchApiTest(unittest.TestCase):

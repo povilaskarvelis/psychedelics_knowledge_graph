@@ -86,7 +86,7 @@ def row_status(row: dict) -> str:
     return normalize(row.get("status", ""))
 
 
-RETRYABLE_RAW_STATUSES = {"error", "quality_error"}
+RETRYABLE_RAW_STATUSES = {"error", "quality_error", "schema_error"}
 
 
 def attempted_task_keys(run_dir: Path, *, retry_errors: bool = False) -> set[str]:
@@ -95,6 +95,8 @@ def attempted_task_keys(run_dir: Path, *, retry_errors: bool = False) -> set[str
     raw_jsonl = run_dir / "route_extraction_raw.jsonl"
 
     for row in read_jsonl(output_jsonl) if output_jsonl.exists() else []:
+        if retry_errors and row_status(row) in RETRYABLE_RAW_STATUSES:
+            continue
         key = route_key(row)
         if key:
             keys.add(key)

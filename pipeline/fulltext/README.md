@@ -86,6 +86,12 @@ After the direct pass, run a separately scoped recovery pass with
 failed publisher endpoints before each repository lookup. Opaque candidates
 are attempts, not accepted PDFs: the downloader
 validates both PDF bytes and document identity before saving:
+
+A failed unattended download does not establish that full text is unavailable.
+When a candidate URL or positive open-access signal remains, exhausted direct
+HTTP attempts move the record to `resolve_oa_landing_page` for browser/manual
+recovery. Only explicit provider-closed evidence without a usable location, or
+a curator-confirmed access decision, moves it to `no_accessible_fulltext`.
 the expected title must match the bounded top region of page one. A title that
 appears later on page one or elsewhere in the document is not sufficient,
 because proceedings and supplement PDFs can contain many valid paper titles.
@@ -664,6 +670,12 @@ publication metadata, selected reconstructed TEI sections, tables, figures,
 references, and stable `llm_chunks` with section/document offsets. The builder
 uses raw extracted TEI, not truncated section snippets, so it is the preferred
 input layer for model extraction.
+
+JATS inputs also preserve figure captions and table wrappers, including labels,
+captions, footnotes, source IDs, and section headings. Table cells retain header
+and row/column-span metadata in the packet; nested tables are not emitted again
+as separate copies of their wrapper. Caption and note text is included in the
+table/figure text passed downstream.
 
 Article text does not mean the whole paper. It means the text we choose to give
 the model for an article-text extraction task. The default route-table policy is:

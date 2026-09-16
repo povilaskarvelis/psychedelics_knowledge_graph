@@ -1454,6 +1454,41 @@ def route_status_for_candidate(
     return "not_retained_for_extraction", reason, False
 
 
+def preserve_out_of_scope_route_selection(
+    route_rows: list[dict],
+    *,
+    candidate_df: pd.DataFrame,
+    scoped_dois: set[str],
+) -> list[dict]:
+    """Keep a full route rebuild from activating an unrelated prescreen backlog.
+
+    A DOI-scoped refresh still rebuilds the complete route table so downstream
+    artifacts remain complete.  Newly computed routes outside the requested
+    scope must therefore retain the candidate ledger's pre-refresh selection
+    state.  This helper only suppresses newly activated out-of-scope routes;
+    it does not force previously selected rows to remain eligible when a later
+    exclusion or routing decision now rejects them.
+    """
+
+    scope = {normalize_doi(value) for value in scoped_dois if normalize_doi(value)}
+    if not scope or candidate_df.empty or "doi" not in candidate_df.columns:
+        return route_rows
+    previously_selected = {
+        normalize_doi(row.get("doi", ""))
+        for row in candidate_df.to_dict("records")
+        if truthy(row.get("retained_for_extraction_candidate", False))
+        and normalize_doi(row.get("doi", ""))
+    }
+    preserved: list[dict] = []
+    for source_row in route_rows:
+        row = dict(source_row)
+        doi = normalize_doi(row.get("doi", ""))
+        if doi and doi not in scope and doi not in previously_selected:
+            row["retained_for_extraction_candidate"] = False
+        preserved.append(row)
+    return preserved
+
+
 def build_candidate_status_updates(
     *,
     candidate_df: pd.DataFrame,
@@ -1680,6 +1715,7 @@ def build_extraction_routes(
     summary_json: Path = DEFAULT_SUMMARY_JSON,
     counts_csv: Path = DEFAULT_COUNTS_CSV,
     scoped_dois: set[str] | None = None,
+    preserve_selection_outside_scope: set[str] | None = None,
     doi_file_label: str = "",
     include_non_retained: bool = False,
     update_candidate_table: bool = True,
@@ -1708,8 +1744,9 @@ def build_extraction_routes(
     counts_csv = Path(counts_csv).resolve()
     scoped_dois = scoped_dois or set()
 
+    candidate_df = read_table(candidate_table)
     metadata_df = merged_extraction_metadata(
-        read_table(candidate_table),
+        candidate_df,
         read_table(metadata_table),
     )
     prescreen_df = read_table(prescreen_table)
@@ -1739,6 +1776,12 @@ def build_extraction_routes(
         source_identity_audit=source_identity_audit,
         doi_aliases=doi_aliases,
     )
+    if preserve_selection_outside_scope:
+        rows = preserve_out_of_scope_route_selection(
+            rows,
+            candidate_df=candidate_df,
+            scoped_dois=preserve_selection_outside_scope,
+        )
 
     write_route_table(output_table, rows)
     candidate_update = {}
@@ -1816,6 +1859,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--manual-fulltext-access-overrides", default=str(DEFAULT_MANUAL_FULLTEXT_ACCESS_OVERRIDES))
     parser.add_argument("--doi-alias-registry", default=str(DEFAULT_DOI_ALIAS_REGISTRY))
     parser.add_argument("--doi-file", default="", help="Optional DOI list for a scoped route-table build.")
+    parser.add_argument(
+        "--preserve-selection-outside-doi-file",
+        default="",
+        help=(
+            "During a full route rebuild, preserve the current candidate-selection state outside "
+            "the DOI list instead of activating the entire retained prescreen backlog."
+        ),
+    )
     parser.add_argument("--include-non-retained", action="store_true", help="Route all metadata rows, not only retained pre-screen candidates.")
     parser.add_argument(
         "--no-update-candidate-table",
@@ -1849,6 +1900,11 @@ def main() -> int:
     source_identity_audit = Path(args.source_identity_audit).resolve()
     paper_root = Path(args.paper_root).resolve()
     scoped_dois = read_doi_file(Path(args.doi_file).resolve()) if clean(args.doi_file) else set()
+    preserve_selection_outside_scope = (
+        read_doi_file(Path(args.preserve_selection_outside_doi_file).resolve())
+        if clean(args.preserve_selection_outside_doi_file)
+        else set()
+    )
 
     output_table = Path(args.output_table).resolve()
     summary_json = Path(args.summary_json).resolve()
@@ -1869,6 +1925,7 @@ def main() -> int:
         summary_json=summary_json,
         counts_csv=counts_csv,
         scoped_dois=scoped_dois,
+        preserve_selection_outside_scope=preserve_selection_outside_scope,
         doi_file_label=str(Path(args.doi_file).resolve()) if clean(args.doi_file) else "",
         include_non_retained=bool(args.include_non_retained),
         update_candidate_table=not bool(args.no_update_candidate_table),

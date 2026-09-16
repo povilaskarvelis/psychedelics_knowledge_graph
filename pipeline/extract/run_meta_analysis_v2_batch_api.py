@@ -330,10 +330,14 @@ def request_for_task(
             strip_schema_descriptions(item, property_map=key == "properties")
 
     strip_schema_descriptions(model_schema)
+    schema_mode = getattr(args, "schema_mode", "native")
+    system_instruction = prompt_path.read_text(encoding="utf-8").strip()
+    if schema_mode == "prompt":
+        system_instruction += "\n\nSupplied output JSON schema:\n" + json.dumps(model_schema, ensure_ascii=False)
     config = build_generation_config(
-        system_instruction=prompt_path.read_text(encoding="utf-8").strip(),
+        system_instruction=system_instruction,
         schema=model_schema,
-        schema_mode="native",
+        schema_mode=schema_mode,
         temperature=0.0,
         max_output_tokens=args.max_output_tokens,
         thinking_budget=args.thinking_budget,
@@ -409,6 +413,7 @@ def prepare_batch(args: argparse.Namespace) -> dict:
             "input_snapshot_manifest": str(paths["snapshot_owner"] / "input_snapshot" / "manifest.json"),
             "model": args.model,
             "batch_size": args.batch_size,
+            "schema_mode": getattr(args, "schema_mode", "native"),
             "full_text_count": args.full_text_count,
             "shuffle": args.shuffle,
             "seed": args.seed,
@@ -822,7 +827,13 @@ def normalize_model_result(result: dict, text_depth: str) -> tuple[dict, dict[st
             return
         for key in list(value):
             item = value[key]
-            if (
+            if item is None and key not in required_string_fields and key not in nullable_result_fields:
+                # JSON null and an omitted optional field both represent no
+                # reported value. Keep required evidence strings and explicitly
+                # nullable result fields for the schema validator to check.
+                del value[key]
+                counts["omitted_null_optional_value"] += 1
+            elif (
                 key in nullable_result_fields
                 and isinstance(item, str)
                 and item.strip().lower() in missing_markers
@@ -1064,6 +1075,7 @@ def parse_args() -> argparse.Namespace:
     prepare.add_argument("--abstract-prompt", type=Path, default=ABSTRACT_PROMPT)
     prepare.add_argument("--output-schema", type=Path, default=OUTPUT_SCHEMA)
     prepare.add_argument("--max-output-tokens", type=int, default=32768)
+    prepare.add_argument("--schema-mode", choices=["native", "prompt"], default="native")
     prepare.add_argument("--thinking-budget", type=int, default=0)
     prepare.add_argument("--overwrite", action="store_true")
 

@@ -1,6 +1,7 @@
 import json
 
 from pipeline.fulltext.register_retrieved_pdf_exclusions import (
+    audit_exclusions,
     browser_url_exclusions,
     legacy_post_retrieval_exclusions,
 )
@@ -92,3 +93,18 @@ def test_legacy_migration_moves_all_doi_specific_evidence_out_of_prescreen(tmp_p
         row["decision_method"] == "legacy_curated_post_retrieval_evidence_migration"
         for row in rows
     )
+
+
+def test_audit_exclusions_accepts_video_lecture_format(tmp_path) -> None:
+    path = tmp_path / "manual_review.csv"
+    path.write_text(
+        "doi,recommended_action,publication_format,format_evidence\n"
+        "10.64239/pi-vl11508,exclude_publication_format,video_lecture,Publisher page labels a video lecture.\n"
+    )
+
+    rows = audit_exclusions(path)
+
+    assert len(rows) == 1
+    assert rows[0]["doi"] == "10.64239/pi-vl11508"
+    assert rows[0]["publication_format"] == "video_lecture"
+    assert "educational video lecture" in rows[0]["reason"]
