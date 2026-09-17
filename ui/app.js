@@ -11297,7 +11297,7 @@ function switchExplorerMode(nextMode) {
     evidenceView = "all";
     accessView = "all";
   }
-  updateExplorerControls();
+  updateModeUI();
   updateExplorerUrlState({ history: "push" });
   if (nextMode === "overview") {
     applyClaimLayerStore();
