@@ -1027,6 +1027,7 @@ button.primary:hover {
 }
 
 .explorer-search input:disabled {
+  padding-right: 13px;
   border-color: rgba(188, 200, 201, 0.1);
   color: rgba(174, 181, 180, 0.38);
   background: rgba(7, 9, 10, 0.28);
