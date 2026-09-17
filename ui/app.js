@@ -7986,7 +7986,7 @@ function updateExplorerControls() {
   if (explorerEvidenceSelect) explorerEvidenceSelect.value = evidenceView;
   if (explorerAccessSelect) explorerAccessSelect.value = accessView;
   if (explorerSearchInput) {
-    explorerSearchInput.placeholder = inEntitySection ? meta.searchPlaceholder : "Choose what to search";
+    explorerSearchInput.placeholder = inEntitySection ? meta.searchPlaceholder : "";
     explorerSearchInput.disabled = !inEntitySection;
     explorerSearchInput.hidden = hasEntityFocus;
   }
