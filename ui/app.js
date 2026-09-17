@@ -7986,7 +7986,7 @@ function updateExplorerControls() {
   if (explorerEvidenceSelect) explorerEvidenceSelect.value = evidenceView;
   if (explorerAccessSelect) explorerAccessSelect.value = accessView;
   if (explorerSearchInput) {
-    explorerSearchInput.placeholder = inEntitySection ? meta.searchPlaceholder : "Select a view to search";
+    explorerSearchInput.placeholder = inEntitySection ? meta.searchPlaceholder : "Choose what to search";
     explorerSearchInput.disabled = !inEntitySection;
     explorerSearchInput.hidden = hasEntityFocus;
   }
@@ -7995,7 +7995,7 @@ function updateExplorerControls() {
   if (explorerSearchLabel) {
     explorerSearchLabel.textContent = inEntitySection
       ? `Search ${meta.plural}`
-      : "Select a view to enable search";
+      : "Choose Compounds, Authors, or Journals to enable search";
   }
   if (explorerFocusPath) explorerFocusPath.hidden = !hasEntityFocus;
   if (hasEntityFocus) {
