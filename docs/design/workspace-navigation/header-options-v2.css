@@ -1,0 +1,220 @@
+/* Current-header study. These styles are injected only by the local 8034 review proxy. */
+.nav-study-dock {
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px;
+  border: 1px solid rgba(188, 200, 201, 0.16);
+  border-radius: 10px;
+  background: rgba(10, 13, 14, 0.9);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(14px);
+  transform: translateX(-50%);
+}
+
+.nav-study-dock button {
+  min-height: 30px;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 7px;
+  color: rgba(174, 181, 180, 0.64);
+  background: transparent;
+  box-shadow: none;
+  font: 500 0.72rem/1 "IBM Plex Sans", sans-serif;
+  white-space: nowrap;
+}
+
+.nav-study-dock button:hover,
+.nav-study-dock button:focus-visible {
+  color: rgba(238, 240, 235, 0.92);
+  background: rgba(188, 200, 201, 0.055);
+  box-shadow: none;
+  transform: none;
+}
+
+.nav-study-dock button[aria-pressed="true"] {
+  color: #f0f2ee;
+  background: rgba(188, 200, 201, 0.11);
+}
+
+/* All alternatives below remove the dedicated header band. */
+body:not([data-nav-option="current"]):has(.nav-study-dock) .workspace-header {
+  position: static;
+  min-height: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+body:not([data-nav-option="current"]):has(.nav-study-dock) .graph-grid {
+  box-sizing: border-box;
+  padding-top: 16px;
+}
+
+/* Above-left selection study: placement and geometry stay fixed across variants. */
+body:is([data-nav-option="above-left"], [data-nav-option="above-green-soft"], [data-nav-option="above-green-edge"], [data-nav-option="above-green-tonal"]) .hero {
+  padding-bottom: 16px;
+}
+
+body:is([data-nav-option="above-left"], [data-nav-option="above-green-soft"], [data-nav-option="above-green-edge"], [data-nav-option="above-green-tonal"]) .content {
+  padding-top: 8px;
+}
+
+body:is([data-nav-option="above-left"], [data-nav-option="above-green-soft"], [data-nav-option="above-green-edge"], [data-nav-option="above-green-tonal"]) .graph-panel {
+  margin-top: 48px;
+}
+
+body:is([data-nav-option="above-left"], [data-nav-option="above-green-soft"], [data-nav-option="above-green-edge"], [data-nav-option="above-green-tonal"]) .workspace-tabs {
+  position: absolute;
+  z-index: 6;
+  top: -48px;
+  left: 0;
+  height: 40px;
+  padding: 3px;
+  gap: 3px;
+  border: 1px solid rgba(188, 200, 201, 0.14);
+  border-radius: 9px;
+  background: #0c0f10;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+body:is([data-nav-option="above-left"], [data-nav-option="above-green-soft"], [data-nav-option="above-green-edge"], [data-nav-option="above-green-tonal"]) .workspace-tab {
+  height: 32px;
+  min-width: 108px;
+  padding: 0 18px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+}
+
+body[data-nav-option="above-green-soft"] .workspace-tabs {
+  --selection-slider-background: var(--control-active-fill);
+  --selection-slider-border: rgba(73, 214, 200, 0.26);
+}
+
+body[data-nav-option="above-green-edge"] .workspace-tabs {
+  --selection-slider-background: rgba(73, 214, 200, 0.045);
+  --selection-slider-border: var(--control-active-border);
+}
+
+body[data-nav-option="above-green-tonal"] .workspace-tabs {
+  --selection-slider-background: linear-gradient(180deg, rgba(73, 214, 200, 0.2), rgba(73, 214, 200, 0.11));
+  --selection-slider-border: rgba(73, 214, 200, 0.3);
+}
+
+body[data-nav-option="above-green-soft"] .workspace-tab.active {
+  color: #eafffb;
+  background: var(--control-active-fill);
+  box-shadow: inset 0 0 0 1px rgba(73, 214, 200, 0.26);
+}
+
+body[data-nav-option="above-green-edge"] .workspace-tab.active {
+  color: #eafffb;
+  background: rgba(73, 214, 200, 0.045);
+  box-shadow: inset 0 0 0 1px var(--control-active-border);
+}
+
+body[data-nav-option="above-green-tonal"] .workspace-tab.active {
+  color: #eafffb;
+  background: linear-gradient(180deg, rgba(73, 214, 200, 0.2), rgba(73, 214, 200, 0.11));
+  box-shadow: inset 0 0 0 1px rgba(73, 214, 200, 0.3);
+}
+
+body:is([data-nav-option="above-green-soft"], [data-nav-option="above-green-edge"], [data-nav-option="above-green-tonal"]) .workspace-tabs.has-selection-slider > .workspace-tab.active {
+  color: #eafffb;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* D: the folder edge remains the fully integrated workspace treatment. */
+body[data-nav-option="shared-edge"] .graph-panel {
+  margin-top: 42px;
+  border-top-left-radius: 0;
+}
+
+body[data-nav-option="shared-edge"] .workspace-tabs {
+  position: absolute;
+  top: -43px;
+  left: -1px;
+  height: 43px;
+  padding: 0;
+  gap: 0;
+  border: 1px solid rgba(188, 200, 201, 0.22);
+  border-bottom: 0;
+  border-radius: 12px 12px 0 0;
+  background: #0c0f10;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+body[data-nav-option="shared-edge"] .workspace-tabs::before {
+  display: none !important;
+}
+
+body[data-nav-option="shared-edge"] .workspace-tab {
+  height: 42px;
+  min-width: 110px;
+  padding-inline: 20px;
+  border: 0;
+  border-radius: 0;
+  color: rgba(160, 166, 163, 0.58);
+  background: #090b0c;
+  box-shadow: none;
+  font-size: 0.9rem;
+}
+
+body[data-nav-option="shared-edge"] .workspace-tab + .workspace-tab {
+  border-left: 1px solid rgba(188, 200, 201, 0.1);
+}
+
+body[data-nav-option="shared-edge"] .workspace-tab.active {
+  z-index: 2;
+  color: #f1f3ef;
+  background: #0c0f10;
+  box-shadow: none;
+  font-weight: 600;
+}
+
+body[data-nav-option="shared-edge"] .workspace-tab.active::after {
+  position: absolute;
+  z-index: 3;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: #0c0f10;
+  content: "";
+}
+
+@media (max-width: 650px) {
+  .nav-study-dock {
+    right: 8px;
+    bottom: 8px;
+    left: 8px;
+    justify-content: center;
+    overflow-x: auto;
+    transform: none;
+  }
+
+  .nav-study-dock button {
+    padding-inline: 8px;
+    font-size: 0.68rem;
+  }
+
+  body:is([data-nav-option="above-left"], [data-nav-option="above-green-soft"], [data-nav-option="above-green-edge"], [data-nav-option="above-green-tonal"]) .workspace-tabs {
+    left: 8px;
+  }
+
+  body:is([data-nav-option="above-left"], [data-nav-option="above-green-soft"], [data-nav-option="above-green-edge"], [data-nav-option="above-green-tonal"], [data-nav-option="shared-edge"]) .workspace-tab {
+    min-width: 94px;
+    padding-inline: 14px;
+    font-size: 0.84rem;
+  }
+}

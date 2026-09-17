@@ -1,5 +1,19 @@
 # Workspace navigation study
 
+## Current-header study (September 2026)
+
+Run `preview.py` while the normal local site is available on port 8011, then open port 8034. A small floating review dock provides five options without changing the production interface:
+
+- **Neutral** — Above · Left with its existing gray selected fill.
+- **Soft green** — the established Explore green used as a quiet selected fill.
+- **Green edge** — a nearly neutral surface with the green carried by the selected boundary.
+- **Tonal green** — a slightly deeper green tonal fill with a restrained green edge.
+- **Folder reference** — the previous integrated folder treatment retained for comparison.
+
+The option is reflected in the `nav-option` query parameter so each treatment can be linked directly. The dock is part of the local prototype only.
+
+**Selected for production:** Above · Left with the Soft green selected state.
+
 The prototype files record the earlier comparison. The 8034 preview proxy now serves the clean main interface with the selected Q6B treatment; it no longer adds the comparison toolbar.
 
 Focused Q6B boundary study (URL-only, with no comparison toolbar):

@@ -2,6 +2,10 @@
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.request import urlopen
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from pathlib import Path
+
+
+HERE = Path(__file__).resolve().parent
 
 
 TAB_VARIANTS = {
@@ -66,12 +70,15 @@ class Preview(BaseHTTPRequestHandler):
         except Exception as e:
             self.send_error(502, str(e)); return
         variant_css = TAB_VARIANTS.get(params.get("tab-variant", ""))
-        if variant_css and "text/html" in content_type:
+        if "text/html" in content_type:
             markup = data.decode("utf-8")
-            markup = markup.replace(
-                "</head>",
-                f'<style data-tab-variant="{params["tab-variant"]}">{variant_css}</style></head>',
-            )
+            review_css = (HERE / "header-options-v2.css").read_text(encoding="utf-8")
+            review_js = (HERE / "header-options-v2.js").read_text(encoding="utf-8")
+            styles = review_css
+            if variant_css:
+                styles += f'\n/* Legacy boundary variant: {params["tab-variant"]} */\n{variant_css}'
+            markup = markup.replace("</head>", f'<style data-navigation-review>{styles}</style></head>')
+            markup = markup.replace("</body>", f'<script data-navigation-review>{review_js}</script></body>')
             data = markup.encode("utf-8")
         self.send_response(200)
         self.send_header('Content-Type', content_type)

@@ -1,34 +1,65 @@
-/* A quiet workspace action, visually distinct from the Explore/Analyze choice. */
-.research-navigation {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  flex: 0 0 auto;
-}
-.workspace-share {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 32px;
-  padding: 5px 9px;
-  border: 1px solid transparent;
-  border-radius: 7px;
+/* Explore and Analyze sit above the workspace as a compact, page-level mode switch. */
+.hero { padding-bottom: 16px; }
+.content { padding-top: 8px; }
+.graph-panel { margin-top: 48px; }
+.workspace-header {
+  position: static;
+  display: block;
+  min-height: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
   background: transparent;
-  color: rgba(188, 200, 201, 0.72);
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
+}
+.graph-grid { box-sizing: border-box; padding-top: 16px; }
+.workspace-tabs {
+  --selection-slider-background: var(--control-active-fill);
+  --selection-slider-border: rgba(73, 214, 200, 0.26);
+  position: absolute;
+  z-index: 6;
+  top: -48px;
+  left: 0;
+  height: 40px;
+  padding: 3px;
+  gap: 3px;
+  border: 1px solid rgba(188, 200, 201, 0.14);
+  border-radius: 9px;
+  background: #0c0f10;
+  box-shadow: none;
+  overflow: hidden;
+}
+.workspace-tab {
+  height: 32px;
+  min-width: 108px;
+  padding: 0 18px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+}
+.workspace-tab.active {
+  color: #eafffb;
+  background: var(--control-active-fill);
+  box-shadow: inset 0 0 0 1px rgba(73, 214, 200, 0.26);
+}
+.workspace-tabs.has-selection-slider > .workspace-tab.active {
+  color: #eafffb;
+  background: transparent;
   box-shadow: none;
 }
-.workspace-share svg { width: 15px; height: 15px; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.workspace-share:hover { transform: none; border-color: rgba(188, 200, 201, 0.13); background: rgba(188, 200, 201, 0.055); color: var(--fg); box-shadow: none; }
-.workspace-share:focus-visible { outline: 1px solid rgba(188, 200, 201, 0.52); outline-offset: 2px; }
+.research-navigation {
+  position: absolute;
+  z-index: 7;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+}
 .research-status {
   position: absolute;
   z-index: 8;
-  top: calc(100% + 8px);
-  right: 0;
+  top: 8px;
+  right: 8px;
   width: max-content;
   max-width: min(340px, 72vw);
   padding: 6px 9px;
@@ -78,8 +109,6 @@
   .graph-header-controls .analysis-query-builder { grid-template-columns: minmax(0, 1fr); }
   .research-axis-controls { grid-template-columns: minmax(0, 1fr); }
   .research-coverage-body { padding: 0 12px 12px; }
-  .workspace-header { min-height: 56px; gap: 8px; padding: 8px 8px 8px 12px; }
-  .workspace-tab { min-width: 88px; padding-inline: 12px; font-size: 0.84rem; }
-  .workspace-share { width: 32px; padding: 5px 8px; justify-content: center; }
-  .workspace-share span { display: none; }
+  .workspace-tabs { left: 8px; }
+  .workspace-tab { min-width: 94px; padding-inline: 14px; font-size: 0.84rem; }
 }

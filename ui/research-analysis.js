@@ -192,9 +192,7 @@ function researchHandleClick(event) {
   const button = event.target.closest?.("button");
   if (!button) return false;
   const data = button.dataset;
-  if ("researchCopy" in data) {
-    copyExplorerViewLink();
-  } else if ("researchCellA" in data) {
+  if ("researchCellA" in data) {
     researchCoverageCell = [data.researchCellA, data.researchCellB];
     researchRefreshCoverage({ updateUrl: false });
     updateExplorerUrlState({ history: "push" });
@@ -228,7 +226,3 @@ function researchHandleChange(event) {
   graphEl.querySelector(`[data-research-axis="${axisIndex}"]`)?.focus({ preventScroll: true });
   return true;
 }
-
-document.addEventListener("click", (event) => {
-  if (event.target.closest?.("#researchNavigation")) researchHandleClick(event);
-});

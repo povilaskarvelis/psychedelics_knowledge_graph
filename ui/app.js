@@ -7947,37 +7947,6 @@ function announceSharedView(message, { duration = 2600 } = {}) {
   }, duration);
 }
 
-function copyTextFallback(value) {
-  const textarea = document.createElement("textarea");
-  textarea.value = value;
-  textarea.setAttribute("readonly", "");
-  textarea.style.position = "fixed";
-  textarea.style.opacity = "0";
-  document.body.appendChild(textarea);
-  textarea.select();
-  const copied = document.execCommand("copy");
-  textarea.remove();
-  return copied;
-}
-
-async function copyExplorerViewLink() {
-  const url = explorerViewUrl({ forSharing: true });
-  try {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(url.href);
-    } else if (!copyTextFallback(url.href)) {
-      throw new Error("Clipboard unavailable");
-    }
-    announceSharedView("Link copied");
-  } catch (_) {
-    if (copyTextFallback(url.href)) {
-      announceSharedView("Link copied");
-    } else {
-      announceSharedView("Copy the page address to share this view.");
-    }
-  }
-}
-
 function updateExplorerControls() {
   const inAnalysis = explorerMode === "analysis";
   const inEntitySection = isAnalysisEntitySection();
