@@ -224,10 +224,21 @@ def test_release_metadata_renders_site_citation_and_structured_data(tmp_path: Pa
     assert about_page.index('id="work-in-progress"') < about_page.index('id="citation"')
     assert "{{RELEASE_" not in homepage
     assert "{{RELEASE_" not in about_page
-    assert f'version: "{metadata["version"]}"' in citation_cff
-    assert f'doi: "{metadata["doi"]}"' in citation_cff
-    assert f"date-released: {metadata['release_date']}" in citation_cff
-    assert metadata["literature_updated"] in citation_cff
+    citation_version = re.search(r'^version: "([^"]+)"$', citation_cff, re.MULTILINE)
+    citation_doi = re.search(r'^doi: "([^"]+)"$', citation_cff, re.MULTILINE)
+    assert citation_version
+    if citation_version.group(1) == metadata["version"]:
+        assert citation_doi and citation_doi.group(1) == metadata["doi"]
+        assert f"date-released: {metadata['release_date']}" in citation_cff
+        assert metadata["literature_updated"] in citation_cff
+    else:
+        # During release preparation, CITATION.cff advances first so Zenodo can
+        # mint the next version DOI. The deployed site metadata remains on the
+        # previous release until that DOI exists.
+        assert tuple(map(int, citation_version.group(1).split("."))) > tuple(
+            map(int, metadata["version"].split("."))
+        )
+        assert citation_doi is None
 
     for relative_path in pages_with_footers:
         page = (ROOT / relative_path).read_text(encoding="utf-8")

@@ -1,10 +1,9 @@
 cff-version: 1.2.0
-message: "Please cite software v1.0.0 and state that the literature was updated on 2026-07-15."
+message: "Please cite software v2.0.0 and state that the literature was updated on 2026-09-15."
 title: "Psychedelics Knowledge Graph"
 type: software
-version: "1.0.0"
-doi: "10.5281/zenodo.21671976"
-date-released: 2026-07-29
+version: "2.0.0"
+date-released: 2026-09-18
 authors:
   - family-names: "Karvelis"
     given-names: "Povilas"
@@ -12,7 +11,6 @@ authors:
     affiliation: "Krembil Centre for Neuroinformatics, Centre for Addiction and Mental Health (CAMH)"
 abstract: "A knowledge graph that organizes psychedelic research into structured findings linked to their source publications."
 repository-code: "https://github.com/povilaskarvelis/psychedelics_knowledge_graph"
-repository-artifact: "https://github.com/povilaskarvelis/psychedelics_knowledge_graph/releases/tag/v1.0.0"
 url: "https://psychedelicskg.com"
 license: "Apache-2.0"
 keywords:
