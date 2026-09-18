@@ -1,7 +1,7 @@
 {
   "schema_version": "route_native_evidence_payload_active_v1",
   "release_id": "living_update_20260917_author_identity_reviewed:a76f9a9dffff482e9beca9e3e95c1340",
-  "public_release_id": "living_update_20260917_author_identity_reviewed:public:548e24c1ddda48c6ba4a8ae04afe13c5",
+  "public_release_id": "living_update_20260917_author_identity_reviewed:public:335768f912d24f0092f40a196452713a",
   "run_id": "living_update_20260917_author_identity_reviewed",
   "active_graph_bootstraps": {
     "primary": "data/processed/graph_payload_runs/living_update_20260917_author_identity_reviewed/graph_bootstrap_primary.json",
