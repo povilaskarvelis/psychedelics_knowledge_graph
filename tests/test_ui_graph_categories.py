@@ -568,6 +568,34 @@ def test_graph_selection_details_match_the_admitted_graph_projection() -> None:
     assert detail.count("uniqueGraphPropositionClaims(") >= 2
 
 
+def test_multi_subject_cards_and_bibliography_follow_the_selected_projection() -> None:
+    source = APP_JS.read_text(encoding="utf-8")
+    card = source.split("function claimCardInnerHtml", 1)[1].split(
+        "function createClaimCardElement", 1
+    )[0]
+    relation = source.split("function graphSelectionCompoundForClaim", 1)[1].split(
+        "function hierarchicalSpecificFieldLabel", 1
+    )[0]
+    bibliography = source.split("function bibliographyGraphContextsForClaim", 1)[1].split(
+        "function currentBibliographyYearRange", 1
+    )[0]
+    cards = source.split("function renderCards", 1)[1].split(
+        "function bibliographyEntryId", 1
+    )[0]
+
+    assert 'selectionContext?.type === "edge"' in relation
+    assert 'selectionContext?.type === "compound"' in relation
+    assert "claimMatchesGraphCompound(claim, selectedCompound)" in relation
+    assert "meaningfulText(claim.graph_subject_label)" in relation
+    assert "subjects.map((subject) => subject.label)" in relation
+    assert "claimRelationCompoundText(claim, selectionContext)" in card
+    assert "normalizeValue(exactExposure) !== normalizeValue(relationCompound)" in card
+    assert "graphOverviewSubjectsForClaim(claim)" in bibliography
+    assert "bibliographyGraphContextsForClaim(claim).forEach" in bibliography
+    assert "cloneGraphSelection(selected)" in cards
+    assert "createClaimCardElement(claim, siblingClaims, cardSelectionContext)" in cards
+
+
 def test_main_browse_surfaces_exclude_detail_only_findings_but_search_can_retrieve_them() -> None:
     source = APP_JS.read_text(encoding="utf-8")
     cards = source.split("function findingCardResults", 1)[1].split("function selectionIsValid", 1)[0]
@@ -769,7 +797,7 @@ def test_versioned_static_assets_are_browser_immutable() -> None:
     assert headers["/ui/*.js"]["Cache-Control"] == "public, max-age=31536000, immutable"
     assert headers["/ui/*.css"]["Cache-Control"] == "public, max-age=31536000, immutable"
     assert 'styles.css?v=20260917-analysis-overview-v1' in html_source
-    assert 'app.js?v=20260917-analysis-compact-v1' in html_source
+    assert 'app.js?v=20260918-v2-release-v1' in html_source
     assert 'research-model.js?v=20260905-v1' in html_source
     assert 'research-analysis.js?v=20260917-analysis-compact-v1' in html_source
     assert 'research-analysis.css?v=20260917-analysis-compact-v1' in html_source
