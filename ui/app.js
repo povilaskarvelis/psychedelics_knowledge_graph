@@ -10568,12 +10568,11 @@ function renderSynthesisGap(rows) {
   const plotHeight = height - margin.top - margin.bottom;
   const baselineY = margin.top + plotHeight;
   const maxValue = Math.max(1, ...points.flatMap((point) => [point.primary, point.synthesis]));
-  const logMax = Math.log1p(maxValue);
-  const xFor = (value) => margin.left + (Math.log1p(value) / logMax) * plotWidth;
-  const yFor = (value) => margin.top + plotHeight - (Math.log1p(value) / logMax) * plotHeight;
+  const xFor = (value) => margin.left + (value / maxValue) * plotWidth;
+  const yFor = (value) => margin.top + plotHeight - (value / maxValue) * plotHeight;
   const guide = `<line x1="${margin.left}" y1="${baselineY}" x2="${margin.left + plotWidth}" y2="${margin.top}" class="analytics-balance-guide"></line>`;
   const ticks = [0, 0.33, 0.66, 1].map((ratio) => {
-    const value = Math.max(0, Math.round(Math.expm1(logMax * ratio)));
+    const value = Math.round(maxValue * ratio);
     const x = margin.left + ratio * plotWidth;
     const y = margin.top + plotHeight - ratio * plotHeight;
     return `<line x1="${x}" x2="${x}" y1="${margin.top}" y2="${baselineY}" class="analytics-gridline"></line><line x1="${margin.left}" x2="${margin.left + plotWidth}" y1="${y}" y2="${y}" class="analytics-gridline"></line><text x="${x}" y="${baselineY + 12}" class="analytics-axis-label" text-anchor="middle">${formatCompactNumber(value)}</text><text x="${margin.left - 10}" y="${y + 3}" class="analytics-axis-label" text-anchor="end">${formatCompactNumber(value)}</text>`;
