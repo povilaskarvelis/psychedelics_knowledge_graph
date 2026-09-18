@@ -10563,7 +10563,7 @@ function renderSynthesisGap(rows) {
   }));
   const width = 640;
   const height = 348;
-  const margin = { top: 22, right: 36, bottom: 64, left: 54 };
+  const margin = { top: 22, right: 36, bottom: 64, left: 76 };
   const plotWidth = width - margin.left - margin.right;
   const plotHeight = height - margin.top - margin.bottom;
   const baselineY = margin.top + plotHeight;
