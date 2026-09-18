@@ -507,6 +507,15 @@ let explorerWorkspaceResizeObserver = null;
 let explorerWorkspaceResizeFrame = 0;
 let analysisWorkspaceSnapshot = null;
 let overviewWorkspaceFilterState = { evidenceView: "primary", accessView: "open" };
+let analysisDataBySource = null;
+let analysisDataTask = null;
+const analysisPayloadsBySource = new Map();
+const analysisDetailChunkCache = new Map();
+const analysisDetailChunkTasks = new Map();
+const analysisDetailWaiters = [];
+let analysisDetailRequests = 0;
+let analysisFindingObserver = null;
+const analysisCardLoaders = new WeakMap();
 let analysisIndexWorker = null;
 let analysisIndexReadyPromise = null;
 let analysisIndexRequestId = 0;
@@ -1446,7 +1455,11 @@ function isOpenAccessClaim(claim) {
 
 function applyClaimLayerStore() {
   const store = claimStores[claimLayer] || claimStores.normalized;
-  if (claimLayer === "normalized" && store.bySource) {
+  if (explorerMode === "analysis" && analysisDataIsReady()) {
+    claims = hasFindingSearchQuery() && normalizedSourceLoaded[currentSourceKey()]
+      ? claimStores.normalized.bySource[currentSourceKey()]
+      : analysisSourceClaims(currentSourceKey());
+  } else if (claimLayer === "normalized" && store.bySource) {
     claims = normalizedClaimsForSourceView(currentSourceKey(), currentEntityViewKey());
   } else {
     claims = store.all || [];
@@ -1619,7 +1632,7 @@ function defaultYearFilterRange(bounds) {
 function yearFilterBounds(data) {
   // Analyze shares one date range across paper types and entity profiles.
   // A narrower selection must not clamp that range or widen an empty result.
-  const corpus = explorerMode === "analysis" ? claimStores.normalized.bySource.all : null;
+  const corpus = explorerMode === "analysis" ? analysisSourceClaims() : null;
   return yearBoundsFromClaims(corpus?.length ? corpus.filter((claim) => !isHiddenMainGraphItem(claim)) : data);
 }
 
@@ -4459,6 +4472,7 @@ function claimCardInnerHtml(claim, referenceClass = "card-reference", siblingCou
 }
 
 function createClaimCardElement(claim, siblingClaims = []) {
+  if (claim.__analysis_bootstrap) return createLazyAnalysisCard(claim, siblingClaims);
   const card = document.createElement("div");
   card.className = "card";
   card.innerHTML = claimCardInnerHtml(claim, "card-reference", siblingClaims.length);
@@ -4478,7 +4492,7 @@ function createClaimCardElement(claim, siblingClaims = []) {
 }
 
 function paperContextClaimsByStudy() {
-  const contextClaims = graphViewClaims(claims);
+  const contextClaims = graphViewClaims(explorerMode === "analysis" ? analysisSourceClaims(currentSourceKey()) : claims);
   const yearRange = activeYearRange(contextClaims);
   const key = [
     claimLayer,
@@ -4529,6 +4543,7 @@ function appendCardToMasonryColumn(columns, card, index) {
 }
 
 function renderCards(data) {
+  analysisFindingObserver?.disconnect();
   const cardData = data;
 
   disconnectCardsLoadObserver();
@@ -7590,7 +7605,7 @@ function syncAnalysisScopeControls() {
 }
 
 function explorerSourceClaims() {
-  const sourceClaims = claimStores.normalized.bySource[currentSourceKey()] || [];
+  const sourceClaims = analysisSourceClaims(currentSourceKey());
   return sourceClaims.filter((claim) => !isHiddenMainGraphItem(claim));
 }
 
@@ -9887,12 +9902,12 @@ function renderExplorerSurface() {
 
 function compareRawClaims() {
   return COMPARE_EVIDENCE_SOURCES.flatMap(({ key }) =>
-    (claimStores.normalized.bySource[key] || []).filter((claim) => !isHiddenMainGraphItem(claim))
+    analysisSourceClaims(key).filter((claim) => !isHiddenMainGraphItem(claim))
   );
 }
 
 function compareFilteredClaimsForSource(sourceKey, yearRange, options = {}) {
-  const sourceClaims = (claimStores.normalized.bySource[sourceKey] || []).filter(
+  const sourceClaims = analysisSourceClaims(sourceKey).filter(
     (claim) => !isHiddenMainGraphItem(claim)
   );
   return applyFiltersToClaims(sourceClaims, yearRange, {
@@ -11001,7 +11016,7 @@ function renderAnalysisSurface() {
 
 async function loadAnalysisAndRender({ resetYears = false, showTransition = false } = {}) {
   const token = ++explorerRenderToken;
-  const analysisDataReady = normalizedSourceLoaded.all;
+  const analysisDataReady = analysisDataIsReady();
   const analysisIndexReadyTask = ensureAnalysisIndexReady();
   cancelExplorerSearchRender();
   closeExplorerSearchOptions();
@@ -11009,22 +11024,28 @@ async function loadAnalysisAndRender({ resetYears = false, showTransition = fals
   stopExplorerWorkspaceAutosize();
   graphEl.setAttribute("aria-busy", "true");
   if (showTransition || !analysisDataReady) {
-    graphEl.innerHTML = '<div class="explorer-loading">Preparing the analysis…</div>';
+    graphEl.innerHTML = analysisLoadingHtml();
     setExplorerWorkspaceHeight(GRAPH_BASE_HEIGHT_PX);
   }
   clearDetailForTransition();
   cardsEl.innerHTML = "";
   if (studyListEl) studyListEl.innerHTML = "";
   try {
-    if (!analysisDataReady) await loadNormalizedClaimSource("all");
+    if (!analysisDataReady) await loadAnalysisData();
   } catch (error) {
     if (token === explorerRenderToken) {
       graphEl.removeAttribute("aria-busy");
-      renderLoadError([`Analysis data: ${error.message}`]);
+      graphEl.innerHTML = `<div class="explorer-loading" role="alert">Analysis could not be loaded. <button type="button" class="ghost small" data-analysis-retry>Retry</button></div>`;
     }
     return;
   }
   if (token !== explorerRenderToken || explorerMode !== "analysis") return;
+  if (!analysisDataReady) {
+    const status = graphEl.querySelector(".explorer-loading");
+    if (status) status.textContent = "Preparing charts and evidence coverage…";
+    await waitForPaint();
+    if (token !== explorerRenderToken || explorerMode !== "analysis") return;
+  }
   updateAnalysisPrewarmState("ready");
   applyClaimLayerStore();
   const sourceClaims = isAnalysisCompoundSection()
@@ -11235,7 +11256,7 @@ function restoreAnalysisWorkspaceSnapshot() {
   if (snapshot.cardsStyle) cardsEl.setAttribute("style", snapshot.cardsStyle);
   else cardsEl.removeAttribute("style");
 
-  const needsCardObserver = Boolean(cardsEl.querySelector(".cards-load-sentinel"));
+  const needsCardObserver = Boolean(cardsEl.querySelector(".cards-load-sentinel, .analysis-finding-placeholder"));
   const needsBibliographyObserver = Boolean(studyListEl?.querySelector(".bibliography-load-sentinel"));
   window.requestAnimationFrame(() => {
     graphEl.scrollTop = snapshot.graphScrollTop;
@@ -12074,6 +12095,7 @@ function scheduleFindingSearchRender() {
       updateModeUI();
       scheduleFindingSearchIndexWarmup();
     }
+    if (explorerMode === "analysis") applyClaimLayerStore();
     window.requestAnimationFrame(() => {
       if (token !== findingSearchRenderToken) return;
       const graphFiltered = applyFilters({ ignoreSearch: true });
@@ -12416,6 +12438,143 @@ async function loadGraphPayloadConfig() {
   return graphPayloadConfigPromise;
 }
 
+function analysisSourceClaims(source = "all") {
+  return analysisDataBySource?.[source] || claimStores.normalized.bySource[source] || [];
+}
+
+function analysisDataIsReady() {
+  return Boolean(analysisDataBySource || normalizedSourceLoaded.all);
+}
+
+async function loadAnalysisData() {
+  if (analysisDataIsReady()) return;
+  if (analysisDataTask) return analysisDataTask;
+  analysisDataTask = (async () => {
+    const config = await loadGraphPayloadConfig();
+    if (!config.active_analysis_bootstraps) {
+      // Previously published releases remain usable during rollout.
+      await loadNormalizedClaimSource("all");
+      return;
+    }
+    const entries = await Promise.all(["primary", "meta_analyses", "reviews"].map(async (source) => {
+      const path = config.active_analysis_bootstraps[source];
+      if (!path) throw new Error(`Missing analysis data for ${source}.`);
+      const { data, url } = await fetchJsonFromCandidates(graphPayloadCandidates(config, path));
+      if (data.schema_version !== "psychedelics_kg_analysis_bootstrap_v1" || data.source !== source ||
+          !Number.isInteger(data.chunk_size) || data.chunk_size < 1 ||
+          !Array.isArray(data.detail_chunks) || data.detail_chunks.length !== Math.ceil(data.row_count / data.chunk_size) || data.detail_chunks.some((name) => !/^[a-zA-Z0-9_-]+\.json$/.test(name))) {
+        throw new Error(`Unsupported analysis data for ${source}.`);
+      }
+      const items = [];
+      for (const batch of PKGAnalysisPayload.batches(data)) {
+        if (items.length) await yieldForAnalysisInput();
+        for (const raw of batch) {
+          const item = routeNativeFindingForCurrentUi(raw, { reuse: true });
+          if (isHiddenMainGraphItem(item) || routeNativeSourceKey(item) !== source) continue;
+          item.__analysis_bootstrap = true;
+          item.__analysis_source = source;
+          items.push(item);
+        }
+      }
+      return [source, items, { url: new URL(url, window.location.href).href, chunkSize: data.chunk_size, chunks: data.detail_chunks }];
+    }));
+    const bySource = {};
+    entries.forEach(([source, items, payload]) => {
+      bySource[source] = items;
+      analysisPayloadsBySource.set(source, payload);
+    });
+    bySource.all = entries.flatMap(([, items]) => items);
+    analysisDataBySource = bySource;
+    analysisClaimsByStudyMemo = null;
+  })();
+  try { await analysisDataTask; }
+  finally { analysisDataTask = null; }
+}
+
+async function loadAnalysisFinding(claim) {
+  if (!claim.__analysis_bootstrap) return claim;
+  const source = claim.__analysis_source;
+  const payload = analysisPayloadsBySource.get(source);
+  const row = claim.__analysis_row;
+  if (!payload || !Number.isInteger(row) || row < 0) throw new Error("Finding details are unavailable.");
+  const chunk = Math.floor(row / payload.chunkSize);
+  const name = payload.chunks[chunk];
+  if (!name) throw new Error("Finding details are unavailable.");
+  const url = new URL(name, payload.url).href;
+  let task = analysisDetailChunkTasks.get(url);
+  if (!task) {
+    task = (async () => {
+      if (analysisDetailChunkCache.has(url)) {
+        const cached = analysisDetailChunkCache.get(url);
+        analysisDetailChunkCache.delete(url);
+        analysisDetailChunkCache.set(url, cached);
+        return cached;
+      }
+      // Bound simultaneous detail requests even when many cards enter the viewport.
+      if (analysisDetailRequests >= 4) await new Promise((resolve) => analysisDetailWaiters.push(resolve));
+      else analysisDetailRequests += 1;
+      try {
+        const { data } = await fetchJsonFromCandidates([url]);
+        if (data.schema_version !== "psychedelics_kg_analysis_findings_v1" || data.source !== source) {
+          throw new Error("Unsupported finding details.");
+        }
+        const items = await prepareDetailBootstrapClaims(data, source);
+        const result = new Map(items.map((item) => [item.__analysis_row, item]));
+        analysisDetailChunkCache.set(url, result);
+        while (analysisDetailChunkCache.size > 24) analysisDetailChunkCache.delete(analysisDetailChunkCache.keys().next().value);
+        return result;
+      } finally {
+        const next = analysisDetailWaiters.shift();
+        if (next) next();
+        else analysisDetailRequests -= 1;
+      }
+    })();
+    analysisDetailChunkTasks.set(url, task);
+    task.finally(() => analysisDetailChunkTasks.delete(url)).catch(() => {});
+  }
+  const full = (await task).get(row);
+  if (!full) throw new Error("This finding could not be loaded.");
+  return full;
+}
+
+function createLazyAnalysisCard(claim, siblings) {
+  const card = document.createElement("div");
+  card.className = "card analysis-finding-placeholder";
+  card.innerHTML = `<p>${escapeHtml(graphRightLabelForClaim(claim) || "Finding")}</p><p role="status">Loading evidence…</p>`;
+  card.setAttribute("aria-busy", "true");
+  const load = async () => {
+    card.setAttribute("aria-busy", "true");
+    try {
+      const full = await loadAnalysisFinding(claim);
+      card.replaceWith(createClaimCardElement(full, siblings));
+    } catch (_) {
+      card.removeAttribute("aria-busy");
+      card.innerHTML = '<p role="status">Evidence could not be loaded.</p><button type="button" class="ghost small">Retry</button>';
+      card.querySelector("button").addEventListener("click", load, { once: true });
+    }
+  };
+  analysisCardLoaders.set(card, load);
+  if (!analysisFindingObserver && "IntersectionObserver" in window) {
+    analysisFindingObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        analysisFindingObserver.unobserve(entry.target);
+        analysisCardLoaders.get(entry.target)?.();
+      });
+    }, { rootMargin: "360px 0px" });
+  }
+  if (analysisFindingObserver) analysisFindingObserver.observe(card);
+  else load();
+  return card;
+}
+
+function analysisLoadingHtml() {
+  return `<div class="analysis-loading" role="status" aria-live="polite">
+    <p class="explorer-loading">Loading analysis…</p>
+    <div class="analysis-loading-panels" aria-hidden="true"><i></i><i></i><i></i></div>
+  </div>`;
+}
+
 function analysisIndexParams() {
   return {
     lens: ANALYSIS_SECTIONS.has(explorerLens) ? explorerLens : "all",
@@ -12505,7 +12664,7 @@ async function queryAnalysisIndex(params = analysisIndexParams()) {
 }
 
 function prewarmInitialAnalysisIndexView() {
-  const source = claimStores.normalized.bySource.all || [];
+  const source = analysisSourceClaims();
   const bounds = yearBoundsFromClaims(source);
   if (!source.length || !bounds) return Promise.resolve(null);
   const initialYearMin = clampNumber(ANALYSIS_DEFAULT_START_YEAR, bounds.min, bounds.max);
@@ -12522,7 +12681,7 @@ function prewarmInitialAnalysisIndexView() {
 }
 
 function scheduleAnalysisIndexViewPrewarm() {
-  const source = claimStores.normalized.bySource.all || [];
+  const source = analysisSourceClaims();
   const bounds = yearBoundsFromClaims(source);
   if (!source.length || !bounds) return;
   const initialYearMin = clampNumber(ANALYSIS_DEFAULT_START_YEAR, bounds.min, bounds.max);
@@ -12557,7 +12716,7 @@ function analysisStudyKey(claim) {
 }
 
 function analysisClaimsByStudy() {
-  const source = claimStores.normalized.bySource.all || [];
+  const source = analysisSourceClaims();
   if (analysisClaimsByStudyMemo?.source === source) return analysisClaimsByStudyMemo.value;
   const value = new Map();
   source.forEach((claim) => {
@@ -12760,7 +12919,7 @@ function columnarBootstrapClaimsFromPayload(payload, bootstrapMarker, sourceKey 
       if (value === null || value === undefined || value === "") continue;
       raw[field] = value;
     }
-    const item = routeNativeFindingForCurrentUi(raw);
+    const item = routeNativeFindingForCurrentUi(raw, { reuse: true });
     if (isHiddenMainGraphItem(item)) return;
     if (sourceKey && routeNativeSourceKey(item) !== sourceKey) return;
     item[bootstrapMarker] = true;
@@ -12775,6 +12934,25 @@ function dashboardBootstrapClaimsFromPayload(payload, sourceKey) {
 
 function detailBootstrapClaimsFromPayload(payload, sourceKey) {
   return columnarBootstrapClaimsFromPayload(payload, "__detail_bootstrap", sourceKey);
+}
+
+function yieldForAnalysisInput() {
+  if (window.scheduler?.yield) return window.scheduler.yield();
+  return new Promise((resolve) => window.setTimeout(resolve, 0));
+}
+
+async function prepareDetailBootstrapClaims(payload, sourceKey) {
+  const rows = Array.isArray(payload?.rows) ? payload.rows : [];
+  const items = [];
+  // Decode in bounded batches so background preloading cannot freeze Explore,
+  // and a first visit can paint its loading state and respond to navigation.
+  for (let offset = 0; offset < rows.length; offset += 1024) {
+    if (offset) await yieldForAnalysisInput();
+    items.push(...detailBootstrapClaimsFromPayload({
+      ...payload, rows: rows.slice(offset, offset + 1024),
+    }, sourceKey));
+  }
+  return items;
 }
 
 async function loadGraphBootstrapClaims(sourceKey) {
@@ -12800,9 +12978,14 @@ async function loadDetailBootstrapClaims(sourceKey) {
   if (detailBootstrapPayloadPromises.has(path)) return detailBootstrapPayloadPromises.get(path);
 
   const task = fetchJsonFromCandidates(graphPayloadCandidates(config, path))
-    .then(({ data }) => detailBootstrapClaimsFromPayload(data, sourceKey));
+    .then(({ data }) => prepareDetailBootstrapClaims(data, sourceKey));
   detailBootstrapPayloadPromises.set(path, task);
-  return task;
+  try {
+    return await task;
+  } catch (error) {
+    if (detailBootstrapPayloadPromises.get(path) === task) detailBootstrapPayloadPromises.delete(path);
+    throw error;
+  }
 }
 
 async function loadDetailViewBootstrapClaims(sourceKey, viewKey) {
@@ -12814,7 +12997,7 @@ async function loadDetailViewBootstrapClaims(sourceKey, viewKey) {
   }
 
   const task = fetchJsonFromCandidates(graphPayloadCandidates(config, path))
-    .then(({ data }) => detailBootstrapClaimsFromPayload(data, sourceKey));
+    .then(({ data }) => prepareDetailBootstrapClaims(data, sourceKey));
   detailViewBootstrapPayloadPromises.set(path, task);
   try {
     return await task;
@@ -12888,13 +13071,12 @@ function routeNativeGraphEntityLabel(finding) {
   return routeNativeEntityLabel(finding);
 }
 
-function routeNativeFindingForCurrentUi(finding) {
+function routeNativeFindingForCurrentUi(finding, { reuse = false } = {}) {
   const entityLabel = routeNativeEntityLabel(finding);
   const graphEntityLabel = routeNativeGraphEntityLabel(finding);
   const entityKind = cleanDisplayText(finding.entity_kind || finding.kg_entity_kind);
   const accessLevel = routeNativeAccessLevel(finding);
-  const item = {
-    ...finding,
+  const item = Object.assign(reuse ? finding : { ...finding }, {
     finding_type: cleanDisplayText(finding.finding_type || finding.domain),
     kg_domain: cleanDisplayText(finding.domain || finding.kg_domain),
     kg_entity_kind: entityKind,
@@ -12913,7 +13095,7 @@ function routeNativeFindingForCurrentUi(finding) {
     evidence_location: cleanDisplayText(finding.evidence_location),
     evidence_locator: cleanDisplayText(finding.evidence_locator || finding.evidence_location),
     timepoint: cleanDisplayText(finding.assessment_timepoint || finding.timepoint),
-  };
+  });
   item.graph_entity_label = graphEntityLabel || entityLabel;
   return item;
 }
@@ -13155,7 +13337,7 @@ function prewarmDefaultAnalysisData() {
 
   updateAnalysisPrewarmState("loading");
   defaultAnalysisPrewarmTask = Promise.all([
-    normalizedSourceLoaded.all ? Promise.resolve() : loadNormalizedClaimSource("all"),
+    loadAnalysisData(),
     ensureAnalysisIndexReady(),
   ])
     .then(async () => {
@@ -13459,7 +13641,6 @@ async function restoreExplorerViewFromUrl({ initial = false } = {}) {
     if (explorerMode === "analysis") {
       await loadAnalysisAndRender({ resetYears: false, showTransition: !initial });
     } else {
-      scheduleDefaultAnalysisPrewarm();
       applyClaimLayerStore();
       await loadCurrentClaimsAndRender({
         showLoading: initial,
@@ -13468,6 +13649,7 @@ async function restoreExplorerViewFromUrl({ initial = false } = {}) {
         // Wait for its complete view before validating and rendering the focus.
         showGraphBootstrap: !selected,
       });
+      scheduleDefaultAnalysisPrewarm();
     }
   } finally {
     restoringExplorerUrlState = false;
@@ -13852,6 +14034,10 @@ graphEl.addEventListener("change", (event) => {
   }
 });
 graphEl.addEventListener("click", (event) => {
+  if (event.target.closest?.("[data-analysis-retry]")) {
+    loadAnalysisAndRender({ showTransition: true });
+    return;
+  }
   if (researchHandleClick(event)) return;
   if (explorerMode === "analysis") {
     const timelineView = event.target.closest?.("[data-explorer-timeline-view]");

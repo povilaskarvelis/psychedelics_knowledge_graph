@@ -139,8 +139,11 @@ def load_identity_overrides(path: Path) -> dict[str, Any]:
     if not path.is_file():
         return {
             "openalex_to_orcid": {},
+            "openalex_to_openalex": {},
+            "orcid_aliases": {},
             "local_name_to_orcid": {},
             "preferred_name_by_orcid": {},
+            "distinct_identity_reviews": [],
         }
     payload = read_json(path)
     records = payload.get("overrides", [])
@@ -148,6 +151,8 @@ def load_identity_overrides(path: Path) -> dict[str, Any]:
         raise ValueError(f"Identity overrides must contain an overrides array: {path}")
 
     openalex_to_orcid: dict[str, str] = {}
+    openalex_to_openalex: dict[str, str] = {}
+    orcid_aliases: dict[str, str] = {}
     local_name_to_orcid: dict[str, str] = {}
     preferred_name_by_orcid: dict[str, str] = {}
     for index, record in enumerate(records, start=1):
@@ -173,12 +178,81 @@ def load_identity_overrides(path: Path) -> dict[str, Any]:
             if previous and previous != orcid:
                 raise ValueError(f"Author name {value!r} maps to multiple ORCIDs in {path}")
             local_name_to_orcid[name] = orcid
+
+    profile_alias_records = payload.get("profile_alias_reviews", [])
+    if not isinstance(profile_alias_records, list):
+        raise ValueError(f"profile_alias_reviews must be an array: {path}")
+    seen_review_ids: set[str] = set()
+    required_review_fields = {"review_id", "reason", "sources", "reviewed_at", "reviewed_by"}
+    for index, record in enumerate(profile_alias_records, start=1):
+        if not isinstance(record, dict) or not required_review_fields.issubset(record):
+            raise ValueError(f"Profile alias review {index} lacks review provenance: {path}")
+        review_id = normalize(record.get("review_id", ""))
+        target = normalize_openalex_id(record.get("target_openalex_author_id", ""))
+        sources = record.get("sources", [])
+        if (
+            not review_id
+            or review_id in seen_review_ids
+            or not target
+            or not normalize(record.get("reason", ""))
+            or not isinstance(sources, list)
+            or not sources
+        ):
+            raise ValueError(f"Invalid profile alias review {index}: {path}")
+        seen_review_ids.add(review_id)
+        source_ids = record.get("source_openalex_author_ids", [])
+        if not isinstance(source_ids, list) or not source_ids:
+            raise ValueError(f"Profile alias review {review_id} requires source profiles")
+        for value in source_ids:
+            source = normalize_openalex_id(value)
+            if not source or source == target:
+                raise ValueError(f"Invalid source profile in {review_id}")
+            previous = openalex_to_openalex.get(source)
+            if previous and previous != target:
+                raise ValueError(f"OpenAlex author {source} maps to multiple profiles in {path}")
+            openalex_to_openalex[source] = target
+
+    orcid_alias_records = payload.get("orcid_alias_reviews", [])
+    if not isinstance(orcid_alias_records, list):
+        raise ValueError(f"orcid_alias_reviews must be an array: {path}")
+    for index, record in enumerate(orcid_alias_records, start=1):
+        if not isinstance(record, dict) or not required_review_fields.issubset(record):
+            raise ValueError(f"ORCID alias review {index} lacks review provenance: {path}")
+        review_id = normalize(record.get("review_id", ""))
+        source = normalize_orcid(record.get("source_orcid", ""))
+        target = normalize_orcid(record.get("target_orcid", ""))
+        sources = record.get("sources", [])
+        if (
+            not review_id
+            or review_id in seen_review_ids
+            or not source
+            or not target
+            or source == target
+            or not normalize(record.get("reason", ""))
+            or not isinstance(sources, list)
+            or not sources
+        ):
+            raise ValueError(f"Invalid ORCID alias review {index}: {path}")
+        seen_review_ids.add(review_id)
+        previous = orcid_aliases.get(source)
+        if previous and previous != target:
+            raise ValueError(f"ORCID {source} maps to multiple canonical ORCIDs in {path}")
+        orcid_aliases[source] = target
+    if set(orcid_aliases) & set(orcid_aliases.values()):
+        raise ValueError(f"ORCID aliases must be direct, non-chained mappings: {path}")
+
+    distinct_reviews = payload.get("distinct_identity_reviews", [])
+    if not isinstance(distinct_reviews, list):
+        raise ValueError(f"distinct_identity_reviews must be an array: {path}")
     return {
         "openalex_to_orcid": openalex_to_orcid,
+        "openalex_to_openalex": openalex_to_openalex,
+        "orcid_aliases": orcid_aliases,
         "local_name_to_orcid": local_name_to_orcid,
         "preferred_name_by_orcid": preferred_name_by_orcid,
         "authorship_overrides": payload.get("authorship_overrides", []),
         "author_list_reviews": payload.get("author_list_reviews", []),
+        "distinct_identity_reviews": distinct_reviews,
     }
 
 
@@ -601,6 +675,13 @@ def authorships_for_paper(paper: dict[str, Any], cache: dict[str, Any]) -> tuple
 
 
 def apply_exact_name_aliases(paper_authors: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, int]]:
+    """Join name-only identities only with corroborating collaboration evidence.
+
+    An exact name and a single structured profile are insufficient: common names
+    can still have only one structured match in a topic-specific corpus. Require
+    two shared coauthors, and never override an explicitly reviewed name-only
+    decision or merge identities that co-occur on one paper.
+    """
     if paper_authors.empty:
         return paper_authors, {"name_alias_authorship_rows": 0, "name_alias_author_ids": 0, "name_alias_names": 0}
 
@@ -612,8 +693,8 @@ def apply_exact_name_aliases(paper_authors: pd.DataFrame) -> tuple[pd.DataFrame,
 
     structured_ids_by_name = structured.groupby("canonical_name")["author_id"].nunique()
     safe_names = set(structured_ids_by_name[structured_ids_by_name == 1].index)
-    alias_mask = local_mask & out["canonical_name"].isin(safe_names)
-    if not alias_mask.any():
+    candidate_mask = local_mask & out["canonical_name"].isin(safe_names)
+    if not candidate_mask.any():
         return out, {"name_alias_authorship_rows": 0, "name_alias_author_ids": 0, "name_alias_names": 0}
 
     target_rows = (
@@ -622,6 +703,40 @@ def apply_exact_name_aliases(paper_authors: pd.DataFrame) -> tuple[pd.DataFrame,
         .drop_duplicates("canonical_name")
         .set_index("canonical_name")
     )
+
+    target_by_local_id: dict[str, str] = {}
+    for local_id, group in out[candidate_mask].groupby("author_id"):
+        names = sorted(set(group["canonical_name"]))
+        if len(names) == 1:
+            target_by_local_id[str(local_id)] = str(target_rows.loc[names[0], "author_id"])
+
+    authors_by_paper = out.groupby("paper_id")["author_id"].agg(set).to_dict()
+    papers_by_author = out.groupby("author_id")["paper_id"].agg(set).to_dict()
+
+    def translated_collaborators(author_id: str) -> set[str]:
+        collaborators: set[str] = set()
+        for paper_id in papers_by_author.get(author_id, set()):
+            collaborators.update(authors_by_paper.get(paper_id, set()))
+        collaborators.discard(author_id)
+        return {target_by_local_id.get(value, value) for value in collaborators}
+
+    eligible_local_ids: set[str] = set()
+    for local_id, target_id in target_by_local_id.items():
+        if papers_by_author.get(local_id, set()) & papers_by_author.get(target_id, set()):
+            continue
+        shared = translated_collaborators(local_id) & translated_collaborators(target_id)
+        shared.discard(local_id)
+        shared.discard(target_id)
+        if len(shared) >= 2:
+            eligible_local_ids.add(local_id)
+
+    reviewed = pd.Series(False, index=out.index)
+    for column in ("identity_review_id", "author_list_review_id"):
+        if column in out:
+            reviewed |= out[column].fillna("").astype(str).str.strip().ne("")
+    alias_mask = candidate_mask & out["author_id"].isin(eligible_local_ids) & ~reviewed
+    if not alias_mask.any():
+        return out, {"name_alias_authorship_rows": 0, "name_alias_author_ids": 0, "name_alias_names": 0}
 
     aliased_author_ids = set(out.loc[alias_mask, "author_id"])
     for idx in out.index[alias_mask]:
@@ -653,6 +768,8 @@ def apply_orcid_identities(
         "openalex_profiles_merged_by_shared_orcid": 0,
         "authorship_rows_canonicalized_to_orcid": 0,
         "curated_openalex_profile_mappings": 0,
+        "curated_openalex_profile_aliases": 0,
+        "curated_orcid_aliases": 0,
         "curated_local_name_mappings": 0,
     }
     if paper_authors.empty:
@@ -661,7 +778,39 @@ def apply_orcid_identities(
     out = paper_authors.copy()
     overrides = identity_overrides or {}
     openalex_overrides = overrides.get("openalex_to_orcid", {})
+    profile_aliases = overrides.get("openalex_to_openalex", {})
+    orcid_aliases = overrides.get("orcid_aliases", {})
     local_name_overrides = overrides.get("local_name_to_orcid", {})
+
+    # A DOI + author-position review is the narrowest and strongest identity
+    # evidence in this pipeline. Provider-profile and ORCID mappings are broader
+    # defaults, so they must never rewrite a row that has already received a
+    # scoped correction.
+    scoped_reviewed = out.get(
+        "identity_review_id", pd.Series("", index=out.index, dtype=str)
+    ).fillna("").astype(str).str.strip().ne("")
+
+    curated_orcid_rows = 0
+    for index in out.index:
+        observed_orcid = normalize_orcid(out.at[index, "orcid"])
+        canonical_orcid = orcid_aliases.get(observed_orcid, "")
+        if canonical_orcid:
+            out.at[index, "orcid"] = canonical_orcid
+            out.at[index, "author_id"] = f"orcid:{canonical_orcid}"
+            out.at[index, "identity_confidence"] = "curated_orcid_alias"
+            curated_orcid_rows += 1
+
+    curated_profile_rows = 0
+    for index in out.index:
+        source_profile = normalize_openalex_id(out.at[index, "openalex_author_id"])
+        target_profile = profile_aliases.get(source_profile, "")
+        if not target_profile:
+            continue
+        out.at[index, "openalex_author_id"] = target_profile
+        if not normalize_orcid(out.at[index, "orcid"]):
+            out.at[index, "author_id"] = f"openalex:{openalex_short_id(target_profile)}"
+            out.at[index, "identity_confidence"] = "curated_openalex_alias"
+        curated_profile_rows += 1
 
     curated_openalex_rows = 0
     for index in out.index:
@@ -669,6 +818,8 @@ def apply_orcid_identities(
         curated_orcid = openalex_overrides.get(openalex_id, "")
         observed_orcid = normalize_orcid(out.at[index, "orcid"])
         if curated_orcid:
+            if scoped_reviewed.at[index] and not observed_orcid:
+                continue
             if observed_orcid and observed_orcid != curated_orcid:
                 raise ValueError(
                     f"Curated ORCID {curated_orcid} conflicts with observed ORCID "
@@ -678,7 +829,11 @@ def apply_orcid_identities(
             curated_openalex_rows += 1
 
     local_mask = out["author_id"].astype(str).str.startswith("local_author:")
-    curated_local_mask = local_mask & out["canonical_name"].map(
+    reviewed_local_mask = pd.Series(False, index=out.index)
+    for column in ("identity_review_id", "author_list_review_id"):
+        if column in out:
+            reviewed_local_mask |= out[column].fillna("").astype(str).str.strip().ne("")
+    curated_local_mask = local_mask & ~reviewed_local_mask & out["canonical_name"].map(
         lambda value: canonical_name(value) in local_name_overrides
     )
     for index in out.index[curated_local_mask]:
@@ -701,7 +856,7 @@ def apply_orcid_identities(
 
     canonicalized_rows = 0
     if conflicts:
-        conflict_mask = out["openalex_author_id"].isin(conflicts)
+        conflict_mask = out["openalex_author_id"].isin(conflicts) & ~scoped_reviewed
         out.loc[conflict_mask, "orcid"] = ""
         out.loc[conflict_mask, "identity_confidence"] = "openalex_author_id_orcid_conflict"
     for index in out.index:
@@ -709,11 +864,18 @@ def apply_orcid_identities(
         orcid = safe_mapping.get(openalex_id, "")
         if not orcid:
             continue
+        if scoped_reviewed.at[index] and not normalize_orcid(out.at[index, "orcid"]):
+            continue
         out.at[index, "author_id"] = f"orcid:{orcid}"
         out.at[index, "orcid"] = orcid
-        out.at[index, "identity_confidence"] = (
-            "curated_openalex_to_orcid" if openalex_id in openalex_overrides else "orcid"
-        )
+        prior_confidence = normalize(out.at[index, "identity_confidence"])
+        if prior_confidence == "curated_orcid_alias":
+            confidence = prior_confidence
+        elif openalex_id in openalex_overrides:
+            confidence = "curated_openalex_to_orcid"
+        else:
+            confidence = "orcid"
+        out.at[index, "identity_confidence"] = confidence
         canonicalized_rows += 1
 
     profiles_per_orcid: Counter[str] = Counter(safe_mapping.values())
@@ -725,6 +887,8 @@ def apply_orcid_identities(
         ),
         "authorship_rows_canonicalized_to_orcid": canonicalized_rows,
         "curated_openalex_profile_mappings": len(openalex_overrides),
+        "curated_openalex_profile_aliases": len(profile_aliases),
+        "curated_orcid_aliases": curated_orcid_rows,
         "curated_local_name_mappings": int(curated_local_mask.sum()),
     }
 
@@ -874,6 +1038,18 @@ def build_tables(
                 not target_orcid and rejected_orcid and resolved_orcid == rejected_orcid
             ):
                 raise ValueError(f"Identity propagation conflicts with review {record['review_id']}")
+            corrected_profile = normalize_openalex_id(record["replacement"]["openalex_author_id"])
+            if corrected_profile and rejected_orcid and rejected_orcid != target_orcid:
+                contradictory_profile_mapping = (
+                    (identity_overrides or {}).get("openalex_to_orcid", {}).get(corrected_profile, "")
+                    == rejected_orcid
+                )
+                contradictory_rows = paper_authors[
+                    paper_authors["openalex_author_id"].map(normalize_openalex_id).eq(corrected_profile)
+                    & paper_authors["orcid"].map(normalize_orcid).eq(rejected_orcid)
+                ]
+                if contradictory_profile_mapping or not contradictory_rows.empty:
+                    raise ValueError(f"Identity propagation conflicts with review {record['review_id']}")
         paper_authors = paper_authors.sort_values(["paper_id", "author_position", "display_name"]).reset_index(drop=True)
     else:
         orcid_stats = apply_orcid_identities(paper_authors, identity_overrides)[1]

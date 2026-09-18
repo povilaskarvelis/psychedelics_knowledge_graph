@@ -620,6 +620,10 @@ forward reviewed research-area decisions before exports. It requires unchanged
 finding IDs, source fingerprints, and normalized projections; changed or missing
 reviewed findings stop the build for explicit reconciliation. This preserves
 reviewed edge holds rather than silently returning them to the main graph.
+The same baseline is used for the integrated author-identity audit. The build
+writes focused queues for newly introduced exact-name and shared-coauthor
+collisions, and it stops on new structural authorship errors. Scoped update
+promotion sets this baseline automatically from the active run.
 Do not use this append-only carry-forward for intentionally re-extracted evidence
 without reviewing and reconciling the changed findings.
 

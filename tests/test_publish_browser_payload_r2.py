@@ -141,7 +141,9 @@ class PublishBrowserPayloadR2Test(unittest.TestCase):
                     "/methods_bibliography.json"
                 )
             )
-            self.assertEqual(result["uploaded_count"], 43)
+            self.assertEqual(set(active["active_analysis_bootstraps"]), {"primary", "meta_analyses", "reviews"})
+            self.assertIn("analysis_index_", active["active_analysis_index"])
+            self.assertEqual(result["uploaded_count"], 47)
 
             second = publish_active_browser_release(
                 store=store,
@@ -151,7 +153,7 @@ class PublishBrowserPayloadR2Test(unittest.TestCase):
                 methods_views_dir=methods_views,
             )
             self.assertEqual(second["uploaded_count"], 0)
-            self.assertEqual(second["existing_count"], 43)
+            self.assertEqual(second["existing_count"], 47)
 
     def test_checksum_failure_does_not_switch_pointer(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

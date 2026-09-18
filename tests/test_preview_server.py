@@ -22,7 +22,7 @@ from scripts.serve_site import (
 def test_local_header_uses_candidate_coverage_without_changing_archived_doi():
     source = '<span>Graph version: v1.0.0</span><span class="hero-version-date">Literature updated: 2026-07-15</span><a>10.5281/zenodo.21671976</a>'
     rendered = render_local_preview_header(source, {"literature_updated": "2026-09-15"})
-    assert "Local preview" in rendered
+    assert "Graph version: v1.0.0 · Local preview" in rendered
     assert "Literature updated: 2026-09-15" in rendered
     assert "10.5281/zenodo.21671976" in rendered
     assert "2026-07-15" in source
@@ -223,9 +223,11 @@ def test_local_preview_builds_one_verified_pointer_for_graph_and_methods(
     assert pointer["active_detail_bootstraps_by_view"]["primary"]["brain_system"].endswith(
         "/detail_bootstrap_primary_brain_system.json"
     )
-    assert pointer["active_analysis_index"].endswith("/analysis_index_v1.json")
+    assert Path(pointer["active_analysis_index"]).name.startswith("analysis_index_")
+    assert set(pointer["active_analysis_bootstraps"]) == {"primary", "meta_analyses", "reviews"}
+    assert all(f"/{path}" in allowed_files for path in pointer["active_analysis_bootstraps"].values())
     assert "/data/kg/views/methods_bibliography.json" in allowed_files
-    assert len(allowed_files) == 44
+    assert len(allowed_files) == 47
 
 
 def test_local_preview_can_select_an_unpublished_run_without_changing_active_pointer(

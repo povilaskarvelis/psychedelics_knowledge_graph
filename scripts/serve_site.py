@@ -26,7 +26,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from pipeline.kg.graph_view_contract import graph_view_ids
-from scripts.build_analysis_index import build_index, load_columnar
+from scripts.build_analysis_payload import build_analysis_release
 
 
 DEFAULT_DIST = ROOT / "dist"
@@ -319,35 +319,19 @@ def build_local_preview(
     if set(manifest.get("files") or {}) != expected_logical_names:
         raise ValueError("Graph manifest contains an unexpected file set")
 
-    analysis_index_path = run_root / "analysis_index_v1.json"
-    analysis_builder_path = repository_root / "scripts" / "build_analysis_index.py"
-    if not analysis_builder_path.is_file():
-        analysis_builder_path = ROOT / "scripts" / "build_analysis_index.py"
-    newest_analysis_input_mtime = max(
-        max(path.stat().st_mtime for path in detail_source_paths.values()),
-        analysis_builder_path.stat().st_mtime,
-    )
-    if not analysis_index_path.is_file() or analysis_index_path.stat().st_mtime < newest_analysis_input_mtime:
-        analysis_payload = build_index(
-            {
-                source_key: load_columnar(detail_source_paths[source_key])
-                for source_key in sorted(SOURCE_KEYS)
-            },
-            str(manifest.get("generated_at") or ""),
-        )
-        analysis_index_path.write_text(
-            json.dumps(analysis_payload, ensure_ascii=False, separators=(",", ":")),
-            encoding="utf-8",
-        )
-    analysis_public_path = analysis_index_path.relative_to(repository_root).as_posix()
-    allowed_files[f"/{analysis_public_path}"] = analysis_index_path
-    pointer_mappings["active_analysis_index"] = analysis_public_path
-    remote_files["analysis:index"] = {
-        "key": analysis_public_path,
-        "path": analysis_index_path.name,
-        "bytes": analysis_index_path.stat().st_size,
-        "sha256": sha256_file(analysis_index_path),
+    analysis = build_analysis_release(detail_source_paths, run_root, str(manifest.get("generated_at") or ""))
+    pointer_mappings["active_analysis_bootstraps"] = {
+        source: path.relative_to(repository_root).as_posix()
+        for source, path in analysis["sources"].items()
     }
+    pointer_mappings["active_analysis_index"] = analysis["index"].relative_to(repository_root).as_posix()
+    for logical_name, path in analysis["files"].items():
+        public_path = path.relative_to(repository_root).as_posix()
+        allowed_files[f"/{public_path}"] = path
+        remote_files[logical_name] = {
+            "key": public_path, "path": path.name,
+            "bytes": path.stat().st_size, "sha256": sha256_file(path),
+        }
 
     manifest_relative = manifest_path.relative_to(repository_root).as_posix()
     allowed_files[f"/{manifest_relative}"] = manifest_path
@@ -403,7 +387,11 @@ def build_local_preview(
 
 def render_local_preview_header(source: str, pointer: dict) -> str:
     """Show candidate coverage without rewriting archived release/DOI metadata."""
-    source = re.sub(r"<span>Graph version: [^<]*</span>", "<span>Local preview</span>", source)
+    source = re.sub(
+        r"(<span>Graph version: [^<]*)(</span>)",
+        r"\1 · Local preview\2",
+        source,
+    )
     through = pointer.get("literature_updated")
     if through:
         through = date.fromisoformat(str(through)).isoformat()
@@ -439,6 +427,11 @@ def validated_published_preview(pointer: dict) -> dict[str, str]:
     analysis_index = str(pointer.get("active_analysis_index") or "").strip("/")
     if analysis_index:
         keys.add(analysis_index)
+    analysis_mapping = pointer.get("active_analysis_bootstraps")
+    if analysis_mapping is not None:
+        if not isinstance(analysis_mapping, dict) or set(analysis_mapping) != SOURCE_KEYS:
+            raise ValueError("Invalid analysis bootstrap mapping")
+        keys.update(str(value).strip("/") for value in analysis_mapping.values())
     detail_view_mapping = pointer.get("active_detail_bootstraps_by_view")
     if detail_view_mapping is not None:
         if not isinstance(detail_view_mapping, dict) or not detail_view_mapping:

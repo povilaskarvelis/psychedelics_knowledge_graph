@@ -334,6 +334,20 @@ that restores a rejected ORCID stop the build for renewed review. Authorship
 tables retain original identifiers in `source_*` columns and link corrections
 through `identity_review_id`; the OpenAlex cache is not rewritten.
 
+The override file also stores reviewed identity decisions that do not fit a
+single OpenAlex-to-ORCID mapping:
+
+- `profile_alias_reviews` joins duplicate OpenAlex profiles when no verified
+  ORCID is available.
+- `orcid_alias_reviews` joins two ORCIDs verified to belong to one researcher.
+- `distinct_identity_reviews` records same-name groups verified to contain
+  different people, so future audits do not reopen the same case.
+
+All three require a review ID, reason, reviewer/date, and source links. A scoped
+DOI-and-position correction has precedence over these broader mappings. The
+builder also rejects any broader mapping or another authorship row that would
+reintroduce the ORCID explicitly rejected by that scoped review.
+
 `author_list_reviews` stores publication-specific corrections to complete author
 lists. Each review fingerprints the original ordered source names and identifiers,
 then explicitly selects retained source positions and (where a source profile was
@@ -343,14 +357,32 @@ consortium credits and unresolved same-name cases remain available for review.
 Changed source fingerprints stop the build. Output rows retain original source
 position/name/identifiers and `author_list_review_id`; the resolution report records
 removed positions. Review decisions, including attempted-but-unresolved cases,
-are documented in `docs/evaluation/author_identity_2026-09-06/pass3/`.
+are documented under `docs/evaluation/author_identity_*/`.
 
-To generate review candidates without automatically merging similar names:
+Every `scripts/build_routed_kg_payload.sh` run writes this audit under the
+run's `author_identity_audit/` directory before exporting browser or API
+payloads. When `REVIEW_BASELINE_DIR` is set, it also writes focused
+`new_name_candidates.json`, `new_priority_name_candidates.json`, and
+`new_same_paper_name_collisions.json` queues. New duplicate positions,
+one identity attached to different names on a paper, or orphan authorships stop
+the build. Repeated publication-supplied bylines with the same name remain in
+the review artifacts without blocking the build.
+Name/coauthor similarity remains a review signal and never merges identities
+automatically.
+
+Name-only authorships are joined to a unique structured identity only when the
+exact name has at least two shared coauthors, the identities never co-occur on a
+paper, and the name-only row is not protected by a source review. Exact name
+alone is deliberately insufficient for common names.
+
+To generate the same review artifacts directly:
 
 ```bash
 python pipeline/validate/audit_author_identities.py \
   --kg-dir "data/processed/kg_routed_runs/$RUN_ID" \
-  --out-dir "data/processed/evaluation/author_identity/$RUN_ID"
+  --out-dir "data/processed/evaluation/author_identity/$RUN_ID" \
+  --baseline-dir "data/processed/kg_routed_runs/$BASELINE_RUN_ID" \
+  --fail-on-new-integrity-errors
 ```
 
 This standalone audit distinguishes possible name splits, repeated identities
@@ -367,6 +399,12 @@ a new offline routed run, provide the cache explicitly:
 AUTHOR_CACHE_SEED=/path/to/openalex_author_cache.json \
   scripts/build_routed_kg_payload.sh "$RUN_ID" --offline
 ```
+
+When `EVIDENCE_RUN_ID` points to an existing KG run, the integrated builder
+automatically seeds the new candidate from that run's author cache. Set
+`AUTHOR_CACHE_SEED` only to override that source explicitly. Missing offline
+cache inputs and active/baseline carry-forward targets are rejected before the
+expensive evidence build begins.
 
 This table layer is the preferred place to build new graph views. The browser UI
 should continue to load compact JSON payloads generated from these tables rather

@@ -17,6 +17,7 @@ class BuildRoutedKgPayloadScriptTest(unittest.TestCase):
         publish_r2: str = "0",
         fail_promotion: bool = False,
         expect_success: bool = True,
+        evidence_run_id: str | None = None,
     ) -> tuple[list[str], subprocess.CompletedProcess[str]]:
         with tempfile.TemporaryDirectory() as tmpdir:
             temp = Path(tmpdir)
@@ -59,6 +60,8 @@ esac
                 env.pop("ACTIVATE_DEFAULT", None)
             else:
                 env["ACTIVATE_DEFAULT"] = activate_default
+            if evidence_run_id is not None:
+                env["EVIDENCE_RUN_ID"] = evidence_run_id
             result = subprocess.run(
                 [str(SCRIPT), "test_run", "--offline"],
                 cwd=ROOT,
@@ -80,27 +83,30 @@ esac
     def test_activating_build_exports_then_uses_guarded_promotion(self) -> None:
         calls, _result = self.run_with_fake_python(activate_default="1")
 
-        self.assertEqual(len(calls), 5)
-        self.assertIn("pipeline/publish/export_query_api.py", calls[2])
-        self.assertIn("pipeline/publish/export_evidence_payload.py", calls[3])
-        self.assertNotIn("--activate-default", calls[3])
-        self.assertIn("pipeline/publish/promote_routed_run.py", calls[4])
-        self.assertIn("--run-id test_run", calls[4])
+        self.assertEqual(len(calls), 6)
+        self.assertIn("pipeline/validate/audit_author_identities.py", calls[2])
+        self.assertIn("pipeline/publish/export_query_api.py", calls[3])
+        self.assertIn("pipeline/publish/export_evidence_payload.py", calls[4])
+        self.assertNotIn("--activate-default", calls[4])
+        self.assertIn("pipeline/publish/promote_routed_run.py", calls[5])
+        self.assertIn("--run-id test_run", calls[5])
 
     def test_staged_build_leaves_live_methods_unchanged(self) -> None:
         calls, _result = self.run_with_fake_python(activate_default="0")
 
-        self.assertEqual(len(calls), 4)
-        self.assertIn("pipeline/publish/export_query_api.py", calls[2])
-        self.assertNotIn("--activate-default", calls[3])
+        self.assertEqual(len(calls), 5)
+        self.assertIn("pipeline/validate/audit_author_identities.py", calls[2])
+        self.assertIn("pipeline/publish/export_query_api.py", calls[3])
+        self.assertNotIn("--activate-default", calls[4])
         self.assertFalse(any("build_methods_flow.py" in call for call in calls))
 
     def test_build_is_non_activating_when_flag_is_unset(self) -> None:
         calls, _result = self.run_with_fake_python(activate_default=None)
 
-        self.assertEqual(len(calls), 4)
-        self.assertIn("pipeline/publish/export_query_api.py", calls[2])
-        self.assertNotIn("--activate-default", calls[3])
+        self.assertEqual(len(calls), 5)
+        self.assertIn("pipeline/validate/audit_author_identities.py", calls[2])
+        self.assertIn("pipeline/publish/export_query_api.py", calls[3])
+        self.assertNotIn("--activate-default", calls[4])
         self.assertFalse(any("build_methods_flow.py" in call for call in calls))
 
     def test_promotion_failure_is_reported_after_versioned_export(self) -> None:
@@ -108,10 +114,29 @@ esac
             activate_default="1", fail_promotion=True
         )
 
-        self.assertEqual(len(calls), 5)
-        self.assertIn("pipeline/publish/export_query_api.py", calls[2])
-        self.assertIn("pipeline/publish/export_evidence_payload.py", calls[3])
-        self.assertIn("pipeline/publish/promote_routed_run.py", calls[4])
+        self.assertEqual(len(calls), 6)
+        self.assertIn("pipeline/publish/export_query_api.py", calls[3])
+        self.assertIn("pipeline/publish/export_evidence_payload.py", calls[4])
+        self.assertIn("pipeline/publish/promote_routed_run.py", calls[5])
+
+    def test_versioned_graph_promotion_reuses_source_extraction_inputs(self) -> None:
+        calls, _result = self.run_with_fake_python(
+            activate_default="1",
+            evidence_run_id="source_snapshot",
+        )
+
+        promotion = calls[5]
+        self.assertIn("pipeline/publish/promote_routed_run.py", promotion)
+        self.assertIn(
+            "--outputs-jsonl "
+            + str(ROOT / "data/processed/extraction/routed_runs/source_snapshot/route_extraction_outputs.jsonl"),
+            promotion,
+        )
+        self.assertIn(
+            "--evidence-rows-json "
+            + str(ROOT / "data/processed/extraction/routed_runs/source_snapshot/routed_evidence_rows.json"),
+            promotion,
+        )
 
     def test_r2_publish_runs_only_after_successful_promotion(self) -> None:
         calls, _result = self.run_with_fake_python(
@@ -119,14 +144,14 @@ esac
             publish_r2="1",
         )
 
-        self.assertEqual(len(calls), 8)
-        self.assertIn("pipeline/publish/promote_routed_run.py", calls[4])
-        self.assertIn("pipeline/publish/publish_browser_payload_r2.py", calls[5])
-        self.assertIn("pipeline/publish/publish_query_api_r2.py", calls[6])
-        self.assertIn("pipeline/publish/prune_release_history.py", calls[7])
-        self.assertIn("--run-id test_run", calls[5])
+        self.assertEqual(len(calls), 9)
+        self.assertIn("pipeline/publish/promote_routed_run.py", calls[5])
+        self.assertIn("pipeline/publish/publish_browser_payload_r2.py", calls[6])
+        self.assertIn("pipeline/publish/publish_query_api_r2.py", calls[7])
+        self.assertIn("pipeline/publish/prune_release_history.py", calls[8])
         self.assertIn("--run-id test_run", calls[6])
-        self.assertIn("--remote --local --execute", calls[7])
+        self.assertIn("--run-id test_run", calls[7])
+        self.assertIn("--remote --local --execute", calls[8])
 
     def test_r2_publish_requires_promotion(self) -> None:
         calls, result = self.run_with_fake_python(

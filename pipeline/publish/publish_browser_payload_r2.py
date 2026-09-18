@@ -25,6 +25,7 @@ from pipeline.publish.publish_query_api_r2 import (  # noqa: E402
     read_json_object,
     upload_immutable_file,
 )
+from scripts.build_analysis_payload import build_analysis_release
 from pipeline.kg.graph_view_contract import graph_view_ids  # noqa: E402
 from services.query_api.config import R2Settings, normalize_r2_prefix  # noqa: E402
 from services.query_api.r2_store import (  # noqa: E402
@@ -252,6 +253,16 @@ def publish_active_browser_release(
             expected_release_id=evidence_release_id,
         )
     )
+    analysis = build_analysis_release(
+        {source: safe_payload_path(browser_runs_dir, path)
+         for source, path in pointer["active_detail_bootstraps"].items()},
+        manifest_path.parent, str(manifest.get("generated_at") or ""),
+    )
+    release_files.extend(
+        LocalReleaseFile(logical_name=name, path=path, relative_path=path.name,
+                         sha256=sha256_file(path), size=path.stat().st_size)
+        for name, path in analysis["files"].items()
+    )
     relative_names = [release_file.relative_path for release_file in release_files]
     if len(relative_names) != len(set(relative_names)):
         raise ValueError("Public data release contains duplicate filenames")
@@ -295,6 +306,8 @@ def publish_active_browser_release(
         "active_detail_bootstraps": remote_path_map(
             pointer, remote_files, "active_detail_bootstraps"
         ),
+        "active_analysis_bootstraps": {source: remote_files[f"analysis:{source}"]["key"] for source in analysis["sources"]},
+        "active_analysis_index": remote_files["analysis:index"]["key"],
         "methods": remote_methods_map(remote_files),
         "files": remote_files,
     }

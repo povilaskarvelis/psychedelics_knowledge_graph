@@ -15,6 +15,7 @@ schema/graph_view_contract.json
 ui/index.html
 ui/app.js
 ui/analysis-worker.js
+ui/analysis-payload.js
 ui/research-model.js
 ui/view-state.js
 ui/research-analysis.js

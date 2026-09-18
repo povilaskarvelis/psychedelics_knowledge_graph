@@ -22,8 +22,9 @@ Environment overrides:
   PAYLOAD_DIR=/path/to/graph-payload-run
   QUERY_DIR=/path/to/query-api-run
   EVIDENCE_RUN_ID=existing-run  # rebuild a new release from an existing evidence snapshot
-  AUTHOR_CACHE_SEED=/path/to/cache  # required for a new run built with --offline
+  AUTHOR_CACHE_SEED=/path/to/cache  # optional override; EVIDENCE_RUN_ID caches are inherited automatically
   REVIEW_BASELINE_DIR=/path/to/reviewed-kg-run  # carry unchanged reviewed decisions before exports
+  AUTHOR_AUDIT_DIR=/path/to/audit  # defaults to KG_DIR/author_identity_audit
   ACTIVATE_DEFAULT=1  # explicitly promote this run after the versioned build succeeds
   PUBLISH_QUERY_API_R2=1  # publish the promoted browser/API release and trigger the API deploy hook
 EOF
@@ -50,6 +51,7 @@ PUBLISH_QUERY_API_R2="${PUBLISH_QUERY_API_R2:-0}"
 EVIDENCE_RUN_ID="${EVIDENCE_RUN_ID:-${RUN_ID}}"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 OFFLINE_REQUESTED=0
+RESOLVED_AUTHOR_CACHE_SEED="${AUTHOR_CACHE_SEED:-}"
 
 for argument in "$@"; do
   if [[ "${argument}" == "--offline" ]]; then
@@ -72,6 +74,44 @@ if [[ "${PUBLISH_QUERY_API_R2}" == "1" && "${ACTIVATE_DEFAULT}" != "1" ]]; then
   exit 2
 fi
 
+# Carry-forward is intentionally append-only. Reject an active or baseline
+# target before the expensive evidence build instead of discovering the unsafe
+# target only after that build completes.
+if [[ -n "${REVIEW_BASELINE_DIR:-}" ]]; then
+  "${PYTHON_BIN}" - "${ROOT_DIR}" "${KG_DIR}" "${REVIEW_BASELINE_DIR}" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+root, candidate, baseline = map(Path, sys.argv[1:])
+pointer = json.loads((root / "data/processed/extraction/active_routed_run.json").read_text())
+active = (root / pointer["kg_dir"]).resolve()
+if candidate.resolve() in {active, baseline.resolve()}:
+    raise SystemExit(
+        "Refusing to rebuild review carry-forward into the baseline or active release; "
+        "choose a new RUN_ID and set EVIDENCE_RUN_ID to the source snapshot."
+    )
+PY
+fi
+
+if [[ -n "${RESOLVED_AUTHOR_CACHE_SEED}" && ! -f "${RESOLVED_AUTHOR_CACHE_SEED}" ]]; then
+  echo "AUTHOR_CACHE_SEED does not exist: ${RESOLVED_AUTHOR_CACHE_SEED}" >&2
+  exit 2
+fi
+
+if [[ -z "${RESOLVED_AUTHOR_CACHE_SEED}" && "${EVIDENCE_RUN_ID}" != "${RUN_ID}" ]]; then
+  SOURCE_AUTHOR_CACHE="${ROOT_DIR}/data/processed/kg_routed_runs/${EVIDENCE_RUN_ID}/openalex_author_cache.json"
+  if [[ -f "${SOURCE_AUTHOR_CACHE}" ]]; then
+    RESOLVED_AUTHOR_CACHE_SEED="${SOURCE_AUTHOR_CACHE}"
+  fi
+fi
+
+if [[ "${OFFLINE_REQUESTED}" == "1" && ! -f "${AUTHOR_CACHE}" && -z "${RESOLVED_AUTHOR_CACHE_SEED}" ]]; then
+  echo "Offline author build refused: ${AUTHOR_CACHE} does not exist." >&2
+  echo "Set AUTHOR_CACHE_SEED=/path/to/openalex_author_cache.json, use EVIDENCE_RUN_ID with an existing cache, or omit --offline." >&2
+  exit 2
+fi
+
 "${PYTHON_BIN}" "${ROOT_DIR}/pipeline/kg/build_evidence_tables.py" \
   --source-preset routed \
   --run-id "${RUN_ID}" \
@@ -84,18 +124,14 @@ if [[ -n "${REVIEW_BASELINE_DIR:-}" ]]; then
     --candidate-dir "${KG_DIR}"
 fi
 
-if [[ ! -f "${AUTHOR_CACHE}" && -n "${AUTHOR_CACHE_SEED:-}" ]]; then
-  if [[ ! -f "${AUTHOR_CACHE_SEED}" ]]; then
-    echo "AUTHOR_CACHE_SEED does not exist: ${AUTHOR_CACHE_SEED}" >&2
-    exit 2
-  fi
-  cp "${AUTHOR_CACHE_SEED}" "${AUTHOR_CACHE}"
-  echo "Seeded author cache explicitly from ${AUTHOR_CACHE_SEED}"
+if [[ ! -f "${AUTHOR_CACHE}" && -n "${RESOLVED_AUTHOR_CACHE_SEED}" ]]; then
+  cp "${RESOLVED_AUTHOR_CACHE_SEED}" "${AUTHOR_CACHE}"
+  echo "Seeded author cache from ${RESOLVED_AUTHOR_CACHE_SEED}"
 fi
 
 if [[ "${OFFLINE_REQUESTED}" == "1" && ! -f "${AUTHOR_CACHE}" ]]; then
   echo "Offline author build refused: ${AUTHOR_CACHE} does not exist." >&2
-  echo "Set AUTHOR_CACHE_SEED=/path/to/openalex_author_cache.json or omit --offline." >&2
+  echo "Set AUTHOR_CACHE_SEED=/path/to/openalex_author_cache.json, use EVIDENCE_RUN_ID with an existing cache, or omit --offline." >&2
   exit 2
 fi
 
@@ -104,6 +140,20 @@ fi
   --out-dir "${KG_DIR}" \
   --cache "${AUTHOR_CACHE}" \
   "$@"
+
+AUTHOR_AUDIT_DIR="${AUTHOR_AUDIT_DIR:-"${KG_DIR}/author_identity_audit"}"
+AUTHOR_AUDIT_ARGS=(
+  --kg-dir "${KG_DIR}"
+  --out-dir "${AUTHOR_AUDIT_DIR}"
+)
+if [[ -n "${REVIEW_BASELINE_DIR:-}" ]]; then
+  AUTHOR_AUDIT_ARGS+=(
+    --baseline-dir "${REVIEW_BASELINE_DIR}"
+    --fail-on-new-integrity-errors
+  )
+fi
+"${PYTHON_BIN}" "${ROOT_DIR}/pipeline/validate/audit_author_identities.py" \
+  "${AUTHOR_AUDIT_ARGS[@]}"
 
 "${PYTHON_BIN}" "${ROOT_DIR}/pipeline/publish/export_query_api.py" \
   --kg-dir "${KG_DIR}" \
@@ -115,7 +165,18 @@ fi
   --out-dir "${PAYLOAD_DIR}"
 
 if [[ "${ACTIVATE_DEFAULT}" == "1" ]]; then
-  "${PYTHON_BIN}" "${ROOT_DIR}/pipeline/publish/promote_routed_run.py" --run-id "${RUN_ID}"
+  PROMOTION_ARGS=(--run-id "${RUN_ID}")
+  if [[ "${EVIDENCE_RUN_ID}" != "${RUN_ID}" ]]; then
+    EVIDENCE_RUN_DIR="${ROOT_DIR}/data/processed/extraction/routed_runs/${EVIDENCE_RUN_ID}"
+    PROMOTION_ARGS+=(
+      --outputs-jsonl "${EVIDENCE_RUN_DIR}/route_extraction_outputs.jsonl"
+      --evidence-rows-json "${EVIDENCE_RUN_DIR}/routed_evidence_rows.json"
+    )
+    if [[ -f "${EVIDENCE_RUN_DIR}/source_update_manifest.json" ]]; then
+      PROMOTION_ARGS+=(--source-update-manifest "${EVIDENCE_RUN_DIR}/source_update_manifest.json")
+    fi
+  fi
+  "${PYTHON_BIN}" "${ROOT_DIR}/pipeline/publish/promote_routed_run.py" "${PROMOTION_ARGS[@]}"
 fi
 
 if [[ "${PUBLISH_QUERY_API_R2}" == "1" ]]; then

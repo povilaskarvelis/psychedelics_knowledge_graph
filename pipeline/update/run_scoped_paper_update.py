@@ -1317,8 +1317,11 @@ def promote(args: argparse.Namespace) -> int:
     env["ACTIVATE_DEFAULT"] = "0"
     base_run_id = normalize(manifest.get("base", {}).get("run_id", ""))
     base_author_cache = PROCESSED_DIR / "kg_routed_runs" / base_run_id / "openalex_author_cache.json"
+    base_kg_dir = PROCESSED_DIR / "kg_routed_runs" / base_run_id
     if base_run_id and base_author_cache.is_file():
         env["AUTHOR_CACHE_SEED"] = str(base_author_cache.resolve())
+    if base_run_id and base_kg_dir.is_dir():
+        env["REVIEW_BASELINE_DIR"] = str(base_kg_dir.resolve())
     author_args = ["--offline"] if args.offline else []
     run_checked(
         [str(ROOT / "scripts" / "build_routed_kg_payload.sh"), update_id, *author_args],

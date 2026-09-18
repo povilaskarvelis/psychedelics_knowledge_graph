@@ -15,34 +15,47 @@ function researchList(...parts) {
   return [...new Set(parts.flat().map(meaningfulText).filter(Boolean))];
 }
 
+function researchFieldValues(claim, field) {
+  switch (field) {
+    case "design": return researchList(!isSecondaryLiteratureClaim(claim) ? studyDesignFacetLabel(claim) : isMetaAnalysisClaim(claim) ? metaAnalysisDesignFacetLabel(claim) : reviewDesignFacetLabel(claim));
+    case "population": return researchList(populationModelFacetLabel(claim));
+    case "comparator": return researchList(clinicalComparatorFacetLabel(claim));
+    case "followup": return researchList(clinicalFollowUpWindowFacetLabel(claim));
+    case "outcome": return researchList(outcomeScaleLabelsForClaim(claim));
+    case "system": return researchList(analysisExperimentalSystemFacetLabel(claim));
+    case "assay": return researchList(mechanisticAssayFamilyFacetLabel(claim));
+    case "compound": return researchList(analysisCompoundSubjectsForClaim(claim).map((subject) => subject.label));
+    case "area":
+    case "topic": {
+      const areas = ENTITY_CATEGORY_OPTIONS.filter((area) => claimMatchesEntityViewOption(claim, area));
+      return field === "area" ? areas.map((area) => area.label)
+        : researchList(areas.map((area) => analysisConceptLabelForClaim(claim, area.key)));
+    }
+    default: return [];
+  }
+}
+
 function researchRow(claim) {
-  if (researchRowCache.has(claim)) return researchRowCache.get(claim);
-  const primary = !isSecondaryLiteratureClaim(claim);
-  const areas = ENTITY_CATEGORY_OPTIONS.filter((area) => claimMatchesEntityViewOption(claim, area));
-  const fields = {
-    design: researchList(primary ? studyDesignFacetLabel(claim) : isMetaAnalysisClaim(claim) ? metaAnalysisDesignFacetLabel(claim) : reviewDesignFacetLabel(claim)),
-    population: researchList(populationModelFacetLabel(claim)),
-    comparator: researchList(clinicalComparatorFacetLabel(claim)),
-    followup: researchList(clinicalFollowUpWindowFacetLabel(claim)),
-    outcome: researchList(outcomeScaleLabelsForClaim(claim)),
-    system: researchList(analysisExperimentalSystemFacetLabel(claim)),
-    assay: researchList(mechanisticAssayFamilyFacetLabel(claim)),
-    area: areas.map((area) => area.label),
-    topic: researchList(areas.map((area) => analysisConceptLabelForClaim(claim, area.key))),
-    compound: researchList(analysisCompoundSubjectsForClaim(claim).map((subject) => subject.label)),
-  };
-  const row = {
-    claim, fields, paperKey: studyKey(claim, 0), year: parseYearValue(claim.study_year),
-    title: meaningfulText(claim.study_title) || "Untitled report",
-  };
-  researchRowCache.set(claim, row);
+  let row = researchRowCache.get(claim);
+  if (!row) {
+    row = {
+      claim, fields: {}, paperKey: studyKey(claim, 0), year: parseYearValue(claim.study_year),
+      title: meaningfulText(claim.study_title) || "Untitled report",
+    };
+    researchRowCache.set(claim, row);
+  }
+  // A coverage matrix needs only its two selected axes. Keep other facets lazy
+  // and retain computed values when the user switches axes or revisits Analyze.
+  for (const field of researchCoverageAxes) {
+    if (!Object.hasOwn(row.fields, field)) row.fields[field] = researchFieldValues(claim, field);
+  }
   return row;
 }
 
 function researchBaseRows({ ignoreFocus = false } = {}) {
   // Always reapply scope on findings. The publication index may have matched a
   // different finding in the same paper, or a different evidence type.
-  const items = (claimStores.normalized.bySource.all || []).filter((claim) => !isHiddenMainGraphItem(claim) && isMainGraphAdmitted(claim));
+  const items = analysisSourceClaims().filter((claim) => !isHiddenMainGraphItem(claim) && isMainGraphAdmitted(claim));
   const min = parseYearValue(yearMinFilter?.value);
   const max = parseYearValue(yearMaxFilter?.value);
   const scoped = analysisClaimsWithinScope(items.filter((claim) => {

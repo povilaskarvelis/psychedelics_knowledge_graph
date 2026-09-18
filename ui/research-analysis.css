@@ -112,3 +112,13 @@
   .workspace-tabs { left: 8px; }
   .workspace-tab { min-width: 94px; padding-inline: 14px; font-size: 0.84rem; }
 }
+
+.analysis-loading { padding: 24px; }
+.analysis-loading .explorer-loading { min-height: 0; padding: 20px; }
+.analysis-loading-panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.analysis-loading-panels i { display: block; min-height: 200px; border-radius: 14px; background: rgba(128, 150, 145, .08); animation: analysis-loading-pulse 1.8s ease-in-out infinite; }
+.analysis-loading-panels i:first-child { grid-column: 1 / -1; min-height: 160px; }
+.analysis-finding-placeholder { min-height: 240px; }
+@keyframes analysis-loading-pulse { 50% { opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { .analysis-loading-panels i { animation: none; } }
+@media (max-width: 640px) { .analysis-loading-panels { grid-template-columns: 1fr; } }

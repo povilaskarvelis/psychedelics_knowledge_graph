@@ -92,7 +92,9 @@ test('Explore and coverage use the same system groups and deduplicate source pap
     { paper: 'c', system: 'in_vivo', study_design: 'comparative study: protocol D' },
   ];
   claims.forEach(claim => { claim.study_design_category = 'experimental_study'; });
+  vm.runInContext('researchCoverageAxes = ["system", "design"]', context);
   const rows = claims.map(context.researchRow);
+  vm.runInContext('researchCoverageAxes = ["assay", "design"]', context);
   const methodRow = context.researchRow({ paper: 'method', assay_family_normalized: 'fMRI' });
   assert.deepEqual(Array.from(methodRow.fields.assay), ['fMRI']);
   const chart = context.renderExperimentalSystemChart(claims);

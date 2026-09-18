@@ -45,6 +45,47 @@ def test_middle_initial_similarity_does_not_merge_structured_profiles():
     assert resolved.author_id.nunique() == 2
 
 
+def test_reviewed_profile_and_orcid_aliases_are_canonicalized():
+    rows = pd.DataFrame([
+        {
+            'author_id': 'openalex:A1',
+            'openalex_author_id': 'https://openalex.org/A1',
+            'orcid': '',
+            'canonical_name': 'ada example',
+            'identity_confidence': 'openalex_author_id',
+        },
+        {
+            'author_id': 'openalex:A2',
+            'openalex_author_id': 'https://openalex.org/A2',
+            'orcid': '',
+            'canonical_name': 'ada example',
+            'identity_confidence': 'openalex_author_id',
+        },
+        {
+            'author_id': 'orcid:0000-0001-1111-1111',
+            'openalex_author_id': 'https://openalex.org/A3',
+            'orcid': '0000-0001-1111-1111',
+            'canonical_name': 'grace example',
+            'identity_confidence': 'orcid',
+        },
+    ])
+    resolved, stats = apply_orcid_identities(rows, {
+        'openalex_to_openalex': {
+            'https://openalex.org/A1': 'https://openalex.org/A2',
+        },
+        'orcid_aliases': {
+            '0000-0001-1111-1111': '0000-0002-2222-2222',
+        },
+    })
+
+    assert set(resolved.iloc[:2].author_id) == {'openalex:A2'}
+    assert resolved.iloc[0].identity_confidence == 'curated_openalex_alias'
+    assert resolved.iloc[2].author_id == 'orcid:0000-0002-2222-2222'
+    assert resolved.iloc[2].identity_confidence == 'curated_orcid_alias'
+    assert stats['curated_openalex_profile_aliases'] == 1
+    assert stats['curated_orcid_aliases'] == 1
+
+
 def test_reviewed_profile_cannot_silently_replace_conflicting_orcid():
     rows = pd.DataFrame([{
         'author_id': 'openalex:A1', 'openalex_author_id': 'https://openalex.org/A1',
@@ -55,6 +96,71 @@ def test_reviewed_profile_cannot_silently_replace_conflicting_orcid():
         apply_orcid_identities(rows, {
             'openalex_to_orcid': {'https://openalex.org/A1': '0000-0002-2345-6789'},
         })
+
+
+def test_reviewed_name_only_identity_is_not_reassigned_by_name_mapping():
+    rows = pd.DataFrame([{
+        'author_id': author_tables.local_author_id('Emily Harris'),
+        'display_name': 'Emily Harris',
+        'canonical_name': 'emily harris',
+        'openalex_author_id': '',
+        'orcid': '',
+        'identity_confidence': 'name_only',
+        'identity_review_id': 'review-emily',
+    }])
+
+    resolved, report = apply_orcid_identities(rows, {
+        'local_name_to_orcid': {'emily harris': '0000-0001-2345-6789'},
+    })
+
+    assert resolved.iloc[0].author_id.startswith('local_author:')
+    assert resolved.iloc[0].orcid == ''
+    assert report['curated_local_name_mappings'] == 0
+
+
+def test_scoped_correction_takes_precedence_over_broader_profile_mapping():
+    rows = pd.DataFrame([{
+        'author_id': 'openalex:A1',
+        'display_name': 'Patrick Example',
+        'canonical_name': 'patrick example',
+        'openalex_author_id': 'https://openalex.org/A1',
+        'orcid': '',
+        'identity_confidence': 'openalex_author_id',
+        'identity_review_id': 'review-patrick',
+    }])
+
+    resolved, report = apply_orcid_identities(rows, {
+        'openalex_to_orcid': {'https://openalex.org/A1': '0000-0001-2345-6789'},
+    })
+
+    corrected = resolved.iloc[0]
+    assert corrected.author_id == 'openalex:A1'
+    assert corrected.openalex_author_id == 'https://openalex.org/A1'
+    assert corrected.orcid == ''
+    assert corrected.identity_review_id == 'review-patrick'
+    assert report['authorship_rows_canonicalized_to_orcid'] == 0
+
+
+def test_scoped_correction_accepts_reviewed_same_person_profile_alias():
+    rows = pd.DataFrame([{
+        'author_id': 'openalex:A1',
+        'display_name': 'Patrick Example',
+        'canonical_name': 'patrick example',
+        'openalex_author_id': 'https://openalex.org/A1',
+        'orcid': '',
+        'identity_confidence': 'openalex_author_id',
+        'identity_review_id': 'review-patrick',
+    }])
+
+    resolved, _report = apply_orcid_identities(rows, {
+        'openalex_to_openalex': {'https://openalex.org/A1': 'https://openalex.org/A2'},
+    })
+
+    corrected = resolved.iloc[0]
+    assert corrected.author_id == 'openalex:A2'
+    assert corrected.openalex_author_id == 'https://openalex.org/A2'
+    assert corrected.orcid == ''
+    assert corrected.identity_review_id == 'review-patrick'
 
 
 def reviewed_collision_fixture():
@@ -225,7 +331,7 @@ def test_exact_name_local_author_aliases_to_single_structured_identity() -> None
                 "paper_id": "paper:fallback",
                 "doi": "10.1000/fallback",
                 "openalex_id": "",
-                "authors": "Ada Example; Ben Fallback",
+                "authors": "Ada Example; Ben Colleague; Cara Colleague",
             },
         ]
     )
@@ -241,7 +347,21 @@ def test_exact_name_local_author_aliases_to_single_structured_identity() -> None
                         "display_name": "Ada Example",
                         "openalex_author_id": "https://openalex.org/A1",
                         "orcid": "",
-                    }
+                    },
+                    {
+                        "position": 2,
+                        "author_position": "middle",
+                        "display_name": "Ben Colleague",
+                        "openalex_author_id": "https://openalex.org/A2",
+                        "orcid": "",
+                    },
+                    {
+                        "position": 3,
+                        "author_position": "last",
+                        "display_name": "Cara Colleague",
+                        "openalex_author_id": "https://openalex.org/A3",
+                        "orcid": "",
+                    },
                 ],
             },
             "10.1000/fallback": {"status": "not_found", "doi": "10.1000/fallback"},
@@ -255,10 +375,44 @@ def test_exact_name_local_author_aliases_to_single_structured_identity() -> None
     assert "name_alias_to_openalex_author_id" in set(ada_rows["identity_confidence"])
     assert len(authors[authors["display_name"].eq("Ada Example")]) == 1
     assert report["name_alias_resolution_counts"] == {
-        "name_alias_authorship_rows": 1,
-        "name_alias_author_ids": 1,
-        "name_alias_names": 1,
+        "name_alias_authorship_rows": 3,
+        "name_alias_author_ids": 3,
+        "name_alias_names": 3,
     }
+
+
+def test_exact_name_without_shared_coauthors_stays_name_only() -> None:
+    papers = pd.DataFrame(
+        [
+            {"paper_id": "paper:structured", "doi": "10.1000/structured", "openalex_id": "", "authors": ""},
+            {"paper_id": "paper:fallback", "doi": "10.1000/fallback", "openalex_id": "", "authors": "Yuan Chen"},
+        ]
+    )
+    cache = {
+        "works_by_doi": {
+            "10.1000/structured": {
+                "status": "ok",
+                "work_openalex_id": "https://openalex.org/W1",
+                "authorships": [
+                    {
+                        "position": 1,
+                        "author_position": "first",
+                        "display_name": "Yuan Chen",
+                        "openalex_author_id": "https://openalex.org/A1",
+                        "orcid": "0000-0001-2345-6789",
+                    }
+                ],
+            },
+            "10.1000/fallback": {"status": "not_found", "doi": "10.1000/fallback"},
+        }
+    }
+
+    authors, paper_authors, report = build_tables(papers, cache)
+
+    yuan_rows = paper_authors[paper_authors["display_name"].eq("Yuan Chen")]
+    assert len(set(yuan_rows["author_id"])) == 2
+    assert any(value.startswith("local_author:") for value in yuan_rows["author_id"])
+    assert report["name_alias_resolution_counts"]["name_alias_authorship_rows"] == 0
 
 
 def test_exact_name_local_author_does_not_alias_when_structured_name_is_ambiguous() -> None:

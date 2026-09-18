@@ -158,7 +158,7 @@ test('coverage respects paper type, year, access, area and entity scope on the a
     { id: 'other entity', type: 'reviews', study_year: '2020', area: 'clinical', focus: false, full: true },
   ];
   Object.assign(context, {
-    claimStores: { normalized: { bySource: { all: claims } } }, yearMinFilter: { value: '2000' }, yearMaxFilter: { value: '2026' },
+    analysisSourceClaims: () => claims, claimStores: { normalized: { bySource: { all: claims } } }, yearMinFilter: { value: '2000' }, yearMaxFilter: { value: '2026' },
     evidenceView: 'all', accessView: 'open', parseYearValue: Number,
     isHiddenMainGraphItem: () => false, isMainGraphAdmitted: () => true, isOpenAccessClaim: claim => claim.full,
     isSecondaryLiteratureClaim: claim => claim.type !== 'primary', isMetaAnalysisClaim: claim => claim.type === 'meta_analyses', isReviewLiteratureClaim: claim => claim.type === 'reviews',
@@ -177,7 +177,7 @@ test('Analyze date controls retain their range across narrower paper types and e
   Object.assign(context, { explorerMode: "analysis", yearMinFilter: {}, yearMaxFilter: {}, yearFilterState: {}, currentYearFilterKey: () => "analysis:research" });
   const corpus = [{ study_year: '1932' }, { study_year: '2026' }];
   Object.assign(context, {
-    claimStores: { normalized: { bySource: { all: corpus } } },
+    analysisSourceClaims: () => corpus, claimStores: { normalized: { bySource: { all: corpus } } },
     isHiddenMainGraphItem: () => false, ANALYSIS_DEFAULT_START_YEAR: 2000,
     selectedClaims: [{ study_year: '2003' }, { study_year: '2024' }],
   });
@@ -203,4 +203,23 @@ test('Analyze date controls retain their range across narrower paper types and e
   vm.runInContext('syncYearFilterControls(selectedClaims, true)', context);
   assert.equal(context.yearMinFilter.value, '2003');
   assert.equal(context.yearMaxFilter.value, '2024');
+});
+
+test('coverage prepares only selected axes, caching fields when axes change', () => {
+  const context = workspaceContext();
+  const calls = [];
+  Object.assign(context, {
+    studyKey: claim => claim.id, parseYearValue: Number, meaningfulText: value => value || '',
+    researchFieldValues: (claim, field) => { calls.push(field); return [field]; },
+    claim: { id: 'study-a', study_year: 2024, study_title: 'Report' },
+  });
+  const row = vm.runInContext('researchRow(claim)', context);
+  assert.deepEqual(calls, ['population', 'design']);
+  assert.deepEqual(Object.keys(row.fields), ['population', 'design']);
+  assert.equal(vm.runInContext('researchRow(claim)', context), row);
+  assert.deepEqual(calls, ['population', 'design']);
+  vm.runInContext('researchCoverageAxes = ["outcome", "design"]; researchRow(claim)', context);
+  assert.deepEqual(calls, ['population', 'design', 'outcome']);
+  vm.runInContext('researchCoverageAxes = ["population", "design"]; researchRow(claim)', context);
+  assert.deepEqual(calls, ['population', 'design', 'outcome']);
 });
