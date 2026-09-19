@@ -1659,6 +1659,23 @@ button.primary:hover {
   margin-top: 14px;
 }
 
+.release-notes-section > ul {
+  margin: 14px 0 18px;
+  padding-left: 22px;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.98rem;
+  line-height: 1.68;
+}
+
+.release-notes-section > ul li + li {
+  margin-top: 8px;
+}
+
+.release-notes-section > ul strong {
+  color: inherit;
+}
+
 .about-feedback-action {
   margin-top: 18px;
 }
