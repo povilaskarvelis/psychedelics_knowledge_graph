@@ -4,6 +4,7 @@ import base64
 import contextlib
 import datetime as dt
 import decimal
+import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -173,29 +174,55 @@ def fetch_rows(cursor: duckdb.DuckDBPyConnection) -> list[dict[str, Any]]:
     return [decode_row(columns, row) for row in cursor.fetchall()]
 
 
-def encode_cursor(*, release_id: str, offset: int) -> str:
+def query_fingerprint(filters: PaperFilters | RelationshipFilters, *, endpoint: str) -> str:
+    # List order and repeated values do not change an IN filter. Keep string
+    # values exact: identifiers and free-text queries have different semantics.
+    normalized = {
+        key: sorted(set(value)) if isinstance(value, list) else value
+        for key, value in filters.model_dump().items()
+    }
+    identity = {
+        "endpoint": endpoint,
+        "filters": normalized,
+        "scope": "public_catalogue",
+        "ordering_version": 1,
+    }
+    return hashlib.sha256(
+        json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+
+
+def encode_cursor(*, release_id: str, offset: int, query_key: str) -> str:
     payload = json.dumps(
-        {"release_id": release_id, "offset": offset},
+        {"version": 2, "release_id": release_id, "offset": offset, "query_key": query_key},
         sort_keys=True,
         separators=(",", ":"),
     ).encode("utf-8")
     return base64.urlsafe_b64encode(payload).decode("ascii").rstrip("=")
 
 
-def decode_cursor(value: str | None, *, release_id: str) -> int:
+def decode_cursor(value: str | None, *, release_id: str, query_key: str) -> int:
     if not value:
         return 0
     if len(value) > CURSOR_MAX_LENGTH:
         raise InvalidQuery("Pagination cursor is too long")
     try:
         padded = value + "=" * (-len(value) % 4)
-        payload = json.loads(base64.urlsafe_b64decode(padded).decode("utf-8"))
-        offset = int(payload["offset"])
-    except (ValueError, KeyError, json.JSONDecodeError) as exc:
-        raise InvalidQuery("Invalid pagination cursor") from exc
+        payload = json.loads(
+            base64.b64decode(padded, altchars=b"-_", validate=True).decode("utf-8")
+        )
+        if not isinstance(payload, dict) or type(payload.get("offset")) is not int:
+            raise ValueError("Expected a cursor object with an integer offset")
+        offset = payload["offset"]
+    except (ValueError, TypeError, UnicodeError) as exc:
+        raise InvalidQuery("Invalid pagination cursor; restart pagination.") from exc
     if payload.get("release_id") != release_id:
         raise ReleaseChanged(
             "This cursor belongs to a different data release; restart pagination."
+        )
+    if payload.get("version") != 2 or payload.get("query_key") != query_key:
+        raise InvalidQuery(
+            "This cursor is obsolete or belongs to different filters or an endpoint; restart pagination."
         )
     if offset < 0:
         raise InvalidQuery("Invalid pagination cursor offset")
@@ -362,6 +389,8 @@ class QueryService:
                 params.extend(cleaned)
         relationship_filters = (
             filters.concept_ids
+            or filters.subject_ids
+            or filters.object_ids
             or filters.subject_labels
             or filters.object_labels
             or filters.domains
@@ -371,6 +400,11 @@ class QueryService:
         )
         if relationship_filters:
             rel_clauses = ["r.paper_id = p.paper_id"]
+            for expression, values in (
+                ("r.subject_id", filters.subject_ids),
+                ("r.object_id", filters.object_ids),
+            ):
+                self.add_in_filter(rel_clauses, params, expression=expression, values=values)
             if filters.concept_ids:
                 placeholders = ",".join("?" for _ in filters.concept_ids)
                 rel_clauses.append(
@@ -517,6 +551,7 @@ class QueryService:
         total: int,
         returned: int,
         offset: int,
+        query_key: str,
     ) -> dict[str, Any]:
         next_offset = offset + returned
         return {
@@ -524,7 +559,7 @@ class QueryService:
             "total": total,
             "returned": returned,
             "next_cursor": (
-                encode_cursor(release_id=info.release_id, offset=next_offset)
+                encode_cursor(release_id=info.release_id, offset=next_offset, query_key=query_key)
                 if next_offset < total
                 else None
             ),
@@ -776,9 +811,12 @@ class QueryService:
             "data": rows[0],
         }
 
-    def query_papers(self, request: PaperQuery) -> dict[str, Any]:
+    def query_papers(
+        self, request: PaperQuery, *, pagination_endpoint: str = "papers"
+    ) -> dict[str, Any]:
         info = self.resolver.resolve()
-        offset = decode_cursor(request.cursor, release_id=info.release_id)
+        query_key = query_fingerprint(request.filters, endpoint=pagination_endpoint)
+        offset = decode_cursor(request.cursor, release_id=info.release_id, query_key=query_key)
         where, params = self.paper_where(request.filters)
         with self.connection(info) as con:
             total = int(
@@ -798,7 +836,7 @@ class QueryService:
             self.attach_authors(con, results)
         return {
             "meta": self.paged_meta(
-                info, total=total, returned=len(results), offset=offset
+                info, total=total, returned=len(results), offset=offset, query_key=query_key
             ),
             "results": results,
         }
@@ -812,7 +850,8 @@ class QueryService:
                 filters=PaperFilters(author_ids=[author_id]),
                 limit=limit,
                 cursor=cursor,
-            )
+            ),
+            pagination_endpoint="author_papers",
         )
 
     def get_paper(
@@ -872,7 +911,8 @@ class QueryService:
 
     def query_relationships(self, request: RelationshipQuery) -> dict[str, Any]:
         info = self.resolver.resolve()
-        offset = decode_cursor(request.cursor, release_id=info.release_id)
+        query_key = query_fingerprint(request.filters, endpoint="relationships")
+        offset = decode_cursor(request.cursor, release_id=info.release_id, query_key=query_key)
         where, params = self.relationship_where(request.filters)
         with self.connection(info) as con:
             total = int(
@@ -896,7 +936,7 @@ class QueryService:
             )
         return {
             "meta": self.paged_meta(
-                info, total=total, returned=len(results), offset=offset
+                info, total=total, returned=len(results), offset=offset, query_key=query_key
             ),
             "results": results,
         }

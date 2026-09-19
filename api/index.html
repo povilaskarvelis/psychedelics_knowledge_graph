@@ -125,9 +125,9 @@
   -H "Content-Type: application/json" \
   -d '{
     "filters": {
-      "concept_ids": ["compound:psilocybin"],
-      "paper_types": ["primary_study"],
-      "domains": ["clinical_outcome"]
+      "subject_ids": ["compound:psilocybin"],
+      "object_ids": ["clinical_entity:major_depressive_disorder"],
+      "paper_types": ["primary_study"]
     },
     "limit": 25
   }'</code></pre>

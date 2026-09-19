@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from pydantic import BaseModel, Field, StringConstraints, model_validator
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
 
 FILTER_LIST_MAX_ITEMS = 100
@@ -11,7 +11,11 @@ CURSOR_MAX_LENGTH = 2048
 FilterValue = Annotated[str, StringConstraints(max_length=FILTER_VALUE_MAX_LENGTH)]
 
 
-class YearRange(BaseModel):
+class QueryModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+
+class YearRange(QueryModel):
     year_from: int | None = Field(default=None, ge=1800, le=2200)
     year_to: int | None = Field(default=None, ge=1800, le=2200)
 
@@ -27,6 +31,8 @@ class YearRange(BaseModel):
 
 
 class PaperFilters(YearRange):
+    """OR within lists, AND across fields; relationship fields match one relationship."""
+
     query: str | None = Field(
         default=None,
         max_length=300,
@@ -51,7 +57,19 @@ class PaperFilters(YearRange):
         default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
     )
     concept_ids: list[FilterValue] = Field(
-        default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
+        default_factory=list,
+        max_length=FILTER_LIST_MAX_ITEMS,
+        description="Match ANY listed concept at either endpoint, not all concepts together.",
+    )
+    subject_ids: list[FilterValue] = Field(
+        default_factory=list,
+        max_length=FILTER_LIST_MAX_ITEMS,
+        description="Match a relationship subject ID; all relationship filters must match the same relationship.",
+    )
+    object_ids: list[FilterValue] = Field(
+        default_factory=list,
+        max_length=FILTER_LIST_MAX_ITEMS,
+        description="Match a relationship object ID; use with subject_ids for a compound–outcome pair.",
     )
     subject_labels: list[FilterValue] = Field(
         default_factory=list,
@@ -81,13 +99,15 @@ class PaperFilters(YearRange):
     )
 
 
-class PaperQuery(BaseModel):
+class PaperQuery(QueryModel):
     filters: PaperFilters = Field(default_factory=PaperFilters)
     limit: int = Field(default=25, ge=1, le=100)
     cursor: str | None = Field(default=None, max_length=CURSOR_MAX_LENGTH)
 
 
 class RelationshipFilters(YearRange):
+    """OR within lists, AND across fields on the same relationship."""
+
     paper_ids: list[FilterValue] = Field(
         default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
     )
@@ -109,7 +129,7 @@ class RelationshipFilters(YearRange):
     concept_ids: list[FilterValue] = Field(
         default_factory=list,
         max_length=FILTER_LIST_MAX_ITEMS,
-        description="Match a concept at either end of the relationship.",
+        description="Match ANY listed concept at either endpoint, not all concepts together.",
     )
     subject_ids: list[FilterValue] = Field(
         default_factory=list, max_length=FILTER_LIST_MAX_ITEMS
@@ -145,7 +165,7 @@ class RelationshipFilters(YearRange):
     )
 
 
-class RelationshipQuery(BaseModel):
+class RelationshipQuery(QueryModel):
     filters: RelationshipFilters = Field(default_factory=RelationshipFilters)
     limit: int = Field(default=25, ge=1, le=100)
     cursor: str | None = Field(default=None, max_length=CURSOR_MAX_LENGTH)

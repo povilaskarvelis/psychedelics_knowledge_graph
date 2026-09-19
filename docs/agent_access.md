@@ -77,8 +77,21 @@ uploads both releases, and switches each R2 pointer only after its immutable
 files pass checksum verification. Data-only updates do not require a Git or
 Netlify deployment.
 
-Pagination cursors contain the release ID. A cursor from an older release is
-rejected so results from two versions are not accidentally combined.
+Pagination cursors bind the release ID, operation, filters, and ordering. Old
+unbound cursors and cursors from other searches are rejected with HTTP 400;
+release changes return HTTP 409. Restart without a cursor and discard old-release
+pages. Page size may change while continuing the same search.
+
+REST query bodies reject unknown envelope and filter fields with HTTP 422.
+MCP rejects unknown tool arguments before execution. Filter lists use OR and
+separate fields use AND. `concept_ids` means any listed concept; use `subject_ids`
+and `object_ids` together in paper or relationship search to match a pair on the
+same relationship. See the [agent guide](../api/agent-guide.md) for interpretation,
+truncation, and error-recovery details.
+
+Relationships indicate literature coverage, not demonstrated benefit or harm.
+Report counts are not independent-study counts, author arrays can be incomplete,
+and unknown metadata must not be interpreted as a negative result.
 
 ## Local service
 
@@ -118,8 +131,8 @@ curl -sS http://127.0.0.1:8000/api/v1/papers/query \
   -d '{
     "filters": {
       "paper_types": ["primary_study"],
-      "concept_ids": ["compound:psilocybin"],
-      "domains": ["clinical_outcome"],
+      "subject_ids": ["compound:psilocybin"],
+      "object_ids": ["clinical_entity:major_depressive_disorder"],
       "year_from": 2018
     },
     "limit": 25

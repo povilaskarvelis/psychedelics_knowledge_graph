@@ -25,7 +25,8 @@ No API key is required.
 4. Resolve preferred names or known variants with `search_authors` when filtering by author.
 5. Use `search_papers` for literature retrieval and `find_relationships` for
    graph relationships.
-6. Follow `next_cursor` until it is null when complete pagination is required.
+6. Follow `meta.next_cursor` with the same operation and filters until it is null.
+   See pagination and error recovery below.
 
 Public author records require an OpenAlex or ORCID identity. ORCID is canonical
 when available, so OpenAlex profiles carrying the same ORCID resolve to one
@@ -34,11 +35,56 @@ correction explicitly links them. Unresolved name-only authorship records are
 excluded rather than merged speculatively. Profiles with conflicting ORCID
 evidence are also excluded.
 
+## Interpretation and search semantics
+
+Relationships are literature-retrieval links, not proof of benefit, harm,
+causation, or effectiveness. Counts refer to reports, not independent studies.
+Keep primary studies, reviews, and meta-analyses separate when describing coverage.
+Missing metadata remains unknown; missing relationships do not establish that
+no relevant research exists. Catalogue records can have no public relationships
+or no broad paper classification.
+
+Author arrays include only resolved public identities and may omit credited
+authors. Do not assume they are complete author lists for citations.
+
+- Values within a filter list use **OR**; separate filter fields use **AND**.
+- `concept_ids` matches **any** listed concept at either endpoint. Listing a
+  compound and condition here does not require a relationship between them.
+- Use `subject_ids` and `object_ids` together to search a compound–outcome pair.
+  All relationship filters in a paper search must match the **same relationship**.
+- Paper `query` searches title, DOI, journal, and credited author names. It does
+  not search abstracts or evidence quotations.
+- Unknown fields in REST query bodies, including nested filters, and unknown MCP
+  arguments are rejected. Use the published schemas and facets; do not invent
+  fields such as `graph_view`. Controlled values that do not match the catalogue
+  can still return zero results; this does not establish absence of research.
+
+## Pagination and error recovery
+
+Cursors are bound to the data release, operation, filters, and ordering. Keep the
+same filters when continuing; page size may change. Reordering or repeating list
+values is harmless. Changing string values, filters, or operations requires
+starting again without a cursor. REST paper search and MCP `search_papers` share
+an operation; author-paper retrieval is a separate operation.
+
+Old cursors issued before query binding are rejected. On REST `400 invalid_query`
+for an obsolete/mismatched cursor or `409 release_changed`, discard the cursor
+and restart the search. Discard partial pages from the previous release rather
+than merging releases. REST `422` identifies invalid request fields; correct the
+request before retrying. MCP exposes corresponding tool errors with recovery
+instructions. For `503` loading responses, honor `Retry-After` when supplied.
+
+`get_paper` returns at most `relationship_limit` relationships (default 50,
+maximum 100). If `relationships_truncated` is true, use `find_relationships` (or
+REST `/relationships/query`) with `paper_ids: [data.paper_id]`, starting without a
+cursor, then follow its `meta.next_cursor`. That search includes the relationships
+already returned by `get_paper`; do not append both lists without deduplicating.
+
 ## MCP tools
 
 - `get_release_info`: current version, record counts, scope, and limitations.
 - `list_available_filters`: paper types, subtypes, domains, relationship types,
-  relationship-scoped endpoint kinds, and reproducible website-view presets.
+  relationship-scoped endpoint kinds, and website category presets.
 - `search_concepts`: resolve labels and aliases to concept IDs. `concept_kinds`
   and `domains` match observed public relationships rather than only the
   concept record's legacy singular metadata.
@@ -46,14 +92,16 @@ evidence are also excluded.
 - `search_authors`: resolve a preferred name or known variant to an ORCID/OpenAlex author ID.
 - `get_author_papers`: retrieve papers across all types linked to that author.
 - `search_papers`: filter papers by metadata, author, concept, domain,
-  relationship type, relationship-scoped subject/object kind, or year.
+  relationship type, subject/object ID or contextual kind, or year.
 - `get_paper`: retrieve one paper, credited authors, and public relationships.
 - `find_relationships`: filter deduplicated paper-level concept relationships.
 
 Website categories are documented by `list_available_filters.graph_views` as
 convenience presets. API clients can reproduce a website category using those
 atomic filters, combine them with narrower filters, or ignore the presets and
-query the relationship fields directly.
+query the relationship fields directly. Presets define category membership; they
+do not reproduce the overview's parent grouping, subject projections, or display
+thresholds.
 
 ## REST examples
 
@@ -71,7 +119,8 @@ curl -sS \
   "https://psychedelics-kg-api.onrender.com/api/v1/concepts/search?q=psilocybin&limit=5"
 ```
 
-Find primary papers in a domain that involve that concept:
+Find primary papers linking psilocybin to major depressive disorder
+(resolve IDs with concept search before constructing a query):
 
 ```bash
 curl -sS \
@@ -79,13 +128,16 @@ curl -sS \
   -H "Content-Type: application/json" \
   -d '{
     "filters": {
-      "concept_ids": ["compound:psilocybin"],
-      "paper_types": ["primary_study"],
-      "domains": ["clinical_outcome"]
+      "subject_ids": ["compound:psilocybin"],
+      "object_ids": ["clinical_entity:major_depressive_disorder"],
+      "paper_types": ["primary_study"]
     },
     "limit": 25
   }'
 ```
+
+The equivalent MCP call is `search_papers` with these three filter arguments at
+the top level (no `filters` wrapper), plus `limit`.
 
 Find relationships where NMDA receptor is used specifically as a target:
 

@@ -1,9 +1,12 @@
 import json
+import base64
+import duckdb
 import tempfile
 import unittest
 from pathlib import Path
 
 from fastapi.testclient import TestClient
+from mcp.server.fastmcp.exceptions import ToolError
 from pydantic import ValidationError
 
 from services.query_api.app import create_app
@@ -21,6 +24,7 @@ from services.query_api.repository import (
     ReleaseChanged,
     ReleaseResolver,
     encode_cursor,
+    query_fingerprint,
 )
 from tests.query_api_fixtures import build_active_query_release
 
@@ -159,6 +163,72 @@ class QueryApiTest(unittest.TestCase):
             0,
         )
 
+    def test_paper_endpoint_ids_match_the_same_relationship(self) -> None:
+        # Add a second relationship on the primary paper, with a different
+        # subject and object. Matching one endpoint on each row must not pass.
+        with duckdb.connect(str(self.resolver.resolve().db_path)) as con:
+            con.execute("""
+                INSERT INTO relationships
+                SELECT * REPLACE (
+                    'relationship:extra' AS relationship_id,
+                    'paper:10.1000/primary' AS paper_id,
+                    'compound:ketamine' AS subject_id
+                ) FROM relationships WHERE object_id = 'target:nmda_receptor'
+            """)
+        paired = self.service.query_papers(PaperQuery(filters=PaperFilters(
+            subject_ids=["compound:psilocybin"],
+            object_ids=["clinical_entity:major_depressive_disorder"],
+        )))
+        self.assertEqual([p["paper_id"] for p in paired["results"]], ["paper:10.1000/primary"])
+        crossed = self.service.query_papers(PaperQuery(filters=PaperFilters(
+            paper_ids=["paper:10.1000/primary"],
+            subject_ids=["compound:psilocybin"], object_ids=["target:nmda_receptor"],
+        )))
+        self.assertEqual(crossed["meta"]["total"], 0)
+        any_concept = self.service.query_papers(PaperQuery(filters=PaperFilters(
+            concept_ids=["compound:psilocybin", "target:nmda_receptor"],
+        )))
+        self.assertGreater(any_concept["meta"]["total"], paired["meta"]["total"])
+
+    def test_cursor_rejects_changed_filters_and_endpoints(self) -> None:
+        cursor = self.service.query_papers(PaperQuery(limit=1))["meta"]["next_cursor"]
+        self.assertIsNotNone(cursor)
+        second = self.service.query_papers(PaperQuery(limit=2, cursor=cursor))
+        self.assertEqual(second["meta"]["returned"], 2)
+        with self.assertRaisesRegex(InvalidQuery, "restart pagination"):
+            self.service.query_papers(PaperQuery(
+                filters=PaperFilters(paper_types=["review"]), cursor=cursor
+            ))
+        with self.assertRaises(InvalidQuery):
+            self.service.query_relationships(RelationshipQuery(cursor=cursor))
+        author = self.service.search_authors("Ada")["results"][0]["author_id"]
+        # Author retrieval must not accept a general paper-search cursor,
+        # even with the same author filter.
+        cursor = encode_cursor(release_id=self.resolver.resolve().release_id, offset=0,
+            query_key=query_fingerprint(PaperFilters(author_ids=[author]), endpoint="papers"))
+        with self.assertRaises(InvalidQuery):
+            self.service.get_author_papers(author, cursor=cursor)
+
+    def test_cursor_accepts_reordered_filter_lists(self) -> None:
+        first = self.service.query_papers(PaperQuery(
+            filters=PaperFilters(paper_types=["review", "primary_study"]), limit=1))
+        second = self.service.query_papers(PaperQuery(
+            filters=PaperFilters(paper_types=["primary_study", "review", "review"]),
+            cursor=first["meta"]["next_cursor"], limit=10))
+        ids = [p["paper_id"] for p in first["results"] + second["results"]]
+        self.assertEqual(len(ids), 3)
+        self.assertEqual(len(set(ids)), 3)
+
+    def test_malformed_and_legacy_cursors_are_actionable_errors(self) -> None:
+        release = self.resolver.resolve().release_id
+        for payload in [[], None, {"offset": True}, {"offset": "1"},
+                        {"release_id": release, "offset": 1}]:
+            cursor = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode()
+            with self.subTest(payload=payload), self.assertRaises(InvalidQuery):
+                self.service.query_papers(PaperQuery(cursor=cursor))
+        with self.assertRaises(InvalidQuery):
+            self.service.query_papers(PaperQuery(cursor="!!!"))
+
     def test_cursor_is_bound_to_release(self) -> None:
         first = self.service.query_papers(PaperQuery(limit=1))
         pointer = self.resolver.active_pointer
@@ -172,7 +242,10 @@ class QueryApiTest(unittest.TestCase):
             )
 
     def test_cursor_rejects_impractically_large_offsets(self) -> None:
-        cursor = encode_cursor(release_id="test_run:r1", offset=1_000_001)
+        cursor = encode_cursor(
+            release_id="test_run:r1", offset=1_000_001,
+            query_key=query_fingerprint(PaperFilters(), endpoint="papers"),
+        )
         with self.assertRaises(InvalidQuery):
             self.service.query_papers(PaperQuery(cursor=cursor))
 
@@ -199,7 +272,7 @@ class QueryApiTest(unittest.TestCase):
             query_runs_dir=self.resolver.query_runs_dir,
             public_base_url="https://api.example.test",
             cors_origins=(),
-            mcp_allowed_hosts=(),
+            mcp_allowed_hosts=("localhost",),
             mcp_allowed_origins=(),
         )
         app = create_app(self.service, settings=settings)
@@ -236,6 +309,41 @@ class QueryApiTest(unittest.TestCase):
             )
             self.assertEqual(relationship_response.status_code, 200)
             self.assertEqual(relationship_response.json()["meta"]["total"], 1)
+
+            for endpoint in ("papers", "relationships"):
+                for body in ({"filters": {"graph_view": "condition_indication"}},
+                             {"paper_types": ["review"]},
+                             {"filters": {"domians": ["clinical_outcome"]}}):
+                    rejected = client.post(f"/api/v1/{endpoint}/query", json=body)
+                    self.assertEqual(rejected.status_code, 422)
+                    self.assertEqual(rejected.json()["detail"][0]["type"], "extra_forbidden")
+            paired = client.post("/api/v1/papers/query", json={"filters": {
+                "subject_ids": ["compound:psilocybin"],
+                "object_ids": ["clinical_entity:major_depressive_disorder"],
+            }})
+            self.assertEqual(paired.status_code, 200)
+            self.assertEqual(paired.json()["meta"]["total"], 1)
+            cursor = client.post("/api/v1/papers/query", json={"limit": 1}).json()["meta"]["next_cursor"]
+            invalid_cursor = client.post("/api/v1/relationships/query", json={"cursor": cursor})
+            self.assertEqual(invalid_cursor.status_code, 400)
+            self.assertEqual(invalid_cursor.json()["error"], "invalid_query")
+
+            mcp_headers = {"Accept": "application/json, text/event-stream", "Host": "localhost"}
+            for arguments, is_error in [
+                ({"graph_view": "condition_indication"}, True),
+                ({"subject_ids": ["compound:psilocybin"],
+                  "object_ids": ["clinical_entity:major_depressive_disorder"]}, False),
+            ]:
+                rpc = client.post("/mcp", headers=mcp_headers, json={
+                    "jsonrpc": "2.0", "id": 1, "method": "tools/call",
+                    "params": {"name": "search_papers", "arguments": arguments},
+                })
+                self.assertEqual(rpc.status_code, 200)
+                self.assertEqual(rpc.json()["result"].get("isError", False), is_error)
+                if is_error:
+                    self.assertIn("Unsupported arguments", rpc.json()["result"]["content"][0]["text"])
+                else:
+                    self.assertEqual(rpc.json()["result"]["structuredContent"]["meta"]["total"], 1)
 
             too_large = client.post(
                 "/api/v1/papers/query",
@@ -304,6 +412,23 @@ class QueryMcpTest(unittest.IsolatedAsyncioTestCase):
                 ReleaseResolver(active_pointer=pointer, query_runs_dir=query_runs)
             )
             mcp = create_mcp_server(service)
+            schemas = {tool.name: tool.inputSchema for tool in await mcp.list_tools()}
+            self.assertFalse(schemas["search_papers"]["additionalProperties"])
+            self.assertIn("subject_ids", schemas["search_papers"]["properties"])
+            self.assertIn("object_ids", schemas["search_papers"]["properties"])
+            for tool_name in ("search_papers", "find_relationships", "search_concepts"):
+                with self.assertRaisesRegex(ToolError, "Unsupported arguments"):
+                    await mcp.call_tool(tool_name, {"graph_view": "condition_indication"})
+            _content, paired = await mcp.call_tool("search_papers", {
+                "subject_ids": ["compound:psilocybin"],
+                "object_ids": ["clinical_entity:major_depressive_disorder"],
+            })
+            self.assertEqual(paired["meta"]["total"], 1)
+            _content, first = await mcp.call_tool("search_papers", {"limit": 1})
+            with self.assertRaisesRegex(ToolError, "restart pagination"):
+                await mcp.call_tool("search_papers", {
+                    "paper_types": ["review"], "cursor": first["meta"]["next_cursor"],
+                })
             tools = {tool.name for tool in await mcp.list_tools()}
             self.assertEqual(
                 tools,

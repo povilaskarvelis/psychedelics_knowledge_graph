@@ -3,6 +3,17 @@
 Notable changes to Psychedelics Knowledge Graph are recorded here. Releases use
 [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+- Reject unsupported REST query-body fields and MCP arguments instead of silently
+  ignoring them. Clients with extra fields must correct their requests.
+- Add subject/object ID filters to paper search for matching a compound–outcome
+  pair on the same relationship.
+- Bind pagination cursors to the operation and filters as well as the release.
+  Previously issued cursors must be discarded and pagination restarted.
+- Clarify agent guidance on relationship interpretation, OR/AND filtering,
+  incomplete author lists, and truncated relationship results.
+
 ## [2.0.0] - 2026-09-18
 
 - Added a dedicated Analyze workspace that presents the graph through
