@@ -71,7 +71,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
 DEFAULT_METADATA_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_metadata_enrichment.parquet"
 DEFAULT_CANDIDATE_TABLE = ROOT / "data" / "processed" / "corpus" / "candidate_papers.parquet"
 DEFAULT_PRESCREEN_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_prescreen_decisions.parquet"
-DEFAULT_DOMAIN_ROUTING_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_domain_routing_gemini.parquet"
+DEFAULT_DOMAIN_ROUTING_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_domain_routing.parquet"
 DEFAULT_FULLTEXT_DIR = ROOT / "data" / "processed" / "fulltext"
 CANONICAL_FULLTEXT_ARTICLE_DIR = "articles"
 DEFAULT_PAPER_ROOT = ROOT / "data" / "raw" / "papers" / "pdfs"
@@ -1744,6 +1744,11 @@ def build_extraction_routes(
     counts_csv = Path(counts_csv).resolve()
     scoped_dois = scoped_dois or set()
 
+    if output_table == DEFAULT_OUTPUT_TABLE.resolve():
+        from pipeline import llm
+        llm.require_screening_complete()
+        if domain_table is None or not domain_table.exists():
+            raise RuntimeError("Canonical extraction routes require a completed Luna screening table")
     candidate_df = read_table(candidate_table)
     metadata_df = merged_extraction_metadata(
         candidate_df,

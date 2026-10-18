@@ -1,0 +1,131 @@
+{
+  "created_at": "2026-10-18T03:55:57.868865+00:00",
+  "method": "Prospective denominator repair discovered during source/reference preparation before this reviewer opened any masked paired output or arm key. No original frozen reference modified.",
+  "reference_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/evaluation/primary_refinement_20261018/existing/references.json",
+  "reference_sha256": "777d135887e9b624d93aa889ee2ac20872092eddbb799fa85ec637ba8a0a1f6f",
+  "old_scored_count": 336,
+  "redundant_scored_count": 13,
+  "corrected_scored_count": 323,
+  "corrections": [
+    {
+      "cohort": "existing",
+      "audit_id": "P32",
+      "duplicate_fact_id": "P32-prior-central-02",
+      "retained_fact_id": "P32-prior-central-01",
+      "correction": "Mark duplicate group unscorable in both masked arms; retain original frozen records.",
+      "reason": "Exact duplicate statement and source_reference_entries; not a distinct central finding.",
+      "original_scored": true
+    },
+    {
+      "cohort": "existing",
+      "audit_id": "P32",
+      "duplicate_fact_id": "P32-prior-central-05",
+      "retained_fact_id": "P32-prior-central-04",
+      "correction": "Mark duplicate group unscorable in both masked arms; retain original frozen records.",
+      "reason": "Exact duplicate statement and source_reference_entries; not a distinct central finding.",
+      "original_scored": true
+    },
+    {
+      "cohort": "existing",
+      "audit_id": "P40",
+      "duplicate_fact_id": "P40-prior-central-02",
+      "retained_fact_id": "P40-prior-central-01",
+      "correction": "Mark duplicate group unscorable in both masked arms; retain original frozen records.",
+      "reason": "Exact duplicate statement and source_reference_entries; not a distinct central finding.",
+      "original_scored": true
+    },
+    {
+      "cohort": "existing",
+      "audit_id": "P40",
+      "duplicate_fact_id": "P40-prior-central-05",
+      "retained_fact_id": "P40-prior-central-04",
+      "correction": "Mark duplicate group unscorable in both masked arms; retain original frozen records.",
+      "reason": "Exact duplicate statement and source_reference_entries; not a distinct central finding.",
+      "original_scored": true
+    },
+    {
+      "cohort": "existing",
+      "audit_id": "P36",
+      "duplicate_fact_id": "P36-prior-central-02",
+      "retained_fact_id": "P36-prior-central-01",
+      "correction": "Mark duplicate group unscorable in both masked arms; retain original frozen records.",
+      "reason": "Exact duplicate statement and source_reference_entries; not a distinct central finding.",
+      "original_scored": true
+    },
+    {
+      "cohort": "existing",
+      "audit_id": "P36",
+      "duplicate_fact_id": "P36-prior-central-04",
+      "retained_fact_id": "P36-prior-central-03",
+      "correction": "Mark duplicate group unscorable in both masked arms; retain original frozen records.",
+      "reason": "Exact duplicate statement and source_reference_entries; not a distinct central finding.",
+      "original_scored": true
+    },
+    {
+      "cohort": "existing",
+      "audit_id": "P36",
+      "duplicate_fact_id": "P36-prior-central-06",
+      "retained_fact_id": "P36-prior-central-05",
+      "correction": "Mark duplicate group unscorable in both masked arms; retain original frozen records.",
+      "reason": "Exact duplicate statement and source_reference_entries; not a distinct central finding.",
+      "original_scored": true
+    },
+    {
+      "cohort": "existing",
+      "audit_id": "P37",
+      "duplicate_fact_id": "P37-prior-central-02",
+      "retained_fact_id": "P37-prior-central-01",
+      "correction": "Mark duplicate group unscorable in both masked arms; retain original frozen records.",
+      "reason": "Exact duplicate statement and source_reference_entries; not a distinct central finding.",
+      "original_scored": true
+    },
+    {
+      "cohort": "existing",
+      "audit_id": "P39",
+      "duplicate_fact_id": "P39-prior-central-04",
+      "retained_fact_id": "P39-prior-central-02",
+      "correction": "Mark duplicate group unscorable in both masked arms; retain original frozen records.",
+      "reason": "Exact duplicate statement and source_reference_entries; not a distinct central finding.",
+      "original_scored": true
+    },
+    {
+      "cohort": "existing",
+      "audit_id": "P47",
+      "duplicate_fact_id": "P47-prior-central-03",
+      "retained_fact_id": "P47-prior-central-02",
+      "correction": "Mark duplicate group unscorable in both masked arms; retain original frozen records.",
+      "reason": "Exact duplicate statement and source_reference_entries; not a distinct central finding.",
+      "original_scored": true
+    },
+    {
+      "cohort": "existing",
+      "audit_id": "P47",
+      "duplicate_fact_id": "P47-prior-central-04",
+      "retained_fact_id": "P47-prior-central-02",
+      "correction": "Mark duplicate group unscorable in both masked arms; retain original frozen records.",
+      "reason": "Exact duplicate statement and source_reference_entries; not a distinct central finding.",
+      "original_scored": true
+    },
+    {
+      "cohort": "existing",
+      "audit_id": "P47",
+      "duplicate_fact_id": "P47-prior-central-06",
+      "retained_fact_id": "P47-prior-central-05",
+      "correction": "Mark duplicate group unscorable in both masked arms; retain original frozen records.",
+      "reason": "Exact duplicate statement and source_reference_entries; not a distinct central finding.",
+      "original_scored": true
+    },
+    {
+      "cohort": "existing",
+      "audit_id": "P36",
+      "duplicate_fact_id": "P36-prior-central-09",
+      "retained_fact_ids": [
+        "P36-prior-central-07",
+        "P36-prior-central-08"
+      ],
+      "correction": "Mark duplicate-union group unscorable in both masked arms; score the two retained granular groups.",
+      "reason": "Group statement and its two source entries are exactly the union of the two retained groups, with no additional scientific finding.",
+      "original_scored": true
+    }
+  ]
+}

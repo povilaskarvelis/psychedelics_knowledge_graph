@@ -16,7 +16,7 @@ from pipeline.extract.route_extraction_profiles import (
     supported_profile_keys,
 )
 from pipeline.extract.run_route_extraction import (
-    DEFAULT_GEMINI_MODEL,
+    DEFAULT_MODEL,
     DEFAULT_ROUTED_RUN_ROOT,
     OutputQualityError,
     build_contents,
@@ -461,13 +461,13 @@ class RouteExtractionRunnerTest(unittest.TestCase):
             make_args(),
             task,
             {
-                "GEMINI_ARTICLE_TEXT_EXTRACTION_MODEL": "gemini-3-flash-preview",
-                "GEMINI_ABSTRACT_EXTRACTION_MODEL": "gemini-3-flash-preview",
-                "GEMINI_MODEL": "gemini-2.5-flash",
+                "OPENAI_ARTICLE_TEXT_EXTRACTION_MODEL": "gpt-6-luna",
+                "OPENAI_ABSTRACT_EXTRACTION_MODEL": "gpt-6-luna",
+                "OPENAI_MODEL": "gpt-6-luna",
             },
         )
 
-        self.assertEqual(model, "gemini-3-flash-preview")
+        self.assertEqual(model, "gpt-6-luna")
 
     def test_model_for_task_uses_abstract_model_when_configured(self) -> None:
         task = make_task()
@@ -478,37 +478,37 @@ class RouteExtractionRunnerTest(unittest.TestCase):
             make_args(),
             task,
             {
-                "GEMINI_ARTICLE_TEXT_EXTRACTION_MODEL": "gemini-3-flash-preview",
-                "GEMINI_ABSTRACT_EXTRACTION_MODEL": "gemini-3-flash-preview",
-                "GEMINI_MODEL": "gemini-2.5-flash",
+                "OPENAI_ARTICLE_TEXT_EXTRACTION_MODEL": "gpt-6-luna",
+                "OPENAI_ABSTRACT_EXTRACTION_MODEL": "gpt-6-luna",
+                "OPENAI_MODEL": "gpt-6-luna",
             },
         )
 
-        self.assertEqual(model, "gemini-3-flash-preview")
+        self.assertEqual(model, "gpt-6-luna")
 
     def test_model_for_task_explicit_cli_model_overrides_text_depth_config(self) -> None:
         model = model_for_task(
-            make_args(model="gemini-custom"),
+            make_args(model="gpt-6-luna"),
             make_task(),
-            {"GEMINI_ARTICLE_TEXT_EXTRACTION_MODEL": "gemini-3-flash-preview"},
+            {"OPENAI_ARTICLE_TEXT_EXTRACTION_MODEL": "gpt-6-luna"},
         )
 
-        self.assertEqual(model, "gemini-custom")
+        self.assertEqual(model, "gpt-6-luna")
 
     def test_model_for_task_falls_back_to_generic_extraction_model(self) -> None:
         model = model_for_task(
             make_args(),
             make_task(),
-            {"GEMINI_ROUTE_EXTRACTION_MODEL": "gemini-route-default"},
+            {"OPENAI_ROUTE_EXTRACTION_MODEL": "gpt-6-luna"},
         )
 
-        self.assertEqual(model, "gemini-route-default")
+        self.assertEqual(model, "gpt-6-luna")
 
-    def test_model_for_task_defaults_to_gemini_3_flash_preview(self) -> None:
+    def test_model_for_task_defaults_to_luna(self) -> None:
         model = model_for_task(make_args(), make_task(), {})
 
-        self.assertEqual(model, "gemini-3-flash-preview")
-        self.assertEqual(DEFAULT_GEMINI_MODEL, "gemini-3-flash-preview")
+        self.assertEqual(model, "gpt-6-luna")
+        self.assertEqual(DEFAULT_MODEL, "gpt-6-luna")
 
     def test_model_payload_uses_plain_extraction_task_language(self) -> None:
         contents = build_contents(make_task())

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Advance a Gemini domain-routing batch queue one submitted part at a time."""
+"""Advance a Luna domain-routing batch queue one submitted part at a time."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ import tempfile
 import pandas as pd
 
 try:
-    from pipeline.review.run_gemini_domain_routing import (
+    from pipeline.review.run_domain_routing import (
         DEFAULT_COUNTS_CSV,
         DEFAULT_CANDIDATE_TABLE,
         DEFAULT_ENV,
@@ -30,17 +30,17 @@ try:
         write_json,
     )
     from pipeline.fulltext.convert_pdfs import normalize_doi
-    from pipeline.review.run_gemini_domain_routing_batch import (
+    from pipeline.review.run_domain_routing_batch import (
         TERMINAL_STATES,
         check_status,
         download_results,
         parse_batch_results,
         submit_batch,
     )
-    from pipeline.review.build_gemini_domain_routing_batch_queue import DEFAULT_QUEUE_JSON
+    from pipeline.review.build_domain_routing_batch_queue import DEFAULT_QUEUE_JSON
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from pipeline.review.run_gemini_domain_routing import (
+    from pipeline.review.run_domain_routing import (
         DEFAULT_COUNTS_CSV,
         DEFAULT_CANDIDATE_TABLE,
         DEFAULT_ENV,
@@ -57,14 +57,14 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         write_json,
     )
     from pipeline.fulltext.convert_pdfs import normalize_doi
-    from pipeline.review.run_gemini_domain_routing_batch import (
+    from pipeline.review.run_domain_routing_batch import (
         TERMINAL_STATES,
         check_status,
         download_results,
         parse_batch_results,
         submit_batch,
     )
-    from pipeline.review.build_gemini_domain_routing_batch_queue import DEFAULT_QUEUE_JSON
+    from pipeline.review.build_domain_routing_batch_queue import DEFAULT_QUEUE_JSON
 
 
 DEFAULT_MANUAL_REVIEW_JSON = ""
@@ -86,9 +86,9 @@ def part_output_paths(queue: dict, part: dict) -> dict[str, Path]:
     out_dir = Path(part["raw_jsonl"]).resolve().parent
     tag = part_tag(queue, part)
     return {
-        "route_table": out_dir / f"paper_domain_routing_gemini.{tag}.parquet",
-        "summary_json": out_dir / f"paper_domain_routing_gemini_summary.{tag}.json",
-        "counts_csv": out_dir / f"paper_domain_routing_gemini_counts.{tag}.csv",
+        "route_table": out_dir / f"paper_domain_routing.{tag}.parquet",
+        "summary_json": out_dir / f"paper_domain_routing_summary.{tag}.json",
+        "counts_csv": out_dir / f"paper_domain_routing_counts.{tag}.csv",
     }
 
 
@@ -269,8 +269,8 @@ def apply_manual_reviews(df: pd.DataFrame, reviews: dict[str, dict]) -> tuple[pd
             out.loc[mask, "domain_route"] = "general_topic"
             out.loc[mask, "domain_tag"] = ""
         out.loc[mask, "domain_route_basis"] = reason
-        out.loc[mask, "tag_source_fields"] = "manual_review_after_gemini_title_abstract"
-        out.loc[mask, "model"] = "manual_review_after_gemini-3-flash-preview"
+        out.loc[mask, "tag_source_fields"] = "manual_review_after_luna_title_abstract"
+        out.loc[mask, "model"] = "manual_review_after_gpt-6-luna"
     return out, changed
 
 
@@ -402,7 +402,7 @@ def advance_queue(args: argparse.Namespace) -> dict:
             continue
 
         state = submitted_part_state(part, args)
-        if state == "JOB_STATE_SUCCEEDED":
+        if state == "completed":
             if not Path(part["batch_results_jsonl"]).resolve().exists():
                 download_part(part, args)
             report = parse_part(queue, part, args)

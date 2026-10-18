@@ -392,7 +392,7 @@ def resolve_schema_refs(value: object, definitions: dict) -> object:
 
 
 def schema_for_native(schema: dict) -> dict:
-    """Inline local refs for Gemini native `response_json_schema` mode."""
+    """Inline local refs before strict structured-output conversion."""
     view = copy.deepcopy(schema)
     definitions = view.get("definitions", {})
     view = resolve_schema_refs(view, definitions)

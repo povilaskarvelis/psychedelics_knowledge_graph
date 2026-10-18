@@ -348,6 +348,7 @@ def relationship_row(
     relationship_index: int,
     compound_registry: dict,
     scoped_compound_keys: set[str],
+    object_anchor_override: dict | None = None,
 ) -> dict:
     result = bundle_row.get("result", {}) if isinstance(bundle_row.get("result"), dict) else {}
     frame = result.get("paper_frame", {}) if isinstance(result.get("paper_frame"), dict) else {}
@@ -358,7 +359,7 @@ def relationship_row(
         subject["label"],
         scoped_compound_keys,
     )
-    object_anchor = object_for_relationship(relationship, subject_indexes)
+    object_anchor = object_anchor_override or object_for_relationship(relationship, subject_indexes)
     object_role = normalize(object_anchor.get("role", "")) or "other"
     object_label = normalize(object_anchor.get("label", ""))
     domain, entity_kind, role_field = ROLE_GRAPH_MAPPING.get(object_role, ROLE_GRAPH_MAPPING["other"])
@@ -451,6 +452,7 @@ def convert_bundles(
     *,
     active_candidate_dois: set[str],
     allow_stale_bundles: bool = False,
+    project_secondary_named_anchors: bool = False,
 ) -> tuple[list[dict], dict]:
     tasks = {normalized_doi(row.get("study_doi", "")): row for row in task_rows}
     compound_registry = registry_index(registry_payload)
@@ -486,6 +488,27 @@ def convert_bundles(
                         scoped_compound_keys,
                     )
                 )
+                if project_secondary_named_anchors:
+                    # Preserve the entire proposition/package in each projection.
+                    # Context, population and comparator anchors are not promoted
+                    # into additional independent drug-effect objects.
+                    principal = evidence_rows[-1]
+                    projected = {(principal["entity_role"], principal["graph_entity_label"])}
+                    object_roles = {"condition", "outcome", "safety_event", "target", "pathway_or_process",
+                                    "brain_system", "cognitive_or_behavioral_construct", "subjective_construct",
+                                    "exposure_or_pk_parameter"}
+                    for anchor_index, anchor in enumerate(relationship.get("anchors", [])):
+                        if not isinstance(anchor, dict) or anchor.get("anchor_type") != "named_entity":
+                            continue
+                        key = (normalize(anchor.get("role", "")), normalize(anchor.get("label", "")))
+                        if key[0] not in object_roles or not key[1] or key in projected:
+                            continue
+                        row = relationship_row(bundle, task, relationship, index, compound_registry,
+                                               scoped_compound_keys, object_anchor_override=anchor)
+                        row["relationship_projection_basis"] = "explicit_named_secondary_anchor"
+                        row["relationship_projection_anchor_index"] = anchor_index
+                        evidence_rows.append(row)
+                        projected.add(key)
     report = {
         "schema_version": "review_relationship_evidence_conversion_v2",
         "generated_at_utc": now_utc(),

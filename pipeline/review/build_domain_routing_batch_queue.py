@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Split Gemini domain-routing requests into Batch API queue parts."""
+"""Split Luna domain-routing requests into Batch API queue parts."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ import tempfile
 import pandas as pd
 
 try:
-    from pipeline.review.run_gemini_domain_routing import (
+    from pipeline.review.run_domain_routing import (
         DEFAULT_OUTPUT_TABLE,
         DOMAIN_RESPONSE_SCHEMA,
         SYSTEM_INSTRUCTION,
@@ -22,7 +22,7 @@ try:
         prompt_for_record,
         write_json,
     )
-    from pipeline.review.run_gemini_domain_routing_batch import (
+    from pipeline.review.run_domain_routing_batch import (
         DEFAULT_ENV,
         DEFAULT_CANDIDATE_TABLE,
         DEFAULT_METADATA_TABLE,
@@ -33,7 +33,7 @@ try:
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from pipeline.review.run_gemini_domain_routing import (
+    from pipeline.review.run_domain_routing import (
         DEFAULT_OUTPUT_TABLE,
         DOMAIN_RESPONSE_SCHEMA,
         SYSTEM_INSTRUCTION,
@@ -42,7 +42,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         prompt_for_record,
         write_json,
     )
-    from pipeline.review.run_gemini_domain_routing_batch import (
+    from pipeline.review.run_domain_routing_batch import (
         DEFAULT_ENV,
         DEFAULT_CANDIDATE_TABLE,
         DEFAULT_METADATA_TABLE,
@@ -55,7 +55,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUT_DIR = ROOT / "data" / "processed" / "corpus"
-DEFAULT_QUEUE_JSON = DEFAULT_OUT_DIR / "paper_domain_routing_gemini_batch_queue.json"
+DEFAULT_QUEUE_JSON = DEFAULT_OUT_DIR / "paper_domain_routing_batch_queue.json"
 DEFAULT_PYTHON = "/opt/homebrew/Caskroom/miniconda/base/bin/python3"
 
 
@@ -94,12 +94,12 @@ def split_records(records: list[dict], *, max_requests: int, max_approx_input_to
 def part_paths(tag: str, part_number: int, out_dir: Path) -> dict[str, str]:
     part_tag = f"{tag}_part{part_number:03d}"
     return {
-        "batch_requests_jsonl": str(out_dir / f"paper_domain_routing_gemini_batch_requests.{part_tag}.jsonl"),
-        "manifest_json": str(out_dir / f"paper_domain_routing_gemini_batch_manifest.{part_tag}.json"),
-        "job_json": str(out_dir / f"paper_domain_routing_gemini_batch_job.{part_tag}.json"),
-        "batch_results_jsonl": str(out_dir / f"paper_domain_routing_gemini_batch_results.{part_tag}.jsonl"),
-        "raw_jsonl": str(out_dir / f"paper_domain_routing_gemini_raw.{part_tag}.jsonl"),
-        "report_json": str(out_dir / f"paper_domain_routing_gemini_batch_parse_report.{part_tag}.json"),
+        "batch_requests_jsonl": str(out_dir / f"paper_domain_routing_batch_requests.{part_tag}.jsonl"),
+        "manifest_json": str(out_dir / f"paper_domain_routing_batch_manifest.{part_tag}.json"),
+        "job_json": str(out_dir / f"paper_domain_routing_batch_job.{part_tag}.json"),
+        "batch_results_jsonl": str(out_dir / f"paper_domain_routing_batch_results.{part_tag}.jsonl"),
+        "raw_jsonl": str(out_dir / f"paper_domain_routing_raw.{part_tag}.jsonl"),
+        "report_json": str(out_dir / f"paper_domain_routing_batch_parse_report.{part_tag}.json"),
     }
 
 
@@ -170,8 +170,11 @@ def build_queue(args: argparse.Namespace) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
     eligible_records = selected_routing_records(args)
     existing_routing_table = Path(args.existing_routing_table).resolve()
-    previous_candidate_table = Path(args.previous_candidate_table).resolve()
-    previously_retained = previously_prescreen_retained_dois(previous_candidate_table)
+    fresh = bool(getattr(args, "fresh", False))
+    previous_candidate_table = Path(args.previous_candidate_table).resolve() if args.previous_candidate_table else None
+    if not fresh and previous_candidate_table is None:
+        raise ValueError("Choose --fresh for a complete new run, or supply --previous-candidate-table for a delta")
+    previously_retained = set() if fresh else previously_prescreen_retained_dois(previous_candidate_table)
     eligible_dois = {normalize_doi(record.get("doi", "")) for record in eligible_records}
     unchanged_both_retained = eligible_dois.intersection(previously_retained)
     records = [
@@ -182,7 +185,7 @@ def build_queue(args: argparse.Namespace) -> dict:
     effective_doi_file = (
         Path(args.delta_doi_file).resolve()
         if clean(args.delta_doi_file)
-        else out_dir / f"paper_domain_routing_gemini_delta_dois.{args.tag}.txt"
+        else out_dir / f"paper_domain_routing_delta_dois.{args.tag}.txt"
     )
     write_doi_file_atomic(effective_doi_file, records)
     split = split_records(
@@ -214,7 +217,7 @@ def build_queue(args: argparse.Namespace) -> dict:
         parts.append(part)
 
     queue = {
-        "schema_version": "domain_routing_gemini_batch_queue",
+        "schema_version": "domain_routing_luna_batch_queue",
         "name": args.tag,
         "python": args.python,
         "notes": args.notes,
@@ -235,10 +238,10 @@ def build_queue(args: argparse.Namespace) -> dict:
             "prescreen_decisions_table": str(Path(args.prescreen_decisions_table).resolve()),
             "scope_doi_file": str(Path(args.doi_file).resolve()) if clean(args.doi_file) else "",
             "delta_doi_file": str(effective_doi_file),
-            "previous_candidate_table": str(previous_candidate_table),
-            "existing_routing_table": str(existing_routing_table),
-            "existing_raw_jsonl": str(Path(args.raw_jsonl).resolve()),
-            "queue_selection_rule": "current_prescreen_retain_except_previous_prescreen_retain",
+            "previous_candidate_table": str(previous_candidate_table) if previous_candidate_table else "",
+            "existing_routing_table": "" if fresh else str(existing_routing_table),
+            "existing_raw_jsonl": "" if fresh else str(Path(args.raw_jsonl).resolve()),
+            "queue_selection_rule": "fresh_all_selected_no_reuse" if fresh else "current_prescreen_retain_except_previous_prescreen_retain",
             "model": args.model,
             "temperature": args.temperature,
             "max_output_tokens": args.max_output_tokens,
@@ -257,7 +260,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--prescreen-decisions-table", default=str(DEFAULT_PRESCREEN_TABLE))
     parser.add_argument("--doi-file", default="")
     parser.add_argument("--env-file", default=str(DEFAULT_ENV))
-    parser.add_argument("--model", default="gemini-3-flash-preview")
+    parser.add_argument("--model", default="gpt-6-luna")
     parser.add_argument("--tag", default="domain_routing")
     parser.add_argument("--queue-json", default=str(DEFAULT_QUEUE_JSON))
     parser.add_argument("--out-dir", default=str(DEFAULT_OUT_DIR))
@@ -265,7 +268,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--max-requests", type=int, default=1000)
     parser.add_argument("--max-approx-input-tokens", type=int, default=2_500_000)
     parser.add_argument("--temperature", type=float, default=0.0)
-    parser.add_argument("--max-output-tokens", type=int, default=512)
+    parser.add_argument("--max-output-tokens", type=int, default=2048)
     parser.add_argument("--thinking-budget", type=int, default=0)
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--start-index", type=int, default=1)
@@ -273,13 +276,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--existing-routing-table", default=str(DEFAULT_OUTPUT_TABLE))
     parser.add_argument(
         "--previous-candidate-table",
-        required=True,
+        default="",
         help=(
             "Candidate-table snapshot from the immediately preceding prescreen run. "
             "DOIs retained in both that snapshot and the current prescreen are left out of the queue."
         ),
     )
     parser.add_argument("--delta-doi-file", default="")
+    parser.add_argument("--fresh", action="store_true", help="Screen every selected paper without reusing previous model decisions")
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--notes", default="")
     parser.add_argument("--prepare", action="store_true", help="Also write Batch API request JSONLs/manifests.")

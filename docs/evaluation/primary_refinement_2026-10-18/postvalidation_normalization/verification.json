@@ -1,0 +1,489 @@
+{
+  "stage": "postvalidation; not original unseen-set validation",
+  "totals": {
+    "cohorts_and_arms": 20,
+    "task_instances": 1889,
+    "raw_item_instances": 5379,
+    "changed_item_instances": 334,
+    "lost_previously_retained_items": 0,
+    "before_equivalence": true,
+    "raw_items_unchanged": true,
+    "code_hashes_match": true,
+    "checkpoint_instances": 39,
+    "change_family_counts_nonexclusive": {
+      "subject_kind_metadata": 73,
+      "study_design_allocation_metadata": 120,
+      "endpoint_or_detail_label": 31,
+      "overview_subject_or_admission": 49,
+      "admission_changed": 83,
+      "followup_metadata": 57,
+      "comparator_metadata": 11,
+      "restored_detail_record": 27,
+      "label_reason_or_other_representation": 1
+    }
+  },
+  "cohorts": [
+    {
+      "cohort": "paired_controlled_historical",
+      "arm": "baseline",
+      "tasks": 40,
+      "raw_items": 90,
+      "changed_items": 5,
+      "findings_before": 77,
+      "findings_after": 77,
+      "fates_before": {
+        "audit_only": 14,
+        "main_graph": 57,
+        "paper_detail": 19
+      },
+      "fates_after": {
+        "audit_only": 14,
+        "main_graph": 57,
+        "paper_detail": 19
+      },
+      "main_findings_before": 58,
+      "main_findings_after": 58
+    },
+    {
+      "cohort": "paired_controlled_historical",
+      "arm": "refined",
+      "tasks": 40,
+      "raw_items": 120,
+      "changed_items": 13,
+      "findings_before": 111,
+      "findings_after": 111,
+      "fates_before": {
+        "audit_only": 18,
+        "main_graph": 71,
+        "paper_detail": 31
+      },
+      "fates_after": {
+        "audit_only": 18,
+        "main_graph": 69,
+        "paper_detail": 33
+      },
+      "main_findings_before": 80,
+      "main_findings_after": 78
+    },
+    {
+      "cohort": "paired_existing",
+      "arm": "baseline",
+      "tasks": 208,
+      "raw_items": 556,
+      "changed_items": 43,
+      "findings_before": 495,
+      "findings_after": 502,
+      "fates_before": {
+        "main_graph": 325,
+        "paper_detail": 123,
+        "audit_only": 103,
+        "not_converted": 5
+      },
+      "fates_after": {
+        "main_graph": 318,
+        "paper_detail": 134,
+        "audit_only": 99,
+        "not_converted": 5
+      },
+      "main_findings_before": 365,
+      "main_findings_after": 359
+    },
+    {
+      "cohort": "paired_existing",
+      "arm": "refined",
+      "tasks": 208,
+      "raw_items": 629,
+      "changed_items": 58,
+      "findings_before": 589,
+      "findings_after": 588,
+      "fates_before": {
+        "main_graph": 383,
+        "paper_detail": 143,
+        "audit_only": 103
+      },
+      "fates_after": {
+        "main_graph": 376,
+        "paper_detail": 150,
+        "audit_only": 103
+      },
+      "main_findings_before": 442,
+      "main_findings_after": 434
+    },
+    {
+      "cohort": "paired_fresh",
+      "arm": "baseline",
+      "tasks": 64,
+      "raw_items": 159,
+      "changed_items": 12,
+      "findings_before": 144,
+      "findings_after": 145,
+      "fates_before": {
+        "main_graph": 94,
+        "paper_detail": 31,
+        "audit_only": 34
+      },
+      "fates_after": {
+        "main_graph": 91,
+        "paper_detail": 34,
+        "audit_only": 34
+      },
+      "main_findings_before": 108,
+      "main_findings_after": 106
+    },
+    {
+      "cohort": "paired_fresh",
+      "arm": "refined",
+      "tasks": 64,
+      "raw_items": 165,
+      "changed_items": 13,
+      "findings_before": 143,
+      "findings_after": 144,
+      "fates_before": {
+        "paper_detail": 36,
+        "main_graph": 90,
+        "audit_only": 39
+      },
+      "fates_after": {
+        "paper_detail": 39,
+        "main_graph": 87,
+        "audit_only": 39
+      },
+      "main_findings_before": 107,
+      "main_findings_after": 105
+    },
+    {
+      "cohort": "paired_previous_fresh",
+      "arm": "baseline",
+      "tasks": 48,
+      "raw_items": 114,
+      "changed_items": 14,
+      "findings_before": 108,
+      "findings_after": 108,
+      "fates_before": {
+        "main_graph": 81,
+        "audit_only": 14,
+        "paper_detail": 19
+      },
+      "fates_after": {
+        "main_graph": 82,
+        "audit_only": 14,
+        "paper_detail": 18
+      },
+      "main_findings_before": 85,
+      "main_findings_after": 86
+    },
+    {
+      "cohort": "paired_previous_fresh",
+      "arm": "refined",
+      "tasks": 48,
+      "raw_items": 136,
+      "changed_items": 10,
+      "findings_before": 135,
+      "findings_after": 135,
+      "fates_before": {
+        "main_graph": 95,
+        "audit_only": 11,
+        "paper_detail": 30
+      },
+      "fates_after": {
+        "main_graph": 95,
+        "audit_only": 11,
+        "paper_detail": 30
+      },
+      "main_findings_before": 101,
+      "main_findings_after": 101
+    },
+    {
+      "cohort": "prior_archival",
+      "arm": "archived",
+      "tasks": 193,
+      "raw_items": 542,
+      "changed_items": 17,
+      "findings_before": 505,
+      "findings_after": 506,
+      "fates_before": {
+        "paper_detail": 103,
+        "audit_only": 66,
+        "main_graph": 373
+      },
+      "fates_after": {
+        "paper_detail": 104,
+        "audit_only": 66,
+        "main_graph": 372
+      },
+      "main_findings_before": 402,
+      "main_findings_after": 402
+    },
+    {
+      "cohort": "prior_controlled_historical",
+      "arm": "baseline",
+      "tasks": 40,
+      "raw_items": 91,
+      "changed_items": 6,
+      "findings_before": 80,
+      "findings_after": 80,
+      "fates_before": {
+        "audit_only": 11,
+        "main_graph": 57,
+        "paper_detail": 23
+      },
+      "fates_after": {
+        "audit_only": 11,
+        "main_graph": 56,
+        "paper_detail": 24
+      },
+      "main_findings_before": 57,
+      "main_findings_after": 56
+    },
+    {
+      "cohort": "prior_controlled_historical",
+      "arm": "gemini",
+      "tasks": 40,
+      "raw_items": 106,
+      "changed_items": 3,
+      "findings_before": 94,
+      "findings_after": 94,
+      "fates_before": {
+        "main_graph": 82,
+        "audit_only": 12,
+        "paper_detail": 12
+      },
+      "fates_after": {
+        "main_graph": 82,
+        "audit_only": 12,
+        "paper_detail": 12
+      },
+      "main_findings_before": 82,
+      "main_findings_after": 82
+    },
+    {
+      "cohort": "prior_controlled_historical",
+      "arm": "instructions",
+      "tasks": 40,
+      "raw_items": 133,
+      "changed_items": 5,
+      "findings_before": 116,
+      "findings_after": 116,
+      "fates_before": {
+        "audit_only": 20,
+        "main_graph": 71,
+        "paper_detail": 42
+      },
+      "fates_after": {
+        "audit_only": 20,
+        "main_graph": 70,
+        "paper_detail": 43
+      },
+      "main_findings_before": 74,
+      "main_findings_after": 73
+    },
+    {
+      "cohort": "prior_controlled_historical",
+      "arm": "structured",
+      "tasks": 40,
+      "raw_items": 124,
+      "changed_items": 6,
+      "findings_before": 111,
+      "findings_after": 111,
+      "fates_before": {
+        "audit_only": 18,
+        "main_graph": 67,
+        "paper_detail": 39
+      },
+      "fates_after": {
+        "audit_only": 18,
+        "main_graph": 66,
+        "paper_detail": 40
+      },
+      "main_findings_before": 72,
+      "main_findings_after": 71
+    },
+    {
+      "cohort": "prior_existing",
+      "arm": "baseline",
+      "tasks": 208,
+      "raw_items": 565,
+      "changed_items": 37,
+      "findings_before": 503,
+      "findings_after": 514,
+      "fates_before": {
+        "main_graph": 362,
+        "paper_detail": 105,
+        "audit_only": 97,
+        "not_converted": 1
+      },
+      "fates_after": {
+        "main_graph": 356,
+        "paper_detail": 122,
+        "audit_only": 86,
+        "not_converted": 1
+      },
+      "main_findings_before": 395,
+      "main_findings_after": 389
+    },
+    {
+      "cohort": "prior_existing",
+      "arm": "instructions",
+      "tasks": 208,
+      "raw_items": 675,
+      "changed_items": 41,
+      "findings_before": 617,
+      "findings_after": 628,
+      "fates_before": {
+        "main_graph": 412,
+        "paper_detail": 145,
+        "audit_only": 118
+      },
+      "fates_after": {
+        "main_graph": 402,
+        "paper_detail": 165,
+        "audit_only": 108
+      },
+      "main_findings_before": 465,
+      "main_findings_after": 456
+    },
+    {
+      "cohort": "prior_existing",
+      "arm": "structured",
+      "tasks": 208,
+      "raw_items": 647,
+      "changed_items": 29,
+      "findings_before": 598,
+      "findings_after": 600,
+      "fates_before": {
+        "paper_detail": 143,
+        "main_graph": 396,
+        "audit_only": 107,
+        "not_converted": 1
+      },
+      "fates_after": {
+        "paper_detail": 156,
+        "main_graph": 385,
+        "audit_only": 105,
+        "not_converted": 1
+      },
+      "main_findings_before": 445,
+      "main_findings_after": 434
+    },
+    {
+      "cohort": "prior_fresh",
+      "arm": "baseline",
+      "tasks": 48,
+      "raw_items": 124,
+      "changed_items": 9,
+      "findings_before": 105,
+      "findings_after": 105,
+      "fates_before": {
+        "main_graph": 84,
+        "audit_only": 23,
+        "paper_detail": 17
+      },
+      "fates_after": {
+        "main_graph": 84,
+        "audit_only": 23,
+        "paper_detail": 17
+      },
+      "main_findings_before": 88,
+      "main_findings_after": 88
+    },
+    {
+      "cohort": "prior_fresh",
+      "arm": "gemini",
+      "tasks": 48,
+      "raw_items": 114,
+      "changed_items": 0,
+      "findings_before": 102,
+      "findings_after": 102,
+      "fates_before": {
+        "main_graph": 76,
+        "audit_only": 23,
+        "paper_detail": 15
+      },
+      "fates_after": {
+        "main_graph": 76,
+        "audit_only": 23,
+        "paper_detail": 15
+      },
+      "main_findings_before": 85,
+      "main_findings_after": 85
+    },
+    {
+      "cohort": "prior_fresh",
+      "arm": "instructions",
+      "tasks": 48,
+      "raw_items": 150,
+      "changed_items": 2,
+      "findings_before": 134,
+      "findings_after": 134,
+      "fates_before": {
+        "main_graph": 90,
+        "audit_only": 20,
+        "paper_detail": 40
+      },
+      "fates_after": {
+        "main_graph": 90,
+        "audit_only": 20,
+        "paper_detail": 40
+      },
+      "main_findings_before": 93,
+      "main_findings_after": 93
+    },
+    {
+      "cohort": "prior_fresh",
+      "arm": "structured",
+      "tasks": 48,
+      "raw_items": 139,
+      "changed_items": 11,
+      "findings_before": 131,
+      "findings_after": 131,
+      "fates_before": {
+        "main_graph": 83,
+        "audit_only": 23,
+        "paper_detail": 33
+      },
+      "fates_after": {
+        "main_graph": 83,
+        "audit_only": 23,
+        "paper_detail": 33
+      },
+      "main_findings_before": 92,
+      "main_findings_after": 92
+    }
+  ],
+  "code_sha256": {
+    "data/curated/entity_registry.json": "f98a78be962fb975c9ad6533b1262be217d96db1d107e5e222e0a60991c9aa43",
+    "pipeline/extract/assay_family.py": "650635cb1326e0c9f73a9be5bbc694d5fdf139e57f5ed1519e5529b18ff2eb98",
+    "pipeline/extract/clinical_comparator.py": "c5bdddcc392fa46bf7b506571d7ef16291d4da0cac7feeda305c7c0950b5baaa",
+    "pipeline/extract/clinical_followup_window.py": "6bdeddb3fa8254179ef04db7f53bb326f3a54f1d02bf8f94fcae9d0ba22a42d5",
+    "pipeline/extract/io_utils.py": "490a20fc48620c6f528a6a3744e17e02f9a540181f6dcebd4662374f4e3a334e",
+    "pipeline/ingest/funding_metadata.py": "74072fb3ce2a4b2d4e222ea609ea491da71377819e1fe59bc2c76948b3df97d5",
+    "pipeline/ingest/http_safety.py": "79a7085d8fa4aa80f39a0a2e7323342a6acdff15469f7815519628f9f61d51bd",
+    "pipeline/ingest/materialize_candidate_funding.py": "d0ba5eba579bd291ba5ad6adae5628be65266955023850ee76937132a6ab3f33",
+    "pipeline/ingest/materialize_paper_open_science.py": "a74db5da2f75b1629e7f6e5aa8204ec747cdeb9e3b4954d29c60c26dda5c98ea",
+    "pipeline/ingest/metadata_utils.py": "d7e0183e007f566fb0c99be382ff8a3f25141819b4c809efde814f6e3ad42a6f",
+    "pipeline/ingest/open_science_features.py": "364e52da0517767cae77a158d4233eb282e9e5dcb8380971851643a7ec53680d",
+    "pipeline/kg/build_evidence_tables.py": "7644e68e7baa3f1c8f67be53921ad8a06bc7581889ee8154ab2c286f2127a56e",
+    "pipeline/kg/compound_combinations.py": "0c1fe6ac9bf7761db8ef5d0828177568e44958e35529914263b93668993a89da",
+    "pipeline/kg/convert_routed_extractions_to_evidence_rows.py": "e82df9241d85ccf47b50777075ea913383916939e6fb6d1934a8f792a440c61b",
+    "pipeline/kg/graph_view_contract.py": "64fd4d7c726cebd63fc3b0c3bce4500b5d446d179d5c998f4a86678ddca608ab",
+    "pipeline/kg/pk_relationships.py": "882523ae89469e941f55b9d82e4162e01158422dabb86d5699e49cb469a2d65b",
+    "pipeline/kg/research_area_review.py": "ab946ec6c7b209131d80f893ea3dd178d889d64ec9fe2dc0825298b88067c538",
+    "pipeline/kg/use_contexts.py": "e4fe603d5c6d7ca933a0832db754141821149efa7bc623e5a1e6e35a87ddbe42",
+    "pipeline/publish/export_evidence_payload.py": "e3d592bf4dafb7877bd28519f54ee0a2c99f7e489bfbd1a712693f0c850fdca8",
+    "pipeline/publish/export_query_api.py": "e2daa04ee963d405aee1a70511cc713c53e8dad5039bf636f1141071ac9f1aab",
+    "schema/disorder_canonicalization.json": "18c668dc81d766c0a4e3804580e3bd4c994e39f5a7a224d067703ea3a77e9df8",
+    "schema/graph_view_contract.json": "53f04c0c5fd3163da64805298b60297a58c5a03795f71ee642be7c529b71958d",
+    "schema/kg_node_vocabularies.json": "c8bfa58f147c907f43a949f9513b435127fd6ee07884e495e110e682963b28fe",
+    "tests/test_primary_refinement_normalization.py": "a4fca323caf47c0a3aa0c0b79bff61478420fecbf3408bf5e07afad75f6cf929"
+  },
+  "test_file_sha256": "0d54ac1811d33a27120812c08e548c54bdb2d874f4263372ca532b41459d4caf",
+  "model_calls": 0,
+  "production_published": false,
+  "limits": [
+    "Changes count item instances across model/prompt arms; neither unique-paper counts nor an accuracy estimate.",
+    "No new source audit is inferred from deterministic change classification.",
+    "Original extraction errors, omissions, and scope ambiguities remain; preserving an item is not a correctness certification.",
+    "IL-10 boundary has positive and negative regression fixtures; it need not occur in these replayed samples.",
+    "Some mixed induction/rescue results lose atomic overview visibility while full scientific text stays in paper detail."
+  ]
+}

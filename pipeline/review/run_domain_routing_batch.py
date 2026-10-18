@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare, submit, and parse Gemini Batch API domain-routing jobs."""
+"""Prepare, submit, and parse Luna Batch API domain-routing jobs."""
 
 from __future__ import annotations
 
@@ -14,19 +14,17 @@ import time
 
 import pandas as pd
 
-try:
-    from google import genai
-    from google.genai import models as genai_models
-    from google.genai import types
-except ModuleNotFoundError as err:  # pragma: no cover - environment guard
-    raise SystemExit("google-genai is required for Gemini batch domain routing") from err
 
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+from pipeline import llm
+from pipeline.review.run_domain_routing import SYSTEM_INSTRUCTION
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 try:
-    from pipeline.review.run_gemini_domain_routing import (
+    from pipeline.review.run_domain_routing import (
         DEFAULT_COUNTS_CSV,
         DEFAULT_CANDIDATE_TABLE,
         DEFAULT_ENV,
@@ -57,7 +55,7 @@ try:
     from pipeline.fulltext.convert_pdfs import normalize_doi
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(ROOT))
-    from pipeline.review.run_gemini_domain_routing import (
+    from pipeline.review.run_domain_routing import (
         DEFAULT_COUNTS_CSV,
         DEFAULT_CANDIDATE_TABLE,
         DEFAULT_ENV,
@@ -88,8 +86,8 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     from pipeline.fulltext.convert_pdfs import normalize_doi
 
 
-DEFAULT_MODEL = "gemini-3-flash-preview"
-TERMINAL_STATES = {"JOB_STATE_SUCCEEDED", "JOB_STATE_FAILED", "JOB_STATE_CANCELLED", "JOB_STATE_EXPIRED"}
+DEFAULT_MODEL = "gpt-6-luna"
+TERMINAL_STATES = {"completed", "failed", "cancelled", "expired"}
 
 
 def now_utc() -> str:
@@ -97,23 +95,23 @@ def now_utc() -> str:
 
 
 def default_batch_input_jsonl() -> Path:
-    return DEFAULT_METADATA_TABLE.parent / "paper_domain_routing_gemini_batch_requests.jsonl"
+    return DEFAULT_METADATA_TABLE.parent / "paper_domain_routing_batch_requests.jsonl"
 
 
 def default_batch_manifest_json() -> Path:
-    return DEFAULT_METADATA_TABLE.parent / "paper_domain_routing_gemini_batch_manifest.json"
+    return DEFAULT_METADATA_TABLE.parent / "paper_domain_routing_batch_manifest.json"
 
 
 def default_batch_job_json() -> Path:
-    return DEFAULT_METADATA_TABLE.parent / "paper_domain_routing_gemini_batch_job.json"
+    return DEFAULT_METADATA_TABLE.parent / "paper_domain_routing_batch_job.json"
 
 
 def default_batch_output_jsonl() -> Path:
-    return DEFAULT_METADATA_TABLE.parent / "paper_domain_routing_gemini_batch_results.jsonl"
+    return DEFAULT_METADATA_TABLE.parent / "paper_domain_routing_batch_results.jsonl"
 
 
 def default_batch_parse_report_json() -> Path:
-    return DEFAULT_METADATA_TABLE.parent / "paper_domain_routing_gemini_batch_parse_report.json"
+    return DEFAULT_METADATA_TABLE.parent / "paper_domain_routing_batch_parse_report.json"
 
 
 def read_jsonl(path: Path) -> list[dict]:
@@ -130,9 +128,9 @@ def read_jsonl(path: Path) -> list[dict]:
 
 def api_key_from_env(args: argparse.Namespace, *, required: bool) -> str:
     env_values = load_dotenv(Path(args.env_file).resolve())
-    api_key = env_values.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY", "")
+    api_key = env_values.get("OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY", "")
     if required and not api_key:
-        raise SystemExit("GEMINI_API_KEY is missing. Add it to project .env or the environment.")
+        raise SystemExit("OPENAI_API_KEY is missing. Add it to project .env or the environment.")
     return api_key or "DUMMY"
 
 
@@ -140,8 +138,8 @@ def model_from_env(args: argparse.Namespace) -> str:
     env_values = load_dotenv(Path(args.env_file).resolve())
     return (
         clean(getattr(args, "model", ""))
-        or env_values.get("GEMINI_DOMAIN_ROUTING_MODEL")
-        or os.environ.get("GEMINI_DOMAIN_ROUTING_MODEL", "")
+        or env_values.get("OPENAI_DOMAIN_ROUTING_MODEL")
+        or os.environ.get("OPENAI_DOMAIN_ROUTING_MODEL", "")
         or DEFAULT_MODEL
     )
 
@@ -169,14 +167,7 @@ def selected_routing_records(args: argparse.Namespace) -> list[dict]:
 
 
 def batch_request_for_record(*, api_client: object, record: dict, args: argparse.Namespace) -> dict:
-    request = genai_models._GenerateContentParameters_to_mldev(  # noqa: SLF001 - SDK has no public file-request serializer.
-        api_client,
-        {
-            "contents": prompt_for_record(record),
-            "config": generation_config(args),
-        },
-    )
-    request.pop("_url", None)
+    request = llm.request_body(model=model_from_env(args), contents=prompt_for_record(record), config=generation_config(args))
     return jsonable(request)
 
 
@@ -197,7 +188,7 @@ def write_batch_requests(args: argparse.Namespace) -> dict:
 def write_batch_requests_for_records(args: argparse.Namespace, records: list[dict]) -> dict:
     batch_input_jsonl = Path(args.batch_input_jsonl).resolve()
     manifest_json = Path(args.manifest_json).resolve()
-    client = genai.Client(api_key=api_key_from_env(args, required=False))
+    client = None
     model = model_from_env(args)
 
     manifest_records = []
@@ -205,8 +196,8 @@ def write_batch_requests_for_records(args: argparse.Namespace, records: list[dic
     with batch_input_jsonl.open("w", encoding="utf-8") as handle:
         for input_row_index, record in enumerate(records, start=max(1, int(args.start_index))):
             key = f"domain-routing-{input_row_index:06d}"
-            request = batch_request_for_record(api_client=client._api_client, record=record, args=args)  # noqa: SLF001
-            handle.write(json.dumps({"key": key, "request": request}, ensure_ascii=False) + "\n")
+            request = batch_request_for_record(api_client=None, record=record, args=args)  # noqa: SLF001
+            handle.write(json.dumps(llm.batch_line(key, request), ensure_ascii=False) + "\n")
             manifest_records.append(
                 {
                     "key": key,
@@ -214,12 +205,13 @@ def write_batch_requests_for_records(args: argparse.Namespace, records: list[dic
                     "doi": normalize_doi(record.get("doi", "")),
                     "study_title": clean(record.get("study_title", "")),
                     "prompt_chars": len(prompt_for_record(record)),
+                    "prompt_sha256": llm.hashlib.sha256(SYSTEM_INSTRUCTION.encode()).hexdigest(),
                 }
             )
 
     manifest = {
         "generated_at_utc": now_utc(),
-        "schema_version": "domain_routing_gemini_batch_manifest",
+        "schema_version": "domain_routing_luna_batch_manifest",
         "status": "prepared",
         "inputs": {
             "metadata_table": str(Path(args.metadata_table).resolve()),
@@ -247,7 +239,7 @@ def write_batch_requests_for_records(args: argparse.Namespace, records: list[dic
     return manifest
 
 
-def job_to_dict(job: types.BatchJob) -> dict:
+def job_to_dict(job: object) -> dict:
     return job.model_dump(mode="json", exclude_none=True)
 
 
@@ -270,34 +262,8 @@ def submit_batch(args: argparse.Namespace) -> dict:
         raise SystemExit(f"Batch input JSONL does not exist: {batch_input_jsonl}")
     if not manifest_json.exists():
         raise SystemExit(f"Batch manifest JSON does not exist: {manifest_json}")
-    client = genai.Client(api_key=api_key_from_env(args, required=True))
-    model = model_from_env(args)
-    display_name = clean(args.display_name) or f"psychedelics-kg-domain-routing-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}"
-    uploaded_file = client.files.upload(
-        file=batch_input_jsonl,
-        config=types.UploadFileConfig(display_name=display_name, mime_type="jsonl"),
-    )
-    batch_job = client.batches.create(
-        model=model,
-        src=uploaded_file.name,
-        config=types.CreateBatchJobConfig(display_name=display_name),
-    )
-    payload = {
-        "generated_at_utc": now_utc(),
-        "schema_version": "domain_routing_gemini_batch_job",
-        "status": "submitted",
-        "display_name": display_name,
-        "model": model,
-        "uploaded_file": uploaded_file.model_dump(mode="json", exclude_none=True),
-        "batch_job": job_to_dict(batch_job),
-        "job_name": batch_job.name,
-        "inputs": {
-            "batch_input_jsonl": str(batch_input_jsonl),
-            "manifest_json": str(manifest_json),
-        },
-    }
-    write_json(job_json, payload)
-    return payload
+    return llm.submit(llm.client(api_key_from_env(args, required=True)), requests_path=batch_input_jsonl,
+        job_path=job_json, metadata={"stage": "screening", "model": llm.DEFAULT_MODEL})
 
 
 def job_name_from_args(args: argparse.Namespace) -> str:
@@ -314,17 +280,14 @@ def job_name_from_args(args: argparse.Namespace) -> str:
     return job_name
 
 
-def batch_state_name(job: types.BatchJob) -> str:
-    state = getattr(job, "state", None)
-    if state is None:
-        return ""
-    return getattr(state, "name", str(state))
+def batch_state_name(job):
+    return job.status
 
 
 def check_status(args: argparse.Namespace) -> dict:
-    client = genai.Client(api_key=api_key_from_env(args, required=True))
+    client = llm.client(api_key_from_env(args, required=True))
     job_name = job_name_from_args(args)
-    job = client.batches.get(name=job_name)
+    job = client.batches.retrieve(job_name)
     payload = {
         "status": "checked",
         "job_name": job_name,
@@ -336,16 +299,16 @@ def check_status(args: argparse.Namespace) -> dict:
 
 
 def wait_for_completion(args: argparse.Namespace) -> dict:
-    client = genai.Client(api_key=api_key_from_env(args, required=True))
+    client = llm.client(api_key_from_env(args, required=True))
     job_name = job_name_from_args(args)
     deadline = time.time() + max(0, args.timeout_sec)
-    job = client.batches.get(name=job_name)
+    job = client.batches.retrieve(job_name)
     while batch_state_name(job) not in TERMINAL_STATES:
         if args.timeout_sec > 0 and time.time() >= deadline:
             break
         print(f"Current state: {batch_state_name(job)}; waiting {args.poll_interval_sec:.0f}s", flush=True)
         time.sleep(max(1, args.poll_interval_sec))
-        job = client.batches.get(name=job_name)
+        job = client.batches.retrieve(job_name)
     payload = {
         "status": "checked",
         "job_name": job_name,
@@ -356,72 +319,31 @@ def wait_for_completion(args: argparse.Namespace) -> dict:
     return payload
 
 
-def download_results(args: argparse.Namespace) -> dict:
-    client = genai.Client(api_key=api_key_from_env(args, required=True))
-    job_name = job_name_from_args(args)
-    output_jsonl = Path(args.batch_output_jsonl).resolve()
-    job = client.batches.get(name=job_name)
-    state = batch_state_name(job)
-    if state != "JOB_STATE_SUCCEEDED":
-        raise SystemExit(f"Batch job is not succeeded; current state is {state}")
-    if not job.dest or not job.dest.file_name:
-        raise SystemExit("Batch job succeeded but did not expose a result file")
-    file_content = client.files.download(file=job.dest.file_name)
-    output_jsonl.parent.mkdir(parents=True, exist_ok=True)
-    output_jsonl.write_bytes(file_content)
-    payload = {
-        "status": "downloaded",
-        "job_name": job_name,
-        "state": state,
-        "result_file_name": job.dest.file_name,
-        "batch_output_jsonl": str(output_jsonl),
-        "batch_job": job_to_dict(job),
-    }
+def download_results(args):
+    api_client = llm.client(api_key_from_env(args, required=True))
+    name = job_name_from_args(args)
+    job = api_client.batches.retrieve(name)
+    output = Path(args.batch_output_jsonl).resolve()
+    payload = dict(status="downloaded", job_name=name, batch_job=job.model_dump(mode="json"),
+                   **llm.download(api_client, job, output))
     update_job_record(Path(args.job_json).resolve(), payload)
     return payload
 
 
-def batch_line_key(row: dict, fallback_index: int) -> str:
-    for path in (("key",), ("metadata", "key"), ("response", "metadata", "key")):
-        value: object = row
-        for key in path:
-            value = value.get(key, "") if isinstance(value, dict) else ""
-        text = clean(value)
-        if text:
-            return text
-    return f"row-{fallback_index}"
+def batch_line_key(row, fallback_index):
+    return llm.batch_line_key(row, fallback_index)
 
 
-def batch_line_response(row: dict) -> dict:
-    for key in ("response", "inlineResponse"):
-        value = row.get(key)
-        if isinstance(value, dict):
-            if isinstance(value.get("response"), dict):
-                return value["response"]
-            return value
-    return row if "candidates" in row else {}
+def batch_line_response(row):
+    return llm.batch_line_response(row)
 
 
-def batch_line_error(row: dict) -> str:
-    for key in ("error", "status"):
-        value = row.get(key)
-        if value:
-            return json.dumps(value, ensure_ascii=False) if isinstance(value, (dict, list)) else clean(value)
-    return ""
+def batch_line_error(row):
+    return llm.batch_line_error(row)
 
 
-def response_text(response: dict) -> str:
-    if not isinstance(response, dict):
-        return ""
-    if isinstance(response.get("text"), str):
-        return response["text"]
-    parts = []
-    for candidate in response.get("candidates", []) or []:
-        content = candidate.get("content", {}) if isinstance(candidate, dict) else {}
-        for part in content.get("parts", []) or []:
-            if isinstance(part, dict) and isinstance(part.get("text"), str):
-                parts.append(part["text"])
-    return "".join(parts)
+def response_text(response):
+    return llm.response_text(response)
 
 
 def records_by_key(manifest: dict) -> dict[str, dict]:
@@ -508,7 +430,9 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
             "status": "error",
             "response_text": text,
             "parsed": {},
-            "usage": response.get("usageMetadata") or response.get("usage_metadata") or {},
+            "usage": response.get("usage") or {},
+            "prompt_sha256": manifest_record.get("prompt_sha256", ""),
+            "provider_response": response,
             "batch_key": key,
             "batch_line_index": line_index,
             "batch_error": error,
@@ -576,7 +500,7 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
     write_counts_csv(counts_csv, counts)
     report = {
         "generated_at_utc": now_utc(),
-        "schema_version": "domain_routing_gemini_batch_parse_report",
+        "schema_version": "domain_routing_luna_batch_parse_report",
         "status": "ok" if not status_counts.get("error") and not integrity_issues else "issues_found",
         "inputs": {
             "batch_output_jsonl": str(batch_output_jsonl),
@@ -627,7 +551,7 @@ def add_common_generation_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--limit", type=int, default=0, help="Maximum records to prepare; 0 means all.")
     parser.add_argument("--start-index", type=int, default=1, help="1-based selected-record index to start from.")
     parser.add_argument("--temperature", type=float, default=0.0)
-    parser.add_argument("--max-output-tokens", type=int, default=512)
+    parser.add_argument("--max-output-tokens", type=int, default=2048)
     parser.add_argument("--thinking-budget", type=int, default=0)
     parser.add_argument("--resume", action="store_true", help="Skip DOIs already completed in --raw-jsonl.")
 
@@ -648,7 +572,7 @@ def add_parse_output_args(parser: argparse.ArgumentParser) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run Gemini Batch API domain routing for the corpus.")
+    parser = argparse.ArgumentParser(description="Run Luna Batch API domain routing for the corpus.")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     prepare = subparsers.add_parser("prepare", help="Write Batch API request JSONL.")

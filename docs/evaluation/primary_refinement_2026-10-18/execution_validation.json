@@ -1,0 +1,105 @@
+{
+  "calls": 720,
+  "logged_token_cost_usd": 0.98806668,
+  "unknown_cost_attempts": 0,
+  "arms": [
+    {
+      "cohort": "existing",
+      "arm": "baseline",
+      "tasks": 208,
+      "items": 556,
+      "models": [
+        "gpt-6-luna"
+      ],
+      "schema_failures": 0,
+      "cost_usd": 0.27211271,
+      "all_request_hashes_in_ledger": true
+    },
+    {
+      "cohort": "existing",
+      "arm": "refined",
+      "tasks": 208,
+      "items": 629,
+      "models": [
+        "gpt-6-luna"
+      ],
+      "schema_failures": 0,
+      "cost_usd": 0.316110555,
+      "all_request_hashes_in_ledger": true
+    },
+    {
+      "cohort": "controlled_historical",
+      "arm": "baseline",
+      "tasks": 40,
+      "items": 90,
+      "models": [
+        "gpt-6-luna"
+      ],
+      "schema_failures": 0,
+      "cost_usd": 0.044759325,
+      "all_request_hashes_in_ledger": true
+    },
+    {
+      "cohort": "controlled_historical",
+      "arm": "refined",
+      "tasks": 40,
+      "items": 120,
+      "models": [
+        "gpt-6-luna"
+      ],
+      "schema_failures": 0,
+      "cost_usd": 0.057480735,
+      "all_request_hashes_in_ledger": true
+    },
+    {
+      "cohort": "previous_fresh",
+      "arm": "baseline",
+      "tasks": 48,
+      "items": 114,
+      "models": [
+        "gpt-6-luna"
+      ],
+      "schema_failures": 0,
+      "cost_usd": 0.055549035000000004,
+      "all_request_hashes_in_ledger": true
+    },
+    {
+      "cohort": "previous_fresh",
+      "arm": "refined",
+      "tasks": 48,
+      "items": 136,
+      "models": [
+        "gpt-6-luna"
+      ],
+      "schema_failures": 0,
+      "cost_usd": 0.068608245,
+      "all_request_hashes_in_ledger": true
+    },
+    {
+      "cohort": "fresh",
+      "arm": "baseline",
+      "tasks": 64,
+      "items": 159,
+      "models": [
+        "gpt-6-luna"
+      ],
+      "schema_failures": 0,
+      "cost_usd": 0.08137602,
+      "all_request_hashes_in_ledger": true
+    },
+    {
+      "cohort": "fresh",
+      "arm": "refined",
+      "tasks": 64,
+      "items": 165,
+      "models": [
+        "gpt-6-luna"
+      ],
+      "schema_failures": 0,
+      "cost_usd": 0.092070055,
+      "all_request_hashes_in_ledger": true
+    }
+  ],
+  "cost_basis": "Logged API-token usage and configured prices, not a billing invoice. No per-attempt transport/schema failures recorded.",
+  "prompt_sha256": "d75a357bdd2f7c420d2d3a58e37a819f62db736d84cefb06c05a7a5fe95f98af"
+}

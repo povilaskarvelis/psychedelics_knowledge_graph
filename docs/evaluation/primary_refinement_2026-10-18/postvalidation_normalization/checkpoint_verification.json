@@ -1,0 +1,391 @@
+[
+  {
+    "name": "BAB preserves novel identity",
+    "rationale": "Benzyl derivative is not bufotenin or 5-MeO-DMT; original raw identity remains in detail.",
+    "count": 3,
+    "checks": [
+      {
+        "cohort": "paired_fresh",
+        "arm": "baseline",
+        "paper": "N20",
+        "case_id": "6f21e75024a4c76a21ec",
+        "item_index": 1,
+        "passed": true
+      },
+      {
+        "cohort": "paired_fresh",
+        "arm": "refined",
+        "paper": "N20",
+        "case_id": "6f21e75024a4c76a21ec",
+        "item_index": 1,
+        "passed": true
+      },
+      {
+        "cohort": "paired_fresh",
+        "arm": "refined",
+        "paper": "N20",
+        "case_id": "6f21e75024a4c76a21ec",
+        "item_index": 2,
+        "passed": true
+      }
+    ]
+  },
+  {
+    "name": "explicit randomized dose-finding remains randomized",
+    "rationale": "Explicit randomized placebo-controlled source and saved study design.",
+    "count": 2,
+    "checks": [
+      {
+        "cohort": "paired_fresh",
+        "arm": "baseline",
+        "paper": "N28",
+        "case_id": "95f57d34734ca977a27d",
+        "item_index": 1,
+        "passed": true
+      },
+      {
+        "cohort": "paired_fresh",
+        "arm": "refined",
+        "paper": "N28",
+        "case_id": "95f57d34734ca977a27d",
+        "item_index": 1,
+        "passed": true
+      }
+    ]
+  },
+  {
+    "name": "specific ketamine descriptor is atomic",
+    "rationale": "Named drug must take precedence over descriptive NMDA-antagonist class. Apomorphine control items are not ketamine observations.",
+    "count": 4,
+    "checks": [
+      {
+        "cohort": "paired_existing",
+        "arm": "baseline",
+        "paper": "P82",
+        "case_id": "b2b36b0939078ed7be5d",
+        "item_index": 1,
+        "passed": true
+      },
+      {
+        "cohort": "paired_existing",
+        "arm": "baseline",
+        "paper": "P82",
+        "case_id": "b2b36b0939078ed7be5d",
+        "item_index": 2,
+        "passed": true
+      },
+      {
+        "cohort": "paired_existing",
+        "arm": "refined",
+        "paper": "P82",
+        "case_id": "b2b36b0939078ed7be5d",
+        "item_index": 1,
+        "passed": true
+      },
+      {
+        "cohort": "paired_existing",
+        "arm": "refined",
+        "paper": "P82",
+        "case_id": "b2b36b0939078ed7be5d",
+        "item_index": 2,
+        "passed": true
+      }
+    ]
+  },
+  {
+    "name": "dose and saline comparator do not create combination",
+    "rationale": "Dose punctuation and a separate saline comparator do not denote coadministration; mixed cross-drug ratio items are outside this checkpoint.",
+    "count": 4,
+    "checks": [
+      {
+        "cohort": "paired_existing",
+        "arm": "baseline",
+        "paper": "P32",
+        "case_id": "7e23195c83a3ff7db35e",
+        "item_index": 1,
+        "passed": true
+      },
+      {
+        "cohort": "paired_existing",
+        "arm": "baseline",
+        "paper": "P32",
+        "case_id": "7e23195c83a3ff7db35e",
+        "item_index": 2,
+        "passed": true
+      },
+      {
+        "cohort": "paired_existing",
+        "arm": "baseline",
+        "paper": "P32",
+        "case_id": "7e23195c83a3ff7db35e",
+        "item_index": 3,
+        "passed": true
+      },
+      {
+        "cohort": "paired_existing",
+        "arm": "baseline",
+        "paper": "P32",
+        "case_id": "7e23195c83a3ff7db35e",
+        "item_index": 4,
+        "passed": true
+      }
+    ]
+  },
+  {
+    "name": "archival harm-reduction detail retained",
+    "rationale": "No detail loss from parenthetical comma handling.",
+    "count": 3,
+    "checks": [
+      {
+        "cohort": "prior_archival",
+        "arm": "archived",
+        "paper": "P76",
+        "case_id": "ff2077735f1401b5eba6",
+        "item_index": 1,
+        "passed": true
+      },
+      {
+        "cohort": "prior_archival",
+        "arm": "archived",
+        "paper": "P76",
+        "case_id": "ff2077735f1401b5eba6",
+        "item_index": 2,
+        "passed": true
+      },
+      {
+        "cohort": "prior_archival",
+        "arm": "archived",
+        "paper": "P76",
+        "case_id": "ff2077735f1401b5eba6",
+        "item_index": 3,
+        "passed": true
+      }
+    ]
+  },
+  {
+    "name": "P23 locomotor policy unchanged",
+    "rationale": "Correct controlled detail label; locomotion remains deliberately outside main graph.",
+    "count": 2,
+    "checks": [
+      {
+        "cohort": "paired_existing",
+        "arm": "baseline",
+        "paper": "P23",
+        "case_id": "10b451c1bd4f2ee5928f",
+        "item_index": 1,
+        "passed": true
+      },
+      {
+        "cohort": "paired_existing",
+        "arm": "refined",
+        "paper": "P23",
+        "case_id": "10b451c1bd4f2ee5928f",
+        "item_index": 1,
+        "passed": true
+      }
+    ]
+  },
+  {
+    "name": "numerical source-local compounds retained",
+    "rationale": "No invented global identity; raw chemical item is available in paper detail.",
+    "count": 4,
+    "checks": [
+      {
+        "cohort": "paired_existing",
+        "arm": "baseline",
+        "paper": "P73",
+        "case_id": "b9298aaf8a0fb456fa08",
+        "item_index": 1,
+        "passed": true
+      },
+      {
+        "cohort": "paired_existing",
+        "arm": "baseline",
+        "paper": "P73",
+        "case_id": "b9298aaf8a0fb456fa08",
+        "item_index": 2,
+        "passed": true
+      },
+      {
+        "cohort": "paired_existing",
+        "arm": "baseline",
+        "paper": "P73",
+        "case_id": "b9298aaf8a0fb456fa08",
+        "item_index": 3,
+        "passed": true
+      },
+      {
+        "cohort": "paired_existing",
+        "arm": "baseline",
+        "paper": "P73",
+        "case_id": "b9298aaf8a0fb456fa08",
+        "item_index": 4,
+        "passed": true
+      }
+    ]
+  },
+  {
+    "name": "plain methamphetamine use not diagnosis",
+    "rationale": "Use alone does not establish a disorder diagnosis.",
+    "count": 12,
+    "checks": [
+      {
+        "cohort": "paired_existing",
+        "arm": "refined",
+        "paper": "P94",
+        "case_id": "3419e25d3c36b7d691f9",
+        "item_index": 1,
+        "passed": true
+      },
+      {
+        "cohort": "paired_existing",
+        "arm": "refined",
+        "paper": "P94",
+        "case_id": "3419e25d3c36b7d691f9",
+        "item_index": 2,
+        "passed": true
+      },
+      {
+        "cohort": "paired_existing",
+        "arm": "refined",
+        "paper": "P94",
+        "case_id": "3419e25d3c36b7d691f9",
+        "item_index": 3,
+        "passed": true
+      },
+      {
+        "cohort": "paired_existing",
+        "arm": "refined",
+        "paper": "P94",
+        "case_id": "3419e25d3c36b7d691f9",
+        "item_index": 4,
+        "passed": true
+      },
+      {
+        "cohort": "prior_existing",
+        "arm": "baseline",
+        "paper": "P94",
+        "case_id": "3419e25d3c36b7d691f9",
+        "item_index": 1,
+        "passed": true
+      },
+      {
+        "cohort": "prior_existing",
+        "arm": "baseline",
+        "paper": "P94",
+        "case_id": "3419e25d3c36b7d691f9",
+        "item_index": 2,
+        "passed": true
+      },
+      {
+        "cohort": "prior_existing",
+        "arm": "instructions",
+        "paper": "P94",
+        "case_id": "3419e25d3c36b7d691f9",
+        "item_index": 1,
+        "passed": true
+      },
+      {
+        "cohort": "prior_existing",
+        "arm": "instructions",
+        "paper": "P94",
+        "case_id": "3419e25d3c36b7d691f9",
+        "item_index": 2,
+        "passed": true
+      },
+      {
+        "cohort": "prior_existing",
+        "arm": "instructions",
+        "paper": "P94",
+        "case_id": "3419e25d3c36b7d691f9",
+        "item_index": 3,
+        "passed": true
+      },
+      {
+        "cohort": "prior_existing",
+        "arm": "structured",
+        "paper": "P94",
+        "case_id": "3419e25d3c36b7d691f9",
+        "item_index": 1,
+        "passed": true
+      },
+      {
+        "cohort": "prior_existing",
+        "arm": "structured",
+        "paper": "P94",
+        "case_id": "3419e25d3c36b7d691f9",
+        "item_index": 2,
+        "passed": true
+      },
+      {
+        "cohort": "prior_existing",
+        "arm": "structured",
+        "paper": "P94",
+        "case_id": "3419e25d3c36b7d691f9",
+        "item_index": 3,
+        "passed": true
+      }
+    ]
+  },
+  {
+    "name": "sequential hair segments not treatment sequence",
+    "rationale": "Sample segmentation does not establish sequential drug administration.",
+    "count": 1,
+    "checks": [
+      {
+        "cohort": "paired_existing",
+        "arm": "refined",
+        "paper": "P93",
+        "case_id": "52ba4a7196db1ce58b41",
+        "item_index": 1,
+        "passed": true
+      }
+    ]
+  },
+  {
+    "name": "product prose not recovered atomic compound",
+    "rationale": "Novel-chemical product-description focal match remains detail-only.",
+    "count": 2,
+    "checks": [
+      {
+        "cohort": "paired_existing",
+        "arm": "baseline",
+        "paper": "P44",
+        "case_id": "a439580614745ad5b016",
+        "item_index": 1,
+        "passed": true
+      },
+      {
+        "cohort": "paired_existing",
+        "arm": "refined",
+        "paper": "P44",
+        "case_id": "a439580614745ad5b016",
+        "item_index": 1,
+        "passed": true
+      }
+    ]
+  },
+  {
+    "name": "diarrhea is not nausea",
+    "rationale": "Preserve the reported symptom rather than forcing the nearest existing GI category.",
+    "count": 2,
+    "checks": [
+      {
+        "cohort": "paired_fresh",
+        "arm": "baseline",
+        "paper": "N59",
+        "case_id": "33f5222329c9f7a66d04",
+        "item_index": 2,
+        "passed": true
+      },
+      {
+        "cohort": "paired_fresh",
+        "arm": "refined",
+        "paper": "N59",
+        "case_id": "33f5222329c9f7a66d04",
+        "item_index": 2,
+        "passed": true
+      }
+    ]
+  }
+]

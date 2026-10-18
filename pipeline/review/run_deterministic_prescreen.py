@@ -45,7 +45,7 @@ DEFAULT_PAPERS_TABLE = DEFAULT_CORPUS_DIR / "candidate_papers.parquet"
 DEFAULT_CONTEXTS_TABLE = DEFAULT_CORPUS_DIR / "candidate_contexts.parquet"
 DEFAULT_DECISIONS_TABLE = DEFAULT_CORPUS_DIR / "paper_prescreen_decisions.parquet"
 DEFAULT_SUMMARY_TABLE = DEFAULT_CORPUS_DIR / "paper_prescreen_summary.parquet"
-DEFAULT_DOMAIN_ROUTING_TABLE = DEFAULT_CORPUS_DIR / "paper_domain_routing_gemini.parquet"
+DEFAULT_DOMAIN_ROUTING_TABLE = DEFAULT_CORPUS_DIR / "paper_domain_routing.parquet"
 DEFAULT_EXTRACTION_ROUTES_TABLE = DEFAULT_CORPUS_DIR / "paper_extraction_routes.parquet"
 DEFAULT_EXTRACTION_TASKS_JSONL = (
     ROOT / "data" / "processed" / "extraction" / "route_extraction_tasks.jsonl"
@@ -53,6 +53,7 @@ DEFAULT_EXTRACTION_TASKS_JSONL = (
 DEFAULT_RECONCILIATION_REPORT = DEFAULT_CORPUS_DIR / "prescreen_workflow_reconciliation.json"
 TABLE_VERSION = "0.3"
 RULE_VERSION = "deterministic_prescreen_v2_12_20260916"
+CLEANUP_RULE_VERSION = "deterministic_cleanup_luna_v5_20261017"
 MINIMUM_ABSTRACT_WORD_COUNT = 50
 ENGLISH_LANGUAGE_CODES = {"en", "eng", "english"}
 CANDIDATE_PRESCREEN_DEFAULTS = {
@@ -1249,6 +1250,16 @@ def broad_nps_background_false_positive_decision(row: dict) -> dict | None:
 
 def before_model_exclusion_decision(row: dict) -> dict | None:
     return (
+        publication_cleanup_exclusion_decision(row)
+        or acronym_false_positive_decision(row)
+        or production_method_false_positive_decision(row)
+        or broad_nps_background_false_positive_decision(row)
+    )
+
+
+def publication_cleanup_exclusion_decision(row: dict) -> dict | None:
+    """Publication, language and record-quality gates; topic eligibility belongs to Luna."""
+    return (
         non_english_language_decision(row)
         or non_paper_container_without_title_decision(row)
         or out_of_scope_publication_format_decision(row)
@@ -1256,9 +1267,6 @@ def before_model_exclusion_decision(row: dict) -> dict | None:
         or numbered_conference_abstract_decision(row)
         or coded_conference_abstract_decision(row)
         or preprint_or_unpublished_decision(row)
-        or acronym_false_positive_decision(row)
-        or production_method_false_positive_decision(row)
-        or broad_nps_background_false_positive_decision(row)
     )
 
 
@@ -1276,6 +1284,7 @@ def build_prescreen_decisions(
     run_id: str,
     generated_at_utc: str,
     progress_every: int = 0,
+    cleanup_only: bool = False,
 ) -> list[dict]:
     contexts_lookup = contexts_by_doi(contexts_df)
     rows: list[dict] = []
@@ -1292,11 +1301,16 @@ def build_prescreen_decisions(
         screening_abstract_word_count = abstract_word_count(screening_row.get("abstract", ""))
         abstract_status_reason = unusable_abstract_reason(screening_row.get("abstract", ""))
         has_abstract = not bool(abstract_status_reason)
-        before_model_decision = before_model_exclusion_decision(screening_row)
+        before_model_decision = (publication_cleanup_exclusion_decision(screening_row) if cleanup_only
+                                 else before_model_exclusion_decision(screening_row))
         if before_model_decision:
             decision = before_model_decision
         elif not has_abstract:
             decision = no_usable_abstract_decision(screening_row, abstract_status_reason)
+        elif cleanup_only:
+            decision = {"action": "retain_for_screening", "confidence": 1.0,
+                        "reason": "Publication, language and usable-abstract checks passed; topic eligibility is delegated to Luna V5.",
+                        "matched_terms": [], "supporting_quote": ""}
         else:
             decision = deterministic_prescreen_decision(screening_row)
         prescreen_decision, prescreen_action, prescreen_reason = final_prescreen_fields(decision)
@@ -1306,7 +1320,7 @@ def build_prescreen_decisions(
         rows.append(
             {
                 "table_version": TABLE_VERSION,
-                "rule_version": RULE_VERSION,
+                "rule_version": CLEANUP_RULE_VERSION if cleanup_only else RULE_VERSION,
                 "run_id": run_id,
                 "generated_at_utc": generated_at_utc,
                 "prescreen_decision_id": stable_id(run_id, doi),
@@ -1407,7 +1421,7 @@ def candidate_prescreen_updates(
         if excluded:
             exclusion_stage: object = "prescreen"
             exclusion_reason: object = clean(row.get("prescreen_reason", ""))
-            exclusion_source: object = RULE_VERSION
+            exclusion_source: object = clean(row.get("rule_version", "")) or RULE_VERSION
         elif later_exclusion_exists:
             # Preserve a still-valid decision made by a later evidence stage.
             # pd.NA makes candidate reconciliation leave these cells untouched.
@@ -1532,6 +1546,7 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
         run_id=run_id,
         generated_at_utc=generated_at_utc,
         progress_every=getattr(args, "progress_every", 0),
+        cleanup_only=not getattr(args, "legacy_topical_filters", False),
     )
     if scoped_dois:
         decisions, replaced_count = merge_scoped_decisions(
@@ -1644,6 +1659,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument("--progress-every", type=int, default=5000, help="Print progress every N candidate papers; 0 disables progress.")
+    parser.add_argument("--legacy-topical-filters", action="store_true", help="Reproduce historical topical filters for audits; current production defaults to publication/language/usable-text cleanup only")
     return parser
 
 

@@ -1824,7 +1824,7 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
             contexts_path = root / "candidate_contexts.parquet"
             decisions_path = root / "paper_prescreen_decisions.parquet"
             summary_path = root / "paper_prescreen_summary.parquet"
-            routing_path = root / "paper_domain_routing_gemini.parquet"
+            routing_path = root / "paper_domain_routing.parquet"
             extraction_path = root / "paper_extraction_routes.parquet"
             tasks_path = root / "route_extraction_tasks.jsonl"
             report_path = root / "reconciliation.json"
@@ -1887,6 +1887,7 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                     "doi_file": "",
                     "doi": [],
                     "progress_every": 0,
+                    "legacy_topical_filters": True,
                 },
             )()
 

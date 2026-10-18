@@ -37,7 +37,7 @@ DEFAULT_DECISIONS_TABLE = (
     ROOT / "data" / "processed" / "corpus" / "paper_post_retrieval_eligibility_decisions.parquet"
 )
 DEFAULT_DOMAIN_ROUTING_TABLE = (
-    ROOT / "data" / "processed" / "corpus" / "paper_domain_routing_gemini.parquet"
+    ROOT / "data" / "processed" / "corpus" / "paper_domain_routing.parquet"
 )
 DEFAULT_EXTRACTION_ROUTES_TABLE = (
     ROOT / "data" / "processed" / "corpus" / "paper_extraction_routes.parquet"

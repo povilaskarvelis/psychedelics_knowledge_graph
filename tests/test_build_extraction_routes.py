@@ -607,7 +607,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                     "screening_decision": "include_in_scope",
                     "screening_reason": "In-scope secondary literature.",
                     "methodological_validity_tags": "evidence_quality_bias",
-                    "model": "gemini-3-flash-preview",
+                    "model": "gpt-6-luna",
                 }
                 for route in ("clinical_outcome", "safety_tolerability")
             ]
@@ -1379,7 +1379,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                     "domain_route_confidence": "medium",
                     "domain_route_basis": "domain tag:brain_system",
                     "needs_human_review": True,
-                    "model": "gemini-3-flash-preview",
+                    "model": "gpt-6-luna",
                 }
             ]
         )
@@ -1400,7 +1400,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertEqual(rows[0]["domain_screening_decision"], "include_for_extraction")
         self.assertEqual(rows[0]["domain_screening_reason"], "In-scope brain-system evidence.")
         self.assertEqual(rows[0]["methodological_validity_tags"], "blinding_expectancy_validity")
-        self.assertEqual(rows[0]["domain_routing_model"], "gemini-3-flash-preview")
+        self.assertEqual(rows[0]["domain_routing_model"], "gpt-6-luna")
         self.assertTrue(rows[0]["domain_needs_human_review"])
         self.assertIn("domain_route_basis:domain tag:brain_system", rows[0]["route_basis"])
 
@@ -1451,7 +1451,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                     "domain_route_confidence": "high",
                     "domain_route_basis": "domain tag:clinical_outcome",
                     "needs_human_review": False,
-                    "model": "gemini-3-flash-preview",
+                    "model": "gpt-6-luna",
                 }
             ]
         )
@@ -1519,7 +1519,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                     "domain_route_confidence": "high",
                     "domain_route_basis": "Gemini title/abstract domain routing: out of scope",
                     "needs_human_review": False,
-                    "model": "gemini-3-flash-preview",
+                    "model": "gpt-6-luna",
                 }
             ]
         )
@@ -1683,7 +1683,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                     "primary_domain": "general_topic",
                     "screening_decision": "include_in_scope",
                     "screening_reason": "General topic.",
-                    "model": "gemini-3-flash-preview",
+                    "model": "gpt-6-luna",
                 }
             ]
         )
@@ -1754,7 +1754,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                     "primary_domain": "general_topic",
                     "screening_decision": "include_in_scope",
                     "screening_reason": "General topic.",
-                    "model": "gemini-3-flash-preview",
+                    "model": "gpt-6-luna",
                 }
             ]
         )

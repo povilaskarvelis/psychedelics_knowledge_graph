@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pandas as pd
 
-from pipeline.review.build_gemini_domain_routing_batch_queue import (
+from pipeline.review.build_domain_routing_batch_queue import (
     previously_prescreen_retained_dois,
     split_records,
 )
@@ -13,7 +13,7 @@ from pipeline.review.build_gemini_domain_routing_batch_queue import (
 
 class BuildGeminiDomainRoutingBatchQueueTests(unittest.TestCase):
     def test_split_accounts_for_repeated_system_and_schema_input(self) -> None:
-        module = "pipeline.review.build_gemini_domain_routing_batch_queue"
+        module = "pipeline.review.build_domain_routing_batch_queue"
         with (
             patch(f"{module}.prompt_for_record", return_value="x" * 40),
             patch(f"{module}.SYSTEM_INSTRUCTION", "s" * 400),

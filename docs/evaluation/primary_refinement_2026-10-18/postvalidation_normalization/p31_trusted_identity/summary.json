@@ -1,0 +1,51 @@
+{
+  "stage": "isolated postvalidation trusted-envelope replay; excluded from original comparison",
+  "paper": "P31",
+  "task_id": "116db20adf1f7017e85a",
+  "original_arm": "baseline",
+  "raw_items_unchanged": true,
+  "schema_version_unchanged": true,
+  "original_files_unchanged": true,
+  "model_calls": 0,
+  "production_published": false,
+  "normalization_code_sha256": {
+    "data/curated/entity_registry.json": "f98a78be962fb975c9ad6533b1262be217d96db1d107e5e222e0a60991c9aa43",
+    "pipeline/extract/assay_family.py": "650635cb1326e0c9f73a9be5bbc694d5fdf139e57f5ed1519e5529b18ff2eb98",
+    "pipeline/extract/clinical_comparator.py": "c5bdddcc392fa46bf7b506571d7ef16291d4da0cac7feeda305c7c0950b5baaa",
+    "pipeline/extract/clinical_followup_window.py": "6bdeddb3fa8254179ef04db7f53bb326f3a54f1d02bf8f94fcae9d0ba22a42d5",
+    "pipeline/extract/io_utils.py": "490a20fc48620c6f528a6a3744e17e02f9a540181f6dcebd4662374f4e3a334e",
+    "pipeline/ingest/funding_metadata.py": "74072fb3ce2a4b2d4e222ea609ea491da71377819e1fe59bc2c76948b3df97d5",
+    "pipeline/ingest/http_safety.py": "79a7085d8fa4aa80f39a0a2e7323342a6acdff15469f7815519628f9f61d51bd",
+    "pipeline/ingest/materialize_candidate_funding.py": "d0ba5eba579bd291ba5ad6adae5628be65266955023850ee76937132a6ab3f33",
+    "pipeline/ingest/materialize_paper_open_science.py": "a74db5da2f75b1629e7f6e5aa8204ec747cdeb9e3b4954d29c60c26dda5c98ea",
+    "pipeline/ingest/metadata_utils.py": "d7e0183e007f566fb0c99be382ff8a3f25141819b4c809efde814f6e3ad42a6f",
+    "pipeline/ingest/open_science_features.py": "364e52da0517767cae77a158d4233eb282e9e5dcb8380971851643a7ec53680d",
+    "pipeline/kg/build_evidence_tables.py": "7644e68e7baa3f1c8f67be53921ad8a06bc7581889ee8154ab2c286f2127a56e",
+    "pipeline/kg/compound_combinations.py": "0c1fe6ac9bf7761db8ef5d0828177568e44958e35529914263b93668993a89da",
+    "pipeline/kg/convert_routed_extractions_to_evidence_rows.py": "e82df9241d85ccf47b50777075ea913383916939e6fb6d1934a8f792a440c61b",
+    "pipeline/kg/graph_view_contract.py": "64fd4d7c726cebd63fc3b0c3bce4500b5d446d179d5c998f4a86678ddca608ab",
+    "pipeline/kg/pk_relationships.py": "882523ae89469e941f55b9d82e4162e01158422dabb86d5699e49cb469a2d65b",
+    "pipeline/kg/research_area_review.py": "ab946ec6c7b209131d80f893ea3dd178d889d64ec9fe2dc0825298b88067c538",
+    "pipeline/kg/use_contexts.py": "e4fe603d5c6d7ca933a0832db754141821149efa7bc623e5a1e6e35a87ddbe42",
+    "pipeline/publish/export_evidence_payload.py": "e3d592bf4dafb7877bd28519f54ee0a2c99f7e489bfbd1a712693f0c850fdca8",
+    "pipeline/publish/export_query_api.py": "e2daa04ee963d405aee1a70511cc713c53e8dad5039bf636f1141071ac9f1aab",
+    "schema/disorder_canonicalization.json": "18c668dc81d766c0a4e3804580e3bd4c994e39f5a7a224d067703ea3a77e9df8",
+    "schema/graph_view_contract.json": "53f04c0c5fd3163da64805298b60297a58c5a03795f71ee642be7c529b71958d",
+    "schema/kg_node_vocabularies.json": "c8bfa58f147c907f43a949f9513b435127fd6ee07884e495e110e682963b28fe",
+    "tests/test_primary_refinement_normalization.py": "a4fca323caf47c0a3aa0c0b79bff61478420fecbf3408bf5e07afad75f6cf929"
+  },
+  "results": {
+    "before": {
+      "converted_rows": 0,
+      "findings": 0,
+      "main_findings": 0,
+      "public_findings": 0
+    },
+    "after": {
+      "converted_rows": 5,
+      "findings": 5,
+      "main_findings": 5,
+      "public_findings": 5
+    }
+  }
+}

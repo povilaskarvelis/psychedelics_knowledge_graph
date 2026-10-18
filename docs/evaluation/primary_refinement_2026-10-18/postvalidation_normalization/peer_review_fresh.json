@@ -1,0 +1,264 @@
+{
+  "reviewer": "root, independent of normalization implementation",
+  "reviewed_at": "2026-10-18T08:24:42.829849+00:00",
+  "scope": "All25 changed paired-fresh item projections, raw assertions, before/after records and relevant source context; not a new full-source audit. Arm identities known for this deterministic postvalidation check.",
+  "changed_items": 25,
+  "confirmed_new_wrong_relations": 0,
+  "supported_repairs_or_recoveries": 12,
+  "design_precision_tradeoffs": 11,
+  "remaining_time_binding_ambiguities": 2,
+  "reviews": [
+    {
+      "arm": "baseline",
+      "audit_id": "N04",
+      "case_id": "ff21967e631b5fbdd653",
+      "item_index": 2,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "verdict": "residual_time_binding_ambiguity",
+      "reason": "Baseline-only misclassification removed, but remission timing is not supplied. Early-follow-up bucket describes the assessment schedule, not a proven result time. Do not count as fully corrected scientific metadata."
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "N20",
+      "case_id": "6f21e75024a4c76a21ec",
+      "item_index": 1,
+      "before_fate": "main_graph",
+      "after_fate": "paper_detail",
+      "verdict": "supported_correction",
+      "reason": "Distinct benzyl analog BAB retained as detail; false parent Bufotenin/5-MeO-DMT removed."
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "N28",
+      "case_id": "95f57d34734ca977a27d",
+      "item_index": 1,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "verdict": "supported_correction",
+      "reason": "Explicit randomized double-blind placebo-controlled trial now classified randomized."
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "N38",
+      "case_id": "bdf832aaea3458a3f440",
+      "item_index": 1,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "verdict": "conservative_design_precision_tradeoff",
+      "reason": "No false randomization claim added. Unknown allocation bucket avoids treating open label alone as proof, but source single-arm trial design is clearer than Other; precision lost, prose retained."
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "N53",
+      "case_id": "7518824c8a3060e5ea2c",
+      "item_index": 3,
+      "before_fate": "main_graph",
+      "after_fate": "paper_detail",
+      "verdict": "supported_admission_correction",
+      "reason": "Pure laboratory stability validation retained as detail; actual concentration/detection observations remain main. Valid method science is not called factually wrong."
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "N58",
+      "case_id": "658a1757b5d0c25ee2a0",
+      "item_index": 1,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "verdict": "conservative_design_precision_tradeoff",
+      "reason": "No false randomization claim added. Unknown allocation bucket avoids treating open label alone as proof, but source single-arm trial design is clearer than Other; precision lost, prose retained."
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "N58",
+      "case_id": "658a1757b5d0c25ee2a0",
+      "item_index": 2,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "verdict": "conservative_design_precision_tradeoff",
+      "reason": "No false randomization claim added. Unknown allocation bucket avoids treating open label alone as proof, but source single-arm trial design is clearer than Other; precision lost, prose retained."
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "N58",
+      "case_id": "658a1757b5d0c25ee2a0",
+      "item_index": 3,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "verdict": "conservative_design_precision_tradeoff",
+      "reason": "No false randomization claim added. Unknown allocation bucket avoids treating open label alone as proof, but source single-arm trial design is clearer than Other; precision lost, prose retained."
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "N58",
+      "case_id": "658a1757b5d0c25ee2a0",
+      "item_index": 4,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "verdict": "conservative_design_precision_tradeoff",
+      "reason": "No false randomization claim added. Unknown allocation bucket avoids treating open label alone as proof, but source single-arm trial design is clearer than Other; precision lost, prose retained."
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "N58",
+      "case_id": "658a1757b5d0c25ee2a0",
+      "item_index": 5,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "verdict": "conservative_design_precision_tradeoff",
+      "reason": "No false randomization claim added. Unknown allocation bucket avoids treating open label alone as proof, but source single-arm trial design is clearer than Other; precision lost, prose retained."
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "N59",
+      "case_id": "33f5222329c9f7a66d04",
+      "item_index": 1,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "verdict": "supported_recovery",
+      "reason": "Adds the actually reported vomiting endpoint while retaining nausea and dizziness; genuine safety observation preserved."
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "N59",
+      "case_id": "33f5222329c9f7a66d04",
+      "item_index": 2,
+      "before_fate": "main_graph",
+      "after_fate": "paper_detail",
+      "verdict": "supported_correction",
+      "reason": "Diarrhea no longer becomes nausea/vomiting; faithful symptom retained as detail pending specific controlled endpoint."
+    },
+    {
+      "arm": "refined",
+      "audit_id": "N04",
+      "case_id": "ff21967e631b5fbdd653",
+      "item_index": 2,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "verdict": "residual_time_binding_ambiguity",
+      "reason": "Baseline-only misclassification removed, but remission timing is not supplied. Early-follow-up bucket describes the assessment schedule, not a proven result time. Do not count as fully corrected scientific metadata."
+    },
+    {
+      "arm": "refined",
+      "audit_id": "N20",
+      "case_id": "6f21e75024a4c76a21ec",
+      "item_index": 1,
+      "before_fate": "main_graph",
+      "after_fate": "paper_detail",
+      "verdict": "supported_correction",
+      "reason": "Distinct benzyl analog BAB retained as detail; false parent Bufotenin/5-MeO-DMT removed."
+    },
+    {
+      "arm": "refined",
+      "audit_id": "N20",
+      "case_id": "6f21e75024a4c76a21ec",
+      "item_index": 2,
+      "before_fate": "main_graph",
+      "after_fate": "paper_detail",
+      "verdict": "supported_correction",
+      "reason": "Distinct benzyl analog BAB retained as detail; false parent Bufotenin/5-MeO-DMT removed."
+    },
+    {
+      "arm": "refined",
+      "audit_id": "N24",
+      "case_id": "39123112d7a617acc3c9",
+      "item_index": 1,
+      "before_fate": "paper_detail",
+      "after_fate": "paper_detail",
+      "verdict": "supported_reason_correction",
+      "reason": "Assay validation stays detail; reason now specifically records analytical role; no link loss."
+    },
+    {
+      "arm": "refined",
+      "audit_id": "N28",
+      "case_id": "95f57d34734ca977a27d",
+      "item_index": 1,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "verdict": "supported_correction",
+      "reason": "Explicit randomized double-blind placebo-controlled trial now classified randomized."
+    },
+    {
+      "arm": "refined",
+      "audit_id": "N39",
+      "case_id": "414b0c7c009177fa4dcc",
+      "item_index": 1,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "verdict": "supported_correction",
+      "reason": "Baseline-to-current-treatment improvement now treatment endpoint, preserving ongoing schedule and no causal trial claim."
+    },
+    {
+      "arm": "refined",
+      "audit_id": "N58",
+      "case_id": "658a1757b5d0c25ee2a0",
+      "item_index": 1,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "verdict": "conservative_design_precision_tradeoff",
+      "reason": "No false randomization claim added. Unknown allocation bucket avoids treating open label alone as proof, but source single-arm trial design is clearer than Other; precision lost, prose retained."
+    },
+    {
+      "arm": "refined",
+      "audit_id": "N58",
+      "case_id": "658a1757b5d0c25ee2a0",
+      "item_index": 2,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "verdict": "conservative_design_precision_tradeoff",
+      "reason": "No false randomization claim added. Unknown allocation bucket avoids treating open label alone as proof, but source single-arm trial design is clearer than Other; precision lost, prose retained."
+    },
+    {
+      "arm": "refined",
+      "audit_id": "N58",
+      "case_id": "658a1757b5d0c25ee2a0",
+      "item_index": 3,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "verdict": "conservative_design_precision_tradeoff",
+      "reason": "No false randomization claim added. Unknown allocation bucket avoids treating open label alone as proof, but source single-arm trial design is clearer than Other; precision lost, prose retained."
+    },
+    {
+      "arm": "refined",
+      "audit_id": "N58",
+      "case_id": "658a1757b5d0c25ee2a0",
+      "item_index": 4,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "verdict": "conservative_design_precision_tradeoff",
+      "reason": "No false randomization claim added. Unknown allocation bucket avoids treating open label alone as proof, but source single-arm trial design is clearer than Other; precision lost, prose retained."
+    },
+    {
+      "arm": "refined",
+      "audit_id": "N58",
+      "case_id": "658a1757b5d0c25ee2a0",
+      "item_index": 5,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "verdict": "conservative_design_precision_tradeoff",
+      "reason": "No false randomization claim added. Unknown allocation bucket avoids treating open label alone as proof, but source single-arm trial design is clearer than Other; precision lost, prose retained."
+    },
+    {
+      "arm": "refined",
+      "audit_id": "N59",
+      "case_id": "33f5222329c9f7a66d04",
+      "item_index": 1,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "verdict": "supported_recovery",
+      "reason": "Adds the actually reported vomiting endpoint while retaining nausea and dizziness; genuine safety observation preserved."
+    },
+    {
+      "arm": "refined",
+      "audit_id": "N59",
+      "case_id": "33f5222329c9f7a66d04",
+      "item_index": 2,
+      "before_fate": "main_graph",
+      "after_fate": "paper_detail",
+      "verdict": "supported_correction",
+      "reason": "Diarrhea no longer becomes nausea/vomiting; faithful symptom retained as detail pending specific controlled endpoint."
+    }
+  ],
+  "remaining_confirmed_fresh_canonical_issue": "N22 baseline hydroxy-MDA detection still creates an extra parent MDA overview subject. Five of six strict pre-repair wrong canonical fresh records are corrected; this remaining record is not.",
+  "source_scope": "Relevant source sections checked; N58/N59 had already been reviewed by root in full."
+}

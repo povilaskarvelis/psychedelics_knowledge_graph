@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reconcile successful retry and manual-fallback rows into a Gemini batch queue."""
+"""Reconcile successful retry and manual-fallback rows into a Luna batch queue."""
 
 from __future__ import annotations
 
@@ -18,8 +18,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from pipeline.fulltext.convert_pdfs import normalize_doi
-from pipeline.review.advance_gemini_domain_routing_batch_queue import part_output_paths, read_json
-from pipeline.review.run_gemini_domain_routing import (
+from pipeline.review.advance_domain_routing_batch_queue import part_output_paths, read_json
+from pipeline.review.run_domain_routing import (
     build_summary,
     merged_routing_metadata,
     normalize_payload,
@@ -90,7 +90,7 @@ def manual_rows(path: Path) -> dict[str, dict]:
         out[doi] = {
             "generated_at_utc": now_utc(),
             "doi": doi,
-            "model": "manual_review_after_gemini-3-flash-preview_block",
+            "model": "manual_review_after_gpt-6-luna_block",
             "status": "ok",
             "response_text": json.dumps(parsed, ensure_ascii=False),
             "parsed": parsed,
@@ -150,8 +150,8 @@ def reconcile(args: argparse.Namespace) -> dict:
             if normalize_doi(route.get("doi", "")) not in manual_set:
                 continue
             route["literature_type_confidence"] = "manual"
-            route["domain_route_basis"] = "Manual title/abstract fallback after repeated Gemini content block: " + route["screening_reason"]
-            route["tag_source_fields"] = "manual_review_after_gemini_block"
+            route["domain_route_basis"] = "Manual title/abstract fallback after repeated Luna content block: " + route["screening_reason"]
+            route["tag_source_fields"] = "manual_review_after_luna_block"
         paths = part_output_paths(queue, part)
         write_parquet_atomic(paths["route_table"], routes)
         summary, counts = build_summary(

@@ -247,6 +247,9 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    if not args.cohort_jsonl and args.candidate_parquet.resolve() == DEFAULT_CANDIDATES.resolve():
+        from pipeline import llm
+        llm.require_screening_complete()
     candidate_rows = pd.read_parquet(args.candidate_parquet).to_dict("records")
     if args.cohort_jsonl:
         cohort_rows = read_jsonl(args.cohort_jsonl)

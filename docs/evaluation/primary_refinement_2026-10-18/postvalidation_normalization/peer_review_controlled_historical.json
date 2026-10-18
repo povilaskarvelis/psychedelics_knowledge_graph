@@ -1,0 +1,1254 @@
+{
+  "reviewer": "agent_a",
+  "stage": "postvalidation normalization only",
+  "date": "2026-10-18",
+  "scope": "All controlled-historical changed items, plus targeted intact negative controls. Original masked scientific reviews and arm keys were not modified or consulted. Source judgments concern the saved packet, not an external gold standard.",
+  "summary": {
+    "changed_item_instances": 18,
+    "changed_papers": 7,
+    "source_supported_corrections": 10,
+    "conservative_design_precision_tradeoffs": 8,
+    "residual_result_time_ambiguity_items": 2,
+    "confirmed_new_wrong_relations": 0,
+    "confirmed_lost_valid_relations": 0,
+    "unchanged_negative_controls": 23,
+    "source_evidence_quotes_literal": true
+  },
+  "raw_integrity_checks": [
+    {
+      "arm": "baseline",
+      "item_count": 90,
+      "all_raw_items_identical": true,
+      "all_item_keys_preserved": true
+    },
+    {
+      "arm": "refined",
+      "item_count": 120,
+      "all_raw_items_identical": true,
+      "all_item_keys_preserved": true
+    }
+  ],
+  "input_hashes": {
+    "data/processed/evaluation/primary_refinement_20261018/postvalidation_normalization/replay/paired_controlled_historical/baseline/changes.json": "3e6147bec9d0f2bc433abac88536e51f6843269c1d4f0312b1c823e7b5d38e38",
+    "data/processed/evaluation/primary_refinement_20261018/postvalidation_normalization/replay/paired_controlled_historical/baseline/before/item_lineage.json": "b33a8efb273691d76153082ed7791b01c40efab2da0a98c7bbc7af20c652e78a",
+    "data/processed/evaluation/primary_refinement_20261018/postvalidation_normalization/replay/paired_controlled_historical/baseline/after/item_lineage.json": "b8afc3144f7a2e8e0728ebf8bf091e9d2724ca7079df2a43bf541a95a20374a0",
+    "data/processed/evaluation/primary_refinement_20261018/postvalidation_normalization/replay/paired_controlled_historical/refined/changes.json": "64d770d93dab503bfea3c7560c1e66bde0e9a46750118162ca5dafe0a225781a",
+    "data/processed/evaluation/primary_refinement_20261018/postvalidation_normalization/replay/paired_controlled_historical/refined/before/item_lineage.json": "9f329a9e25f5785d20a331e082d89fbcbaf6f50947b22af439a8ab0e9e7ce383",
+    "data/processed/evaluation/primary_refinement_20261018/postvalidation_normalization/replay/paired_controlled_historical/refined/after/item_lineage.json": "53af90167cbf8a2270800c4f32e94b27d6de28dfcf00bbeb7d913edcfbc0a675"
+  },
+  "item_reviews": [
+    {
+      "audit_id": "H19",
+      "case_id": "cf646e58689285a5a9ef",
+      "domain": "subjective_experience",
+      "item_index": 1,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "arm": "baseline",
+      "source_sha256": "cbdb9fc5973511b8f16cece4b4ef997e4da25be460ee41e89aefc29dc3b26838",
+      "changed_fields": {
+        "graph_subject_label": {
+          "before": [
+            "Nitrous oxide (30% in oxygen), compared with 100% oxygen"
+          ],
+          "after": [
+            "Nitrous oxide"
+          ]
+        },
+        "graph_overview_subjects_json": {
+          "before": [
+            "[{\"kind\": \"atomic_compound\", \"label\": \"Nitrous oxide\", \"reason\": \"focal_compound_with_exposure_detail\"}]"
+          ],
+          "after": [
+            "[{\"kind\": \"atomic_compound\", \"label\": \"Nitrous oxide\", \"reason\": \"controlled_atomic_compound\"}]"
+          ]
+        },
+        "graph_subject_kind": {
+          "before": [
+            "compound_combination"
+          ],
+          "after": [
+            "atomic_compound"
+          ]
+        }
+      },
+      "verdict": "source_supported_correction",
+      "new_wrong_relation": false,
+      "lost_valid_relation": false,
+      "residuals": [],
+      "judgment": "Oxygen is carrier/control, not a second psychedelic compound. Atomic Nitrous oxide is appropriate and the prior correct Nitrous oxide overview remains. Raw concentration/comparator text is preserved.",
+      "evidence": [
+        {
+          "source_quote": "breathing 30 per cent nitrous oxide in oxygen, or 100 per cent oxygen",
+          "locator": "Abstract"
+        }
+      ]
+    },
+    {
+      "audit_id": "H24",
+      "case_id": "c706fe6581562f7a1d14",
+      "domain": "clinical_outcome",
+      "item_index": 1,
+      "before_fate": "paper_detail",
+      "after_fate": "paper_detail",
+      "arm": "baseline",
+      "source_sha256": "885379b77de588845242475ac76fc639e74c9a6d6ca7748996a41db30475875b",
+      "changed_fields": {
+        "evidence_design": {
+          "before": [
+            "nonrandomized_clinical_trial"
+          ],
+          "after": [
+            "other"
+          ]
+        }
+      },
+      "verdict": "conservative_design_precision_tradeoff",
+      "new_wrong_relation": false,
+      "lost_valid_relation": false,
+      "residuals": [],
+      "judgment": "Generic open_label no longer automatically establishes nonrandomization. This prevents a general design inference error, but this particular source describes a single-treatment clinical trial with age-group comparisons, so other is less informative than the true study design. Raw trial description remains available; no relation is lost.",
+      "evidence": [
+        {
+          "source_quote": "This was an open-label, real-world clinical trial",
+          "locator": "C002"
+        },
+        {
+          "source_quote": "patients were divided into older (≥ 50 years) and younger adult (< 50 years, ≥ 18 years) groups",
+          "locator": "C002"
+        }
+      ]
+    },
+    {
+      "audit_id": "H24",
+      "case_id": "c706fe6581562f7a1d14",
+      "domain": "clinical_outcome",
+      "item_index": 2,
+      "before_fate": "paper_detail",
+      "after_fate": "paper_detail",
+      "arm": "baseline",
+      "source_sha256": "885379b77de588845242475ac76fc639e74c9a6d6ca7748996a41db30475875b",
+      "changed_fields": {
+        "evidence_design": {
+          "before": [
+            "nonrandomized_clinical_trial"
+          ],
+          "after": [
+            "other"
+          ]
+        }
+      },
+      "verdict": "conservative_design_precision_tradeoff",
+      "new_wrong_relation": false,
+      "lost_valid_relation": false,
+      "residuals": [],
+      "judgment": "Generic open_label no longer automatically establishes nonrandomization. This prevents a general design inference error, but this particular source describes a single-treatment clinical trial with age-group comparisons, so other is less informative than the true study design. Raw trial description remains available; no relation is lost.",
+      "evidence": [
+        {
+          "source_quote": "This was an open-label, real-world clinical trial",
+          "locator": "C002"
+        },
+        {
+          "source_quote": "patients were divided into older (≥ 50 years) and younger adult (< 50 years, ≥ 18 years) groups",
+          "locator": "C002"
+        }
+      ]
+    },
+    {
+      "audit_id": "H24",
+      "case_id": "c706fe6581562f7a1d14",
+      "domain": "clinical_outcome",
+      "item_index": 3,
+      "before_fate": "paper_detail",
+      "after_fate": "paper_detail",
+      "arm": "baseline",
+      "source_sha256": "885379b77de588845242475ac76fc639e74c9a6d6ca7748996a41db30475875b",
+      "changed_fields": {
+        "evidence_design": {
+          "before": [
+            "nonrandomized_clinical_trial"
+          ],
+          "after": [
+            "other"
+          ]
+        }
+      },
+      "verdict": "conservative_design_precision_tradeoff",
+      "new_wrong_relation": false,
+      "lost_valid_relation": false,
+      "residuals": [],
+      "judgment": "Generic open_label no longer automatically establishes nonrandomization. This prevents a general design inference error, but this particular source describes a single-treatment clinical trial with age-group comparisons, so other is less informative than the true study design. Raw trial description remains available; no relation is lost.",
+      "evidence": [
+        {
+          "source_quote": "This was an open-label, real-world clinical trial",
+          "locator": "C002"
+        },
+        {
+          "source_quote": "patients were divided into older (≥ 50 years) and younger adult (< 50 years, ≥ 18 years) groups",
+          "locator": "C002"
+        }
+      ]
+    },
+    {
+      "audit_id": "H26",
+      "case_id": "5ec7ca51b1922c568b52",
+      "domain": "cognitive_behavioral",
+      "item_index": 4,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "arm": "baseline",
+      "source_sha256": "3117be67f73519160b6dc3b50ad297a3592e67373a16f3f2dd4ce0bae06cbb9a",
+      "changed_fields": {
+        "entity_label": {
+          "before": [
+            "Drug self-administration"
+          ],
+          "after": [
+            "Anhedonia"
+          ]
+        },
+        "graph_parent_label": {
+          "before": [
+            ""
+          ],
+          "after": [
+            "Reward processing"
+          ]
+        }
+      },
+      "verdict": "source_supported_correction",
+      "new_wrong_relation": false,
+      "lost_valid_relation": false,
+      "residuals": [],
+      "judgment": "This result measures sucrose preference, interpreted by the authors as anhedonia; it does not measure drug self-administration. Anhedonia/Reward processing correctly represents the endpoint, with no-drug-treatment-effect qualifier retained in raw content.",
+      "evidence": [
+        {
+          "source_quote": "decreased sucrose intake (reflective of anhedonia)",
+          "locator": "C001"
+        },
+        {
+          "source_quote": "there was an overall decrease of approximately 20% in sucrose preference following alcohol intake. However, no treatment effect of any drug was observed.",
+          "locator": "C008"
+        }
+      ]
+    },
+    {
+      "audit_id": "H10",
+      "case_id": "7f854aae2f4d544b0133",
+      "domain": "molecular_pathway_readout",
+      "item_index": 2,
+      "before_fate": "main_graph",
+      "after_fate": "paper_detail",
+      "arm": "refined",
+      "source_sha256": "83591f669b7e027201981d940a7f7d30374ee7903d73e6dcbe8dc30ea701728c",
+      "changed_fields": {
+        "graph_admission_reason": {
+          "before": [
+            "semantically_complete"
+          ],
+          "after": [
+            "uncontrolled_subject_detail_only"
+          ]
+        },
+        "graph_overview_subjects_json": {
+          "before": [
+            "[{\"kind\": \"atomic_compound\", \"label\": \"Salvinorin A\", \"reason\": \"specific_compounds_separated_from_multi_compound_text\"}, {\"kind\": \"atomic_compound\", \"label\": \"Salvinorin B\", \"reason\": \"specific_compounds_separated_from_multi_compound_text\"}]"
+          ],
+          "after": [
+            "[]"
+          ]
+        },
+        "compound": {
+          "before": [
+            "Salvinorin A"
+          ],
+          "after": [
+            "Salvinorin A acid and salvinorin B acid as substrates for recombinant carboxy methyltransferase (CMT)"
+          ]
+        },
+        "graph_admission_status": {
+          "before": [
+            "main_graph"
+          ],
+          "after": [
+            "paper_detail"
+          ]
+        }
+      },
+      "verdict": "source_supported_correction",
+      "new_wrong_relation": false,
+      "lost_valid_relation": false,
+      "residuals": [],
+      "judgment": "The acid substrates are chemically distinct from Salvinorin A/B. Removal of parent-compound overview links is correct; the exact negative methylation finding is retained in detail. No controlled acid node is asserted to exist.",
+      "evidence": [
+        {
+          "source_quote": "but not in highly oxygenated substrates like salvinorin A and B acids.",
+          "locator": "Abstract"
+        }
+      ]
+    },
+    {
+      "audit_id": "H17",
+      "case_id": "f8b609ff076f1ec13170",
+      "domain": "safety_tolerability",
+      "item_index": 1,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "arm": "refined",
+      "source_sha256": "f31db1ed850e33d4515fbc07c2cfc6361be8ad68a1ca76597e12f2f05d0e54e8",
+      "changed_fields": {
+        "graph_subject_label": {
+          "before": [
+            "BOL (brom derivative of d-lysergic acid diethylamide), quick injection"
+          ],
+          "after": [
+            "2-bromo-LSD"
+          ]
+        },
+        "graph_overview_subjects_json": {
+          "before": [
+            "[{\"kind\": \"atomic_compound\", \"label\": \"2-bromo-LSD\", \"reason\": \"specific_compounds_separated_from_multi_compound_text\"}, {\"kind\": \"atomic_compound\", \"label\": \"LSD\", \"reason\": \"specific_compounds_separated_from_multi_compound_text\"}]"
+          ],
+          "after": [
+            "[{\"kind\": \"atomic_compound\", \"label\": \"2-bromo-LSD\", \"reason\": \"controlled_atomic_compound\"}]"
+          ]
+        },
+        "graph_subject_kind": {
+          "before": [
+            "compound_combination"
+          ],
+          "after": [
+            "atomic_compound"
+          ]
+        }
+      },
+      "verdict": "source_supported_correction",
+      "new_wrong_relation": false,
+      "lost_valid_relation": false,
+      "residuals": [],
+      "judgment": "BOL is the tested brominated derivative; LSD in its expanded name is not a second exposure. Removing the LSD overview projection preserves the actual BOL cardiovascular result.",
+      "evidence": [
+        {
+          "source_quote": "BOL caused sharp and partly sustained fall in arterial pressure when given by quick injection to anesthetized rats. This effect was less marked in cats and dogs.",
+          "locator": "Abstract"
+        }
+      ]
+    },
+    {
+      "audit_id": "H17",
+      "case_id": "f8b609ff076f1ec13170",
+      "domain": "safety_tolerability",
+      "item_index": 3,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "arm": "refined",
+      "source_sha256": "f31db1ed850e33d4515fbc07c2cfc6361be8ad68a1ca76597e12f2f05d0e54e8",
+      "changed_fields": {
+        "graph_overview_subjects_json": {
+          "before": [
+            "[{\"kind\": \"atomic_compound\", \"label\": \"2-bromo-LSD\", \"reason\": \"specific_compounds_separated_from_multi_compound_text\"}, {\"kind\": \"atomic_compound\", \"label\": \"LSD\", \"reason\": \"specific_compounds_separated_from_multi_compound_text\"}]"
+          ],
+          "after": [
+            "[{\"kind\": \"atomic_compound\", \"label\": \"2-bromo-LSD\", \"reason\": \"focal_compound_with_exposure_detail\"}]"
+          ]
+        }
+      },
+      "verdict": "source_supported_correction",
+      "new_wrong_relation": false,
+      "lost_valid_relation": false,
+      "residuals": [
+        "The one-compound description remains typed compound_combination, but the overview identity is now correct. This residual metadata limitation is not a false LSD link."
+      ],
+      "judgment": "BOL is the tested brominated derivative; LSD in its expanded name is not a second exposure. Removing the LSD overview projection preserves the actual BOL cardiovascular result.",
+      "evidence": [
+        {
+          "source_quote": "BOL caused sharp and partly sustained fall in arterial pressure when given by quick injection to anesthetized rats. This effect was less marked in cats and dogs.",
+          "locator": "Abstract"
+        }
+      ]
+    },
+    {
+      "audit_id": "H19",
+      "case_id": "cf646e58689285a5a9ef",
+      "domain": "subjective_experience",
+      "item_index": 1,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "arm": "refined",
+      "source_sha256": "cbdb9fc5973511b8f16cece4b4ef997e4da25be460ee41e89aefc29dc3b26838",
+      "changed_fields": {
+        "graph_subject_label": {
+          "before": [
+            "Nitrous oxide (30% in oxygen), compared with 100% oxygen"
+          ],
+          "after": [
+            "Nitrous oxide"
+          ]
+        },
+        "graph_overview_subjects_json": {
+          "before": [
+            "[{\"kind\": \"atomic_compound\", \"label\": \"Nitrous oxide\", \"reason\": \"focal_compound_with_exposure_detail\"}]"
+          ],
+          "after": [
+            "[{\"kind\": \"atomic_compound\", \"label\": \"Nitrous oxide\", \"reason\": \"controlled_atomic_compound\"}]"
+          ]
+        },
+        "graph_subject_kind": {
+          "before": [
+            "compound_combination"
+          ],
+          "after": [
+            "atomic_compound"
+          ]
+        }
+      },
+      "verdict": "source_supported_correction",
+      "new_wrong_relation": false,
+      "lost_valid_relation": false,
+      "residuals": [],
+      "judgment": "Oxygen is carrier/control, not a second psychedelic compound. Atomic Nitrous oxide is appropriate and the prior correct Nitrous oxide overview remains. Raw concentration/comparator text is preserved.",
+      "evidence": [
+        {
+          "source_quote": "breathing 30 per cent nitrous oxide in oxygen, or 100 per cent oxygen",
+          "locator": "Abstract"
+        }
+      ]
+    },
+    {
+      "audit_id": "H19",
+      "case_id": "cf646e58689285a5a9ef",
+      "domain": "subjective_experience",
+      "item_index": 2,
+      "before_fate": "paper_detail",
+      "after_fate": "paper_detail",
+      "arm": "refined",
+      "source_sha256": "cbdb9fc5973511b8f16cece4b4ef997e4da25be460ee41e89aefc29dc3b26838",
+      "changed_fields": {
+        "graph_subject_label": {
+          "before": [
+            "Nitrous oxide (30% in oxygen), compared with 100% oxygen"
+          ],
+          "after": [
+            "Nitrous oxide"
+          ]
+        },
+        "graph_overview_subjects_json": {
+          "before": [
+            "[{\"kind\": \"atomic_compound\", \"label\": \"Nitrous oxide\", \"reason\": \"focal_compound_with_exposure_detail\"}]"
+          ],
+          "after": [
+            "[{\"kind\": \"atomic_compound\", \"label\": \"Nitrous oxide\", \"reason\": \"controlled_atomic_compound\"}]"
+          ]
+        },
+        "graph_subject_kind": {
+          "before": [
+            "compound_combination"
+          ],
+          "after": [
+            "atomic_compound"
+          ]
+        }
+      },
+      "verdict": "source_supported_correction",
+      "new_wrong_relation": false,
+      "lost_valid_relation": false,
+      "residuals": [],
+      "judgment": "Oxygen is carrier/control, not a second psychedelic compound. Atomic Nitrous oxide is appropriate and the prior correct Nitrous oxide overview remains. Raw concentration/comparator text is preserved.",
+      "evidence": [
+        {
+          "source_quote": "breathing 30 per cent nitrous oxide in oxygen, or 100 per cent oxygen",
+          "locator": "Abstract"
+        }
+      ]
+    },
+    {
+      "audit_id": "H23",
+      "case_id": "555070a875661040f34b",
+      "domain": "clinical_outcome",
+      "item_index": 2,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "arm": "refined",
+      "source_sha256": "81f084736d6101b6a52af1c6623c0cbecbe090b44b1943de2040fb6ca0e44435",
+      "changed_fields": {
+        "follow_up_window_normalized": {
+          "before": [
+            "Baseline / pre-treatment"
+          ],
+          "after": [
+            "Long follow-up (4-12 months)"
+          ]
+        }
+      },
+      "verdict": "source_supported_correction",
+      "new_wrong_relation": false,
+      "lost_valid_relation": false,
+      "residuals": [],
+      "judgment": "The clinical result explicitly spans pretreatment to six months. Replacing Baseline with Long follow-up (4-12 months) is appropriate; baseline is the comparison assessment, not the endpoint.",
+      "evidence": [
+        {
+          "source_quote": "reduction in PTSD symptoms from pre-treatment to 1-month post-treatment, which remained reduced through 6 months",
+          "locator": "C010"
+        }
+      ]
+    },
+    {
+      "audit_id": "H24",
+      "case_id": "c706fe6581562f7a1d14",
+      "domain": "clinical_outcome",
+      "item_index": 1,
+      "before_fate": "paper_detail",
+      "after_fate": "paper_detail",
+      "arm": "refined",
+      "source_sha256": "885379b77de588845242475ac76fc639e74c9a6d6ca7748996a41db30475875b",
+      "changed_fields": {
+        "follow_up_window_normalized": {
+          "before": [
+            "Baseline / pre-treatment"
+          ],
+          "after": [
+            "Short follow-up (1-4 weeks)"
+          ]
+        },
+        "evidence_design": {
+          "before": [
+            "nonrandomized_clinical_trial"
+          ],
+          "after": [
+            "other"
+          ]
+        }
+      },
+      "verdict": "conservative_design_precision_tradeoff",
+      "new_wrong_relation": false,
+      "lost_valid_relation": false,
+      "residuals": [
+        "Result-versus-schedule time ambiguity: after bucket Short follow-up (1-4 weeks) selects day26 from the raw full assessment schedule, whereas the specific reduction is reported at 4h and maintained during the infusion period. The previous Baseline bucket was also wrong. This is not evidence of new wrong canonical relations, and not a confirmed complete timing repair. Do not tune a paper-specific inference rule."
+      ],
+      "judgment": "Generic open_label no longer automatically establishes nonrandomization. This prevents a general design inference error, but this particular source describes a single-treatment clinical trial with age-group comparisons, so other is less informative than the true study design. Raw trial description remains available; no relation is lost.",
+      "evidence": [
+        {
+          "source_quote": "This was an open-label, real-world clinical trial",
+          "locator": "C002"
+        },
+        {
+          "source_quote": "patients were divided into older (≥ 50 years) and younger adult (< 50 years, ≥ 18 years) groups",
+          "locator": "C002"
+        },
+        {
+          "source_quote": "found at 4h after the first infusion compared to baseline scores and maintained over the subsequent infusion period in both groups",
+          "locator": "C009"
+        }
+      ]
+    },
+    {
+      "audit_id": "H24",
+      "case_id": "c706fe6581562f7a1d14",
+      "domain": "clinical_outcome",
+      "item_index": 2,
+      "before_fate": "paper_detail",
+      "after_fate": "paper_detail",
+      "arm": "refined",
+      "source_sha256": "885379b77de588845242475ac76fc639e74c9a6d6ca7748996a41db30475875b",
+      "changed_fields": {
+        "follow_up_window_normalized": {
+          "before": [
+            "Baseline / pre-treatment"
+          ],
+          "after": [
+            "Short follow-up (1-4 weeks)"
+          ]
+        },
+        "evidence_design": {
+          "before": [
+            "nonrandomized_clinical_trial"
+          ],
+          "after": [
+            "other"
+          ]
+        }
+      },
+      "verdict": "conservative_design_precision_tradeoff",
+      "new_wrong_relation": false,
+      "lost_valid_relation": false,
+      "residuals": [
+        "Result-versus-schedule time ambiguity: after bucket Short follow-up (1-4 weeks) selects day26 from the raw full assessment schedule, whereas the specific reduction is reported at 4h and maintained during the infusion period. The previous Baseline bucket was also wrong. This is not evidence of new wrong canonical relations, and not a confirmed complete timing repair. Do not tune a paper-specific inference rule."
+      ],
+      "judgment": "Generic open_label no longer automatically establishes nonrandomization. This prevents a general design inference error, but this particular source describes a single-treatment clinical trial with age-group comparisons, so other is less informative than the true study design. Raw trial description remains available; no relation is lost.",
+      "evidence": [
+        {
+          "source_quote": "This was an open-label, real-world clinical trial",
+          "locator": "C002"
+        },
+        {
+          "source_quote": "patients were divided into older (≥ 50 years) and younger adult (< 50 years, ≥ 18 years) groups",
+          "locator": "C002"
+        },
+        {
+          "source_quote": "found at 4h after the first infusion compared to baseline scores and maintained over the subsequent infusion period in both groups",
+          "locator": "C009"
+        }
+      ]
+    },
+    {
+      "audit_id": "H24",
+      "case_id": "c706fe6581562f7a1d14",
+      "domain": "clinical_outcome",
+      "item_index": 3,
+      "before_fate": "paper_detail",
+      "after_fate": "paper_detail",
+      "arm": "refined",
+      "source_sha256": "885379b77de588845242475ac76fc639e74c9a6d6ca7748996a41db30475875b",
+      "changed_fields": {
+        "evidence_design": {
+          "before": [
+            "nonrandomized_clinical_trial"
+          ],
+          "after": [
+            "other"
+          ]
+        }
+      },
+      "verdict": "conservative_design_precision_tradeoff",
+      "new_wrong_relation": false,
+      "lost_valid_relation": false,
+      "residuals": [],
+      "judgment": "Generic open_label no longer automatically establishes nonrandomization. This prevents a general design inference error, but this particular source describes a single-treatment clinical trial with age-group comparisons, so other is less informative than the true study design. Raw trial description remains available; no relation is lost.",
+      "evidence": [
+        {
+          "source_quote": "This was an open-label, real-world clinical trial",
+          "locator": "C002"
+        },
+        {
+          "source_quote": "patients were divided into older (≥ 50 years) and younger adult (< 50 years, ≥ 18 years) groups",
+          "locator": "C002"
+        }
+      ]
+    },
+    {
+      "audit_id": "H24",
+      "case_id": "c706fe6581562f7a1d14",
+      "domain": "clinical_outcome",
+      "item_index": 4,
+      "before_fate": "paper_detail",
+      "after_fate": "paper_detail",
+      "arm": "refined",
+      "source_sha256": "885379b77de588845242475ac76fc639e74c9a6d6ca7748996a41db30475875b",
+      "changed_fields": {
+        "evidence_design": {
+          "before": [
+            "nonrandomized_clinical_trial"
+          ],
+          "after": [
+            "other"
+          ]
+        }
+      },
+      "verdict": "conservative_design_precision_tradeoff",
+      "new_wrong_relation": false,
+      "lost_valid_relation": false,
+      "residuals": [],
+      "judgment": "Generic open_label no longer automatically establishes nonrandomization. This prevents a general design inference error, but this particular source describes a single-treatment clinical trial with age-group comparisons, so other is less informative than the true study design. Raw trial description remains available; no relation is lost.",
+      "evidence": [
+        {
+          "source_quote": "This was an open-label, real-world clinical trial",
+          "locator": "C002"
+        },
+        {
+          "source_quote": "patients were divided into older (≥ 50 years) and younger adult (< 50 years, ≥ 18 years) groups",
+          "locator": "C002"
+        }
+      ]
+    },
+    {
+      "audit_id": "H24",
+      "case_id": "c706fe6581562f7a1d14",
+      "domain": "clinical_outcome",
+      "item_index": 5,
+      "before_fate": "paper_detail",
+      "after_fate": "paper_detail",
+      "arm": "refined",
+      "source_sha256": "885379b77de588845242475ac76fc639e74c9a6d6ca7748996a41db30475875b",
+      "changed_fields": {
+        "evidence_design": {
+          "before": [
+            "nonrandomized_clinical_trial"
+          ],
+          "after": [
+            "other"
+          ]
+        }
+      },
+      "verdict": "conservative_design_precision_tradeoff",
+      "new_wrong_relation": false,
+      "lost_valid_relation": false,
+      "residuals": [],
+      "judgment": "Generic open_label no longer automatically establishes nonrandomization. This prevents a general design inference error, but this particular source describes a single-treatment clinical trial with age-group comparisons, so other is less informative than the true study design. Raw trial description remains available; no relation is lost.",
+      "evidence": [
+        {
+          "source_quote": "This was an open-label, real-world clinical trial",
+          "locator": "C002"
+        },
+        {
+          "source_quote": "patients were divided into older (≥ 50 years) and younger adult (< 50 years, ≥ 18 years) groups",
+          "locator": "C002"
+        }
+      ]
+    },
+    {
+      "audit_id": "H26",
+      "case_id": "5ec7ca51b1922c568b52",
+      "domain": "cognitive_behavioral",
+      "item_index": 4,
+      "before_fate": "main_graph",
+      "after_fate": "main_graph",
+      "arm": "refined",
+      "source_sha256": "3117be67f73519160b6dc3b50ad297a3592e67373a16f3f2dd4ce0bae06cbb9a",
+      "changed_fields": {
+        "entity_label": {
+          "before": [
+            "Drug self-administration"
+          ],
+          "after": [
+            "Anhedonia"
+          ]
+        },
+        "graph_parent_label": {
+          "before": [
+            ""
+          ],
+          "after": [
+            "Reward processing"
+          ]
+        }
+      },
+      "verdict": "source_supported_correction",
+      "new_wrong_relation": false,
+      "lost_valid_relation": false,
+      "residuals": [],
+      "judgment": "This result measures sucrose preference, interpreted by the authors as anhedonia; it does not measure drug self-administration. Anhedonia/Reward processing correctly represents the endpoint, with no-drug-treatment-effect qualifier retained in raw content.",
+      "evidence": [
+        {
+          "source_quote": "decreased sucrose intake (reflective of anhedonia)",
+          "locator": "C001"
+        },
+        {
+          "source_quote": "there was an overall decrease of approximately 20% in sucrose preference following alcohol intake. However, no treatment effect of any drug was observed.",
+          "locator": "C008"
+        }
+      ]
+    },
+    {
+      "audit_id": "H33",
+      "case_id": "5dd2a94b66fef6e1066f",
+      "domain": "pharmacokinetics_exposure",
+      "item_index": 2,
+      "before_fate": "main_graph",
+      "after_fate": "paper_detail",
+      "arm": "refined",
+      "source_sha256": "74d52ab6632b3446243696bb5b9de7c2c57a8d30ad4ab74bad8be3299c1a8e31",
+      "changed_fields": {
+        "graph_admission_reason": {
+          "before": [
+            "semantically_complete"
+          ],
+          "after": [
+            "analytical_validation_not_in_vivo_exposure"
+          ]
+        },
+        "graph_admission_status": {
+          "before": [
+            "main_graph"
+          ],
+          "after": [
+            "paper_detail"
+          ]
+        }
+      },
+      "verdict": "source_supported_correction",
+      "new_wrong_relation": false,
+      "lost_valid_relation": false,
+      "residuals": [
+        "Existing clinical system and compound_combination labels are not improved by this admission repair; measured-analyte identity is preserved."
+      ],
+      "judgment": "Calibration ranges, precision and recovery in spiked milk are analytical validation rather than evidence of in-vivo exposure or transfer. Detail-only demotion is justified and preserves exact method data. The separate actual human milk concentration-time finding remains main-graph.",
+      "evidence": [
+        {
+          "source_quote": "Blank human milk was homogenized to reconstitute the supernatant lipid and was spiked with working solution mixture to a known concentration to obtain calibration standards and QC samples.",
+          "locator": "C003"
+        }
+      ]
+    }
+  ],
+  "negative_controls": [
+    {
+      "arm": "baseline",
+      "audit_id": "H17",
+      "case_id": "f8b609ff076f1ec13170",
+      "item_index": 2,
+      "domain": "safety_tolerability",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "Actual LSD exposure and the correctly multi-subject chronic-null comparison remain represented; derivative-name protection did not suppress valid LSD.",
+      "evidence": [
+        {
+          "source_quote": "LSD caused rises in pressure in rats and small falls in pressure in cats.",
+          "locator": "Abstract"
+        }
+      ],
+      "finding_ids": [
+        "finding:a4069dae2d09863e32"
+      ]
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "H17",
+      "case_id": "f8b609ff076f1ec13170",
+      "item_index": 3,
+      "domain": "safety_tolerability",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "Actual LSD exposure and the correctly multi-subject chronic-null comparison remain represented; derivative-name protection did not suppress valid LSD.",
+      "evidence": [
+        {
+          "source_quote": "LSD or BOL given chronically by mouth had no effect on arterial pressures of chronic renal or neurogenic hypertensive dogs.",
+          "locator": "Abstract"
+        }
+      ],
+      "finding_ids": [
+        "finding:4de928bc833c912594"
+      ]
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "H21",
+      "case_id": "75d0c488ff9d6ae43660",
+      "item_index": 1,
+      "domain": "brain_system",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "Explicit randomized placebo-controlled design remains randomized_controlled_trial after conservative open-label design repair.",
+      "evidence": [
+        {
+          "source_quote": "The assignment to the Pbo/Ket scan order was randomized and under single-blind conditions.",
+          "locator": "C004"
+        }
+      ],
+      "finding_ids": [
+        "finding:3810a9778ceb265608"
+      ]
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "H25",
+      "case_id": "a69c98e7d7d96aad1eb7",
+      "item_index": 2,
+      "domain": "cognitive_behavioral",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "True factorial MDMA/ethanol condition remains a multi-compound description with RCT design; identity repair does not collapse it to an invented single-exposure observation.",
+      "evidence": [
+        {
+          "source_quote": "This study utilised a four-way, double-blind, randomised, crossover, placebo-controlled design.",
+          "locator": "C002"
+        }
+      ],
+      "finding_ids": [
+        "finding:83640cdad181d427e0"
+      ]
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "H25",
+      "case_id": "a69c98e7d7d96aad1eb7",
+      "item_index": 4,
+      "domain": "cognitive_behavioral",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "True factorial MDMA/ethanol condition remains a multi-compound description with RCT design; identity repair does not collapse it to an invented single-exposure observation.",
+      "evidence": [
+        {
+          "source_quote": "This study utilised a four-way, double-blind, randomised, crossover, placebo-controlled design.",
+          "locator": "C002"
+        }
+      ],
+      "finding_ids": [
+        "finding:9ee2259559df2695e0"
+      ]
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "H26",
+      "case_id": "5ec7ca51b1922c568b52",
+      "item_index": 1,
+      "domain": "cognitive_behavioral",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "Actual alcohol-consumption endpoints remain Drug self-administration; NBQX-only remains detail; actual combination/null and separate locomotor/stress-coping endpoints retain their prior policy.",
+      "evidence": [
+        {
+          "source_quote": "Both doses of ketamine (5 and 10 mg/kg) and NBQX (5 and 10 mg/kg) significantly attenuated percent alcohol intake.",
+          "locator": "C001"
+        }
+      ],
+      "finding_ids": [
+        "finding:f1524fc999306c0f40"
+      ]
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "H26",
+      "case_id": "5ec7ca51b1922c568b52",
+      "item_index": 2,
+      "domain": "cognitive_behavioral",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "Actual alcohol-consumption endpoints remain Drug self-administration; NBQX-only remains detail; actual combination/null and separate locomotor/stress-coping endpoints retain their prior policy.",
+      "evidence": [
+        {
+          "source_quote": "Both doses of ketamine (5 and 10 mg/kg) and NBQX (5 and 10 mg/kg) significantly attenuated percent alcohol intake.",
+          "locator": "C001"
+        }
+      ],
+      "finding_ids": [
+        "finding:0ca3fd78004ac8e8bb"
+      ]
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "H26",
+      "case_id": "5ec7ca51b1922c568b52",
+      "item_index": 3,
+      "domain": "cognitive_behavioral",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "Actual alcohol-consumption endpoints remain Drug self-administration; NBQX-only remains detail; actual combination/null and separate locomotor/stress-coping endpoints retain their prior policy.",
+      "evidence": [
+        {
+          "source_quote": "The combination of the higher dose of ketamine and NBQX, however, did not significantly affect percent alcohol intake.",
+          "locator": "C001"
+        }
+      ],
+      "finding_ids": [
+        "finding:82b0bd5f58dabe237f"
+      ]
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "H26",
+      "case_id": "5ec7ca51b1922c568b52",
+      "item_index": 5,
+      "domain": "cognitive_behavioral",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "Actual alcohol-consumption endpoints remain Drug self-administration; NBQX-only remains detail; actual combination/null and separate locomotor/stress-coping endpoints retain their prior policy.",
+      "evidence": [
+        {
+          "source_quote": "decreased locomotor activity and swimming in the FST (reflective of helplessness), that were not affected by ketamine and/or NBQX.",
+          "locator": "C001"
+        }
+      ],
+      "finding_ids": [
+        "finding:016e1b0a1876dd2a4f"
+      ]
+    },
+    {
+      "arm": "baseline",
+      "audit_id": "H33",
+      "case_id": "5dd2a94b66fef6e1066f",
+      "item_index": 1,
+      "domain": "pharmacokinetics_exposure",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "Actual post-infusion human milk measurements remain main_graph; analytical-validation guard does not demote the genuine exposure finding.",
+      "evidence": [
+        {
+          "source_quote": "The newly developed and validated assay methodology was successfully used to measure the concentrations of ketamine, norketamine and dehydronorketamine in human milk samples collected from a participant",
+          "locator": "C017"
+        }
+      ],
+      "finding_ids": [
+        "finding:f173f9a90364bf570b"
+      ]
+    },
+    {
+      "arm": "refined",
+      "audit_id": "H17",
+      "case_id": "f8b609ff076f1ec13170",
+      "item_index": 2,
+      "domain": "safety_tolerability",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "Actual LSD exposure and the correctly multi-subject chronic-null comparison remain represented; derivative-name protection did not suppress valid LSD.",
+      "evidence": [
+        {
+          "source_quote": "LSD caused rises in pressure in rats and small falls in pressure in cats.",
+          "locator": "Abstract"
+        }
+      ],
+      "finding_ids": [
+        "finding:50a31e02037897a925"
+      ]
+    },
+    {
+      "arm": "refined",
+      "audit_id": "H17",
+      "case_id": "f8b609ff076f1ec13170",
+      "item_index": 4,
+      "domain": "safety_tolerability",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "Actual LSD exposure and the correctly multi-subject chronic-null comparison remain represented; derivative-name protection did not suppress valid LSD.",
+      "evidence": [
+        {
+          "source_quote": "LSD caused rises in pressure in rats and small falls in pressure in cats.",
+          "locator": "Abstract"
+        }
+      ],
+      "finding_ids": [
+        "finding:fe2a23d4bc24d2e79a"
+      ]
+    },
+    {
+      "arm": "refined",
+      "audit_id": "H17",
+      "case_id": "f8b609ff076f1ec13170",
+      "item_index": 5,
+      "domain": "safety_tolerability",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "Actual LSD exposure and the correctly multi-subject chronic-null comparison remain represented; derivative-name protection did not suppress valid LSD.",
+      "evidence": [
+        {
+          "source_quote": "LSD or BOL given chronically by mouth had no effect on arterial pressures of chronic renal or neurogenic hypertensive dogs.",
+          "locator": "Abstract"
+        }
+      ],
+      "finding_ids": [
+        "finding:06f0edc1906e665bb1"
+      ]
+    },
+    {
+      "arm": "refined",
+      "audit_id": "H21",
+      "case_id": "75d0c488ff9d6ae43660",
+      "item_index": 1,
+      "domain": "brain_system",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "Explicit randomized placebo-controlled design remains randomized_controlled_trial after conservative open-label design repair.",
+      "evidence": [
+        {
+          "source_quote": "The assignment to the Pbo/Ket scan order was randomized and under single-blind conditions.",
+          "locator": "C004"
+        }
+      ],
+      "finding_ids": [
+        "finding:66f00ef587aeb1837a",
+        "finding:17107e6ffffab64c9b",
+        "finding:6a4db98a04cee70144",
+        "finding:9ed84f683f39ecb948"
+      ]
+    },
+    {
+      "arm": "refined",
+      "audit_id": "H25",
+      "case_id": "a69c98e7d7d96aad1eb7",
+      "item_index": 2,
+      "domain": "cognitive_behavioral",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "True factorial MDMA/ethanol condition remains a multi-compound description with RCT design; identity repair does not collapse it to an invented single-exposure observation.",
+      "evidence": [
+        {
+          "source_quote": "This study utilised a four-way, double-blind, randomised, crossover, placebo-controlled design.",
+          "locator": "C002"
+        }
+      ],
+      "finding_ids": [
+        "finding:ad92c45df0fdbe9f24"
+      ]
+    },
+    {
+      "arm": "refined",
+      "audit_id": "H25",
+      "case_id": "a69c98e7d7d96aad1eb7",
+      "item_index": 4,
+      "domain": "cognitive_behavioral",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "True factorial MDMA/ethanol condition remains a multi-compound description with RCT design; identity repair does not collapse it to an invented single-exposure observation.",
+      "evidence": [
+        {
+          "source_quote": "recognition was not affected by any drug condition",
+          "locator": "F001"
+        }
+      ],
+      "finding_ids": [
+        "finding:730a5c52b7ce59735d"
+      ]
+    },
+    {
+      "arm": "refined",
+      "audit_id": "H25",
+      "case_id": "a69c98e7d7d96aad1eb7",
+      "item_index": 7,
+      "domain": "cognitive_behavioral",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "True factorial MDMA/ethanol condition remains a multi-compound description with RCT design; identity repair does not collapse it to an invented single-exposure observation.",
+      "evidence": [
+        {
+          "source_quote": "Executive function (switch task) did not show any significant main or interaction effects.",
+          "locator": "C017"
+        }
+      ],
+      "finding_ids": [
+        "finding:d99249e8a40e48b3f4"
+      ]
+    },
+    {
+      "arm": "refined",
+      "audit_id": "H26",
+      "case_id": "5ec7ca51b1922c568b52",
+      "item_index": 1,
+      "domain": "cognitive_behavioral",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "Actual alcohol-consumption endpoints remain Drug self-administration; NBQX-only remains detail; actual combination/null and separate locomotor/stress-coping endpoints retain their prior policy.",
+      "evidence": [
+        {
+          "source_quote": "Both doses of ketamine (5 and 10 mg/kg) and NBQX (5 and 10 mg/kg) significantly attenuated percent alcohol intake.",
+          "locator": "C001"
+        }
+      ],
+      "finding_ids": [
+        "finding:4cfc16a7026bc6015b"
+      ]
+    },
+    {
+      "arm": "refined",
+      "audit_id": "H26",
+      "case_id": "5ec7ca51b1922c568b52",
+      "item_index": 2,
+      "domain": "cognitive_behavioral",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "Actual alcohol-consumption endpoints remain Drug self-administration; NBQX-only remains detail; actual combination/null and separate locomotor/stress-coping endpoints retain their prior policy.",
+      "evidence": [
+        {
+          "source_quote": "Both doses of ketamine (5 and 10 mg/kg) and NBQX (5 and 10 mg/kg) significantly attenuated percent alcohol intake.",
+          "locator": "C001"
+        }
+      ],
+      "finding_ids": [
+        "finding:3a7c0775f75f59b32c"
+      ]
+    },
+    {
+      "arm": "refined",
+      "audit_id": "H26",
+      "case_id": "5ec7ca51b1922c568b52",
+      "item_index": 3,
+      "domain": "cognitive_behavioral",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "Actual alcohol-consumption endpoints remain Drug self-administration; NBQX-only remains detail; actual combination/null and separate locomotor/stress-coping endpoints retain their prior policy.",
+      "evidence": [
+        {
+          "source_quote": "The combination of the higher dose of ketamine and NBQX, however, did not significantly affect percent alcohol intake.",
+          "locator": "C001"
+        }
+      ],
+      "finding_ids": [
+        "finding:208b103ce0c2b65edb"
+      ]
+    },
+    {
+      "arm": "refined",
+      "audit_id": "H26",
+      "case_id": "5ec7ca51b1922c568b52",
+      "item_index": 5,
+      "domain": "cognitive_behavioral",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "Actual alcohol-consumption endpoints remain Drug self-administration; NBQX-only remains detail; actual combination/null and separate locomotor/stress-coping endpoints retain their prior policy.",
+      "evidence": [
+        {
+          "source_quote": "decreased locomotor activity and swimming in the FST (reflective of helplessness), that were not affected by ketamine and/or NBQX.",
+          "locator": "C001"
+        }
+      ],
+      "finding_ids": [
+        "finding:972197cdf511ccc28b"
+      ]
+    },
+    {
+      "arm": "refined",
+      "audit_id": "H26",
+      "case_id": "5ec7ca51b1922c568b52",
+      "item_index": 6,
+      "domain": "cognitive_behavioral",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "Actual alcohol-consumption endpoints remain Drug self-administration; NBQX-only remains detail; actual combination/null and separate locomotor/stress-coping endpoints retain their prior policy.",
+      "evidence": [
+        {
+          "source_quote": "decreased locomotor activity and swimming in the FST (reflective of helplessness), that were not affected by ketamine and/or NBQX.",
+          "locator": "C001"
+        }
+      ],
+      "finding_ids": [
+        "finding:a4a3237c57d77640c3"
+      ]
+    },
+    {
+      "arm": "refined",
+      "audit_id": "H33",
+      "case_id": "5dd2a94b66fef6e1066f",
+      "item_index": 1,
+      "domain": "pharmacokinetics_exposure",
+      "raw_unchanged": true,
+      "semantic_projection_unchanged": true,
+      "verdict": "negative_control_preserved",
+      "judgment": "Actual post-infusion human milk measurements remain main_graph; analytical-validation guard does not demote the genuine exposure finding.",
+      "evidence": [
+        {
+          "source_quote": "The newly developed and validated assay methodology was successfully used to measure the concentrations of ketamine, norketamine and dehydronorketamine in human milk samples collected from a participant",
+          "locator": "C017"
+        }
+      ],
+      "finding_ids": [
+        "finding:67b73c736c390578e3"
+      ]
+    }
+  ],
+  "limitations": [
+    "This is a bounded semantic peer review of 18 changes in one cohort, not an overall graph-accuracy estimate.",
+    "H24 latest-time selection cannot reliably bind a result when extraction includes the entire study schedule; this is a retained limitation, not a fully corrected field.",
+    "Open-label alone no longer implies nonrandomization; true unrandomized trial detail can be lost in the controlled design category while surviving in prose.",
+    "Existing residual compound-kind metadata and domain policy issues are kept separate from new regression judgments."
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "run_id": "luna_v5_20261017",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "low",
+  "prompt_version": "v5_class_scope",
+  "prompt_sha256": "d4255c6e0263d3c45fe371344cdd1447d6a8170de48506ff66277e62b967ac07",
+  "screening_status": "complete",
+  "records_expected": 137256,
+  "records_completed": 137256,
+  "parsed_batches": 28,
+  "decisions_by_paper": {
+    "exclude_out_of_scope": 113636,
+    "include_in_scope": 23620
+  },
+  "screening_table_sha256": "3a6d34113108693fab8d6b18d87e59c7b42b9a35c7f09f27c8b50aa2b8749cbe",
+  "extraction_status": "tasks_prepared",
+  "extraction_run_ids": {
+    "primary": "luna_v5_20261017_primary",
+    "review": "luna_v5_20261017_review",
+    "meta": "luna_v5_20261017_meta"
+  },
+  "source_run_state": "data/processed/model_runs/luna_v5_20261017/run.json",
+  "extraction_method_decision": "Current production Luna instructions and primary schemas retained. Candidate rewrite not promoted. Verified normalization repairs kept. Refresh/freeze latest task inventory before full Batch extraction."
+}

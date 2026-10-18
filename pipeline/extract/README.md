@@ -18,7 +18,7 @@ Default outputs:
 - `data/processed/corpus/paper_extraction_routes_summary.json`
 - `data/processed/corpus/paper_extraction_routes_counts.csv`
 
-The route table joins deterministic pre-screen decisions, metadata, Gemini
+The route table joins deterministic pre-screen decisions, metadata, Luna
 paper-type and domain routing, converted full-text artifacts, valid PDFs in
 `data/raw/papers/pdfs/`, and PDF URL availability.
 Each row includes the paper source family, source type, domain route, access
@@ -53,11 +53,11 @@ when routes are rebuilt. If an abstract exists, the paper therefore proceeds as
 `abstract_only` instead of being repeatedly returned to the PDF queue. A later
 verified local PDF or converted full-text artifact still takes precedence.
 
-Build the Gemini routing table first, then pass it explicitly:
+Build the Luna routing table first, then pass it explicitly:
 
 ```bash
 python pipeline/extract/build_extraction_routes.py \
-  --domain-routing-table data/processed/corpus/paper_domain_routing_gemini.parquet
+  --domain-routing-table data/processed/corpus/paper_domain_routing.parquet
 ```
 
 Use this table to audit extraction queues before model calls. The prompt and
@@ -78,7 +78,7 @@ scope extraction tasks with the post-screen DOI list:
 
 ```bash
 python pipeline/extract/build_extraction_routes.py \
-  --domain-routing-table data/processed/corpus/paper_domain_routing_gemini.parquet
+  --domain-routing-table data/processed/corpus/paper_domain_routing.parquet
 
 python pipeline/extract/build_extraction_tasks.py \
   --route-table data/processed/corpus/paper_extraction_routes.parquet \
@@ -113,17 +113,16 @@ are marked `ready_for_model` only when a compatible article text input is
 available. Otherwise they remain in the task file as `needs_fulltext_packet` or
 `needs_expected_fulltext_packet` so missing text inputs are visible.
 
-Route-aware extraction defaults to Gemini 3 Flash preview for article-text and
+Route-aware extraction defaults to GPT-6 Luna for article-text and
 abstract-only tasks:
 
 ```bash
-GEMINI_ROUTE_EXTRACTION_MODEL=gemini-3-flash-preview
-GEMINI_ABSTRACT_EXTRACTION_MODEL=gemini-3-flash-preview
-GEMINI_ARTICLE_TEXT_EXTRACTION_MODEL=gemini-3-flash-preview
+OPENAI_ROUTE_EXTRACTION_MODEL=gpt-6-luna
+OPENAI_ABSTRACT_EXTRACTION_MODEL=gpt-6-luna
+OPENAI_ARTICLE_TEXT_EXTRACTION_MODEL=gpt-6-luna
 ```
 
-The route-aware runner also defaults to `--thinking-budget 0`. Override
-`--model` or `--thinking-budget` only for deliberate comparison runs.
+All routes use OpenAI Responses with low reasoning and strict JSON schemas. Retired-provider model values are rejected. The legacy `--thinking-budget` argument is accepted for command compatibility and is not sent to OpenAI.
 
 Section selection strategies are route-specific:
 
@@ -234,10 +233,9 @@ python pipeline/extract/run_meta_analysis_v2_batch_api.py parse \
 The parsed record envelope adds `schema_version`, `source_depth`, source
 fingerprint, model, and task identity deterministically. The model receives
 only the fields defined in `schema/meta_analysis_evidence_v2.schema.json`.
-Human-readable schema descriptions are removed from the API request because
-the prompt already supplies those instructions and Gemini's structured-output
-validator rejects the more verbose full-text schema. The saved schema and input
-snapshot retain the descriptions.
+The native request omits redundant human-readable schema descriptions; the
+prompt supplies those instructions. The saved schema and input snapshot retain
+the descriptions.
 The v2 pilot was reviewed on 2026-07-12 and approved for the remaining
 meta-analysis extraction with fail-closed QA. V1 meta-analysis extraction is
 legacy read-only and cannot be submitted by the generic runners.
@@ -324,7 +322,7 @@ run into evidence rows, and rebuilds versioned KG tables for that run. It does
 not overwrite `data/processed/kg/`.
 
 ```bash
-RUN_ID=gemini3_flash_20260628_routed_extraction
+RUN_ID=luna_v5_20260628_routed_extraction
 python pipeline/extract/run_routed_extraction_batch.py \
   --run-id "$RUN_ID" \
   --batch-size 100 \
@@ -334,7 +332,7 @@ python pipeline/extract/run_routed_extraction_batch.py \
 
 The same command can be rerun with the same `RUN_ID`; tasks already attempted in
 that run are skipped. Use `--dry-run` first to inspect the selected tasks without
-calling Gemini. Outputs accumulate under:
+calling Luna. Outputs accumulate under:
 
 - `data/processed/extraction/routed_runs/<RUN_ID>/`
 - `data/processed/kg_routed_runs/<RUN_ID>/`
@@ -388,7 +386,7 @@ Build the production task list:
 python pipeline/extract/build_review_relationship_tasks.py
 ```
 
-Inspect the model-call plan without calling Gemini:
+Inspect the model-call plan without calling Luna:
 
 ```bash
 python pipeline/extract/run_review_relationship_extraction.py \
@@ -404,7 +402,7 @@ python pipeline/extract/run_review_relationship_extraction.py \
 ```
 
 For a larger asynchronous run, prepare and submit the same paper-centered
-requests through Gemini's Batch API:
+requests through Luna's Batch API:
 
 ```bash
 python pipeline/extract/run_review_relationship_batch_api.py prepare \
@@ -554,7 +552,7 @@ inputs.
 
 ## Retired Extraction V1 Path
 
-The older extraction-v1 pilot, Gemini runner, batch queue, QA, projection,
+The older extraction-v1 pilot, provider runner, batch queue, QA, projection,
 projected-claim normalization, rerun promotion, and split graph-payload export
 path has been removed. Use route-native extraction tasks
 (`build_extraction_tasks.py`), `run_route_extraction.py` or routed batch

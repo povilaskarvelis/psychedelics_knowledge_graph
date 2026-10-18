@@ -59,7 +59,7 @@ from pipeline.ingest.metadata_utils import (  # noqa: E402
 
 DEFAULT_CANDIDATE_TABLE = ROOT / "data" / "processed" / "corpus" / "candidate_papers.parquet"
 DEFAULT_SCREENING_TABLE = (
-    ROOT / "data" / "processed" / "corpus" / "paper_domain_routing_gemini.parquet"
+    ROOT / "data" / "processed" / "corpus" / "paper_domain_routing.parquet"
 )
 DEFAULT_SCREENING_OVERRIDES = ROOT / "data" / "curated" / "screening_decision_overrides.json"
 DEFAULT_OUTPUT_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_funding.parquet"

@@ -807,6 +807,12 @@
     ],
     "neural_circuit": [
       {
+        "label": "Ventral tegmental area–basolateral amygdala dopaminergic circuit",
+        "aliases": ["Dopaminergic projections from the VTA to the BLA", "VTA-to-BLA dopaminergic projections", "dopaminergic projections from the ventral tegmental area to the basolateral amygdala"],
+        "ids": {},
+        "status": "controlled_detail"
+      },
+      {
         "label": "Frontostriatal circuit",
         "aliases": ["fronto-striatal circuit", "prefrontal-striatal circuit"],
         "ids": {},

@@ -56,7 +56,7 @@ PK_PARAMETER_PATTERNS = (
 )
 
 PHARMACODYNAMIC_PARAMETER_RE = re.compile(
-    r"\b(?:ec50|ic50|ed50|emax|receptor occupancy|target occupancy|dose[- ]response|"
+    r"\b(?:ec50|ic50|ed50|emax|occupancy|receptor occupancy|target occupancy|dose[- ]response|"
     r"concentration[- ]response|pharmacodynamic|pd parameter)\b",
     re.IGNORECASE,
 )
@@ -244,6 +244,11 @@ def pk_graph_entity_kind(row: dict) -> str:
     object_kind = label_key(row.get("pk_graph_object_kind", "")).replace(" ", "_")
     object_label = first_meaningful(row, ("pk_graph_object_label", "metabolite_or_analyte"))
     compound = first_meaningful(row, ("compound", "compound_or_analyte", "canonical_compound"))
+    relationship = clean_text(row.get("pk_relationship_type", ""))
+    if relationship == "metabolized_to" and object_kind == "metabolite_or_analyte":
+        # Do not disguise an invalid self-metabolism assertion as a Cmax or
+        # concentration endpoint. The builder's self-reference gate handles it.
+        return "compound"
     if object_kind == "metabolite_or_analyte" and not distinct_analyte(compound, object_label):
         return "pharmacokinetic_parameter"
     if object_kind == "enzyme_or_transporter" and re.search(
@@ -295,6 +300,11 @@ def pk_pharmacodynamic_target(row: dict) -> str:
     parameter = first_meaningful(row, ("pk_or_exposure_parameter", "outcome_measure"))
     target = first_meaningful(row, ("metabolic_or_transport_target", "target"))
     if not target or not PHARMACODYNAMIC_PARAMETER_RE.search(parameter):
+        return ""
+    object_label = first_meaningful(row, ("pk_graph_object_label",))
+    if re.search(r"\b(?:serotonin|dopamine|prolactin|oxytocin|cortisol)\s+(?:release|response|levels?|concentration)\b", object_label, re.I):
+        # A downstream chemical/hormone readout does not measure its receptor
+        # or transporter merely because that protein is listed as context.
         return ""
     exposure_context = " ".join(
         clean_text(row.get(field, ""))
@@ -390,8 +400,18 @@ def infer_pk_relationship(row: dict) -> dict:
     parameter = first_meaningful(row, ("pk_or_exposure_parameter", "outcome_measure"))
     matrix = first_meaningful(row, ("matrix", "matrix_or_sample", "matrix_or_sample_type"))
     route = first_meaningful(row, ("route_of_administration", "route", "dose_route_or_formulation"))
-    modifier = first_meaningful(row, ("co_exposure_or_modifier", "comparator_or_reference", "interaction_or_potentiation_context"))
+    modifier = first_meaningful(row, ("co_exposure_or_modifier", "interaction_or_potentiation_context"))
     context = compact_context(row, compound, analyte, target, pathway, parameter, matrix, route, modifier)
+
+    finding = " ".join(clean_text(row.get(field, "")) for field in ("finding_summary", "support", "effect_or_statistic"))
+    effect_anchor = re.search(r"\b(?:subjective|symptoms?|ratings?|questionnaire|mood|euphoria|anxiety|depression|MADRS|heart rate|blood pressure|body temperature|occupancy|clinical response|behavioral response|drug effects?)\b", finding, re.I)
+    if MEASURED_EXPOSURE_RE.search(parameter) and effect_anchor and re.search(r"\b(?:correlat\w*|associat\w*)\b", finding, re.I):
+        return {
+            "pk_relationship_type": "exposure_linked_to_effect",
+            "pk_relationship_label": PK_RELATIONSHIP_LABELS["exposure_linked_to_effect"],
+            "pk_graph_object_kind": "effect_or_response",
+            "pk_graph_object_label": effect_object_label(row, target, parameter, context),
+        }
 
     target_is_metabolic = bool(METABOLIC_TARGET_RE.search(target)) and not bool(NON_PK_TARGET_TRANSPORTER_RE.search(target))
     if target_is_metabolic:
@@ -403,7 +423,7 @@ def infer_pk_relationship(row: dict) -> dict:
             "pk_graph_object_label": title_label(target),
         }
 
-    if modifier:
+    if modifier and not re.search(r"\b(?:not (?:co[- ]?administered|used)|none|assay reagent|sample preparation|hydrolysis reagent)\b", modifier, re.I):
         return {
             "pk_relationship_type": "exposure_altered_by",
             "pk_relationship_label": PK_RELATIONSHIP_LABELS["exposure_altered_by"],
@@ -469,7 +489,11 @@ def infer_pk_relationship(row: dict) -> dict:
             "pk_graph_object_label": exposure_label_for_matrix(matrix, analyte, compound),
         }
 
-    if BIOAVAILABILITY_ROUTE_RE.search(context) and route:
+    route_comparison = bool(re.search(
+        r"\b(?:bioavailability|dissolution|drug release|formulation)\b|"
+        r"\b(?:oral|intravenous|intranasal|sublingual|buccal|inhaled|route)\b.{0,70}\b(?:versus|vs\.?|compared (?:with|to)|relative to)\b", context, re.I,
+    ))
+    if BIOAVAILABILITY_ROUTE_RE.search(context) and route and route_comparison:
         route_label = canonical_route_label(route)
         if "bioavailability" in label_key(context) and route_label == "Oral administration":
             route_label = "Oral bioavailability"

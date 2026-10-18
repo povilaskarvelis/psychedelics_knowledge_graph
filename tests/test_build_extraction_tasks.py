@@ -56,7 +56,7 @@ def route_row(**overrides: object) -> dict:
         "methodological_validity_tags": "",
         "domain_screening_decision": "include_in_scope",
         "domain_screening_reason": "Clinical trial abstract.",
-        "domain_routing_model": "gemini-test",
+        "domain_routing_model": "gpt-6-luna",
         "domain_needs_human_review": False,
         "domain_route_confidence": "high",
         "bridge_clinical_mechanism": False,

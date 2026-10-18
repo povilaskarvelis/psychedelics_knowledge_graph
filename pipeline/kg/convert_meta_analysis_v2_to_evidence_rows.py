@@ -384,22 +384,8 @@ def dose_from_result_statement(item: dict) -> str:
 
 
 def result_bundles_multiple_estimates(item: dict) -> bool:
-    statement = normalize(item.get("relationship_statement", ""))
-    ci_count = len(re.findall(r"95\s*%?\s*(?:ci|credible interval)", statement, flags=re.IGNORECASE))
-    assignment_count = len(
-        re.findall(
-            r"\b(?:hedges'?\s*g|g|smd|md|rr|or|hr|risk ratio|odds ratio|hazard ratio)\s*[=:]\s*[-+]?\d",
-            statement,
-            flags=re.IGNORECASE,
-        )
-    )
-    percentages = [
-        value
-        for value in re.findall(r"(?<!\d)(\d+(?:\.\d+)?)\s*%", statement)
-        if value not in {"95", "90", "99"}
-    ]
-    estimate = item.get("effect_estimate", {}) if isinstance(item.get("effect_estimate"), dict) else {}
-    return ci_count > 1 or assignment_count > 1 or (bool(estimate.get("estimate")) and len(percentages) > 1)
+    from pipeline.extract.statistical_result_contract import result_bundles_multiple_estimates as check
+    return check(item)
 
 
 def effect_estimate_is_range(item: dict) -> bool:

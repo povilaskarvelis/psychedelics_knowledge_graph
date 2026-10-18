@@ -111,9 +111,19 @@ def normalize_clinical_followup_window(follow_up_duration: object = "", timepoin
     if text in NOT_APPLICABLE_VALUES:
         return "Not applicable"
 
+    if has(r"\b(?:exact|specific|precise)\b[^.;]*\b(?:times?|timing|timepoints?)\b[^.;]*\bnot reported\b", text) and duration_days(text) is None:
+        return "Follow-up not reported"
     if has(r"\b(lifetime|past year|past year|past month|past week|past use|prior use|history of|retrospective|previous year)\b", text):
         return "Retrospective / lifetime"
     if has(r"\b(baseline|pre treatment|pretreatment|pre dose|pre infusion|preinfusion|before treatment|before infusion|from baseline)\b", text):
+        # A baseline reference does not erase the later observation. Remove
+        # explicitly predose offsets before choosing the longest follow-up.
+        post_text = re.sub(r"\b\d+(?:\.\d+)?\s*(?:minutes?|hours?|days?|weeks?|months?)\s+(?:before|prior to)\b[^,;]*", "", text)
+        days = duration_days(post_text)
+        if days is not None and has(r"\b(and|to|through|after|post|follow up|followup|following|from baseline)\b", post_text):
+            return window_from_days(days)
+        if has(r"\b(?:after treatment|post treatment|post intervention|after infusion)\b", post_text):
+            return "Treatment endpoint"
         return "Baseline / pre-treatment"
     if has(
         r"\b(during|throughout|within|across)\b.*\b(treatment|infusions?|sessions?|administration|study|course|maintenance|series)\b|"

@@ -44,9 +44,11 @@ also count as unusable; the threshold is inclusive, so an abstract with exactly
 50 words remains eligible for screening. The decision table records both the
 character count and word count used by this rule.
 
-For records with usable abstracts, title, abstract, keywords, and MeSH terms
-can provide an in-scope signal. Publication-format exclusions, such as
-protocols and corrections, run first. A record labelled as a letter or comment
+For records with usable abstracts, topic relevance is decided by Luna V5.
+The production prescreen applies publication-format, language and usable-text
+gates only; it does not require an in-scope keyword. The
+`--legacy-topical-filters` switch exists solely to reproduce older audits.
+Publication-format exclusions, such as protocols and corrections, run first. A record labelled as a letter or comment
 is not excluded solely on that label when its metadata or text identifies
 substantive empirical evidence, such as a case report or trial.
 
@@ -98,10 +100,10 @@ declared active derived views are filtered. Bibliographic metadata, discovery
 provenance, PDFs, converted text, raw model responses, and published run
 archives are not deleted.
 
-## Gemini screening, domain routing, and report-type routing
+## Luna screening, domain routing, and report-type routing
 
 Scope, domain, and report type for extraction are assigned together from
-title/abstract metadata by the Gemini routing stage. This is the sole owner of
+title/abstract metadata by the Luna routing stage. This is the sole owner of
 domain and report-type routing; the deterministic pre-screen only decides which
 records proceed to it.
 
@@ -114,16 +116,16 @@ full text or multi-record container text is never passed as an abstract.
 Prepare and advance the current batch queue with:
 
 ```bash
-python pipeline/review/build_gemini_domain_routing_batch_queue.py \
+python pipeline/review/build_domain_routing_batch_queue.py \
   --previous-candidate-table path/to/pre-promotion-candidate_papers.parquet \
   --prepare
 
 # Submission requires explicit authorization.
-python pipeline/review/advance_gemini_domain_routing_batch_queue.py --submit
+python pipeline/review/advance_domain_routing_batch_queue.py --submit
 ```
 
 The canonical routing output is
-`data/processed/corpus/paper_domain_routing_gemini.parquet`.
+`data/processed/corpus/paper_domain_routing.parquet`.
 
 Once that table is complete, run the independent provider-only funding stage:
 

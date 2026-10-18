@@ -4,7 +4,7 @@
 This is a small orchestration layer around the existing route extraction runner:
 
 1. Select the next ready tasks that are not already attempted in the named run.
-2. Run those tasks through Gemini and append to the run output JSONL files.
+2. Run those tasks through Luna and append to the run output JSONL files.
 3. Convert the accumulated run outputs into evidence rows.
 4. Rebuild versioned normalized KG tables for that run.
 
@@ -478,7 +478,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--run-id", required=True, help="Version label for this accumulating extraction run.")
     parser.add_argument("--input-jsonl", type=Path, default=DEFAULT_TASKS_JSONL)
     parser.add_argument("--batch-size", type=int, default=100)
-    parser.add_argument("--dry-run", action="store_true", help="Select the next batch without calling Gemini.")
+    parser.add_argument("--dry-run", action="store_true", help="Select the next batch without calling Luna.")
     parser.add_argument("--shuffle", action="store_true", help="Randomize eligible remaining tasks before taking the batch.")
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--retry-errors", action="store_true", help="Allow tasks with prior raw error rows to be selected again.")

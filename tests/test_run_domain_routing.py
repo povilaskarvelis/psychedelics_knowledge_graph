@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from pipeline.review.run_gemini_domain_routing import (
+from pipeline.review.run_domain_routing import (
     DOMAIN_RESPONSE_SCHEMA,
     METHODOLOGICAL_VALIDITY_TAGS,
     SCREENING_PROMPT_PATH,
@@ -17,17 +17,28 @@ from pipeline.review.run_gemini_domain_routing import (
     parsed_rows_from_raw,
     prompt_for_record,
     route_rows_from_parsed,
+    read_doi_file,
     selected_records,
 )
 
 
-class GeminiDomainRoutingTests(unittest.TestCase):
+class DomainRoutingTests(unittest.TestCase):
+    def test_doi_scopes_preserve_commas_and_support_quoted_csv(self) -> None:
+        doi = "10.33883/jms.v30i2,3.1517"
+        with tempfile.TemporaryDirectory() as tmpdir:
+            plain = Path(tmpdir) / "dois.txt"
+            plain.write_text(f"# selected reports\ndoi\n{doi}\n", encoding="utf-8")
+            self.assertEqual(read_doi_file(plain), {doi})
+            table = Path(tmpdir) / "dois.csv"
+            table.write_text(f'doi,title\n"{doi}",Example\n', encoding="utf-8")
+            self.assertEqual(read_doi_file(table), {doi})
+
     def test_parse_only_materialization_applies_current_prescreen_gate(self) -> None:
         raw_rows = [
             {
                 "status": "ok",
                 "doi": "10.example/retain",
-                "model": "gemini-test",
+                "model": "gpt-6-luna",
                 "parsed": {
                     "domain_tags": ["clinical_outcome"],
                     "primary_domain": "clinical_outcome",
@@ -44,7 +55,7 @@ class GeminiDomainRoutingTests(unittest.TestCase):
             {
                 "status": "ok",
                 "doi": "10.example/now-excluded",
-                "model": "gemini-test",
+                "model": "gpt-6-luna",
                 "parsed": {
                     "domain_tags": [],
                     "primary_domain": "general_topic",
@@ -142,7 +153,7 @@ class GeminiDomainRoutingTests(unittest.TestCase):
         self.assertIn("Base the classification on the supplied title and abstract", SYSTEM_INSTRUCTION)
         self.assertIn("these metadata can\nbe incomplete or misleading", SYSTEM_INSTRUCTION)
         self.assertIn("Set paper_type_group, paper_type, and paper_type_labels as follows:", SYSTEM_INSTRUCTION)
-        self.assertIn("Set screening_decision after domain and paper-type assignment:", SYSTEM_INSTRUCTION)
+        self.assertIn("Set screening_decision from the eligibility rules above:", SYSTEM_INSTRUCTION)
         self.assertNotIn("First decide whether", SYSTEM_INSTRUCTION)
         self.assertNotIn("title and abstract as the primary", SYSTEM_INSTRUCTION)
         self.assertNotIn("Scope and screening:", SYSTEM_INSTRUCTION)
@@ -269,7 +280,7 @@ class GeminiDomainRoutingTests(unittest.TestCase):
                     "paper_type_reason": "Original clinical evidence.",
                     "methodological_validity_tags": ["blinding_expectancy_validity"],
                     "rationale": "The abstract evaluates blinding validity.",
-                    "model": "gemini-3-flash-preview",
+                    "model": "gpt-6-luna",
                 }
             ],
             generated_at_utc="2026-05-29T00:00:00+00:00",
@@ -284,7 +295,7 @@ class GeminiDomainRoutingTests(unittest.TestCase):
         self.assertEqual(rows[0]["screening_decision"], "include_in_scope")
         self.assertEqual(rows[0]["screening_reason"], "The title and abstract are about psychedelic clinical evidence.")
         self.assertEqual(rows[0]["methodological_validity_tags"], "blinding_expectancy_validity")
-        self.assertEqual(rows[0]["model"], "gemini-3-flash-preview")
+        self.assertEqual(rows[0]["model"], "gpt-6-luna")
         self.assertNotIn("domain_route_confidence", rows[0])
         self.assertNotIn("needs_human_review", rows[0])
 
@@ -305,7 +316,7 @@ class GeminiDomainRoutingTests(unittest.TestCase):
                     "paper_type_reason": "Systematic review label.",
                     "methodological_validity_tags": [],
                     "rationale": "Clinical outcome evidence is central.",
-                    "model": "gemini-3-flash-preview",
+                    "model": "gpt-6-luna",
                 }
             ],
             generated_at_utc="2026-05-29T00:00:00+00:00",
@@ -332,7 +343,7 @@ class GeminiDomainRoutingTests(unittest.TestCase):
                     "paper_type_reason": "The title states systematic review and meta-analysis.",
                     "methodological_validity_tags": [],
                     "rationale": "Clinical synthesis.",
-                    "model": "gemini-3-flash-preview",
+                    "model": "gpt-6-luna",
                 }
             ],
             generated_at_utc="2026-05-29T00:00:00+00:00",
@@ -360,7 +371,7 @@ class GeminiDomainRoutingTests(unittest.TestCase):
                     "paper_type_reason": "Protocol without results.",
                     "methodological_validity_tags": [],
                     "rationale": "Out of scope.",
-                    "model": "gemini-3-flash-preview",
+                    "model": "gpt-6-luna",
                 }
             ],
             generated_at_utc="2026-05-29T00:00:00+00:00",

@@ -24,7 +24,7 @@ try:
     from pipeline.extract.route_extraction_profiles import schema_for_native
     from pipeline.extract.run_route_extraction import (
         DEFAULT_ENV,
-        DEFAULT_GEMINI_MODEL,
+        DEFAULT_MODEL,
         api_key_from_env,
         build_generation_config,
         load_dotenv,
@@ -38,7 +38,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution
     from pipeline.extract.route_extraction_profiles import schema_for_native
     from pipeline.extract.run_route_extraction import (
         DEFAULT_ENV,
-        DEFAULT_GEMINI_MODEL,
+        DEFAULT_MODEL,
         api_key_from_env,
         build_generation_config,
         load_dotenv,
@@ -49,6 +49,9 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution
 
 
 ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from pipeline import llm
 DEFAULT_TASKS = (
     ROOT
     / "data"
@@ -291,7 +294,7 @@ def call_structured_model(
 ) -> tuple[dict, dict, str]:
     schema = load_schema(schema_path)
     prompt = prompt_path.read_text(encoding="utf-8").strip()
-    response = client.models.generate_content(
+    response = llm.generate_structured(client,
         model=model,
         contents=contents,
         config=build_generation_config(
@@ -377,10 +380,8 @@ def run(args: argparse.Namespace) -> dict:
         write_json(paths["report"], report)
         return report
 
-    from google import genai
-
     env_values = load_dotenv(Path(args.env_file).resolve())
-    client = genai.Client(api_key=api_key_from_env(args, env_values))
+    client = llm.client(api_key_from_env(args, env_values))
     status_counts: Counter = Counter()
     usage_totals: Counter = Counter()
     errors: list[dict] = []
@@ -462,7 +463,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--tasks-jsonl", type=Path, default=DEFAULT_TASKS)
     parser.add_argument("--run-id", default="review_relationships_v2")
     parser.add_argument("--run-dir", default="")
-    parser.add_argument("--model", default=DEFAULT_GEMINI_MODEL)
+    parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument("--env-file", default=str(DEFAULT_ENV))
     parser.add_argument("--full-text-prompt", type=Path, default=FULL_TEXT_PROMPT)
     parser.add_argument("--abstract-prompt", type=Path, default=ABSTRACT_PROMPT)

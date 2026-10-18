@@ -25,6 +25,7 @@ import pandas as pd
 try:
     from pipeline.publish.export_evidence_payload import (
         load_findings,
+        overview_graph_subjects,
         ui_source_key_for_finding,
     )
     from pipeline.kg.graph_view_contract import (
@@ -38,6 +39,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(ROOT_FOR_IMPORT))
     from pipeline.publish.export_evidence_payload import (
         load_findings,
+        overview_graph_subjects,
         ui_source_key_for_finding,
     )
     from pipeline.kg.graph_view_contract import (
@@ -63,6 +65,9 @@ PUBLIC_RELATIONSHIP_SOURCE_FIELDS = (
     "compound_id",
     "compound",
     "graph_subject_kind",
+    "graph_overview_subject_label",
+    "graph_overview_subject_kind",
+    "graph_overview_subjects_json",
     "entity_id",
     "entity_label",
     "paper_id",
@@ -438,6 +443,51 @@ def validate_public_tables(tables: dict[str, pd.DataFrame]) -> None:
         raise ValueError("Public papers contains unsupported paper subtypes")
 
 
+def project_relationship_subjects(edges: pd.DataFrame, entities: pd.DataFrame) -> pd.DataFrame:
+    """Use the browser's admitted subject projections without widening API fields.
+
+    A normalized finding may represent several explicitly listed compounds.
+    Its legacy edge stores only the first; every projected subject already has
+    a canonical entity in the KG. Keep scientific objects at the API's current
+    granularity rather than applying the browser's display parent collapse.
+    """
+    entity_ids: dict[tuple[str, str], set[str]] = {}
+    compound_entity_ids: dict[str, set[str]] = {}
+    for entity in entities.to_dict(orient="records"):
+        key = (normalize(entity.get("label")).casefold(), normalize(entity.get("entity_kind")))
+        entity_ids.setdefault(key, set()).add(normalize(entity.get("entity_id")))
+        if normalize(entity.get("entity_type")) == "compound":
+            compound_entity_ids.setdefault(key[0], set()).add(normalize(entity.get("entity_id")))
+    projected: list[dict] = []
+    for record in edges.to_dict(orient="records"):
+        record = {key: json_safe_scalar(value) for key, value in record.items()}
+        subjects = overview_graph_subjects(record)
+        if not subjects:
+            # Older releases may have only a singular non-atomic subject.
+            projected.append(record)
+            continue
+        for subject in subjects:
+            row = dict(record)
+            if (subject["label"] == normalize(record.get("compound"))
+                    and subject["kind"] == normalize(record.get("graph_subject_kind"))):
+                subject_id = normalize(record.get("compound_id"))
+            else:
+                matches = entity_ids.get((subject["label"].casefold(), subject["kind"]), set())
+                if not matches:
+                    # Concept records keep one legacy kind even when the same
+                    # compound is also an analyte/object in another finding.
+                    matches = compound_entity_ids.get(subject["label"].casefold(), set())
+                if len(matches) != 1:
+                    raise ValueError(
+                        "Overview subject must resolve to one existing KG entity: "
+                        f"{subject['label']} ({subject['kind']}); matches={sorted(matches)}"
+                    )
+                subject_id = next(iter(matches))
+            row.update(compound_id=subject_id, compound=subject["label"], graph_subject_kind=subject["kind"])
+            projected.append(row)
+    return pd.DataFrame(projected, columns=edges.columns)
+
+
 def build_public_tables(kg_dir: Path) -> dict[str, pd.DataFrame]:
     required = {
         "entities": kg_dir / "entities.parquet",
@@ -472,6 +522,8 @@ def build_public_tables(kg_dir: Path) -> dict[str, pd.DataFrame]:
         table_name="evidence_edges",
     )
     raw_edges = raw_edges[raw_edges["graph_admission_status"] == "main_graph"].copy()
+    source_entities = pd.read_parquet(required["entities"])
+    raw_edges = project_relationship_subjects(raw_edges, source_entities)
     relationships = raw_edges.rename(
         columns={
             "compound_id": "subject_id",
@@ -509,7 +561,7 @@ def build_public_tables(kg_dir: Path) -> dict[str, pd.DataFrame]:
     )
 
     entities = selected_columns(
-        pd.read_parquet(required["entities"]),
+        source_entities,
         PUBLIC_CONCEPT_SOURCE_FIELDS,
         table_name="entities",
     ).rename(

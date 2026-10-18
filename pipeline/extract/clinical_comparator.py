@@ -37,11 +37,21 @@ def normalize_clinical_comparator(comparator: object = "") -> str:
         return "No comparator"
     if has(
         r"\b(baseline|pre treatment|pre intervention|pre retreat|pre dose|previous treatments?|retrospective pre|"
-        r"pre operation|preoperation|pretreatment|before infusion|preinfusion|before psychedelic|intake|time period before|"
+        r"pre operation|preoperation|pretreatment|before treatment|before infusion|preinfusion|before psychedelic|intake|time period before|"
         r"pre study|study exit|after first pap|post dosing|before the second infusion)\b",
         text,
     ):
         return "Baseline"
+    # A previous post-treatment assessment is a time contrast, not another
+    # active treatment arm. The current vocabulary has no dedicated bucket.
+    if has(r"^(?:scores?|assessment|measurements?)\s+(?:immediately\s+)?after\s+(?:the\s+)?(?:final|last)\b", text):
+        return "Other"
+    # Read the assigned comparator first. A low-dose description elsewhere in
+    # a saline comparator paragraph does not make saline pharmacologically active.
+    if has(r"^(?:normal |isotonic |0\.9% )?saline\b", text):
+        return "Placebo"
+    if has(r"\bescitalopram\b", text):
+        return "Active treatment"
     if has(r"\b(midazolam|niacin|diphenhydramine|active placebo|psychoactive placebo|1 mg psilocybin|5 mg psilocybin|low dose)\b", text):
         return "Active placebo"
     if has(r"\b(placebo|saline|normal saline|isotonic saline|0\.9% saline|vehicle|lactose|nitrogen|water)\b", text):

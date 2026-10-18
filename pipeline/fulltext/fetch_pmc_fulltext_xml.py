@@ -63,7 +63,7 @@ from pipeline.fulltext.source_identity_audit_gate import (  # noqa: E402
 
 DEFAULT_METADATA = ROOT / "data" / "processed" / "corpus" / "paper_metadata_enrichment.parquet"
 DEFAULT_ROUTES = DEFAULT_OUTPUT_TABLE
-DEFAULT_DOMAIN_ROUTING_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_domain_routing_gemini.parquet"
+DEFAULT_DOMAIN_ROUTING_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_domain_routing.parquet"
 DEFAULT_FULLTEXT_DIR = ROOT / "data" / "processed" / "fulltext"
 DEFAULT_OUT_DIR = DEFAULT_FULLTEXT_DIR / "articles"
 DEFAULT_REPORT = DEFAULT_FULLTEXT_DIR / "pmc_xml_report.json"

@@ -689,6 +689,9 @@ def route_row_is_selected(route_row: dict, args: argparse.Namespace, doi_filter:
 
 
 def build_tasks(args: argparse.Namespace) -> tuple[list[dict], dict]:
+    if Path(args.route_table).resolve() == DEFAULT_ROUTE_TABLE.resolve():
+        from pipeline import llm
+        llm.require_screening_complete()
     route_table = Path(args.route_table).resolve()
     metadata_table = Path(args.metadata_table).resolve()
     generated_at_utc = now_utc()

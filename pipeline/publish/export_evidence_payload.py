@@ -156,7 +156,21 @@ PAPER_FIELDS = (
     "unpaywall_license",
 )
 
-FINDING_FIELDS = (
+# Opt-in primary-observation fields are transported as source assertions only.
+# Adding them here does not change graph inference or the narrow query API.
+OPTIONAL_PRIMARY_OBSERVATION_FIELDS = (
+    "extraction_schema_version",
+    "observation_role",
+    "exposure_role",
+    "comparison_basis",
+    "measurement_type",
+    "analysis_unit",
+    "result_pattern",
+    "value_status",
+    "value_source_locator",
+)
+
+FINDING_FIELDS = OPTIONAL_PRIMARY_OBSERVATION_FIELDS + (
     "graph_subject_label",
     "graph_subject_kind",
     "graph_subject_source_field",
@@ -223,6 +237,8 @@ FINDING_FIELDS = (
     "molecular_effect_category",
     "molecular_finding_subtopic",
     "specific_readout_or_marker",
+    "tissue_or_sample",
+    "quantitative_value",
     "mechanistic_relationship_type",
     "public_health_topic_category",
     "public_health_measure",
@@ -267,6 +283,8 @@ FINDING_FIELDS = (
     "exposure_response_implication",
     "synthesis_interpretation",
     "dose",
+    "dose_or_exposure",
+    "timepoint_or_phase",
     "route",
     "session_count_or_duration",
     "primary_outcome",
@@ -347,7 +365,7 @@ FINDING_FIELDS = (
 # Explicit publication contract for row-level data sent to a browser. New
 # extraction columns are private by default and appear here only after the UI
 # needs them and their public meaning has been reviewed.
-PUBLIC_BROWSER_DETAIL_FIELDS = (
+PUBLIC_BROWSER_DETAIL_FIELDS = OPTIONAL_PRIMARY_OBSERVATION_FIELDS + (
     "domain",
     "finding_type",
     "evidence_type",
@@ -372,6 +390,10 @@ PUBLIC_BROWSER_DETAIL_FIELDS = (
     "action_type",
     "affinity_type",
     "affinity_value",
+    "affinity_unit",
+    "tissue_or_sample",
+    "quantitative_value",
+    "unit",
     "study_doi",
     "openalex_id",
     "study_title",
@@ -434,6 +456,8 @@ PUBLIC_BROWSER_DETAIL_FIELDS = (
     "route",
     "route_of_administration",
     "dose",
+    "dose_or_exposure",
+    "timepoint_or_phase",
     "dosing_schedule",
     "session_context",
     "system",

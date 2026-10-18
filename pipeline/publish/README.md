@@ -20,7 +20,7 @@ edges.
 Build a versioned routed KG and payload without changing the public graph:
 
 ```bash
-RUN_ID=gemini3_flash_YYYYMMDD_first_batch
+RUN_ID=luna_v5_YYYYMMDD_first_batch
 scripts/build_routed_kg_payload.sh "$RUN_ID"
 ```
 

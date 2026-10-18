@@ -61,7 +61,7 @@ from pipeline.validate.doi_aliases import (  # noqa: E402
 )
 
 
-DEFAULT_QUEUE = ROOT / "data" / "processed" / "corpus" / "paper_domain_routing_gemini_batch_queue.json"
+DEFAULT_QUEUE = ROOT / "data" / "processed" / "corpus" / "paper_domain_routing_batch_queue.json"
 DEFAULT_ACTIVE_GRAPH = ROOT / "data" / "processed" / "graph_payload_active.json"
 DEFAULT_SELECTED_DOIS = ROOT / "data" / "processed" / "corpus" / "postscreen_selected_dois.txt"
 DEFAULT_ENRICHMENT_DOIS = ROOT / "data" / "processed" / "corpus" / "fulltext_enrichment_dois.txt"

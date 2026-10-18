@@ -440,15 +440,47 @@ def evidence_design_for(row: dict) -> str:
         normalize(row.get(field, ""))
         for field in ("study_design_category", "study_design", "data_source_or_study_design", "model_or_system")
     ).casefold()
+    # Preparation and population identify the evidence unit. Random allocation
+    # of mice is not a clinical RCT; a cultured human cell is not a human trial.
+    population = normalized_status(row.get("population_model_category", ""))
+    system = normalized_status(row.get("experimental_system_category", ""))
+    if not system and normalized_status(row.get("system", "")) in {"in_vitro", "ex_vivo", "computational", "clinical", "in_vivo"}:
+        system = normalized_status(row.get("system", ""))
+    preparation = system if system in {"in_vitro", "ex_vivo", "computational"} else {
+        "in_vitro_cell_model": "in_vitro", "ex_vivo_tissue_model": "ex_vivo",
+        "computational_model": "computational",
+    }.get(population, "")
+    if preparation:
+        return preparation
+    explicit_preparation = {"computational": "computational", "in_vitro_assay": "in_vitro", "binding_assay": "in_vitro", "functional_assay": "in_vitro", "ex_vivo_experiment": "ex_vivo"}.get(explicit)
+    if explicit_preparation and system not in {"in_vivo", "clinical"}:
+        return explicit_preparation
+    human_population = population in {"human_participants", "healthy_volunteers", "clinical_population", "older_adults", "adolescents"}
+    clinical_unit = system in {"clinical", "in_vivo"} or (human_population and explicit in {"randomized_controlled_trial", "phase_2_rct", "phase_3_rct", "open_label", "single_arm_trial", "clinical_trial"})
+    if not clinical_unit and re.search(r"\b(?:in[- ]vitro|cell culture|cultured (?:neurons?|cells?)|binding assay|functional assay)\b", text):
+        return "in_vitro"
+    if not clinical_unit and re.search(r"\b(?:ex[- ]vivo|isolated (?:brain|cortex|tissue)|brain slices?)\b", text):
+        return "ex_vivo"
+    population_text = " ".join(normalize(row.get(field, "")) for field in ("population", "population_or_system", "population_or_species", "model_system", "species_or_cell_line"))
+    if population in {"mouse_model", "rat_model", "animal_model"} or (system == "in_vivo" and not human_population) or (
+        not human_population and re.search(r"\b(?:animals?|mouse|mice|rats?|rodents?)\b", text + " " + population_text, re.I)
+    ):
+        return "preclinical"
+    if explicit == "preclinical" and human_population:
+        return "other"
     if explicit in {"observational", "preclinical", "qualitative", "randomized_controlled_trial"}:
         return explicit
+    if explicit in {"open_label", "clinical_trial", "dose_finding"} and re.search(r"(?<!non-)(?<!non )\brandomi[sz]ed\b|\brct\b", text) and not re.search(r"\b(?:non[- ]randomi[sz]ed|open[- ]label\s+(?:phase|extension))\b", text):
+        return "randomized_controlled_trial"
+    if explicit in {"open_label", "clinical_trial", "dose_finding"} and re.search(r"\b(?:non[- ]randomi[sz]ed|single[- ]arm|open[- ]label\s+(?:phase|extension))\b", text):
+        return "nonrandomized_clinical_trial"
     explicit_aliases = {
         "phase_2_rct": "randomized_controlled_trial",
         "phase_3_rct": "randomized_controlled_trial",
-        "open_label": "nonrandomized_clinical_trial",
+        "open_label": "other",
         "single_arm_trial": "nonrandomized_clinical_trial",
-        "clinical_trial": "nonrandomized_clinical_trial",
-        "dose_finding": "nonrandomized_clinical_trial",
+        "clinical_trial": "other",
+        "dose_finding": "other",
         "follow_up": "observational",
         "post_hoc": "observational",
         "retrospective": "observational",
@@ -463,13 +495,34 @@ def evidence_design_for(row: dict) -> str:
     }
     if explicit in explicit_aliases:
         return explicit_aliases[explicit]
+    # A cultured rat neuron or human-derived cell line is not an in-vivo
+    # experiment. Use the extracted experimental setting before species words.
+    system = normalized_status(row.get("experimental_system_category", ""))
+    if system in {"in_vitro", "ex_vivo", "computational"}:
+        return system
+    population = normalized_status(row.get("population_model_category", ""))
+    population_designs = {
+        "in_vitro_cell_model": "in_vitro",
+        "ex_vivo_tissue_model": "ex_vivo",
+        "computational_model": "computational",
+    }
+    if population in population_designs:
+        return population_designs[population]
+    if explicit == "preclinical_experiment":
+        return "other" if human_population else "preclinical"
+    # A follow-up of an earlier trial is an observational phase unless this
+    # particular observation explicitly describes a randomized comparison.
+    if re.search(r"\b(?:long[- ]term|observational|naturalistic)\s+follow[- ]?up\s+(?:of|phase|study|assessment)\b", text):
+        return "observational"
+    if re.search(r"\bopen[- ]label\s+(?:phase|extension)\b", text):
+        return "nonrandomized_clinical_trial"
     rules = (
         ("case_report", r"\bcase report\b"),
         ("case_series", r"\bcase series\b"),
         ("qualitative", r"\bqualitative|interview|focus group|thematic analysis\b"),
         ("randomized_controlled_trial", r"\brandomi[sz]ed|\brct\b|placebo[- ]controlled trial"),
         ("observational", r"\bobservational|cross[- ]sectional|cohort|case[- ]control|survey|registry|naturalistic\b"),
-        ("preclinical", r"\bpreclinical|animal|mouse|mice|rat|rodent|in vivo\b"),
+        ("preclinical", r"\b(?:preclinical|animals?|mouse|mice|rats?|rodents?|in vivo)\b"),
         ("in_vitro", r"\bin vitro|cell culture|binding assay|functional assay\b"),
         ("evidence_synthesis", r"\breview|meta[- ]analysis|evidence synthesis\b"),
     )
@@ -841,7 +894,7 @@ def add_common_field_aliases(row: dict, domain: str) -> None:
     if not meaningful(row.get("follow_up_duration", "")):
         row["follow_up_duration"] = first_meaningful(row, ("follow_up_duration", "time_window"))
     if not meaningful(row.get("dose", "")):
-        row["dose"] = first_meaningful(row, ("dose", "dose_or_regimen", "dose_or_exposure_context", "dose_or_session_context"))
+        row["dose"] = first_meaningful(row, ("dose", "dose_or_regimen", "dose_or_exposure", "dose_or_exposure_context", "dose_or_session_context"))
     if not meaningful(row.get("route", "")):
         row["route"] = first_meaningful(row, ("route", "administration_route", "route_of_administration"))
     if not meaningful(row.get("effect_size", "")):
@@ -889,10 +942,11 @@ def add_common_field_aliases(row: dict, domain: str) -> None:
             row["affinity_value"] = first_meaningful(row, ("affinity_value", "value", "quantitative_value"))
         if not meaningful(row.get("affinity_unit", "")):
             row["affinity_unit"] = first_meaningful(row, ("affinity_unit", "unit"))
-    assessment_timepoint = first_meaningful(row, ("assessment_timepoint", "timepoint", "timepoint_or_window"))
+    assessment_timepoint = first_meaningful(row, ("assessment_timepoint", "timepoint", "timepoint_or_window", "timepoint_or_phase"))
     if assessment_timepoint:
         row["assessment_timepoint"] = assessment_timepoint
-        row.setdefault("timepoint", assessment_timepoint)
+        if not meaningful(row.get("timepoint", "")):
+            row["timepoint"] = assessment_timepoint
 
 
 def normalize_primary_controlled_categories(row: dict) -> None:
@@ -915,9 +969,12 @@ def evidence_row_for_item(
     item_kind: str,
     item_index: int,
     tasks: dict[str, dict],
+    exclusion_reasons: list[str] | None = None,
 ) -> dict | None:
     domain = normalize(result.get("domain_route", "")) or normalize(item.get("relationship_domain", ""))
     if not domain:
+        if exclusion_reasons is not None:
+            exclusion_reasons.append("missing_domain")
         return None
 
     row = metadata_for_output_row(output_row, result, tasks)
@@ -941,6 +998,12 @@ def evidence_row_for_item(
             "source_result_status": normalize(result.get("extraction_status", "")),
         }
     )
+    # The flat evidence-row format and the source extraction contract are
+    # separate versions. Preserve opt-in candidate provenance without relabeling
+    # its *_v2_observation result as the converter's routed_evidence_rows_v1.
+    extraction_schema_version = normalize(result.get("schema_version", ""))
+    if extraction_schema_version:
+        row["extraction_schema_version"] = extraction_schema_version
     for parent_key in (
         "synthesis_assessment",
         "included_evidence_summary",
@@ -991,6 +1054,11 @@ def evidence_row_for_item(
         row["normalization_boundary_reason"] = "molecular_target_readout_routed_to_molecular_effects"
     entity_label = infer_entity_label(row, entity_kind)
     if not meaningful(row.get("compound", "")) or not meaningful(entity_label):
+        if exclusion_reasons is not None:
+            if not meaningful(row.get("compound", "")):
+                exclusion_reasons.append("missing_compound")
+            if not meaningful(entity_label):
+                exclusion_reasons.append("missing_entity_label")
         return None
     row["kg_entity_kind_override"] = entity_kind
     row["graph_entity_label"] = entity_label
@@ -1011,6 +1079,7 @@ def convert_outputs(
     out: list[dict] = []
     report_counts: Counter = Counter()
     skipped: Counter = Counter()
+    item_exclusions: list[dict] = []
 
     for output_row in read_jsonl(input_jsonl):
         report_counts["output_rows_read"] += 1
@@ -1062,11 +1131,21 @@ def convert_outputs(
         item_kind, items = result_items(result)
         report_counts[f"{item_kind}_objects_seen"] += len(items)
         for item_index, item in enumerate(items, start=1):
+            item_identity = {
+                "task_id": normalize(result.get("task_id", "")) or normalize(output_row.get("task_id", "")),
+                "route_id": normalize(result.get("route_id", "")) or normalize(output_row.get("route_id", "")),
+                "study_doi": normalize(result.get("study_doi", "")),
+                "domain_route": normalize(result.get("domain_route", "")),
+                "source_item_type": item_kind,
+                "source_item_index": item_index,
+            }
             if item_kind == "review_coverage_item":
                 exclusion_reason = review_coverage_exclusion_reason(item)
                 if exclusion_reason:
                     skipped[exclusion_reason] += 1
+                    item_exclusions.append({**item_identity, "reason": exclusion_reason})
                     continue
+            exclusion_reasons: list[str] = []
             row = evidence_row_for_item(
                 output_row=output_row,
                 result=result,
@@ -1074,11 +1153,16 @@ def convert_outputs(
                 item_kind=item_kind,
                 item_index=item_index,
                 tasks=tasks,
+                exclusion_reasons=exclusion_reasons,
             )
             if row:
                 out.append(row)
             else:
                 skipped["missing_compound_or_entity_label"] += 1
+                item_exclusions.append({
+                    **item_identity,
+                    "reason": ";".join(exclusion_reasons) or "missing_compound_or_entity_label",
+                })
 
     report = {
         "generated_at_utc": now_utc(),
@@ -1093,6 +1177,7 @@ def convert_outputs(
         "rows_written": len(out),
         "counts": dict(report_counts),
         "skipped": dict(skipped),
+        "item_exclusions": item_exclusions,
         "rows_by_domain": dict(Counter(row.get("domain_route", "") for row in out)),
         "rows_by_source_item_type": dict(Counter(row.get("source_item_type", "") for row in out)),
         "rows_by_entity_kind": dict(Counter(row.get("kg_entity_kind_override", "") for row in out)),

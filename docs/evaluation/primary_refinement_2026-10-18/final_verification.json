@@ -1,0 +1,16 @@
+{
+  "reviewed_papers": 248,
+  "reviewed_items": 1969,
+  "calls": 720,
+  "masked_review_files": 248,
+  "review_files_changed_after_unmask": [],
+  "postvalidation_normalizer_hash_mismatch": [],
+  "report_missing_links": [],
+  "normalization_test_result": "322 passed,305 subtests passed",
+  "identity_and_runner_test_result": "49 passed,2 subtests passed; overlapping suite, not additive",
+  "production_prompt_changed": false,
+  "primary_schemas_changed": false,
+  "full_extraction_rerun_started": false,
+  "graph_published": false,
+  "recommendation": "Keep current Luna prompt and verified normalization repairs; candidate not promoted because fresh results fail predeclared benefit/correctness gate."
+}

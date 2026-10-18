@@ -45,11 +45,11 @@ flowchart TD
    and adds titles, abstracts, publication details, publication types,
    identifiers, open-access status, and candidate PDF links. Abstracts are
    checked for validity before screening.
-3. **Initial screening** applies rules-based criteria to remove non-research
-   material, clearly out-of-scope records, and records without a usable
-   abstract. Decisions and exclusion reasons are recorded in
+3. **Initial screening** applies publication-format, English-language, and
+   usable-abstract rules. Topic eligibility is decided by Luna; deterministic
+   topical exclusions are disabled in production. Decisions and exclusion reasons are recorded in
    `paper_prescreen_decisions.parquet`.
-4. **Title and abstract screening** uses Gemini 3 Flash Preview to assess relevance,
+4. **Title and abstract screening** uses GPT-6 Luna to assess relevance,
    assign evidence topics, and classify each report as a primary study,
    meta-analysis, other review, or contextual record. The screening procedure
    prioritizes sensitivity by retaining records with plausible relevance for
@@ -63,7 +63,7 @@ flowchart TD
    with GROBID into TEI XML. Both sources are stored as machine-readable article
    records that preserve sections, tables, figures, references, and source
    locations.
-7. **Structured evidence extraction** uses Gemini 3 Flash Preview with separate
+7. **Structured evidence extraction** uses GPT-6 Luna with separate
    procedures for primary studies, meta-analyses, and other reviews. This
    preserves the distinctions among individual study results, pooled estimates,
    and review-level conclusions.
@@ -204,10 +204,19 @@ They do not blanket-exclude a publisher or rely on a venue name alone.
 
 ### LLM-based title and abstract screening
 
+The active model is **GPT-6 Luna with the evaluated V5 screening prompt**,
+using low reasoning and strict structured outputs. The complete replacement
+run and its $100 model-API budget are described in
+[`luna_v5_rerun_2026-10-17.md`](luna_v5_rerun_2026-10-17.md).
+It screens 137,256 cleaned records, reopening 87,543 topical exclusions,
+then rebuilds extraction selection from completed Luna screening. Historical
+provider outputs are archived and cannot supply new extraction decisions.
+
+
 Prepare batch requests:
 
 ```bash
-python pipeline/review/build_gemini_domain_routing_batch_queue.py \
+python pipeline/review/build_domain_routing_batch_queue.py \
   --previous-candidate-table path/to/pre-promotion-candidate_papers.parquet \
   --prepare
 ```
@@ -215,7 +224,7 @@ python pipeline/review/build_gemini_domain_routing_batch_queue.py \
 Advance the queue one submitted part at a time:
 
 ```bash
-python pipeline/review/advance_gemini_domain_routing_batch_queue.py --submit
+python pipeline/review/advance_domain_routing_batch_queue.py --submit
 ```
 
 Queue token estimates include each paper prompt, the repeated system instruction,
@@ -227,9 +236,9 @@ screening cohort.
 
 Omit `--submit` to inspect the queue without sending pending jobs.
 
-This writes `paper_domain_routing_gemini.parquet`,
-`paper_domain_routing_gemini_summary.json`, and
-`paper_domain_routing_gemini_counts.csv`. The Gemini response includes
+This writes `paper_domain_routing.parquet`,
+`paper_domain_routing_summary.json`, and
+`paper_domain_routing_counts.csv`. The Luna response includes
 `screening_decision`, `domain_tags`, `primary_domain`, `paper_type_group`, and
 `paper_type`; this table is the source of report type for new extraction routes.
 The model instruction is maintained separately in
@@ -263,7 +272,7 @@ Use explicit versioned output paths when retaining multiple update runs.
 
 ```bash
 python pipeline/extract/build_extraction_routes.py \
-  --domain-routing-table data/processed/corpus/paper_domain_routing_gemini.parquet
+  --domain-routing-table data/processed/corpus/paper_domain_routing.parquet
 ```
 
 This writes `paper_extraction_routes.parquet`,
@@ -290,7 +299,7 @@ construction uses `postscreen_selected_dois.txt` to select newly eligible
 reports.
 
 The build also updates `candidate_papers.parquet`, the DOI-level report table.
-It records publication-stage fields, initial-screening summaries, Gemini
+It records publication-stage fields, initial-screening summaries, Luna
 report-type/domain summaries, extraction-route status, route counts, prompt and
 schema profiles, manual full-text access decisions, and the best available text
 tier. Publication adds the final graph status, disposition, reason, decision
@@ -646,7 +655,7 @@ procedure described at the start of this guide.
 - `data/processed/corpus/candidate_sources.parquet`
 - `data/processed/corpus/paper_metadata_enrichment.parquet`
 - `data/processed/corpus/paper_prescreen_decisions.parquet`
-- `data/processed/corpus/paper_domain_routing_gemini.parquet`
+- `data/processed/corpus/paper_domain_routing.parquet`
 - `data/processed/corpus/paper_extraction_routes.parquet`
 - `data/processed/fulltext/articles/*.json`
 - full-text inputs under `data/processed/extraction/`

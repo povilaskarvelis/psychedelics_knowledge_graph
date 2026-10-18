@@ -311,6 +311,9 @@ CLAIM_FIELDS = RESEARCH_AREA_FIELDS + (
     "molecular_effect_category",
     "molecular_finding_subtopic",
     "specific_readout_or_marker",
+    "tissue_or_sample",
+    "quantitative_value",
+    "entity_split_unmapped_parts_json",
     "mechanistic_relationship_type",
     "public_health_topic_category",
     "public_health_measure",
@@ -457,6 +460,9 @@ EXPERIMENTAL_SYSTEM_TEXT_FIELDS = (
     "assay_type",
     "assay_or_method",
     "assay_family",
+    "study_design",
+    "data_source_or_study_design",
+    "evidence_design",
 )
 SYSTEM_IN_VITRO_RE = re.compile(
     r"\b(in[- ]?vitro|cell culture|cultures?|cell line|hek[- ]?\d*|cho cells?|recombinant|transfected|"
@@ -1007,6 +1013,7 @@ CONTROLLED_BEHAVIORAL_DETAIL_LABELS = {
     "exploratory behavior": "Exploratory behavior",
     "feeding behavior": "Feeding behavior",
     "hyperactivity": "Locomotor activity",
+    "locomotor hyperactivity": "Locomotor activity",
     "hyperlocomotion": "Locomotor activity",
     "locomotion": "Locomotor activity",
     "locomotor activity": "Locomotor activity",
@@ -1069,7 +1076,7 @@ BRAIN_MEASURE_GRAPH_RULES = (
     (
         re.compile(
             r"\b(metastability|mutual information|information parity|pair correlation|hierarchical integration|"
-            r"harmonic mode energy|structure.function coupling)\b",
+            r"harmonic mode energy|structure.function coupling|eeg microstates?|microstate dynamics)\b",
             re.I,
         ),
         "Network dynamics",
@@ -2640,8 +2647,32 @@ def canonicalize_node_label(entity_kind: str, label: str, node_vocabulary: dict[
     return canonical, item
 
 
-def compound_key_variants(value: object) -> list[tuple[str, str]]:
+def chemical_identity_surface(value: object) -> str:
+    """Normalize established spelling variants without erasing substitutions."""
     text = normalize(value)
+    text = re.sub(r"\b5[- ]?O[- ]?Me[- ]?DMT\b", "5-MeO-DMT", text, flags=re.I)
+    text = re.sub(r"\b5OMeDMT\b", "5-MeO-DMT", text, flags=re.I)
+    text = re.sub(r"(?:\b[RS]\s*[,/]\s*[RS]\s*\(?[±+−-]*\)?|\(\s*[RS]\s*[,/]\s*[RS]\s*\)|\(\s*±\s*\))\s*[- ]?ketamine\b", "racemic ketamine", text, flags=re.I)
+    return text
+
+
+UNREGISTERED_CHEMICAL_DERIVATIVE_RE = re.compile(
+    r"\b(?:MLD[- ]?41|ETH[- ]?LAD|AL[- ]?LAD|(?:1[ABcDfPSTV]|2[- ]?oxo(?:[- ]3[- ](?:OH|hydroxy))?)[- ]LSD|"
+    r"(?:\d[- ]?)?Cl[- ]MDMA|chlorinated\s+MDMA|1[- ]methyl[- ]d[- ]lysergic|"
+    r"salvinorin [AB] acid|6[- ]ethyl[- ]6[- ]nor[- ]lysergic|(?:1[- ]?)?benzyl[^,;]*bufotenin|benzyl analog(?:ue)? of bufotenin)\b", re.I,
+)
+
+
+def unregistered_chemical_identity(value: object, registry: dict[tuple[str, str], dict]) -> bool:
+    raw = chemical_identity_surface(value)
+    # Never suppress a genuinely registered exact analogue identity.
+    if registry.get(("compound", label_key(raw))) or registry.get(("compound", compact_key(raw))):
+        return False
+    return bool(UNREGISTERED_CHEMICAL_DERIVATIVE_RE.search(raw))
+
+
+def compound_key_variants(value: object) -> list[tuple[str, str]]:
+    text = chemical_identity_surface(value)
     if not text:
         return []
     variants: list[tuple[str, str]] = [(text, "label")]
@@ -2811,8 +2842,50 @@ _REGISTRY_COMPOUND_TEXT_CACHE: dict[tuple[int, str], frozenset[str]] = {}
 _REGISTRY_ENTITY_TEXT_CACHE: dict[tuple[int, str, str], frozenset[str]] = {}
 
 
+def affirmative_identity_mention(text: str, start: int, end: int) -> bool:
+    """Exclude explicitly absent identities, without dropping null-effect studies."""
+    prefix = text[max(0, start - 45):start]
+    suffix = text[end:end + 70]
+    if re.search(r"\b(?:other than|except(?: for)?|excluding|without|not|non)\s*$", prefix, re.I):
+        return False
+    return not re.match(
+        r"\s+(?:(?:was|were|is|are)\s+)?not\s+(?:administered|given|used|studied|tested|included)\b",
+        suffix, re.I,
+    )
+
+
+def affirmative_target_label(value: object) -> str:
+    """Remove a stated alternative target, retaining the studied target's null results."""
+    text = normalize(value)
+    return re.sub(
+        r"(?:[,;]\s*|\s+)(?:but\s+)?(?:not|excluding|except(?: for)?)\s+"
+        r"(?:5[- ]?HT\s*\d?[A-C]?|[A-Za-z0-9-]+\s+receptors?)\b[^,;)]*",
+        "", text, flags=re.I,
+    ).strip()
+
+
+def receptor_identity_label(value: object) -> str:
+    text = affirmative_target_label(value)
+    text = re.sub(r";\s*receptor subtypes?\s+(?:not (?:specified|determined|reported)|unspecified).*$", "", text, flags=re.I)
+    if re.search(r"\breceptors?\b", text, re.I):
+        text = re.sub(r"5[- ]hydroxytryptamine\s*([1-7]\s*[a-f]?)?", lambda m: "5-HT" + re.sub(r"\s+", "", m[1] or "").upper(), text, flags=re.I)
+        text = re.sub(r"(5[- ]?HT[-_ ]*[1-7][a-f]?)\s+serotonin\s+receptors?(?:\s+subtype)?", r"\1 receptor", text, flags=re.I)
+        if re.search(r"5[- ]?HT", text, re.I) and not re.search(r"5[- ]?HT[-_ ]*[1-7]", text, re.I):
+            # A receptor-family name is not the serotonin ligand, even when a
+            # parenthetical synonym is also a registry alias for that ligand.
+            if not re.search(r"\b(?:and|or|plus)\b|[,;/]", re.sub(r"\([^)]*\)", "", text), re.I):
+                return "5-HT receptor family"
+        # Parenthetical ligand synonyms are descriptions of the receptor, not
+        # alternative chemical endpoints (e.g. "5-HT2A (serotonin) receptor").
+        receptor = re.search(r"\b5[- ]?HT[-_ ]*([1-7][a-f]?)\b", text, re.I)
+        outside = re.sub(r"\([^)]*\)", "", text)
+        if receptor and not re.search(r"\b(?:and|or|plus)\b|[,;/]", outside, re.I):
+            return "5-HT" + receptor[1].upper()
+    return text
+
+
 def registry_compound_labels_in_text(value: object, registry: dict[tuple[str, str], dict]) -> set[str]:
-    text_key = label_key(value)
+    text_key = label_key(chemical_identity_surface(value))
     if not text_key:
         return set()
     cache_key = (id(registry), text_key)
@@ -2823,7 +2896,7 @@ def registry_compound_labels_in_text(value: object, registry: dict[tuple[str, st
     for entity_type, key in registry:
         if entity_type != "compound" or len(key) < 3:
             continue
-        if re.search(rf"\b{re.escape(key)}\b", text_key):
+        if any(affirmative_identity_mention(text_key, m.start(), m.end()) for m in re.finditer(rf"\b{re.escape(key)}\b", text_key)):
             labels.add(normalize(registry[(entity_type, key)].get("label", "")))
     result = {label for label in labels if label}
     _REGISTRY_COMPOUND_TEXT_CACHE[cache_key] = frozenset(result)
@@ -2834,6 +2907,8 @@ COMPOUND_TEXT_LABEL_SUPERSEDES = {
     "S-ketamine": {"Ketamine"},
     "R-ketamine": {"Ketamine"},
     "5-MeO-DMT": {"DMT"},
+    "Bufotenin": {"DMT"},
+    "2-bromo-LSD": {"LSD"},
 }
 COMPOUND_COMBO_TEXT_RE = re.compile(
     r"\b(and|or|plus|followed by|combined with|coadministered|co-administered|sequential)\b|\s\+\s|\s/\s",
@@ -2848,7 +2923,7 @@ EXPLICIT_COMPOUND_COADMIN_RE = re.compile(
     re.IGNORECASE,
 )
 EXPLICIT_COMPOUND_SEQUENCE_RE = re.compile(
-    r"\b(?:followed by|then (?:received|administered|given)|sequential(?:ly)?(?: administered)?|"
+    r"\b(?:followed by|then (?:received|administered|given)|sequential(?:ly)? (?:administered|given|doses?|dosing|treatment|regimen)|"
     r"staged (?:administration|treatment|regimen))\b",
     re.IGNORECASE,
 )
@@ -2978,6 +3053,8 @@ def looks_like_compound_list(value: object) -> bool:
         return False
     drug_like_parts = 0
     for part in parts:
+        if re.match(r"(?:compared (?:with|to)|versus|vs\.?)(?:\s|$)", part, re.I):
+            continue
         if COMPOUND_LIST_METADATA_RE.search(part):
             continue
         if re.search(r"[A-Za-z][A-Za-z0-9-]{2,}", part):
@@ -2999,6 +3076,11 @@ def prune_compound_text_labels(raw: object, labels: set[str]) -> set[str]:
                 masked = re.sub(r"\b(?:r ketamine|arketamine)\b", " ", masked)
             elif specific == "5-MeO-DMT":
                 masked = re.sub(r"\b(?:5 meo dmt|5 methoxy n n dimethyltryptamine|5 methoxy dmt)\b", " ", masked)
+            elif specific == "2-bromo-LSD":
+                masked = label_key(re.sub(r"\bBOL\s*\([^)]*\)", "", normalize(raw), flags=re.I))
+                masked = re.sub(r"\b(?:2 bromo lsd|bol)\b", " ", masked)
+            elif specific == "Bufotenin":
+                masked = re.sub(r"\b(?:5 hydroxy n n dimethyltryptamine|5 hydroxy dmt|5 ho dmt|5 hodmt|bufotenine?)\b", " ", masked)
             for broad in broad_labels:
                 if not re.search(rf"\b{re.escape(label_key(broad))}\b", masked):
                     pruned.discard(broad)
@@ -3015,6 +3097,13 @@ def graphable_compound_match(raw_compound: object, registry: dict[tuple[str, str
             "status": "compound_missing",
             "match_type": "",
             "notes": "compound field is empty",
+        }
+    if unregistered_chemical_identity(raw, registry):
+        return {
+            "matched": True, "label": raw, "item": {"label": raw, "aliases": [], "status": "unregistered_chemical_identity_detail_only"},
+            "status": "unregistered_chemical_identity_detail_only",
+            "match_type": "unregistered_chemical_identity_detail_only",
+            "notes": "modified chemical identity preserved; substring overlap with a parent compound is not an identity match",
         }
     if class_level_compound_label(raw):
         return {
@@ -3039,6 +3128,11 @@ def graphable_compound_match(raw_compound: object, registry: dict[tuple[str, str
         return raw_scope_block
 
     label, item = canonicalize_registry_label("compound", raw, registry)
+    matched_labels = prune_compound_text_labels(chemical_identity_surface(raw), registry_compound_labels_in_text(raw, registry))
+    if item and len(matched_labels) > 1 and COMPOUND_COMBO_TEXT_RE.search(re.sub(r"\([^)]*\)", "", raw)):
+        # A synonym in parentheses must not hide a second independently named
+        # compound outside those parentheses.
+        item = None
     if item:
         scope_block = graph_scope_blocked_compound_result(label, item)
         if scope_block:
@@ -3052,7 +3146,6 @@ def graphable_compound_match(raw_compound: object, registry: dict[tuple[str, str
             "notes": "compound matched local registry",
         }
 
-    matched_labels = prune_compound_text_labels(raw, registry_compound_labels_in_text(raw, registry))
     if len(matched_labels) > 1:
         return {
             "matched": False,
@@ -3215,6 +3308,10 @@ def validated_unregistered_compound_detail_subject(
         return False
     if source_field not in {"", "compound", "graph_subject_label", "anchors"}:
         return False
+    if re.fullmatch(r"\d+[a-z]?", raw, re.I):
+        statement = normalize(row.get("finding_summary", "") or row.get("support", ""))
+        return bool(re.search(rf"\bcompound\s+{re.escape(raw)}\b", statement, re.I)
+                    and normalize(row.get("domain", "") or row.get("domain_route", "")) == "molecular_target")
     if len(raw) > 120 or len(raw.split()) > 10 or not re.search(r"[A-Za-z]", raw):
         return False
     if (
@@ -3247,6 +3344,34 @@ def validated_unregistered_compound_match(row: dict, raw_label: object) -> dict:
     }
 
 
+def specific_compound_descriptor(raw: str, registry: dict[tuple[str, str], dict]) -> str:
+    """Return an exact named compound only when surrounding text is descriptive.
+
+    Pooled classes with examples and explicit mixtures retain their own unit.
+    Unknown substituted identities are handled before this function.
+    """
+    labels = prune_compound_text_labels(raw, registry_compound_labels_in_text(raw, registry))
+    if len(labels) != 1 or named_combination_from_text(raw):
+        return ""
+    label = next(iter(labels))
+    head = re.split(r"\s*[,;(]", raw, maxsplit=1)[0].strip()
+    canonical, item = canonicalize_registry_label("compound", head, registry)
+    if item and canonical == label:
+        remainder = raw[len(head):].strip()
+        if not remainder or re.fullmatch(r"\([^)]*\)", remainder):
+            # Parentheses may be a synonym/class/dose, but cannot hide a
+            # coadministered drug or a second exposure.
+            dose_only = re.sub(r"\d+(?:\.\d+)?|\b(?:mg|kg|g|ug|mcg|ml|and|or|versus|vs|doses?|oral|intravenous)\b|[() ,;./–-]", "", remainder, flags=re.I) == ""
+            if dose_only or not re.search(r"\b(?:with|plus|combined|and|or|pretreatment|adjunct)\b", remainder, re.I):
+                return label
+        if re.match(r"[,;]\s*(?:an?\s+)?(?:NMDA|serotonergic|psychedelic|hallucinogen)", remainder, re.I) and not re.search(r"\b(?:and|or|with|plus)\b", remainder, re.I):
+            return label
+    if re.search(r"\b(?:the|a|an)\s+(?:serotonergic\s+)?(?:psychedelic|hallucinogen|NMDA (?:receptor )?antagonist)\s+", raw, re.I):
+        if not re.search(r"\b(?:including|such as|e\.g|and|or|plus|combined|pooled)\b", raw, re.I):
+            return label
+    return ""
+
+
 def graphable_subject_match(row: dict, registry: dict[tuple[str, str], dict]) -> dict:
     """Normalize an atomic compound or preserve a complete non-atomic exposure.
 
@@ -3257,6 +3382,17 @@ def graphable_subject_match(row: dict, registry: dict[tuple[str, str], dict]) ->
 
     raw = compound_label_for(row)
     explicit_kind = normalized_entity_kind(row.get("graph_subject_kind", ""))
+    if unregistered_chemical_identity(raw, registry) and explicit_kind != "compound_class":
+        match = graphable_compound_match(raw, registry)
+        match["subject_kind"] = "atomic_compound"
+        return match
+    descriptor = specific_compound_descriptor(raw, registry)
+    if descriptor:
+        match = graphable_compound_match(descriptor, registry)
+        if match["matched"]:
+            match["subject_kind"] = "atomic_compound"
+            match["notes"] += "; specific identity retained over descriptive class/synonym text"
+            return match
     if explicit_kind == "atomic_compound" and looks_like_compound_list(raw):
         explicit_kind = "compound_combination"
     if explicit_kind == "atomic_compound":
@@ -3528,7 +3664,7 @@ def explicit_combination_projection(
     sequential = bool(EXPLICIT_COMPOUND_SEQUENCE_RE.search(exact_evidence_text))
     if not sequential and len(labels) == 2:
         sequential = bool(
-            re.search(r"\b(?:sequential|consecutive)\b", normalize(row.get("study_title", "")), re.I)
+            re.search(r"\b(?:sequential|consecutive) (?:administration|treatment|dosing|doses|regimen)\b", normalize(row.get("study_title", "")), re.I)
         )
     simultaneous = bool(named_definition) or bool(EXPLICIT_COMPOUND_COADMIN_RE.search(exact_evidence_text))
     if not simultaneous:
@@ -3671,12 +3807,14 @@ def _overview_graph_subjects(
 
     raw = normalize(compound_match.get("label", ""))
     kind = normalize(compound_match.get("subject_kind", "")) or "atomic_compound"
+    if normalize(row.get("graph_admission_reason", "")) == "adjunct_sequence_not_atomic_drug_result":
+        return []
     secondary_literature = is_secondary_literature_row(row)
     if subject_label_is_explicitly_out_of_scope(raw, registry):
         recovered_subjects = finding_level_in_scope_subjects(row, registry)
         if recovered_subjects:
             return recovered_subjects
-    if normalize(compound_match.get("match_type", "")) == "validated_unregistered_compound_detail_only":
+    if normalize(compound_match.get("match_type", "")) in {"validated_unregistered_compound_detail_only", "unregistered_chemical_identity_detail_only"}:
         return []
     if kind == "atomic_compound":
         return [registered_compound_overview_subject(compound_match, registry)]
@@ -3717,6 +3855,10 @@ def _overview_graph_subjects(
                     else "controlled_unresolved_psychedelic_class_detail_only",
                 }]
             return [explicit_class_subject]
+        # A preserved novel chemical or product description is not a registered
+        # molecule merely because class recovery found a nonempty focal match.
+        if focal_match.get("match_type") in {"validated_unregistered_compound_detail_only", "unregistered_chemical_identity_detail_only"}:
+            return []
         if focal_match.get("matched"):
             return [{
                 "label": normalize(focal_match.get("label", "")),
@@ -4227,6 +4369,11 @@ def specific_condition_from_unambiguous_context(
     }
     if not allowed_labels:
         return ""
+    context = " ".join(normalize(row.get(field, "")) for field in BROAD_CONDITION_CONTEXT_FIELDS)
+    if re.search(r"\bunipolar\b", context, re.I) and re.search(r"\bbipolar\b", context, re.I):
+        # A pooled major-depressive-episode estimate is not a bipolar-only
+        # estimate, even when only the bipolar alias matches the registry.
+        return ""
     candidates: set[str] = set()
     for field in BROAD_CONDITION_CONTEXT_FIELDS:
         value = normalize(row.get(field, ""))
@@ -4367,18 +4514,28 @@ def node_vocabulary_hits_in_text(
     if not text_key:
         return []
     allowed_kinds = set(entity_kinds)
-    hits: dict[tuple[str, str], tuple[int, int]] = {}
+    spans: list[tuple[int, int, str, str]] = []
     for candidate_kind, key in node_vocabulary:
         if candidate_kind not in allowed_kinds or not node_vocabulary_key_allowed_in_text(candidate_kind, key):
-            continue
-        match = re.search(rf"\b{re.escape(key)}\b", text_key)
-        if not match:
             continue
         label = normalize(node_vocabulary[(candidate_kind, key)].get("label", ""))
         if not label:
             continue
-        hit_key = (candidate_kind, label)
-        score = (match.start(), -len(key))
+        for match in re.finditer(rf"\b{re.escape(key)}\b", text_key):
+            spans.append((match.start(), match.end(), candidate_kind, label))
+    hits: dict[tuple[str, str], tuple[int, int]] = {}
+    for start, end, kind, label in spans:
+        # Anterior cingulate within subgenual anterior cingulate is one named
+        # region. A separately named ACC elsewhere in a list remains a hit.
+        if kind in BRAIN_SYSTEM_ENTITY_KINDS and any(
+            other_kind in BRAIN_SYSTEM_ENTITY_KINDS
+            and other_start <= start and other_end >= end
+            and other_end - other_start > end - start
+            for other_start, other_end, other_kind, _ in spans
+        ):
+            continue
+        hit_key = (kind, label)
+        score = (start, start - end)
         if hit_key not in hits or score < hits[hit_key]:
             hits[hit_key] = score
     return [hit for hit, _score in sorted(hits.items(), key=lambda item: item[1])]
@@ -4529,7 +4686,7 @@ def explicit_target_labels_in_text(
     value: object,
     registry: dict[tuple[str, str], dict],
 ) -> list[tuple[str, str]]:
-    text = normalize(value)
+    text = receptor_identity_label(value)
     text_key = label_key(text)
     if not text_key:
         return []
@@ -4627,13 +4784,7 @@ def brain_entity_list_parts(value: object) -> list[str]:
     text = normalize(value)
     if not text or not BRAIN_LIST_SEPARATOR_RE.search(text):
         return []
-    working = text.replace("；", ";")
-    working = re.sub(r"\s+and/or\s+", ";", working, flags=re.IGNORECASE)
-    working = re.sub(r"\s*[;,/+]\s*", ";", working)
-    working = re.sub(r";\s+(?:and|or)\s+", ";", working, flags=re.IGNORECASE)
-    working = re.sub(r"\s+", " ", working).strip("; ")
-    parts = [re.sub(r"^(?:and|or)\s+", "", normalize(part).strip(" ."), flags=re.IGNORECASE) for part in working.split(";")]
-    return [part for part in parts if part]
+    return scientific_list_parts(text)
 
 
 def brain_entity_split_matches(
@@ -4818,7 +4969,7 @@ READOUT_AVAILABILITY_RE = re.compile(
     re.IGNORECASE,
 )
 READOUT_PHOSPHORYLATION_RE = re.compile(
-    r"\b(phosphorylation|phosphorylated|phospho|p[- ]?(?:akt|erk|creb|trkb|gsk|mtor|s6k|stat|jnk|mapk|psd))\w*\b",
+    r"\b(phosphorylat\w*|phospho|p[- ]?(?:akt|erk|creb|trkb|gsk|mtor|s6k|stat|jnk|mapk|psd)\w*)\b",
     re.IGNORECASE,
 )
 READOUT_ACTIVATION_RE = re.compile(r"\b(activation|activated|activity|functional coupling|coupling|agonis\w* response)\b", re.IGNORECASE)
@@ -4961,7 +5112,7 @@ MOLECULAR_EFFECT_RULES = (
         re.compile(
             r"\b(receptor\w*|5[- ]?ht\d?[a-z]?|sert|slc6a4|\bdat\b|slc6a3|slc6a2|"
             r"d[1-5][ -]?receptor|ampa|nmda|nmdar|ampar|mglur\d?[a-z]?|mglu\d?|glua\d?[a-z]?|glun\d?[a-z]?|"
-            r"gabr|transport(?:er|ers)|availability|binding potential|densit(?:y|ies)|occupancy|trafficking|"
+            r"gabr|transport(?:er|ers)|binding potential|occupancy|trafficking|"
             r"surface expression|internalization|uptake site|p[- ]?glycoprotein|abcb1|pmat|slc29a4|vmat\d?)\b",
             re.IGNORECASE,
         ),
@@ -5119,10 +5270,10 @@ MOLECULAR_SUBTOPIC_RULES_BY_PARENT: dict[str, tuple[tuple[str, re.Pattern[str]],
         ("Targeted gene-expression markers", re.compile(r"mrna|gene expression|protein expression|transcript|rna expression", re.I)),
     ),
     "Neuroinflammation & immune signaling": (
-        ("IL-6 & related cytokines", re.compile(r"il[- ]?6|interleukin[- ]?6", re.I)),
+        ("IL-6 & related cytokines", re.compile(r"\b(?:il[- ]?6|interleukin[- ]?6)(?!\d)", re.I)),
         ("TNF signaling", re.compile(r"tnf", re.I)),
-        ("IL-1 signaling", re.compile(r"il[- ]?1|interleukin[- ]?1", re.I)),
-        ("Anti-inflammatory cytokines", re.compile(r"il[- ]?10|tgf[- ]?beta|anti[- ]inflammatory cytokine", re.I)),
+        ("IL-1 signaling", re.compile(r"\b(?:il[- ]?1|interleukin[- ]?1)(?!\d)", re.I)),
+        ("Anti-inflammatory cytokines", re.compile(r"\b(?:il[- ]?10|interleukin[- ]?10)(?!\d)|tgf[- ]?beta|anti[- ]inflammatory cytokine", re.I)),
         ("Cytokines & chemokines", re.compile(r"interleukin|il[- ]?\d|cytokine|chemokine|ccl\d|cxcl\d", re.I)),
         ("Microglial activation", re.compile(r"microglia|iba[- ]?1|cd68", re.I)),
         ("Astrocyte & glial activation", re.compile(r"astrocy|\bgfap\b|glial activation", re.I)),
@@ -5379,6 +5530,14 @@ MOLECULAR_SPECIFIC_PARENT_RULES: tuple[tuple[str, re.Pattern[str]], ...] = (
 
 
 def molecular_parent_from_specific(row: dict, current_parent: str, entity_label: str) -> str:
+    if is_activity_marker_cell_intersection(entity_label):
+        return "Gene expression & activity markers"
+    if first_endpoint_value(row, ("specific_readout_or_marker",)):
+        explicit = canonical_molecular_effect_rule_label(row.get("molecular_effect_category", ""))
+        if explicit and label_key(explicit) == label_key(row.get("molecular_effect_category", "")):
+            # A marker's declared family outranks another molecule mentioned in
+            # the result narrative or an experimental manipulation.
+            return explicit
     context = molecular_subtopic_context(row, entity_label)
     if normalize(current_parent) in {"Genetic moderators", "Epigenetic regulation"}:
         return normalize(current_parent)
@@ -5513,6 +5672,10 @@ def registry_kind_for_item(default_kind: str, item: dict | None, context_text: o
         label_text = ascii_fold(raw_label)
         if READOUT_EVIDENCE_RE.search(label_text) and not DIRECT_TARGET_EVIDENCE_RE.search(label_text):
             return "biomarker_readout"
+        if default_kind in {"target", "system_family"}:
+            # Readout terms in an assay narrative may refer to a downstream
+            # reporter (e.g. cGMP), not abundance of this named receptor.
+            return "target"
         if DIRECT_TARGET_EVIDENCE_RE.search(text):
             return "target"
         if READOUT_EVIDENCE_RE.search(text):
@@ -5533,6 +5696,8 @@ def match_registry_entity(
     registry: dict[tuple[str, str], dict],
     row: dict | None = None,
 ) -> dict:
+    if entity_kind in {"target", "system_family"}:
+        raw_label = receptor_identity_label(raw_label)
     entity_type = ENTITY_TYPE_BY_KIND.get(entity_kind, "")
     context_text = molecular_kind_context(row, raw_label)
     if entity_kind == "condition_indication" and CONDITION_NON_INDICATION_CONTEXT_RE.search(normalize(raw_label)):
@@ -5555,6 +5720,10 @@ def match_registry_entity(
             "match_type": "",
             "notes": "condition-like or model-like wording is not promoted to a visible condition node",
         }
+    if entity_kind == "condition_indication" and re.fullmatch(r"(?:methamphetamine|cocaine|alcohol|cannabis|opioid|substance|drug) use", normalize(raw_label), re.I):
+        return {"matched": True, "label": normalize(raw_label), "kind": "symptom_problem", "item": None,
+                "status": "entity_normalized", "match_type": "nondiagnostic_use_detail_only",
+                "notes": "reported substance use retained without inventing a use-disorder diagnosis"}
     contained_condition_labels = (
         set(condition_labels_in_text(raw_label, registry))
         if entity_kind == "condition_indication"
@@ -6180,9 +6349,15 @@ def intervention_parent_label(row: dict, raw_label: object) -> str:
             row.get("context_component", ""),
         )
     )
+    if re.search(r"\bintegrat\w*\s+(?:into|within|with)\s+(?:existing\s+)?(?:delivery|health|services?|care|models?)\b", anchor_context, re.I):
+        return ""
+    if re.search(r"\b(?:ability to surrender|surrender to the experience)\b", anchor_context, re.I):
+        return "Set & setting"
     anchor_topic = intervention_topic_from_context(anchor_context)
     if anchor_topic and anchor_topic not in INTERVENTION_REFINABLE_TOPIC_LABELS:
         return anchor_topic
+    if not anchor_topic and re.search(r"\b(?:subjective (?:session )?experience|session experienced as emotional|subjective session context)\b", anchor_context + " " + normalize(row.get("component_type", "")), re.I):
+        return ""
 
     refinement_contexts = (
         " ".join(
@@ -6230,6 +6405,14 @@ def graphable_entity_match(
             "match_type": "",
             "notes": "entity label is empty",
         }
+    if entity_kind == "condition_indication" and re.search(r"\b(?:major depressive episode|depressive disorders?)\b", raw, re.I):
+        population_context = " ".join(normalize(row.get(field, "")) for field in BROAD_CONDITION_CONTEXT_FIELDS)
+        if re.search(r"\bunipolar\b", population_context, re.I) and re.search(r"\bbipolar\b", population_context, re.I):
+            return {
+                "matched": True, "label": raw, "kind": entity_kind, "item": None,
+                "status": "entity_normalized", "match_type": "pooled_condition_detail_only",
+                "notes": "pooled unipolar/bipolar depressive-episode result retained without assigning it to either diagnosis alone",
+            }
     if domain == "molecular_target" and entity_kind == "compound" and is_review_row(row):
         return {
             "matched": False,
@@ -6353,6 +6536,13 @@ def graphable_entity_match(
             else safety_endpoint_label(row)
         )
         label = safety_specific_endpoint_label(row, parent_label)
+        if not parent_label and raw:
+            return {
+                "matched": True, "label": raw.split(";")[0], "kind": entity_kind,
+                "item": None, "status": "entity_normalized",
+                "match_type": "unmapped_safety_endpoint_detail_only",
+                "notes": "specific endpoint retained without borrowing an unrelated category from care or result context",
+            }
         return {
             "matched": bool(label),
             "label": label,
@@ -6382,6 +6572,14 @@ def graphable_entity_match(
                 for value in (raw, row.get("context_component", ""), row.get("component_type", ""))
             )
         )
+        service_integration = bool(re.search(r"\bintegrat\w*\s+(?:into|within|with)\s+(?:existing\s+)?(?:delivery|health|services?|care|models?)\b", raw, re.I))
+        if service_integration or (re.search(r"\b(?:subjective (?:session )?experience|session experienced as emotional|subjective session context)\b", context, re.I) and not intervention_parent_label(row, raw)):
+            return {
+                "matched": True, "label": raw, "kind": entity_kind,
+                "item": None, "status": "entity_normalized",
+                "match_type": "context_measure_without_canonical_parent_detail_only",
+                "notes": "participant experience predictor retained without borrowing the facilitator or delivery context as its parent",
+            }
         meta_analysis_context = (
             normalize(row.get("paper_type", "")) in {"meta_analysis", "network_meta_analysis"}
             and normalize(row.get("meta_analysis_result_role", ""))
@@ -6481,6 +6679,15 @@ def graphable_entity_match(
             "notes": match["notes"],
         }
     if entity_kind in REGISTRY_BACKED_ENTITY_KINDS:
+        if entity_kind in MOLECULAR_EFFECT_ENTITY_KINDS and is_cell_phenotype_intersection(raw):
+            parent = molecular_effect_graph_label(row, entity_kind, raw)
+            if parent:
+                return {
+                    "matched": True, "label": raw, "kind": entity_kind,
+                    "item": None, "status": "entity_normalized",
+                    "match_type": "molecular_cell_phenotype",
+                    "notes": "co-labelled cell phenotype retained as one measured population",
+                }
         match = match_registry_entity(raw, entity_kind, registry, row)
         if (
             not match["matched"]
@@ -6620,7 +6827,14 @@ def graphable_entity_match(
     if domain == "brain_system" or entity_kind in BRAIN_SYSTEM_ENTITY_KINDS:
         return match_brain_vocabulary_entity(raw, entity_kind, node_vocabulary)
     if entity_kind in VOCABULARY_BACKED_ENTITY_KINDS:
-        return match_vocabulary_entity(raw, entity_kind, node_vocabulary)
+        match = match_vocabulary_entity(raw, entity_kind, node_vocabulary)
+        if not match["matched"] and entity_kind in {"subjective_experience_construct", "cognitive_behavioral_construct"} and len(raw) <= 160:
+            return {
+                "matched": True, "label": raw, "kind": entity_kind, "item": None,
+                "status": "entity_normalized", "match_type": "unmapped_construct_detail_only",
+                "notes": "explicit construct retained without inferring a different construct from surrounding context",
+            }
+        return match
     return {
         "matched": False,
         "label": "",
@@ -6672,7 +6886,7 @@ SAFETY_ENDPOINT_PATTERNS = (
         "Serotonin syndrome",
     ),
     (
-        re.compile(r"\b(seizure|convulsion|epilep|grand mal|proconvulsive)\b", re.IGNORECASE),
+        re.compile(r"\b(seizures?|convulsions?|epilep\w*|grand mal|proconvulsive)\b", re.IGNORECASE),
         "Seizure/convulsion",
     ),
     (re.compile(r"\b(suicid\w*|c[- ]?ssrs)\b", re.IGNORECASE), "Suicidality risk"),
@@ -6690,7 +6904,7 @@ SAFETY_ENDPOINT_PATTERNS = (
     (re.compile(r"\b(flashbacks?|hppd|persisting perceptual)\b", re.IGNORECASE), "Flashbacks/HPPD"),
     (
         re.compile(
-            r"\b(blood pressure|heart rate|cardiovascular|hypertension|hypotension|qt|qtc|torsade|arrhythm|"
+            r"\b(blood pressure|arterial pressure|heart rate|cardiovascular|hypertension|hypotension|qt|qtc|torsade|arrhythm|"
             r"pro[- ]?arrhythm|hERG|electrocardi|ecg|tachycardia|bradycardia|hemodynamic|valvulopathy|"
             r"cardiac|myocard|cardiotox\w*|contractile|atrium|atrial|hemorrhage|haemorrhage|vasculitis|stroke|"
             r"mean arterial pressure|pulse rate|vital signs?|ekg|qtcf|hemodynamics?|inotropic)\b",
@@ -6702,7 +6916,7 @@ SAFETY_ENDPOINT_PATTERNS = (
         re.compile(r"\b(oxygen saturation|spo2|hypoxia|hypoxemia|respiratory|breathing|respiration|tidal volume)\b", re.IGNORECASE),
         "Respiratory safety",
     ),
-    (re.compile(r"\b(?:nausea|vomit|emesis|diarrhea|gastrointestinal|gi)\b", re.IGNORECASE), "Nausea/vomiting"),
+    (re.compile(r"\b(?:nausea|vomit\w*|emesis)\b", re.IGNORECASE), "Nausea/vomiting"),
     (re.compile(r"\b(headache|migraine)\b", re.IGNORECASE), "Headache"),
     (
         re.compile(
@@ -6745,7 +6959,7 @@ SAFETY_ENDPOINT_PATTERNS = (
     ),
     (
         re.compile(
-            r"\b(hyperthermia|hypothermia|body temperature|core temperature|oral temperature|tympanic temperature|"
+            r"\b(hypertherm\w*|hyperpyrexia|hypotherm\w*|body temperature|core temperature|rectal temperature|oral temperature|tympanic temperature|"
             r"thermoregul\w*|thermogenic|temperature rise)\b",
             re.IGNORECASE,
         ),
@@ -6838,7 +7052,7 @@ SAFETY_ENDPOINT_PATTERNS = (
             r"\b(sedation|sedative|sleepiness|somnolence|drowsiness|eye.opening time|recovery time|"
             r"cognitive impairment|memory impairment|"
             r"impaired attention|attention impairment|attention deficits?|impaired concentration|"
-            r"concentration impairment|motor coordination|motor functioning|ataxia|rotarod|falls?|concussion|dizziness|vertigo|gait|"
+            r"concentration impairment|motor coordination|motor functioning|motor impairment|ataxia|rotarod|fall risk|risk of falls|concussion|dizziness|vertigo|gait|"
             r"tremors?|tremorigenic|impaired memory|memory impairment|"
             r"cognitive function|working memory|executive function|processing speed|moca)\b",
             re.IGNORECASE,
@@ -6877,10 +7091,10 @@ SAFETY_ENDPOINT_PATTERNS = (
     ),
     (
         re.compile(
-            r"\b(discontinuation|discontinued|dropout|dropped out|withdrawal|withdrew)\b.{0,60}\b"
-            r"(adverse|side effects?|tolerab|safety|ae|aes)\b|"
-            r"\b(adverse|side effects?|tolerab|safety|ae|aes)\b.{0,60}\b"
-            r"(discontinuation|discontinued|dropout|dropped out|withdrawal|withdrew)\b",
+            r"\b(discontinuation|discontinued|dropouts?|dropped out|withdrawal|withdrew)\b.{0,60}\b"
+            r"(adverse|side effects?|tolerab\w*|intolerab\w*|safety|ae|aes)\b|"
+            r"\b(adverse|side effects?|tolerab\w*|intolerab\w*|safety|ae|aes)\b.{0,60}\b"
+            r"(discontinuation|discontinued|dropouts?|dropped out|withdrawal|withdrew)\b",
             re.IGNORECASE,
         ),
         "Discontinuation due to adverse events",
@@ -6954,7 +7168,7 @@ SAFETY_SPECIFIC_ENDPOINT_PATTERNS = (
     (re.compile(r"\b(psychedelic effects?|psychedelic manifestations?)\b", re.IGNORECASE), "Psychedelic subjective effects"),
     (re.compile(r"\b(mania|manic|hypomania)\b", re.IGNORECASE), "Mania/hypomania"),
     (re.compile(r"\b(suicidal ideation|suicidality|suicide attempt)\b", re.IGNORECASE), "Suicidality"),
-    (re.compile(r"\b(seizure|convulsion)\b", re.IGNORECASE), "Seizure/convulsion"),
+    (re.compile(r"\b(seizures?|convulsions?)\b", re.IGNORECASE), "Seizure/convulsion"),
     (re.compile(r"\bserotonin syndrome\b", re.IGNORECASE), "Serotonin syndrome"),
 )
 SAFETY_SPECIFIC_PARENT_LABELS = {
@@ -7153,6 +7367,19 @@ def display_anchor_label(label: object) -> str:
     return text
 
 
+def is_cell_phenotype_intersection(value: object) -> bool:
+    """A co-labelled cell population is one endpoint, not two molecule assays."""
+    text = normalize(value)
+    return bool(
+        re.search(r"(?:positive|negative).*/.*(?:positive|negative).*\bcells?\b", text, re.I)
+        or re.search(r"\bc[- ]?fos\s*\+?\s*/\s*5[- ]?HT2A\s*(?:[-−](?:\s|$)|negative)", text, re.I)
+    )
+
+
+def is_activity_marker_cell_intersection(value: object) -> bool:
+    return is_cell_phenotype_intersection(value) and bool(re.search(r"\bc[- ]?fos\b|\bfosb\b|\begr[- ]?\d\b", normalize(value), re.I))
+
+
 def label_with_suffix(base_label: str, suffix: str) -> str:
     base = display_anchor_label(base_label)
     if not base:
@@ -7180,8 +7407,32 @@ def pathway_readout_context(row: dict, raw_label: object) -> str:
     return " ".join(endpoint_value(value) for value in (raw_label, *(row.get(field, "") for field in fields)))
 
 
+def endpoint_measurement_context(row: dict, canonical_label: str, raw_label: object) -> str:
+    context = " ".join(endpoint_value(v) for v in (raw_label, row.get("pathway_or_readout", ""), row.get("readout_or_biomarker", ""), row.get("readout_or_measure", ""), row.get("outcome_measure", "")))
+    base = display_anchor_label(canonical_label)
+    if base:
+        measurement = r"(?:(?:protein|gene|mRNA|transcript)\s+)?(?:expression|levels?|concentrations?|phosphorylation|release|uptake|availability|density|trafficking|activation|genotype|methylation)"
+        pattern = re.compile(rf"\b{re.escape(base)}\s+{measurement}\b|\b{measurement}\s+of\s+{re.escape(base)}\b", re.I)
+        for field in ("finding_summary", "support"):
+            context += " " + " ".join(m.group(0) for m in pattern.finditer(normalize(row.get(field, ""))))
+    raw = endpoint_value(raw_label)
+    if raw and len(raw) <= 80:
+        local_action = re.compile(rf"\b{re.escape(raw)}\s+(?:was |were |is |are )?(?:activated|phosphorylated|expressed)\b", re.I)
+        for field in ("finding_summary", "support"):
+            context += " " + " ".join(m.group(0) for m in local_action.finditer(normalize(row.get(field, ""))))
+    return context
+
+
 def molecular_readout_display_label(row: dict, canonical_label: str, raw_label: object) -> str:
-    context = pathway_readout_context(row, raw_label)
+    if first_endpoint_value(row, ("specific_readout_or_marker",)):
+        # Primary-study markers already name the observed readout. Summaries
+        # can describe other analytes, genotypes, and null contrasts; deriving a
+        # suffix from them silently changes what this particular item measured.
+        return canonical_label
+    # Measurement suffixes must come from the endpoint/assay fields. A
+    # genotype, activation or concentration mentioned in result prose can
+    # belong to an entirely different molecule or experimental manipulation.
+    context = endpoint_measurement_context(row, canonical_label, raw_label)
     folded = ascii_fold(context)
     raw_folded = ascii_fold(endpoint_value(raw_label))
     base = display_anchor_label(canonical_label)
@@ -7250,7 +7501,7 @@ def molecular_readout_display_label(row: dict, canonical_label: str, raw_label: 
 
 
 def pathway_process_display_label(row: dict, canonical_label: str, raw_label: object, registry_item: dict | None) -> str:
-    context = pathway_readout_context(row, raw_label)
+    context = endpoint_measurement_context(row, canonical_label, raw_label)
     folded = ascii_fold(context)
     lowered = folded.casefold()
     base = display_anchor_label(canonical_label)
@@ -7305,6 +7556,24 @@ def pathway_readout_display_label(
     canonical_key = label_key(canonical_label)
     raw_key = label_key(raw_display_label)
     display_base = canonical_label
+    if entity_kind in MOLECULAR_EFFECT_ENTITY_KINDS and first_endpoint_value(row, ("specific_readout_or_marker",)) and raw_display_label:
+        legacy = first_endpoint_value(row, ("pathway_or_readout",))
+        qualifier = re.fullmatch(
+            re.escape(raw_display_label) + r"\s+(protein levels?|gene expression|mRNA expression|"
+            r"transcript levels?|concentrations?|phosphorylation|expression|activation|abundance|density)",
+            legacy, re.I,
+        )
+        if qualifier:
+            # Retain a precise measurement suffix when the legacy field is
+            # exactly the same marker plus that suffix, not a result sentence.
+            suffix = re.sub(r"\bprotein level\b", "protein levels", qualifier[1], flags=re.I)
+            return f"{raw_display_label} {suffix}"
+        aliases = [(registry_item or {}).get("label", ""), *(registry_item or {}).get("aliases", [])]
+        if raw_key in {label_key(alias) for alias in aliases if alias}:
+            if READOUT_PHOSPHORYLATION_RE.search(ascii_fold(raw_display_label)):
+                return label_with_suffix(canonical_label, "phosphorylation")
+            return canonical_label
+        return raw_display_label
     if raw_display_label and canonical_key and canonical_key in raw_key and len(raw_key) > len(canonical_key):
         display_base = raw_display_label
     if entity_kind == "biomarker_readout":
@@ -7434,6 +7703,23 @@ def persistent_adverse_psychiatric_or_perceptual_symptoms(row: dict) -> bool:
 
 def safety_endpoint_label(row: dict) -> str:
     endpoint_row = without_legacy_neuropsychiatric_labels(row)
+    focal = first_endpoint_value(endpoint_row, ("safety_event_or_measure", "safety_event_or_risk"))
+    if focal:
+        # Follow-up care and discontinuation text often names another organ or
+        # event. It must not turn a rash into renal toxicity, for example.
+        focal_for_category = focal
+        if re.search(r"\b(?:no|neither|without|not)\b", focal, re.I):
+            # Mixed paragraphs can report events and then a null serious-event
+            # or dropout clause. Their intact row keeps the leading observation
+            # category, not the later null clause with the parent's direction.
+            leading_clause = re.split(r";|\.\s+(?=[A-Z])", focal, maxsplit=1)[0]
+            if leading_clause and not re.search(r"\b(?:no|neither|without|not)\b", leading_clause, re.I):
+                focal_for_category = leading_clause
+        label = safety_category_for_text(focal_for_category)
+        if label:
+            return label
+        declared_category = safety_category_for_text(endpoint_row.get("safety_category", ""))
+        return declared_category if declared_category not in SAFETY_SUMMARY_LABELS else ""
     explicit_endpoint = " ".join(
         endpoint_value(endpoint_row.get(field, ""))
         for field in (
@@ -7460,6 +7746,14 @@ def safety_endpoint_label(row: dict) -> str:
 
 def safety_category_for_text(value: object) -> str:
     text = endpoint_value(value)
+    if re.fullmatch(r"falls?(?:\s+events?)?", text, re.I):
+        return "Sedation/cognitive or motor impairment"
+    if re.search(r"\b(?:participant[- ]reported harm|harm from study participation|do you feel you were harmed|survival during drug treatment)\b", text, re.I):
+        return "Overall tolerability"
+    if re.search(r"\buntoward effects\b", text, re.I):
+        return "Adverse events"
+    if re.search(r"(?:\[\s*3H\s*\]|radioligand|radiolabel\w*|paroxetine\s+binding)", text, re.I):
+        text = re.sub(r"\bparoxetine\b", "assay probe", text, flags=re.I)
     for pattern, label in SAFETY_ENDPOINT_PATTERNS:
         if pattern.search(text):
             return label
@@ -7745,6 +8039,7 @@ ENTITY_SPLIT_SEMANTIC_UNIT_RE = re.compile(
 
 
 def controlled_target_component_labels(value: object) -> list[str]:
+    value = receptor_identity_label(value)
     key = compact_key(value)
     word_key = label_key(value)
     if not key:
@@ -7805,16 +8100,56 @@ def controlled_target_component_labels(value: object) -> list[str]:
     return []
 
 
-def entity_split_candidates(value: object) -> list[str]:
+def scientific_list_parts(value: object) -> list[str]:
+    """Split top-level labels, preserving annotations, units, numbers and locants."""
     text = normalize(value)
-    if not text or not re.search(r"\s(?:and|or)\s|[;,/+]", text, flags=re.IGNORECASE):
+    depth = 0
+    depths: list[int] = []
+    for char in text:
+        depths.append(depth)
+        if char in "([":
+            depth += 1
+        elif char in ")]":
+            depth = max(0, depth - 1)
+    separators: list[tuple[int, int]] = []
+    for match in re.finditer(r"\s+(?:and/or|and|or)\s+|[;,；/+]", text, re.I):
+        start, end = match.span()
+        if depths[start]:
+            continue
+        token = match.group()
+        if token == "," and start and end < len(text):
+            if text[start - 1].isdigit() and text[end].isdigit():
+                continue
+            if re.search(r"\b[NOSR]$", text[:start], re.I) and re.match(r"\s*[NOSR]\b", text[end:], re.I):
+                continue
+        if token == "/" and re.search(r"\b(?:[munpµ]?g|[munµ]?l|u|mol|mmol|nmol|cm|mm)\s*$", text[:start], re.I) and re.match(r"\s*(?:[munµ]?l|kg|g|mol|s|min|h)\b", text[end:], re.I):
+            continue
+        if token == "/" and (
+            (start and end < len(text) and text[start - 1].isdigit() and text[end].isdigit())
+            or re.search(r"(?:positive|negative)$", text[:start], re.I)
+            or (re.search(r"\bKC$", text[:start]) and re.match(r"GRO\b", text[end:]))
+        ):
+            # ERK1/2 is not an ERK1 entity plus a numeric '2' entity; positive/
+            # negative immunostaining denotes a single co-labelled phenotype.
+            continue
+        if token == "+" and not (start and end < len(text) and text[start - 1].isspace() and text[end].isspace()):
+            continue
+        separators.append((start, end))
+    if not separators:
         return []
-    working = text.replace("；", ";")
-    working = re.sub(r"\s+and/or\s+", ";", working, flags=re.IGNORECASE)
-    working = re.sub(r"\s+(?:and|or)\s+", ";", working, flags=re.IGNORECASE)
-    working = re.sub(r"\s*[;,/+]\s*", ";", working)
-    working = re.sub(r"\s+", " ", working).strip("; ")
-    parts = [normalize(part).strip(" .") for part in working.split(";")]
+    parts: list[str] = []
+    previous = 0
+    for start, end in [*separators, (len(text), len(text))]:
+        part = normalize(text[previous:start]).strip(" .")
+        part = re.sub(r"^(?:and|or)\s+", "", part, flags=re.I)
+        if part:
+            parts.append(part)
+        previous = end
+    return parts if len(parts) > 1 else []
+
+
+def entity_split_candidates(value: object) -> list[str]:
+    parts = scientific_list_parts(value)
     parts = [part for part in parts if part]
     if len(parts) < 2 or len(parts) > ENTITY_SPLIT_MAX_PARTS:
         return []
@@ -7922,6 +8257,8 @@ def entity_expanded_rows(
         return [row]
 
     raw_entity_label = entity_label_for(row, domain, entity_kind)
+    if entity_kind in MOLECULAR_EFFECT_ENTITY_KINDS and is_cell_phenotype_intersection(raw_entity_label):
+        return [row]
     controlled_targets = controlled_target_component_labels(raw_entity_label)
     if controlled_targets and entity_kind in {"target", "system_family"}:
         split_rows: list[dict] = []
@@ -7945,13 +8282,20 @@ def entity_expanded_rows(
     if entity_kind == "safety_adverse_event":
         parts = entity_split_candidates(raw_entity_label)
         if parts:
+            if re.search(r"\b(?:no|neither|without|not)\b", raw_entity_label, re.I):
+                # A shared negation ("no X or Y") cannot be dropped from Y;
+                # nor can a mixed row's overall direction be assigned to each
+                # component. Keep the intact observation and its full context.
+                return [row]
             split_rows: list[dict] = []
+            unmapped_parts: list[str] = []
             normalized_labels: set[str] = set()
             for part in parts:
                 split_row = entity_split_row(row, entity_kind, part, raw_entity_label)
                 split_row["safety_event_or_measure"] = part
                 parent_label = safety_category_for_text(part)
                 if not parent_label:
+                    unmapped_parts.append(part)
                     continue
                 specific_label = safety_specific_endpoint_label(split_row, parent_label)
                 key = label_key(specific_label)
@@ -7960,13 +8304,25 @@ def entity_expanded_rows(
                 normalized_labels.add(key)
                 split_rows.append(split_row)
             if len(split_rows) > 1:
+                if unmapped_parts:
+                    for split_row in split_rows:
+                        split_row["entity_split_unmapped_parts_json"] = json_dumps(unmapped_parts)
                 return split_rows
     if domain == "brain_system" or entity_kind in BRAIN_SYSTEM_ENTITY_KINDS:
         brain_matches = brain_entity_split_matches(raw_entity_label, node_vocabulary)
         if brain_matches:
+            unmatched = []
+            for part in brain_entity_list_parts(raw_entity_label):
+                exact = exact_node_vocabulary_matches(part, BRAIN_SYSTEM_ENTITY_KINDS, node_vocabulary)
+                contained = node_vocabulary_hits_in_text(part, BRAIN_SYSTEM_ENTITY_KINDS, node_vocabulary)
+                if not exact and not (len(contained) == 1 or (contained and BRAIN_RELATIONAL_LABEL_RE.search(part))):
+                    unmatched.append(part)
             split_rows: list[dict] = []
             for split_kind, split_label in brain_matches:
-                split_rows.append(entity_split_row(row, split_kind, split_label, raw_entity_label))
+                split_row = entity_split_row(row, split_kind, split_label, raw_entity_label)
+                if unmatched:
+                    split_row["entity_split_unmapped_parts_json"] = json_dumps(unmatched)
+                split_rows.append(split_row)
             return split_rows
 
     initial_match = graphable_entity_match(row, domain, entity_kind, raw_entity_label, registry, node_vocabulary)
@@ -8081,35 +8437,7 @@ def molecular_specific_anchor_label(row: dict, entity_kind: str) -> str:
     if normalize(entity_kind).casefold() == "biomarker_readout" and candidates:
         specific = first_endpoint_value(row, ("specific_readout_or_marker",))
         if specific and not generic_molecular_effect_placeholder(specific):
-            generic_tokens = {
-                "activation",
-                "activity",
-                "change",
-                "density",
-                "expression",
-                "level",
-                "levels",
-                "marker",
-                "mrna",
-                "protein",
-                "readout",
-            }
-
-            def anchor_tokens(value: str) -> set[str]:
-                return {
-                    token
-                    for token in re.findall(r"[a-z0-9]+", normalize(value).casefold())
-                    if len(token) > 1 and token not in generic_tokens
-                }
-
-            specific_tokens = anchor_tokens(specific)
-            related = [
-                value
-                for value in candidates
-                if value == specific or (specific_tokens and specific_tokens & anchor_tokens(value))
-            ]
-            if related:
-                return max(related, key=lambda value: (len(normalize(value)), normalize(value)))
+            return specific
     for value in candidates:
         if not category or label_key(value) != label_key(category):
             return value
@@ -8200,13 +8528,20 @@ def normalized_explicit_system(value: object) -> str:
     if not text:
         return ""
     key = ascii_fold(text).replace("_", " ").strip()
+    if key == "clinical":
+        return "clinical"
+    if key in {"computational", "in silico", "computational model", "computational study"}:
+        return "computational"
     return SYSTEM_NORMALIZATION.get(key, "")
 
 
 def inferred_experimental_system(row: dict) -> str:
-    explicit = normalized_explicit_system(row.get("system", ""))
-    if explicit:
-        return explicit
+    for field in ("experimental_system_category", "population_model_category"):
+        explicit = normalized_explicit_system(row.get(field, ""))
+        if explicit:
+            return explicit
+    if normalized_explicit_system(row.get("study_design_category", "")) == "computational":
+        return "computational"
 
     text = ascii_fold(" ".join(normalize(row.get(field, "")) for field in EXPERIMENTAL_SYSTEM_TEXT_FIELDS))
     if not text:
@@ -8215,6 +8550,9 @@ def inferred_experimental_system(row: dict) -> str:
         return "in_vitro"
     if SYSTEM_EX_VIVO_RE.search(text):
         return "ex_vivo"
+    explicit = normalized_explicit_system(row.get("system", ""))
+    if explicit:
+        return explicit
     if SYSTEM_CLINICAL_RE.search(text):
         return "clinical"
     if SYSTEM_IN_VIVO_RE.search(text):
@@ -8326,6 +8664,13 @@ def normalized_public_health_data_source_type(row: dict) -> str:
 
 
 def public_health_graph_label(row: dict) -> str:
+    focal_measure = first_endpoint_value(row, ("public_health_measure", "outcome_measure"))
+    if re.search(r"\b(?:recreational[- ]use|dependent[- ]use|use context)\b", focal_measure, re.I):
+        return "Use patterns & practices"
+    if re.search(r"\b(?:annual deaths?|death counts?|mortality (?:rate|trend)|number of deaths?)\b", focal_measure, re.I):
+        return "Acute harms & healthcare use"
+    if re.search(r"\brecreational\s+(?:vs\.?|versus)\s+dependent\b", focal_measure, re.I):
+        return "Use patterns & practices"
     explicit_labels = [
         first_endpoint_value(row, (field,))
         for field in (
@@ -8375,6 +8720,11 @@ def withdrawal_condition_label(row: dict) -> str:
     measure_context = ascii_fold(" ".join(normalize(row.get(field, "")) for field in COGNITIVE_BEHAVIORAL_MEASURE_FIELDS))
     context = ascii_fold(" ".join(normalize(row.get(field, "")) for field in WITHDRAWAL_CONDITION_CONTEXT_FIELDS))
     if not WITHDRAWAL_ENDPOINT_RE.search(context):
+        return ""
+    focal_construct = first_endpoint_value(row, ("graph_construct_label", "construct_or_behavior", "graph_entity_label"))
+    if measure_context and not WITHDRAWAL_ENDPOINT_RE.search(measure_context) and not re.search(r"\bwithdrawal\b", focal_construct, re.I):
+        # Alcohol withdrawal may describe the animal model, while this row's
+        # measured endpoint is reward processing, memory or stress coping.
         return ""
     if GENERIC_LOCOMOTOR_CONTEXT_RE.search(measure_context) and not WITHDRAWAL_ENDPOINT_RE.search(measure_context):
         return ""
@@ -8443,6 +8793,8 @@ def cognitive_behavioral_rule_label(
     for label, pattern in COGNITIVE_BEHAVIORAL_RULES:
         if allowed_label_keys is not None and label_key(label) not in allowed_label_keys:
             continue
+        if label == "Drug self-administration" and re.search(r"\bsucrose preference\b", context, re.I) and not re.search(r"\b(?:alcohol|ethanol|cocaine|drug|opioid)\s+(?:intake|consumption|self[- ]administration)\b", context, re.I):
+            continue
         if pattern.search(context):
             return label
     return ""
@@ -8450,6 +8802,9 @@ def cognitive_behavioral_rule_label(
 
 def cognitive_behavioral_graph_label(row: dict) -> str:
     explicit_label = first_endpoint_value(row, ("cognitive_behavioral_graph_label", "graph_construct_label"))
+    explicit_detail = CONTROLLED_BEHAVIORAL_DETAIL_LABELS.get(label_key(explicit_label))
+    if explicit_detail:
+        return explicit_detail
     canonical_explicit, explicit_is_known = canonical_cognitive_behavioral_label(explicit_label)
     explicit_key = label_key(canonical_explicit)
     allowed_refinements = COGNITIVE_BEHAVIORAL_ALLOWED_REFINEMENTS.get(explicit_key)
@@ -8487,6 +8842,8 @@ def cognitive_behavioral_graph_label(row: dict) -> str:
     if canonical_label and label_is_known:
         return canonical_label
 
+    if canonical_label:
+        return canonical_label
     context_label = cognitive_behavioral_rule_label(row, COGNITIVE_BEHAVIORAL_CONTEXT_FIELDS)
     if context_label:
         return context_label
@@ -8525,6 +8882,9 @@ def subjective_experience_graph_label(row: dict) -> str:
     if label_match:
         return label_match
 
+    if canonical_label:
+        return canonical_label
+
     context_match = subjective_experience_rule_label(row, SUBJECTIVE_EXPERIENCE_CONTEXT_FIELDS)
     if context_match:
         return context_match
@@ -8534,10 +8894,16 @@ def subjective_experience_graph_label(row: dict) -> str:
 def molecular_effect_label(row: dict, entity_kind: str, entity_label: str) -> str:
     if normalize(entity_kind).casefold() not in MOLECULAR_EFFECT_ENTITY_KINDS:
         return ""
+    if is_activity_marker_cell_intersection(entity_label):
+        return "Gene expression & activity markers"
     exact_entity_label = canonical_molecular_effect_rule_label(entity_label)
     if exact_entity_label:
         return exact_entity_label
     explicit_label = first_endpoint_value(row, ("molecular_effect_label", "molecular_effect_category"))
+    if first_endpoint_value(row, ("specific_readout_or_marker",)):
+        explicit_category = canonical_molecular_effect_rule_label(row.get("molecular_effect_category", ""))
+        if explicit_category and label_key(explicit_category) == label_key(row.get("molecular_effect_category", "")):
+            return explicit_category
 
     def effect_from_context(fields: tuple[str, ...]) -> str:
         context = molecular_effect_context(row, entity_label, fields)
@@ -8560,6 +8926,8 @@ def molecular_effect_label(row: dict, entity_kind: str, entity_label: str) -> st
 def molecular_effect_graph_label(row: dict, entity_kind: str, entity_label: str) -> str:
     if normalize(entity_kind).casefold() not in MOLECULAR_EFFECT_ENTITY_KINDS:
         return ""
+    if is_activity_marker_cell_intersection(entity_label):
+        return "Gene expression & activity markers"
     exact_entity_label = canonical_molecular_effect_rule_label(entity_label)
     if exact_entity_label:
         return exact_entity_label
@@ -8627,6 +8995,8 @@ def graph_parent_mapping(
 
 
 def subjective_experience_safety_label(row: dict) -> str:
+    if normalize(row.get("endpoint_label_source", "")) == "subjective_symptom_scale_boundary":
+        return ""
     context = ascii_fold(" ".join(normalize(row.get(field, "")) for field in SUBJECTIVE_EXPERIENCE_SAFETY_CONTEXT_FIELDS))
     if SUBJECTIVE_EXPERIENCE_NONADVERSE_RE.search(context):
         return ""
@@ -9031,6 +9401,14 @@ def apply_psychosis_family_boundary(row: dict, domain: str) -> tuple[dict, str]:
         normalize(row.get(field, ""))
         for field in ("finding_summary", "support", "supporting_quote", "effect_or_statistic")
     )
+    scale_context = " ".join(normalize(row.get(field, "")) for field in ("outcome_measure", "subjective_measure", "scale_or_measure", "subjective_construct", "finding_summary", "support"))
+    if domain == "subjective_experience" and re.search(r"\b(?:VESSPA|CEQ|questionnaire|psychometric|subscale)\b", scale_context, re.I) and not serious_psychosis(statement):
+        row["kg_entity_kind_override"] = "subjective_experience_construct"
+        row["subjective_experience_graph_label"] = "Altered state profile"
+        row["graph_entity_label"] = "Altered state profile"
+        row["endpoint_label_source"] = "subjective_symptom_scale_boundary"
+        research_area_action(row, "subjective_symptom_score_not_clinical_psychosis")
+        return row, domain
     if domain == "clinical_outcome" and psychosis_anchor_is_context(anchor, statement):
         research_area_action(row, "psychosis_population_or_negation_not_safety")
         endpoint = normalize(row.get("clinical_endpoint", "")).casefold()
@@ -9046,7 +9424,12 @@ def apply_psychosis_family_boundary(row: dict, domain: str) -> tuple[dict, str]:
             row["graph_admission_status"] = "paper_detail"
             row["graph_admission_reason"] = "psychosis_population_anchor_without_resolved_endpoint"
         return row, domain
-    if PSYCHOTOMIMETIC_STATEMENT_RE.search(statement) and not serious_psychosis(statement):
+    explicit_behavioral_model = (
+        domain == "cognitive_behavioral"
+        and re.search(r"\bpsychotomimetic\b", anchor, re.I)
+        and re.search(r"\b(?:head[- ]twitch|htr|prepulse inhibition|ppi)\b", statement, re.I)
+    )
+    if (PSYCHOTOMIMETIC_STATEMENT_RE.search(statement) or explicit_behavioral_model) and not serious_psychosis(statement):
         domain = "cognitive_behavioral"
         row["domain"] = domain
         row["domain_route"] = domain
@@ -9107,6 +9490,60 @@ def entity_row(
     }
 
 
+def normalization_repair(row: dict, reason: str, fields: dict) -> None:
+    """Record deterministic repairs without altering the original extraction."""
+    try:
+        repairs = json.loads(row.get("normalization_repairs_json") or "[]")
+    except (TypeError, ValueError):
+        repairs = []
+    changes = {key: {"from": row.get(key, ""), "to": value} for key, value in fields.items() if row.get(key, "") != value}
+    if changes:
+        repairs.append({"rule": reason, "changes": changes})
+        row["normalization_repairs_json"] = json_dumps(repairs)
+        row.update(fields)
+
+
+def current_field_role_boundary(row: dict, domain: str) -> str:
+    """Use explicit current-schema descriptions; do not infer an event from a policy."""
+    anchor = " ".join(normalize(row.get(field, "")) for field in ("safety_event_or_measure", "safety_event_or_risk", "context_component", "subjective_construct", "outcome_measure"))
+    statement = " ".join(normalize(row.get(field, "")) for field in ("finding_summary", "support"))
+    design = " ".join(normalize(row.get(field, "")) for field in ("study_design", "data_source_or_study_design"))
+    reason = ""
+    if domain == "safety_tolerability":
+        if re.search(r"\b(?:informed consent|consent documents?|communication about|communication around)\b", anchor, re.I):
+            reason = "safety_documentation_not_observed_event"
+        elif re.search(r"\b(?:reported concern|perceived risk|anticipated risks?|not (?:an? )?observed|not measured|were not measured|not measured participant)\b", statement, re.I) and re.search(r"\b(?:concerns?|screening|exclusion|washout|practices?|facilitator|risk)\b", anchor, re.I):
+            reason = "anticipated_or_policy_safety_not_observed_event"
+        elif re.search(r"\b(?:qualitative|interviews?)\b", design, re.I) and re.search(r"\bconcerns?\b", anchor, re.I) and re.search(r"\bno adverse events\b.{0,80}\b(?:assessed|reported)\b", statement, re.I):
+            reason = "anticipated_or_policy_safety_not_observed_event"
+        elif re.search(r"\b(?:organizations?|facilitators?|providers?)\b", statement, re.I) and re.search(r"\b(?:exclusion criteria|washout requirements|screening|eligibility)\b", anchor, re.I):
+            reason = "organizational_safety_practice_not_observed_event"
+    validation_anchor = " ".join(normalize(row.get(field, "")) for field in ("subjective_construct", "study_design", "data_source_or_study_design", "finding_summary"))
+    association_text = " ".join(normalize(row.get(field, "")) for field in ("finding_summary", "support", "relationship_to_outcome", "effect_or_statistic", "statistic_or_value"))
+    dose_or_experience_association = bool(re.search(r"\b(?:dose|intensity)\b", association_text, re.I) and re.search(r"\b(?:correlat\w*|associat\w*|increased with|related)\b", association_text, re.I))
+    if domain == "subjective_experience" and not dose_or_experience_association and re.search(r"\b(?:factor (?:structure|analysis)|psychometric (?:validation|properties)|scale (?:validation|structure)|measurement invariance|internal consistency|reliability)\b", validation_anchor, re.I):
+        reason = "measurement_validation_not_drug_effect"
+    if domain == "pharmacokinetics_exposure":
+        pk_anchor = " ".join(normalize(row.get(field, "")) for field in ("pk_or_exposure_parameter", "pk_graph_object_label", "finding_summary", "support"))
+        if re.search(r"\b(?:assay validation|analytical[- ](?:process stability|method|validation|stability)|limit of (?:detection|quantification)|detection limits?|storage stability|sample stability|spiked (?:samples?|urine|plasma))\b", pk_anchor, re.I) and not re.search(r"\b(?:participants?|patients?|drivers?|volunteers?)\b.*\b(?:detect\w*|concentration|samples?)\b", statement, re.I):
+            reason = "analytical_validation_not_in_vivo_exposure"
+    if reason:
+        normalization_repair(row, reason, {"graph_admission_status": "paper_detail", "graph_admission_reason": reason})
+
+    exposure = first_endpoint_value(row, ("compound_or_exposure", "compound_or_intervention", "intervention_or_exposure", "graph_subject_label"))
+    sequential_adjunct = bool(
+        re.search(r"\b(?:lithium|magnesium|rapamycin|MK[- ]?801|risperidone|Salix mucronata)\b", exposure, re.I)
+        and re.search(r"\b(?:ketamine|psilocybin|MDMA|LSD)\b", exposure, re.I)
+        and re.search(r"\b(?:following|after|then|continuation|maintenance|sequential|followed by)\b", exposure, re.I)
+    )
+    if sequential_adjunct:
+        normalization_repair(row, "unresolved_adjunct_sequence_retained_as_package", {
+            "graph_subject_label": exposure, "graph_subject_kind": "treatment_regimen", "compound": exposure,
+            "graph_admission_status": "paper_detail", "graph_admission_reason": "adjunct_sequence_not_atomic_drug_result",
+        })
+    return domain
+
+
 def normalize_claim_metadata(row: dict, domain: str) -> dict:
     out = apply_research_area_boundaries({"domain": domain, **row})
     out = apply_review_context_metadata(out)
@@ -9117,9 +9554,18 @@ def normalize_claim_metadata(row: dict, domain: str) -> dict:
         out["coverage_focus_normalized"] = REVIEW_COVERAGE_FOCUS_LABELS.get(coverage_focus, "")
     domain = normalize(out.get("domain", "")) or normalize(out.get("domain_route", "")) or domain
     apply_graph_subject(out)
+    domain = current_field_role_boundary(out, domain)
     out["result_direction_normalized"] = normalized_result_direction(out.get("result_direction", ""))
     out["evidence_design"] = evidence_design_for(out)
     out, domain = apply_psychosis_family_boundary(out, domain)
+    safety_anchor = first_endpoint_value(out, ("safety_event_or_measure", "safety_event_or_risk", "graph_entity_label"))
+    if domain == "safety_tolerability" and re.search(r"\b(?:mitochondri\w*|oxidative phosphorylation|state [34] respiration)\b", safety_anchor, re.I) and not re.search(r"\b(?:apnea|dyspnea|breathing|respiratory arrest|respiratory depression)\b", safety_anchor, re.I):
+        domain = "molecular_pathway_readout"
+        normalization_repair(out, "cellular_respiration_not_respiratory_safety", {
+            "domain": domain, "domain_route": domain, "dataset": domain,
+            "kg_entity_kind_override": "biomarker_readout", "graph_entity_label": safety_anchor,
+            "specific_readout_or_marker": safety_anchor, "molecular_effect_category": "Cellular stress & mitochondrial function",
+        })
     if domain == "molecular_pathway_readout":
         explicit_category = label_key(first_endpoint_value(out, ("molecular_effect_label", "molecular_effect_category")))
         boundary_context = ascii_fold(
@@ -9791,6 +10237,15 @@ def graph_admission_decision(row: dict) -> tuple[str, str]:
     return "main_graph", "semantically_complete"
 
 
+def exact_exposure_identity_key(value: object) -> str:
+    text = normalize(value)
+    # label_key alone discards signs, collapsing (+), (-), and racemic material.
+    text = re.sub(r"\(\s*\+\s*\)", " dextrorotatory ", text)
+    text = re.sub(r"\(\s*[-−]\s*\)", " levorotatory ", text)
+    text = text.replace("±", " racemic ")
+    return label_key(text)
+
+
 def proposition_identifiers(row: dict, subject_label: str, entity_kind: str, entity_label: str) -> tuple[str, str]:
     typed_anchors = tuple(
         label_key(row.get(field, ""))
@@ -9817,11 +10272,19 @@ def proposition_identifiers(row: dict, subject_label: str, entity_kind: str, ent
             "pk_or_exposure_parameter",
             "metabolite_or_analyte",
             "relationship_anchors_json",
+            "tissue_or_sample",
+            "tissue_or_cell_type",
+            "matrix",
+            "matrix_or_sample_type",
+            "sampling_time_or_window",
         )
     )
     core = (
         normalize_doi(row.get("study_doi", "")),
         label_key(subject_label),
+        # The overview may intentionally group stereoisomers at one compound
+        # node; the underlying observations must retain their exact exposure.
+        exact_exposure_identity_key(row.get("compound_or_exposure", "") or row.get("compound_original", "")),
         label_key(row.get("graph_subject_label", "") or row.get("intervention_or_exposure", "")),
         normalized_entity_kind(entity_kind),
         label_key(entity_label),
@@ -9832,8 +10295,8 @@ def proposition_identifiers(row: dict, subject_label: str, entity_kind: str, ent
         label_key(row.get("comparator", "")),
         label_key(row.get("clinical_endpoint", "")),
         label_key(row.get("outcome_measure", "")),
-        label_key(row.get("assessment_timepoint", "") or row.get("follow_up_duration", "") or row.get("time_window", "")),
-        label_key(row.get("dose", "") or row.get("dose_or_regimen", "")),
+        label_key(row.get("assessment_timepoint", "") or row.get("follow_up_duration", "") or row.get("time_window", "") or row.get("timepoint_or_phase", "")),
+        label_key(row.get("dose", "") or row.get("dose_or_regimen", "") or row.get("dose_or_exposure", "")),
         label_key(row.get("route", "") or row.get("administration_route", "")),
         label_key(row.get("meta_analysis_result_role", "")),
         label_key(row.get("meta_analysis_subgroup_or_moderator", "")),
@@ -10270,6 +10733,19 @@ def build_tables(
             entity_kind = entity_match["kind"]
             canonical_entity_label = entity_match["label"]
             registry_item = entity_match["item"]
+            if entity_match.get("match_type") in {"unregistered_chemical_identity_detail_only", "unmapped_safety_endpoint_detail_only", "context_measure_without_canonical_parent_detail_only", "unmapped_construct_detail_only", "pooled_condition_detail_only", "nondiagnostic_use_detail_only"}:
+                reason = {
+                    "unregistered_chemical_identity_detail_only": "chemical_object_identity_requires_registry_resolution",
+                    "unmapped_safety_endpoint_detail_only": "specific_safety_endpoint_requires_vocabulary_resolution",
+                    "context_measure_without_canonical_parent_detail_only": "context_measure_requires_faithful_parent",
+                    "unmapped_construct_detail_only": "explicit_construct_requires_vocabulary_resolution",
+                    "pooled_condition_detail_only": "pooled_condition_requires_faithful_identity",
+                    "nondiagnostic_use_detail_only": "use_without_diagnostic_evidence",
+                }[entity_match["match_type"]]
+                normalization_repair(row, "unresolved_canonical_identity_preserved", {
+                    "graph_admission_status": "paper_detail",
+                    "graph_admission_reason": reason,
+                })
             if domain == "molecular_target" and entity_kind in {"pathway_process", "biomarker_readout"}:
                 domain = "molecular_pathway_readout"
                 dataset = domain

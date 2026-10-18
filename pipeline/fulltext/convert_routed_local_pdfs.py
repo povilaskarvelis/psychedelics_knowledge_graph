@@ -84,7 +84,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_DOMAIN_ROUTING_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_domain_routing_gemini.parquet"
+DEFAULT_DOMAIN_ROUTING_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_domain_routing.parquet"
 DEFAULT_OUT_DIR = DEFAULT_FULLTEXT_DIR / "articles"
 DEFAULT_REPORT = DEFAULT_FULLTEXT_DIR / "local_pdf_conversion_report.json"
 DEFAULT_SUMMARY_JSON = ROOT / "data" / "processed" / "corpus" / "paper_extraction_routes_summary.json"

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run route-aware extraction tasks through Gemini.
+"""Run route-aware extraction tasks through Luna.
 
 This runner reads `route_extraction_tasks.jsonl`, selects tasks with registered
 route profiles, applies the matching prompt/schema, validates outputs, and
@@ -69,14 +69,17 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
 
 
 ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from pipeline import llm
 DEFAULT_INPUT = ROOT / "data" / "processed" / "extraction" / "route_extraction_tasks.jsonl"
 DEFAULT_OUTPUT_DIR = ROOT / "data" / "processed" / "extraction"
 DEFAULT_ROUTED_RUN_ROOT = DEFAULT_OUTPUT_DIR / "routed_runs"
 DEFAULT_ENV = ROOT / ".env"
-DEFAULT_GEMINI_MODEL = "gemini-3-flash-preview"
-GENERIC_EXTRACTION_MODEL_ENV = "GEMINI_ROUTE_EXTRACTION_MODEL"
-ARTICLE_TEXT_EXTRACTION_MODEL_ENV = "GEMINI_ARTICLE_TEXT_EXTRACTION_MODEL"
-ABSTRACT_EXTRACTION_MODEL_ENV = "GEMINI_ABSTRACT_EXTRACTION_MODEL"
+DEFAULT_MODEL = "gpt-6-luna"
+GENERIC_EXTRACTION_MODEL_ENV = "OPENAI_ROUTE_EXTRACTION_MODEL"
+ARTICLE_TEXT_EXTRACTION_MODEL_ENV = "OPENAI_ARTICLE_TEXT_EXTRACTION_MODEL"
+ABSTRACT_EXTRACTION_MODEL_ENV = "OPENAI_ABSTRACT_EXTRACTION_MODEL"
 PACKET_INDEX_CACHE: dict[str, dict[str, dict]] = {}
 DISALLOWED_OUTPUT_CONTROL_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 RECOMMENDS_AGAINST_MARKER_RE = re.compile(
@@ -88,14 +91,14 @@ RECOMMENDS_AGAINST_MARKER_RE = re.compile(
 SOURCE_IDENTITY_MISMATCH_WARNING_RE = re.compile(
     r"(?:"
     r"(?:doi|metadata|study title|title(?: provided| in (?:the )?metadata)?)"
-    r".{0,180}?(?:does not match|mismatch(?:ed)?|appears (?:to be )?mismatched)"
+    r".{0,180}?(?:do(?:es)? not match|mismatch(?:ed)?|appears (?:to be )?mismatched)"
     r".{0,180}?(?:abstract|content|text)"
     r"|"
     r"(?:doi|study title|title).{0,180}?appear(?:s)? to be for"
     r".{0,180}?but (?:the )?(?:abstract|content|text)"
     r"|"
     r"(?:abstract|content|text)"
-    r".{0,180}?(?:does not match|mismatch(?:ed)?|appears (?:to be )?mismatched)"
+    r".{0,180}?(?:do(?:es)? not match|mismatch(?:ed)?|appears (?:to be )?mismatched)"
     r".{0,180}?(?:doi|metadata|study title|title)"
     r")",
     re.IGNORECASE | re.DOTALL,
@@ -278,12 +281,12 @@ def parse_json_response(text: str) -> tuple[dict, str]:
                 last_error = err
                 continue
             if not isinstance(parsed, dict):
-                raise ValueError("Gemini response JSON was not an object")
+                raise ValueError("Luna response JSON was not an object")
             method = "local_cleanup" if stripped != text.strip() or candidate != stripped or used_cleanup else "not_needed"
             return parsed, method
     if last_error:
         raise last_error
-    raise json.JSONDecodeError("Gemini response JSON was empty", stripped, 0)
+    raise json.JSONDecodeError("Luna response JSON was empty", stripped, 0)
 
 
 def compact_nonempty_dict(value: dict) -> dict:
@@ -767,44 +770,18 @@ def selected_tasks(tasks: list[dict], args: argparse.Namespace) -> list[tuple[in
     return selected
 
 
-def usage_dict(response: object) -> dict:
-    usage = getattr(response, "usage_metadata", None)
-    if usage is None:
-        return {}
-    try:
-        return usage.model_dump()
-    except Exception:
-        return {}
+def usage_dict(response):
+    return llm.usage_dict(response)
 
 
-def build_generation_config(
-    *,
-    system_instruction: str,
-    schema: dict,
-    schema_mode: str,
-    temperature: float,
-    max_output_tokens: int,
-    thinking_budget: int | None = None,
-) -> object:
-    from google.genai import types
-
-    config = {
-        "response_mime_type": "application/json",
-        "temperature": temperature,
-        "max_output_tokens": max_output_tokens,
-        "system_instruction": system_instruction,
-    }
-    if schema_in_native_config(schema_mode):
-        config["response_json_schema"] = schema
-    if thinking_budget is not None:
-        config["thinking_config"] = types.ThinkingConfig(thinking_budget=thinking_budget)
-    return types.GenerateContentConfig(**config)
+def build_generation_config(**kwargs):
+    return llm.generation_config(**kwargs)
 
 
 def max_output_tokens_for_task(task: dict, profile: RouteExtractionProfile, args: argparse.Namespace) -> int:
     if int(args.max_output_tokens or 0) > 0:
         return int(args.max_output_tokens)
-    return profile.default_max_output_tokens
+    return max(16384, profile.default_max_output_tokens)
 
 
 def domain_route_for_task(task: dict) -> str:
@@ -827,29 +804,31 @@ def configured_model(env_values: dict[str, str], key: str) -> str:
 def model_for_task(args: argparse.Namespace, task: dict, env_values: dict[str, str] | None = None) -> str:
     explicit_model = normalize(args.model)
     if explicit_model:
+        llm.require_luna(explicit_model)
+    if explicit_model:
         return explicit_model
     env_values = env_values if env_values is not None else load_dotenv(Path(args.env_file).resolve())
     text_depth = text_depth_for_task(task)
     if text_depth == "article_text":
         model = configured_model(env_values, ARTICLE_TEXT_EXTRACTION_MODEL_ENV)
         if model:
-            return model
+            return llm.require_luna(model)
     if text_depth == "abstract_only":
         model = configured_model(env_values, ABSTRACT_EXTRACTION_MODEL_ENV)
         if model:
-            return model
-    return (
+            return llm.require_luna(model)
+    return llm.require_luna(
         configured_model(env_values, GENERIC_EXTRACTION_MODEL_ENV)
-        or configured_model(env_values, "GEMINI_MODEL")
-        or DEFAULT_GEMINI_MODEL
+        or configured_model(env_values, "OPENAI_MODEL")
+        or DEFAULT_MODEL
     )
 
 
 def api_key_from_env(args: argparse.Namespace, env_values: dict[str, str] | None = None) -> str:
     env_values = env_values if env_values is not None else load_dotenv(Path(args.env_file).resolve())
-    api_key = env_values.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY", "")
+    api_key = env_values.get("OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY", "")
     if not api_key:
-        raise SystemExit("GEMINI_API_KEY is missing. Add it to project .env or the environment.")
+        raise SystemExit("OPENAI_API_KEY is missing. Add it to project .env or the environment.")
     return api_key
 
 
@@ -880,7 +859,7 @@ def dry_run_report(tasks: list[dict], selected: list[tuple[int, dict]], args: ar
             "start_index": max(1, int(args.start_index)),
             "limit": int(args.limit),
             "model_override": normalize(args.model),
-            "thinking_budget": args.thinking_budget,
+            "reasoning_effort": "low",
         },
         "supported_profiles": supported_profile_keys(),
         "tasks_read": len(tasks),
@@ -912,6 +891,9 @@ def run_tasks(args: argparse.Namespace) -> dict:
     raw_jsonl = Path(args.raw_jsonl).resolve()
     report_json = Path(args.report_json).resolve()
     tasks = read_jsonl(input_jsonl)
+    if input_jsonl == DEFAULT_INPUT.resolve():
+        llm.require_screening_complete()
+    llm.reject_retired_provenance(tasks)
     if any(task_uses_legacy_v1_secondary_profile(task) for task in tasks):
         raise SystemExit(legacy_v1_secondary_block_message(tasks))
 
@@ -926,10 +908,8 @@ def run_tasks(args: argparse.Namespace) -> dict:
         write_json(report_json, report)
         return report
 
-    from google import genai
-
     env_values = load_dotenv(Path(args.env_file).resolve())
-    client = genai.Client(api_key=api_key_from_env(args, env_values))
+    client = llm.client(api_key_from_env(args, env_values))
     status_counts: Counter = Counter()
     profile_counts: Counter = Counter()
     schema_counts: Counter = Counter()
@@ -971,9 +951,10 @@ def run_tasks(args: argparse.Namespace) -> dict:
             flush=True,
         )
         try:
-            response = client.models.generate_content(
+            response = llm.generate_structured(client,
                 model=model,
                 contents=build_contents(task),
+                raw_path=raw_jsonl.parent / "responses" / (llm.hashlib.sha256((str(task.get("route_id"))+str(task.get("input_fingerprint"))).encode()).hexdigest()+".json"),
                 config=build_generation_config(
                     system_instruction=system_instruction,
                     schema=native_schema,
@@ -1062,7 +1043,7 @@ def run_tasks(args: argparse.Namespace) -> dict:
             "start_index": max(1, int(args.start_index)),
             "limit": int(args.limit),
             "model_override": normalize(args.model),
-            "thinking_budget": args.thinking_budget,
+            "reasoning_effort": "low",
         },
         "outputs": {
             "out_jsonl": str(out_jsonl),
@@ -1091,7 +1072,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--raw-jsonl", default="")
     parser.add_argument("--report-json", default="")
     parser.add_argument("--env-file", default=str(DEFAULT_ENV))
-    parser.add_argument("--model", default="", help="Override GEMINI_MODEL from .env")
+    parser.add_argument("--model", default="", help="Override OPENAI_MODEL from .env")
     parser.add_argument("--schema-mode", choices=SCHEMA_MODES, default="native")
     parser.add_argument("--prompt-profile", action="append", default=[])
     parser.add_argument("--schema-profile", action="append", default=[])
@@ -1110,7 +1091,7 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Include unsupported profiles in dry-run reports; live runs still fail if selected.",
     )
-    parser.add_argument("--dry-run", action="store_true", help="Inspect selected tasks without making Gemini API calls")
+    parser.add_argument("--dry-run", action="store_true", help="Inspect selected tasks without making Luna API calls")
     parser.add_argument("--overwrite", action="store_true")
     parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument("--max-output-tokens", type=int, default=0, help="0 uses the route profile default")

@@ -6,13 +6,13 @@ from pathlib import Path
 
 import pandas as pd
 
-from pipeline.review.run_gemini_domain_routing_batch import (
+from pipeline.review.run_domain_routing_batch import (
     batch_line_key,
     parse_batch_results,
     response_text,
     write_batch_requests,
 )
-from pipeline.review.advance_gemini_domain_routing_batch_queue import (
+from pipeline.review.advance_domain_routing_batch_queue import (
     parse_args as parse_advance_queue_args,
     rebuild_combined_outputs,
 )
@@ -57,7 +57,7 @@ class GeminiDomainRoutingBatchTests(unittest.TestCase):
         self.assertEqual(batch_line_key({"metadata": {"key": "request-1"}}, 9), "request-1")
         self.assertEqual(batch_line_key({}, 9), "row-9")
         self.assertEqual(
-            response_text({"candidates": [{"content": {"parts": [{"text": "hello"}, {"text": " world"}]}}]}),
+            response_text({"status":"completed","model":"gpt-6-luna","usage":{"input_tokens":10,"output_tokens":20},"output":[{"type":"message","content":[{"type":"output_text","text":"hello"}]},{"type":"message","content":[{"type":"output_text","text":" world"}]}]}),
             "hello world",
         )
 
@@ -73,7 +73,7 @@ class GeminiDomainRoutingBatchTests(unittest.TestCase):
                 raw_jsonl=str(tmp / "raw.jsonl"),
                 doi_file="",
                 env_file=str(tmp / ".env"),
-                model="gemini-3-flash-preview",
+                model="gpt-6-luna",
                 limit=0,
                 start_index=1,
                 temperature=0.0,
@@ -88,10 +88,10 @@ class GeminiDomainRoutingBatchTests(unittest.TestCase):
             request_line = json.loads(batch_jsonl.read_text(encoding="utf-8").splitlines()[0])
 
             self.assertEqual(manifest["summary"]["prepared_requests"], 1)
-            self.assertEqual(request_line["key"], "domain-routing-000001")
-            self.assertIn("systemInstruction", request_line["request"])
-            self.assertIn("responseJsonSchema", request_line["request"]["generationConfig"])
-            self.assertIn("Title: Psilocybin therapy and depression outcomes", request_line["request"]["contents"][0]["parts"][0]["text"])
+            self.assertEqual(request_line["custom_id"], "domain-routing-000001")
+            self.assertIn("instructions", request_line["body"])
+            self.assertEqual(request_line["body"]["text"]["format"]["type"], "json_schema")
+            self.assertIn("Title: Psilocybin therapy and depression outcomes", request_line["body"]["input"])
 
     def test_parse_batch_results_writes_routing_table_and_raw_jsonl(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -107,7 +107,7 @@ class GeminiDomainRoutingBatchTests(unittest.TestCase):
             manifest_json.write_text(
                 json.dumps(
                     {
-                        "inputs": {"model": "gemini-3-flash-preview"},
+                        "inputs": {"model": "gpt-6-luna"},
                         "records": [{"key": "domain-routing-000001", "input_row_index": 1, "doi": "10.1000/domain"}],
                     }
                 ),
@@ -129,10 +129,7 @@ class GeminiDomainRoutingBatchTests(unittest.TestCase):
                 json.dumps(
                     {
                         "key": "domain-routing-000001",
-                        "response": {
-                            "candidates": [{"content": {"parts": [{"text": json.dumps(model_payload)}]}}],
-                            "usageMetadata": {"promptTokenCount": 10, "candidatesTokenCount": 20},
-                        },
+                        "response": {"status_code":200,"body":{"status":"completed","model":"gpt-6-luna","usage":{"input_tokens":10,"output_tokens":20},"output":[{"type":"message","content":[{"type":"output_text","text":json.dumps(model_payload)}]}]}},
                     }
                 )
                 + "\n",
@@ -194,7 +191,7 @@ class GeminiDomainRoutingBatchTests(unittest.TestCase):
             manifest_json.write_text(
                 json.dumps(
                     {
-                        "inputs": {"model": "gemini-3-flash-preview"},
+                        "inputs": {"model": "gpt-6-luna"},
                         "records": [
                             {
                                 "key": "domain-routing-016052",
@@ -246,7 +243,7 @@ class GeminiDomainRoutingBatchTests(unittest.TestCase):
             manifest_json.write_text(
                 json.dumps(
                     {
-                        "inputs": {"model": "gemini-3-flash-preview"},
+                        "inputs": {"model": "gpt-6-luna"},
                         "records": [{"key": "domain-routing-000001", "doi": "10.1000/domain"}],
                     }
                 ),
@@ -287,7 +284,7 @@ class GeminiDomainRoutingBatchTests(unittest.TestCase):
             manifest_json.write_text(
                 json.dumps(
                     {
-                        "inputs": {"model": "gemini-3-flash-preview"},
+                        "inputs": {"model": "gpt-6-luna"},
                         "records": [{"key": "domain-routing-000001", "doi": "10.1000/domain"}],
                     }
                 ),
@@ -357,8 +354,8 @@ class GeminiDomainRoutingBatchTests(unittest.TestCase):
                 queue_json=str(tmp / "queue.json"),
                 manual_review_json="",
             )
-            part1_output = tmp / "paper_domain_routing_gemini.test_queue_part001.parquet"
-            part2_output = tmp / "paper_domain_routing_gemini.test_queue_part002.parquet"
+            part1_output = tmp / "paper_domain_routing.test_queue_part001.parquet"
+            part2_output = tmp / "paper_domain_routing.test_queue_part002.parquet"
             part1_routes.replace(part1_output)
             self.assertFalse(part2_routes.exists())
 
@@ -379,7 +376,7 @@ class GeminiDomainRoutingBatchTests(unittest.TestCase):
             prescreen = tmp / "prescreen.parquet"
             part_report = tmp / "part_report.json"
             part_raw = tmp / "part_raw.jsonl"
-            part_output = tmp / "paper_domain_routing_gemini.test_delta_part001.parquet"
+            part_output = tmp / "paper_domain_routing.test_delta_part001.parquet"
             base_row = {
                 "doi": "10.1000/base",
                 "domain_route": "clinical_outcome",

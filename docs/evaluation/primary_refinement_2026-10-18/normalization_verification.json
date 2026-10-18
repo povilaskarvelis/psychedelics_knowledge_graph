@@ -1,0 +1,348 @@
+{
+  "scope": "All saved outputs from the prior comparison, replayed without provider calls. Counts are projections, not correctness/accuracy rates. Repeated papers/arms are not independent samples.",
+  "cohorts": [
+    {
+      "cohort": "archival",
+      "arm": "archived",
+      "before": {
+        "raw_items": 542,
+        "represented_items": 465,
+        "main_items": 389,
+        "detail_items": 76,
+        "findings": 494,
+        "main_findings": 418,
+        "detail_findings": 76
+      },
+      "after": {
+        "raw_items": 542,
+        "represented_items": 476,
+        "main_items": 373,
+        "detail_items": 103,
+        "findings": 505,
+        "main_findings": 402,
+        "detail_findings": 103
+      },
+      "changed_items": 86,
+      "before_matches_previous_frozen_projection": true,
+      "input_tasks_sha256": "802b98d2711e2e7ffdefa0587882a3b937dc6df03591aae4dfa3ef34aba25c0c",
+      "input_outputs_sha256": "885b49d96a8a9884fb274a3cc55de5350a8d2c5a85065f1b1ae4e020743956d4",
+      "matched_current_domains": {
+        "tasks": 167,
+        "papers": 85,
+        "before": {
+          "raw_items": 491,
+          "represented_items": 428,
+          "main_items": 358,
+          "detail_items": 70,
+          "findings": 457,
+          "main_findings": 387,
+          "detail_findings": 70
+        },
+        "after": {
+          "raw_items": 491,
+          "represented_items": 438,
+          "main_items": 346,
+          "detail_items": 92,
+          "findings": 467,
+          "main_findings": 375,
+          "detail_findings": 92
+        }
+      }
+    },
+    {
+      "cohort": "controlled_historical",
+      "arm": "baseline",
+      "before": {
+        "raw_items": 91,
+        "represented_items": 79,
+        "main_items": 62,
+        "detail_items": 17,
+        "findings": 80,
+        "main_findings": 63,
+        "detail_findings": 17
+      },
+      "after": {
+        "raw_items": 91,
+        "represented_items": 80,
+        "main_items": 57,
+        "detail_items": 23,
+        "findings": 80,
+        "main_findings": 57,
+        "detail_findings": 23
+      },
+      "changed_items": 12,
+      "before_matches_previous_frozen_projection": true,
+      "input_tasks_sha256": "dd1e13d037a61f438d933d5da1c34105c7207df318564c6f0055020e9e4c963d",
+      "input_outputs_sha256": "57670d0713d229a9abcbff4cb2ec1bac8eecde965d6a595ddd0a037a9da94670"
+    },
+    {
+      "cohort": "controlled_historical",
+      "arm": "gemini",
+      "before": {
+        "raw_items": 106,
+        "represented_items": 93,
+        "main_items": 83,
+        "detail_items": 10,
+        "findings": 93,
+        "main_findings": 83,
+        "detail_findings": 10
+      },
+      "after": {
+        "raw_items": 106,
+        "represented_items": 94,
+        "main_items": 82,
+        "detail_items": 12,
+        "findings": 94,
+        "main_findings": 82,
+        "detail_findings": 12
+      },
+      "changed_items": 10,
+      "before_matches_previous_frozen_projection": true,
+      "input_tasks_sha256": "dd1e13d037a61f438d933d5da1c34105c7207df318564c6f0055020e9e4c963d",
+      "input_outputs_sha256": "a70401ff80312deb0393e8ab18ecfef35ab7221c9f01789aa849b0f29e203f4e"
+    },
+    {
+      "cohort": "controlled_historical",
+      "arm": "instructions",
+      "before": {
+        "raw_items": 133,
+        "represented_items": 110,
+        "main_items": 81,
+        "detail_items": 29,
+        "findings": 115,
+        "main_findings": 86,
+        "detail_findings": 29
+      },
+      "after": {
+        "raw_items": 133,
+        "represented_items": 113,
+        "main_items": 71,
+        "detail_items": 42,
+        "findings": 116,
+        "main_findings": 74,
+        "detail_findings": 42
+      },
+      "changed_items": 22,
+      "before_matches_previous_frozen_projection": true,
+      "input_tasks_sha256": "dd1e13d037a61f438d933d5da1c34105c7207df318564c6f0055020e9e4c963d",
+      "input_outputs_sha256": "438bfb725f5564efc93936dfd4c94c449fa4865d6344b238b78025c4949007de"
+    },
+    {
+      "cohort": "controlled_historical",
+      "arm": "structured",
+      "before": {
+        "raw_items": 124,
+        "represented_items": 103,
+        "main_items": 72,
+        "detail_items": 31,
+        "findings": 108,
+        "main_findings": 77,
+        "detail_findings": 31
+      },
+      "after": {
+        "raw_items": 124,
+        "represented_items": 106,
+        "main_items": 67,
+        "detail_items": 39,
+        "findings": 111,
+        "main_findings": 72,
+        "detail_findings": 39
+      },
+      "changed_items": 19,
+      "before_matches_previous_frozen_projection": true,
+      "input_tasks_sha256": "dd1e13d037a61f438d933d5da1c34105c7207df318564c6f0055020e9e4c963d",
+      "input_outputs_sha256": "3dbbc911f918c6bcc805db53371f4a82efcd3fb69195dcad7d359675bc01d8ba"
+    },
+    {
+      "cohort": "existing",
+      "arm": "baseline",
+      "before": {
+        "raw_items": 565,
+        "represented_items": 454,
+        "main_items": 374,
+        "detail_items": 80,
+        "findings": 490,
+        "main_findings": 407,
+        "detail_findings": 83
+      },
+      "after": {
+        "raw_items": 565,
+        "represented_items": 467,
+        "main_items": 362,
+        "detail_items": 105,
+        "findings": 503,
+        "main_findings": 395,
+        "detail_findings": 108
+      },
+      "changed_items": 56,
+      "before_matches_previous_frozen_projection": true,
+      "input_tasks_sha256": "d79e8c148bd7eac1b489125e814d8713a1df74e40702fb7dfa74e21e9ccc9ef8",
+      "input_outputs_sha256": "efe694e4dea911a06516460bc587fb8602ebf0be566f4caf784a87e6a2be1d53"
+    },
+    {
+      "cohort": "existing",
+      "arm": "instructions",
+      "before": {
+        "raw_items": 675,
+        "represented_items": 535,
+        "main_items": 427,
+        "detail_items": 108,
+        "findings": 593,
+        "main_findings": 480,
+        "detail_findings": 113
+      },
+      "after": {
+        "raw_items": 675,
+        "represented_items": 557,
+        "main_items": 412,
+        "detail_items": 145,
+        "findings": 617,
+        "main_findings": 465,
+        "detail_findings": 152
+      },
+      "changed_items": 86,
+      "before_matches_previous_frozen_projection": true,
+      "input_tasks_sha256": "d79e8c148bd7eac1b489125e814d8713a1df74e40702fb7dfa74e21e9ccc9ef8",
+      "input_outputs_sha256": "963f101594bc5824ab40824bc2173a28dec2c2148441dfb5fd3241a96f1a0d79"
+    },
+    {
+      "cohort": "existing",
+      "arm": "structured",
+      "before": {
+        "raw_items": 647,
+        "represented_items": 521,
+        "main_items": 413,
+        "detail_items": 108,
+        "findings": 579,
+        "main_findings": 464,
+        "detail_findings": 115
+      },
+      "after": {
+        "raw_items": 647,
+        "represented_items": 539,
+        "main_items": 396,
+        "detail_items": 143,
+        "findings": 598,
+        "main_findings": 445,
+        "detail_findings": 153
+      },
+      "changed_items": 90,
+      "before_matches_previous_frozen_projection": true,
+      "input_tasks_sha256": "d79e8c148bd7eac1b489125e814d8713a1df74e40702fb7dfa74e21e9ccc9ef8",
+      "input_outputs_sha256": "3357c554eb91eebdac180b53e53c733ae41a946644df42a2ccdb1bbafef129c8"
+    },
+    {
+      "cohort": "fresh",
+      "arm": "baseline",
+      "before": {
+        "raw_items": 124,
+        "represented_items": 98,
+        "main_items": 91,
+        "detail_items": 7,
+        "findings": 106,
+        "main_findings": 99,
+        "detail_findings": 7
+      },
+      "after": {
+        "raw_items": 124,
+        "represented_items": 101,
+        "main_items": 84,
+        "detail_items": 17,
+        "findings": 105,
+        "main_findings": 88,
+        "detail_findings": 17
+      },
+      "changed_items": 17,
+      "before_matches_previous_frozen_projection": true,
+      "input_tasks_sha256": "3e513db24edc54b99b2d343e0e1a4c2e0a2a1a099ced30d13798fe4a3b64fcf1",
+      "input_outputs_sha256": "1075300fe3fe8ed4a039a0c085d06bb45747079761e333a9d5bcf765dced6bb4"
+    },
+    {
+      "cohort": "fresh",
+      "arm": "gemini",
+      "before": {
+        "raw_items": 114,
+        "represented_items": 87,
+        "main_items": 77,
+        "detail_items": 10,
+        "findings": 98,
+        "main_findings": 86,
+        "detail_findings": 12
+      },
+      "after": {
+        "raw_items": 114,
+        "represented_items": 91,
+        "main_items": 76,
+        "detail_items": 15,
+        "findings": 102,
+        "main_findings": 85,
+        "detail_findings": 17
+      },
+      "changed_items": 31,
+      "before_matches_previous_frozen_projection": true,
+      "input_tasks_sha256": "6536a5907168c14183462495be2288ab6d78aba5554e3b491fcef57437df3e80",
+      "input_outputs_sha256": "106f57bfbe9f761da0f8f61500b121d67a0f0fab1813903c83dc76892a1d8585"
+    },
+    {
+      "cohort": "fresh",
+      "arm": "instructions",
+      "before": {
+        "raw_items": 150,
+        "represented_items": 126,
+        "main_items": 97,
+        "detail_items": 29,
+        "findings": 134,
+        "main_findings": 104,
+        "detail_findings": 30
+      },
+      "after": {
+        "raw_items": 150,
+        "represented_items": 130,
+        "main_items": 90,
+        "detail_items": 40,
+        "findings": 134,
+        "main_findings": 93,
+        "detail_findings": 41
+      },
+      "changed_items": 21,
+      "before_matches_previous_frozen_projection": true,
+      "input_tasks_sha256": "3e513db24edc54b99b2d343e0e1a4c2e0a2a1a099ced30d13798fe4a3b64fcf1",
+      "input_outputs_sha256": "27afa7f6bc74fb5f321559f086118c3de053e7a07a987e81e145bfadf4047820"
+    },
+    {
+      "cohort": "fresh",
+      "arm": "structured",
+      "before": {
+        "raw_items": 139,
+        "represented_items": 114,
+        "main_items": 90,
+        "detail_items": 24,
+        "findings": 135,
+        "main_findings": 105,
+        "detail_findings": 30
+      },
+      "after": {
+        "raw_items": 139,
+        "represented_items": 116,
+        "main_items": 83,
+        "detail_items": 33,
+        "findings": 131,
+        "main_findings": 92,
+        "detail_findings": 39
+      },
+      "changed_items": 21,
+      "before_matches_previous_frozen_projection": true,
+      "input_tasks_sha256": "3e513db24edc54b99b2d343e0e1a4c2e0a2a1a099ced30d13798fe4a3b64fcf1",
+      "input_outputs_sha256": "c311b7a821dab0ba9f2a9ce347c775b46b4128a2cb5377f2d21df41fa9943dc9"
+    }
+  ],
+  "before_projection_mismatches": 0,
+  "all_raw_items_unchanged": true,
+  "raw_items_across_arms": 3410,
+  "changed_item_instances": 471,
+  "projection_change_classes": {
+    "metadata_only": 194,
+    "anchor_or_admission": 277
+  },
+  "production_published": false
+}

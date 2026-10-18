@@ -1,0 +1,80 @@
+{
+  "date": "2026-10-18",
+  "status": "verified_for_staged_extraction_comparison",
+  "scope": "Frozen deterministic normalization for paired extraction evaluation. Partial chemical/linguistic coverage; not a claim that all extraction outputs or all graph links are scientifically correct. No production publication.",
+  "code_sha256": {
+    "data/curated/entity_registry.json": "f98a78be962fb975c9ad6533b1262be217d96db1d107e5e222e0a60991c9aa43",
+    "pipeline/extract/assay_family.py": "650635cb1326e0c9f73a9be5bbc694d5fdf139e57f5ed1519e5529b18ff2eb98",
+    "pipeline/extract/clinical_comparator.py": "f670d76fb653867cd4f97b8ee0f92b0bfd5e6f2a2456e02e2ddf4fff0b3718cd",
+    "pipeline/extract/clinical_followup_window.py": "905b632690716057ca2b45cf027fe26237ab485250d2afde301d55d8e7fa4247",
+    "pipeline/extract/io_utils.py": "490a20fc48620c6f528a6a3744e17e02f9a540181f6dcebd4662374f4e3a334e",
+    "pipeline/ingest/funding_metadata.py": "74072fb3ce2a4b2d4e222ea609ea491da71377819e1fe59bc2c76948b3df97d5",
+    "pipeline/ingest/http_safety.py": "79a7085d8fa4aa80f39a0a2e7323342a6acdff15469f7815519628f9f61d51bd",
+    "pipeline/ingest/materialize_candidate_funding.py": "d0ba5eba579bd291ba5ad6adae5628be65266955023850ee76937132a6ab3f33",
+    "pipeline/ingest/materialize_paper_open_science.py": "a74db5da2f75b1629e7f6e5aa8204ec747cdeb9e3b4954d29c60c26dda5c98ea",
+    "pipeline/ingest/metadata_utils.py": "d7e0183e007f566fb0c99be382ff8a3f25141819b4c809efde814f6e3ad42a6f",
+    "pipeline/ingest/open_science_features.py": "364e52da0517767cae77a158d4233eb282e9e5dcb8380971851643a7ec53680d",
+    "pipeline/kg/build_evidence_tables.py": "e97c57d09885868c6be19475868b33b164bf3de1e8f469674325c0443e17bafa",
+    "pipeline/kg/compound_combinations.py": "0c1fe6ac9bf7761db8ef5d0828177568e44958e35529914263b93668993a89da",
+    "pipeline/kg/convert_routed_extractions_to_evidence_rows.py": "abba9a504c112b3e35fd4ee56d541bb68e4cd37f824474b6bf773cbe8b349aec",
+    "pipeline/kg/graph_view_contract.py": "64fd4d7c726cebd63fc3b0c3bce4500b5d446d179d5c998f4a86678ddca608ab",
+    "pipeline/kg/pk_relationships.py": "882523ae89469e941f55b9d82e4162e01158422dabb86d5699e49cb469a2d65b",
+    "pipeline/kg/research_area_review.py": "ab946ec6c7b209131d80f893ea3dd178d889d64ec9fe2dc0825298b88067c538",
+    "pipeline/kg/use_contexts.py": "e4fe603d5c6d7ca933a0832db754141821149efa7bc623e5a1e6e35a87ddbe42",
+    "pipeline/publish/export_evidence_payload.py": "e3d592bf4dafb7877bd28519f54ee0a2c99f7e489bfbd1a712693f0c850fdca8",
+    "pipeline/publish/export_query_api.py": "e2daa04ee963d405aee1a70511cc713c53e8dad5039bf636f1141071ac9f1aab",
+    "schema/disorder_canonicalization.json": "18c668dc81d766c0a4e3804580e3bd4c994e39f5a7a224d067703ea3a77e9df8",
+    "schema/graph_view_contract.json": "53f04c0c5fd3163da64805298b60297a58c5a03795f71ee642be7c529b71958d",
+    "schema/kg_node_vocabularies.json": "c8bfa58f147c907f43a949f9513b435127fd6ee07884e495e110e682963b28fe",
+    "tests/test_primary_refinement_normalization.py": "a4fca323caf47c0a3aa0c0b79bff61478420fecbf3408bf5e07afad75f6cf929"
+  },
+  "changed_production_files": [
+    "pipeline/kg/build_evidence_tables.py",
+    "pipeline/kg/convert_routed_extractions_to_evidence_rows.py",
+    "pipeline/kg/pk_relationships.py"
+  ],
+  "tests": {
+    "passed": 273,
+    "subtests_passed": 305,
+    "files": 10,
+    "diff_check": "passed",
+    "log": "normalization_tests.log"
+  },
+  "replay_code_hashes_match_current": true,
+  "frozen_pk_helper_explicitly_rebound": true,
+  "all_before_projections_match_prior_saved_outputs": true,
+  "raw_item_instances": 3410,
+  "changed_projection_instances": 471,
+  "projection_change_classes": {
+    "metadata_only": 194,
+    "anchor_or_admission": 277
+  },
+  "cohort_count": 12,
+  "verification": "normalization_verification.json",
+  "per_item_change_review": "normalization_change_review.json",
+  "report": "normalization_repairs.md",
+  "peer_reviews": {
+    "fresh": {
+      "path": "normalization_replay/peer_review_fresh.json",
+      "sha256": "74c835027bf7a015a2f4c69c3a3c08c0d3241401b790312db78843a4d1451e66",
+      "changed_items_reviewed": 90,
+      "remaining_confirmed_new_regressions": 0
+    },
+    "controlled_and_archival": {
+      "path": "normalization_replay/peer_review_historical.json",
+      "sha256": "f02c2c425861a398fbff8236d5ed26a99c91e491b23f6cc95f562e920c4a9d37",
+      "changed_items_reviewed": 149,
+      "remaining_confirmed_new_regressions": 0
+    }
+  },
+  "remaining_limits": [
+    "Conservative detail-only identities/roles and intact mixed-safety observations can reduce individual overview links; complete scientific text is preserved.",
+    "Invalid self-metabolism assertions remain rejected/audited; valid narrative components within those items may lose public graph visibility.",
+    "Underlying extraction errors, source-text unit corruption and omitted findings are not corrected or counted as normalization success.",
+    "Broad-parent and domain-eligibility ambiguities remain separate from confirmed errors.",
+    "Eight experimental structured fields remain transported, not semantic normalization consumers.",
+    "Unknown derivatives require registry work for faithful atomic overview identities."
+  ],
+  "production_published": false,
+  "model_calls_in_normalization_stage": 0
+}

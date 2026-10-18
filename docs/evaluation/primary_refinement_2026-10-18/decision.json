@@ -1,0 +1,10 @@
+{
+  "candidate": "primary_instruction_refinement_v3",
+  "status": "not_promoted",
+  "reason": "Fresh sample did not meet predeclared promotion gate: small uncertain coverage gain, more material error items/papers, more entirely missing central groups.",
+  "current_production_prompt": "retained",
+  "primary_schemas": "unchanged",
+  "deterministic_normalization_repairs": "implemented_and_verified_with_documented_residuals",
+  "full_extraction_rerun": "not_started",
+  "report": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/docs/evaluation/primary_instruction_refinement_2026-10-18.md"
+}

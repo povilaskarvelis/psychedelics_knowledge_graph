@@ -1,0 +1,105 @@
+{
+  "date": "2026-10-18",
+  "purpose": "Version the scientific decisions, per-item judgments, references and verification alongside code; large source packets, raw responses and replay tables remain in ignored local data stores. No credentials or raw model-provider payloads copied.",
+  "source_directory": "data/processed/evaluation/primary_refinement_20261018",
+  "copied_artifacts": [
+    {
+      "path": "evaluation_protocol.md",
+      "sha256": "74f990abd87e5bb7825b3a117ced1619eefd0cea33f97fb82607eef78c261d01"
+    },
+    {
+      "path": "prompt_design_evidence.md",
+      "sha256": "8eea496860c220defea9f34e7eef1fd9d0304c170afb3a506b5d4371b217cc3e"
+    },
+    {
+      "path": "prompt_design_evidence.json",
+      "sha256": "a65a4d0721f6bc8c06bafba64f2a3a3ff7aead07319dfc4a2094810b82b5ce7f"
+    },
+    {
+      "path": "normalization_verified.json",
+      "sha256": "bc2ecff65ad42e6e2b9a1bf1bafc9f462c7fecc1106d0356d49f188301021abc"
+    },
+    {
+      "path": "normalization_verification.json",
+      "sha256": "a355b2fdb47d5e11e05801b097a75774dce3998af7e2649848d3f27095f3a3c6"
+    },
+    {
+      "path": "normalization_change_review.json",
+      "sha256": "8a6220b3bbae742900ddbc5a4f90bb569ed21e4fb2e664f610df45d4a4cbe910"
+    },
+    {
+      "path": "normalization_repairs.md",
+      "sha256": "4a0126999e021c3d23b2093e7224ebe3c9bf46dafc604913c25ed38c03c21f14"
+    },
+    {
+      "path": "baseline_contract_verification.json",
+      "sha256": "e31e217c869e0fe6774635a8bad9bbe12411604c88f1d6083fc18f4e56235225"
+    },
+    {
+      "path": "reference_corrections_20261018.json",
+      "sha256": "e2adb86e87b215848cb2b291305a70fa977a219ff4879f60113a09e0fb5f0b49"
+    },
+    {
+      "path": "masked_review_freeze.json",
+      "sha256": "46bc6ccc136d3d5c61ecc19c90f8d487dfc6ea78ad8bc0927715fb6be8f6490d"
+    },
+    {
+      "path": "scientific_summary.json",
+      "sha256": "88fb07ed6064f893fc6c42fca18cd9040a7ebbe3d2c9afc585284e0e8bf557e7"
+    },
+    {
+      "path": "execution_validation.json",
+      "sha256": "d15868501031b5fdb9b4b5a208f06c0e79e43d76b11d0ae9b618e84f83c9aa31"
+    },
+    {
+      "path": "review_integrity.json",
+      "sha256": "b63f00d9b66addd780f731afdc357e67703a7a9a43ff93dfecb932c61586c83f"
+    },
+    {
+      "path": "final_verification.json",
+      "sha256": "5205d09779ae9909cce99e9ea1bf63aad544d9caa820cadb23a6b3532a15a937"
+    },
+    {
+      "path": "decision.json",
+      "sha256": "133dc00318592208a9a6493014355bd60ff05608cb050390c7589d034803b900"
+    },
+    {
+      "path": "postvalidation_normalization/report.md",
+      "sha256": "2d1db0b64173c922a507c57d0b869b10ac89e9f119c9374b29b129555973d2f9"
+    },
+    {
+      "path": "postvalidation_normalization/verification.json",
+      "sha256": "dc1ff939b094436b44b26a7c5aba72b1333872d076ea3aa359c4839d519f12bc"
+    },
+    {
+      "path": "postvalidation_normalization/checkpoint_verification.json",
+      "sha256": "9669935813932c1a4c2c25c52426df1b7892a7808cde76d8d2f336ba27901d07"
+    },
+    {
+      "path": "postvalidation_normalization/peer_review_controlled_historical.json",
+      "sha256": "f2cf9f0b4ba6667f91e2b5f070a7f8b14d795a3b9ef4ecb39ff553e85c9665af"
+    },
+    {
+      "path": "postvalidation_normalization/peer_review_fresh.json",
+      "sha256": "6f93c5c14d53717e61dcc08e1d9cbeb139a0388ac042dd89033637e708c4d669"
+    },
+    {
+      "path": "postvalidation_normalization/p31_trusted_identity/summary.json",
+      "sha256": "6d7815fc970f3a32724adbeddace32b67f8642638135fe68d12e6400b7a07452"
+    },
+    {
+      "path": "postvalidation_normalization/p31_trusted_identity/scientific_projection_review.json",
+      "sha256": "0fe065c60e54aa382def6328a839f898689f5b0ef74449b64eff7750b09c4ccd"
+    },
+    {
+      "path": "reviews/fresh_independent_root.json",
+      "sha256": "572a35daf327cfd46f2bcfe787ede6dba997b63ccd1977e3bed6291633c91607"
+    },
+    {
+      "path": "reviews/peer_numeric_fresh_agent_a.json",
+      "sha256": "f029c8066e784c531268a71509ea5e1a31d1ad6faed48251e6feaa2e91f98ca6"
+    }
+  ],
+  "judgment_papers": 248,
+  "original_review_hashes_preserved": true
+}

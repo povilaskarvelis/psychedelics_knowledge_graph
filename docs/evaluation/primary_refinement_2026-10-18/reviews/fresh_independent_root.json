@@ -1,0 +1,67 @@
+{
+  "reviewer": "root independent of initial fresh reviewers",
+  "reviewed_at": "2026-10-18T04:45:22.066233+00:00",
+  "arm_keys_read": false,
+  "review_scope": "Four strict fresh-error cases, five affected items; independent of initial reviewers. Relevant source/claim review, not a second full-corpus audit.",
+  "checks": [
+    {
+      "audit_id": "N22",
+      "masked_arm": "X",
+      "item_indices": [
+        3
+      ],
+      "decision": "confirm_material_relationship_binding",
+      "reason": "Raw metabolized_via is paired to excretion_or_elimination / urinary excretion although the observation is nondetection in urine. The source establishes aromatic hydroxylation, but not urinary excretion as a metabolic pathway. Summary is faithful; the typed relationship is the error.",
+      "source_locators": [
+        "Abstract"
+      ],
+      "source_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/evaluation/primary_refinement_20261018/fresh/papers/N22/source.txt",
+      "source_sha256": "78020c9a1173e4db901dff2214dcaee19b70c3dfce459a621953982beb451556"
+    },
+    {
+      "audit_id": "N42",
+      "masked_arm": "Y",
+      "item_indices": [
+        2
+      ],
+      "decision": "confirm_material_unsupported_result_denominator",
+      "reason": "Read raw item, C030 HTR method, F007 and F012, and all n= contexts. Six/group belongs to 4-F,5-MeO-PyrT antagonist optimization; the supplied 5-MeO-MET HTR caption/method does not provide n. Count unsupported specificity, not proof the actual n was different.",
+      "source_locators": [
+        "C030",
+        "F007",
+        "F012"
+      ],
+      "source_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/evaluation/primary_refinement_20261018/fresh/papers/N42/source.txt",
+      "source_sha256": "5b0854596e00388eeff751c8d04bdfa5c71c27e9f3bb1e5ff3b8d7554451bd35"
+    },
+    {
+      "audit_id": "N64",
+      "masked_arm": "Y",
+      "item_indices": [
+        1,
+        2
+      ],
+      "decision": "confirm_material_numeric_binding",
+      "reason": "Table header n/Min/Max/Mdn/M/SD and row 52/2/29/14.5/13.8/7.4 are intact. Both raw regimen fields call 14.5 the mean. It is the median. Error concerns contextual regimen statistic, not the main subjective-rating estimates.",
+      "source_locators": [
+        "T002"
+      ],
+      "source_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/evaluation/primary_refinement_20261018/fresh/papers/N64/source.txt",
+      "source_sha256": "aa2a97e0e106f9750d489664c7e5697b167afd7a856646cbabd30d8e0b8533aa"
+    },
+    {
+      "audit_id": "N52",
+      "masked_arm": "X",
+      "item_indices": [
+        2
+      ],
+      "decision": "confirm_material_numeric_binding",
+      "reason": "Independently read intact T002 header and amphetamines row, neighboring individual-drug rows, and raw extraction. Header has Median/Mean/Range/N/Outliers/SD; amphetamines row has12.07/18.20/0.27\u2013182.13/177/10/22.43. Raw calls18.20 median and22.43 mean; unambiguous column shift.",
+      "source_locators": [
+        "T002"
+      ],
+      "source_file": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/evaluation/primary_refinement_20261018/fresh/papers/N52/source.txt",
+      "source_sha256": "f76fb4b76da5ac6b77329f7aa326404d65a1a7ccce8d26f6ec8d8623dbe24ee1"
+    }
+  ]
+}

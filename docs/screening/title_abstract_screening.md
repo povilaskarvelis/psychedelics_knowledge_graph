@@ -5,6 +5,121 @@ labels, MeSH terms, and keywords only as supporting context; these metadata can
 be incomplete or misleading and should not override clear title or abstract
 evidence.
 
+Screening scope and eligibility
+
+Decide eligibility before assigning domains or publication type. Apply the
+following scope rules to what the record actually studies or synthesizes.
+Domain matches do not establish eligibility.
+
+1. Substance scope
+"Psychedelic-related" includes classic psychedelics, MDMA and related
+entactogens, ketamine/esketamine/arketamine and their analogues,
+ibogaine/noribogaine, salvinorin A, and related psychedelic compounds.
+This includes established psychedelic tryptamines and psychedelic
+phenethylamines/amphetamines such as MMDA, and MDMA-related entactogens such
+as MDA and MDEA. These are examples, not an exhaustive compound list. A less
+familiar eligible compound is not out of scope merely because it is not named
+here. Structural similarity alone does not qualify an otherwise unrelated
+stimulant, anticholinergic, or nonpsychedelic compound.
+Original preclinical pharmacology, toxicology, and nonmedical-use research
+can qualify. A stimulant, dissociative, or nonclassic classification does not
+itself exclude these substances; other stimulants and psychoactive drugs are
+not automatically in scope.
+
+2. Require a substantive connection to an in-scope substance
+For original research, include a substantive result specifically attributable
+to an in-scope drug or class: an intervention effect, exposure estimate,
+subgroup or co-use association, use-pattern finding, or null result. Mixed-drug
+research qualifies when it reports such a drug-specific finding. A drug need
+not be the sole intervention or exposure. An original result specifically
+reported for a "hallucinogen" or "psychedelic" category counts as a class-specific
+finding even if its individual compounds are not listed. A class-specific
+association, predictor, correlate, use pattern, or null finding can qualify
+when the main study concerns another drug, condition, or social factor;
+being a secondary finding does not make it a background mention.
+
+A name in a background, recruitment, treatment, substrate, or assay list does
+not establish this connection. Neither does a proposed future application,
+possible treatment implication, or inference that a measured receptor, gene,
+enzyme, or mechanism might matter for a psychedelic. Establish an actual
+drug-specific experiment, exposure result, or substantial synthesis/analysis.
+Generic receptor biology, unrelated drug development, and music, meditation,
+or consciousness described as psychedelic-like are excluded on their own.
+
+3. Distinguish a drug experiment from a reagent or comparator
+An experiment that directly investigates an in-scope drug's own effects,
+mechanisms, pharmacokinetics, toxicity, or modification of those effects can
+qualify, including healthy volunteers, animal disease models, cells, and
+studies of rescue or prevention of drug toxicity. It need not demonstrate a
+psychiatric therapeutic benefit. Healthy-volunteer ketamine pharmacokinetics
+is eligible when drug exposure is the study question.
+
+Exclude a drug used merely as an assay reagent/radioligand or as a challenge
+probe or comparator to characterize another non-psychedelic treatment, when
+its own effects are not a substantive research question. The presence of a
+control drug or another tested compound does not by itself make a genuine
+ketamine or psychedelic experiment peripheral.
+
+4. Ketamine use exclusions depend on the research purpose
+Exclude work focused on ketamine-class drugs for anesthesia, procedural or
+general sedation, analgesia/pain treatment, or veterinary anesthesia.
+The analgesia exclusion applies to chronic and acute pain, including outside
+surgery. Safety monitoring within an otherwise excluded anesthesia or pain
+study does not establish eligibility.
+
+Include ketamine-class research with a substantive psychiatric, addiction,
+psychological-therapy, or otherwise eligible psychedelic-related question.
+Psychiatric efficacy, including depression or postpartum depression, can be
+studied around surgery or childbirth: the setting and the simultaneous use
+of anesthetics do not override a substantive psychiatric endpoint. Conversely,
+a pain endpoint does not become psychiatric evidence merely because mood is
+mentioned. Assess the actual question and results; an infusion, PK method,
+anesthesiology journal, or surgical setting alone is not grounds for exclusion.
+Research centered on ketamine's own nonmedical toxicity is eligible under
+the drug-experiment rule.
+
+5. Reviews, conceptual work, and policy analysis
+For reviews and evidence synthesis, an in-scope substance or class must be a
+central question or major synthesis topic. A broad treatment, suicide,
+neurobiology, or public-health review does not qualify solely because it
+lists or briefly discusses ketamine, MDMA, or a psychedelic. Positive evidence
+of substantial psychedelic-specific coverage is needed in a broad review;
+do not assume it from a treatment list. A review centered on an eligible drug
+can cover several contexts; apply the ketamine purpose rule to its main focus.
+
+Include substantive scholarly conceptual, policy, legal, or implementation
+analysis centrally addressing psychedelic evidence, regulation, access,
+liability, professional standards, training, or therapy delivery. Participant
+data are not required. The substance connection remains mandatory: a general
+drug-policy, policing, or mental-health essay with peripheral psychedelic
+examples is excluded. Unsupported brief opinion, news, and teaching summaries
+do not qualify. Hypothetical vignettes within a substantive analysis do not
+make it ineligible. Preserve the actual publication type rather than inventing
+a primary study or a formal guideline process to justify inclusion.
+
+6. Publication exclusions and uncertainty
+Exclude protocols/registrations without completed results, corrections,
+errata, peer-review/decision artifacts, citation/container records, and news
+or educational summaries without their own substantive findings or synthesis.
+An otherwise non-primary label does not veto actual completed findings,
+qualifying synthesis, or substantive policy/legal analysis.
+
+When a title or thin abstract indicates a plausible eligible drug-specific
+question and no clear exclusion applies, include to preserve recall. Distinguish
+missing detail from clear evidence of peripheral mention or an excluded use.
+This uncertainty rule cannot override a clear exclusion. A relevant empirical
+result is not peripheral merely because other drugs are also studied.
+
+7. Final decision check
+For inclusion, identify in the supplied record the qualifying drug-specific
+result or central synthesis/analysis (or the plausible eligible question for
+a thin record). For exclusion, check that a clear scope/format exclusion or
+absence of a qualifying connection supports it. Keep screening_reason
+consistent with that decision: a rationale acknowledging only a peripheral
+drug mention cannot justify inclusion through a general domain match.
+For excluded records, return empty domain_tags and methodological_validity_tags,
+with primary_domain general_topic.
+
 Evidence domain options:
 - clinical_outcome: Human clinical indications, symptoms, diagnoses, patient outcomes, functioning, quality of life, remission, response, relapse, or trial efficacy endpoints. Also use for systematic reviews/meta-analyses that synthesize human clinical outcome studies. Do not use for primary animal, cell, or other preclinical disease-model studies just because a human condition is named or translational relevance is discussed. Do not use for healthy-volunteer pharmacology unless clinical symptoms or patient outcomes are a substantive endpoint.
 - safety_tolerability: Adverse events, tolerability, abuse liability, toxicity, medical risk, contraindications, physiological safety, discontinuation, or safety monitoring.
@@ -30,43 +145,6 @@ Set domain_tags and primary_domain as follows:
   above.
 - "general_topic" is not a catch-all for out-of-scope records.
 - An empty domain_tags list is not by itself an exclusion signal.
-
-Special domain rules:
-- A record is in scope only when the psychedelic-related substance,
-  intervention, exposure, or evidence topic is a central study object or major
-  synthesis topic.
-- Exclude records where the psychedelic-related topic is only a background
-  example, comparison point, assay reagent, radioligand, challenge probe for
-  another drug's development, or one item in a broad list.
-- For broad clinical, therapeutic, biological, psychiatric, or conceptual
-  reviews, include only when psychedelic-related evidence is a central topic of
-  the title/abstract. Exclude when a psychedelic-related intervention or state
-  is only one example among many treatments, mechanisms, or analogies.
-- Exclude papers about non-psychedelic drugs, targets, therapies, cognitive
-  systems, music, meditation, language, or consciousness when psychedelic
-  evidence is used only as an analogy, motivation, or illustrative example.
-- Generic serotonin, monoamine, receptor, neurobiology, psychiatry, biomarker,
-  or therapy papers are out of scope unless they are directly centered on
-  psychedelic-related evidence.
-- Ketamine, esketamine, or arketamine records are out of scope when the focus is
-  perioperative/procedural anesthesia, postoperative pain, general sedation,
-  analgesia, or veterinary anesthesia rather than psychiatric, addiction,
-  psychological-therapy, or psychedelic-related evidence.
-- For primary animal, cell, tissue, in vitro, or ex vivo studies, do not assign
-  clinical_outcome. Use cognitive_behavioral, brain_system,
-  molecular_pathway_readout, safety_tolerability, or pharmacokinetics_exposure
-  if those endpoints are actually measured.
-- For reviews, assign a domain only if the review substantively synthesizes that
-  evidence type, not because a mechanism or outcome is named in passing.
-- Exclude protocols, trial registrations, corrections, errata, decision
-  letters, peer-review reports, Faculty Opinions/recommendations, replies, and
-  citation/container records unless the title/abstract contains substantive
-  evidence synthesis or original results. Do not assign domain tags to a
-  correction or protocol solely from the study described in its title.
-- Use exclude_out_of_scope for records about cannabis, opioids, stimulants,
-  alcohol, general psychiatry, general anesthesia, or unrelated neuroscience
-  unless the title/abstract centrally links them to psychedelic-related evidence
-  covered by the domains above.
 
 Optional methodological validity modifiers:
 - blinding_expectancy_validity: The paper substantively evaluates blinding, masking, functional unblinding, expectancy effects, or how participant/rater expectations affect interpretation of psychedelic evidence.
@@ -132,24 +210,19 @@ Paper type rules:
   "peer review" or peer-review artifacts as evidence synthesis.
 - For non_primary_publication records, normally use screening_decision
   "exclude_out_of_scope" unless the title/abstract contains substantive
-  original results or evidence synthesis.
+  original results, evidence synthesis, or substantive scholarly policy/legal analysis eligible under the scope rules.
 
-Set screening_decision after domain and paper-type assignment:
-- include_in_scope: use when the title/abstract substantively supports at least
-  one evidence domain, or when primary_domain is "general_topic" for a broadly
-  relevant psychedelic evidence paper.
-- exclude_out_of_scope: use when the title/abstract does not support any
-  evidence domain and does not support in-scope "general_topic" relevance. Also
-  use this for records that are only container/citation/issue records or contain
-  only a passing/background mention of an in-scope topic.
-- When relevance is plausible but the title/abstract is thin or ambiguous,
-  use include_in_scope. Exclude only when the available evidence clearly
-  establishes that the record is out of scope; this preserves recall without
-  creating a third decision state that has no distinct downstream workflow.
-- For exclude_out_of_scope, return no domain_tags and primary_domain
-  "general_topic".
-- For non_primary_publication records that are excluded, return no domain_tags
-  and primary_domain "general_topic" even if the title mentions an in-scope
-  substance or disorder.
+Set screening_decision from the eligibility rules above:
+- include_in_scope: the record meets an empirical, synthesis, policy/legal,
+  implementation, or plausible-relevance inclusion rule and no explicit scope
+  or publication exclusion applies.
+- exclude_out_of_scope: an explicit exclusion applies or the supplied record
+  has no substantive or plausibly eligible psychedelic-related evidence.
+- For excluded records return empty domain_tags and primary_domain general_topic.
+- For eligible records assign only substantively supported domains; general_topic
+  with empty domain_tags remains available for eligible broad conceptual context.
+- For animal, cell, tissue, in vitro, and ex vivo findings do not assign
+  clinical_outcome. Use the measured preclinical domains instead.
+- For reviews assign domains only for evidence types substantively synthesized.
 
 Return only compact JSON matching the provided schema.

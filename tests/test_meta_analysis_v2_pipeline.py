@@ -96,7 +96,7 @@ def prepare_args(tmp_path: Path, tasks_path: Path) -> argparse.Namespace:
         run_id="pilot",
         batch_id="batch_001",
         env_file=str(tmp_path / ".env"),
-        model="gemini-3-flash-preview",
+        model="gpt-6-luna",
         tasks_jsonl=tasks_path,
         batch_size=2,
         full_text_count=1,
@@ -150,15 +150,15 @@ def test_prepare_batch_uses_exact_depth_mix_and_model_only_schema(tmp_path: Path
         return False
 
     for row in request_rows:
-        generation_config = row["request"]["generationConfig"]
-        model_schema = generation_config["responseJsonSchema"]
+        generation_config = row["body"]["text"]["format"]
+        model_schema = generation_config["schema"]
         assert "schema_version" not in model_schema["properties"]
         assert "source_depth" not in model_schema["properties"]
         assert not schema_has_description_metadata(model_schema)
         question_properties = model_schema["properties"]["main_questions"]["items"]["properties"]
         assert "description" in question_properties
     abstract_request = next(
-        row for row in request_rows if "ABSTRACT_TEXT:" in row["request"]["contents"][0]["parts"][0]["text"]
+        row for row in request_rows if "ABSTRACT_TEXT:" in row["body"]["input"]
     )
     locator_enums = []
 
@@ -172,7 +172,7 @@ def test_prepare_batch_uses_exact_depth_mix_and_model_only_schema(tmp_path: Path
             for item in value.values():
                 collect_location_enums(item)
 
-    collect_location_enums(abstract_request["request"]["generationConfig"]["responseJsonSchema"])
+    collect_location_enums(abstract_request["body"]["text"]["format"]["schema"])
     assert locator_enums
     assert all(enum == ["title", "abstract"] for enum in locator_enums)
 
@@ -449,7 +449,7 @@ def test_parse_results_adds_deterministic_record_fields_outside_model_result(tmp
         run_id="pilot",
         batch_id="batch_001",
         env_file=str(tmp_path / ".env"),
-        model="gemini-3-flash-preview",
+        model="gpt-6-luna",
     )
     paths = batch_api.batch_paths(args)
     paths["snapshot_owner"].mkdir(parents=True, exist_ok=True)
@@ -460,12 +460,7 @@ def test_parse_results_adds_deterministic_record_fields_outside_model_result(tmp
         [
             {
                 "key": "pilot-batch_001-000001",
-                "response": {
-                    "candidates": [
-                        {"content": {"parts": [{"text": json.dumps(valid_model_result())}]}}
-                    ],
-                    "usageMetadata": {"promptTokenCount": 10, "candidatesTokenCount": 20},
-                },
+                "response": {"status_code":200,"body":{"status":"completed","model":"gpt-6-luna","usage":{"input_tokens":10,"output_tokens":20},"output":[{"type":"message","content":[{"type":"output_text","text":json.dumps(valid_model_result())}]}]}},
             }
         ],
     )
@@ -480,7 +475,7 @@ def test_parse_results_adds_deterministic_record_fields_outside_model_result(tmp
                         "study_title": selected_task["paper_metadata"]["study_title"],
                         "text_depth": "abstract_only",
                         "source_fingerprint": selected_task["source"]["source_fingerprint"],
-                        "model": "gemini-3-flash-preview",
+                        "model": "gpt-6-luna",
                     }
                 ]
             }
@@ -515,20 +510,19 @@ def test_parse_results_adds_deterministic_record_fields_outside_model_result(tmp
 
 def test_prompt_schema_mode_preserves_contract_and_source(tmp_path: Path) -> None:
     args = prepare_args(tmp_path, tmp_path / 'tasks.jsonl')
-    client = batch_api.genai.Client(api_key='DUMMY')
-    kwargs = dict(api_client=client._api_client, task=task('10.1/abstract', 'abstract_only'),
+    kwargs = dict(api_client=None, task=task('10.1/abstract', 'abstract_only'),
                   packet=None, prompt_path=batch_api.ABSTRACT_PROMPT,
                   schema_path=batch_api.OUTPUT_SCHEMA, args=args)
     native, _ = batch_api.request_for_task(**kwargs)
     args.schema_mode = 'prompt'
     prompted, _ = batch_api.request_for_task(**kwargs)
-    assert prompted['contents'] == native['contents']
-    assert 'responseJsonSchema' not in prompted['generationConfig']
-    assert prompted['generationConfig']['responseMimeType'] == 'application/json'
-    text = prompted['systemInstruction']['parts'][0]['text']
+    assert prompted['input'] == native['input']
+    assert prompted['text']['format']['type'] == 'json_object'
+    assert native['text']['format']['type'] == 'json_schema'
+    text = prompted['instructions']
     assert text.startswith(batch_api.ABSTRACT_PROMPT.read_text().strip())
     supplied = json.loads(text.split('Supplied output JSON schema:\n', 1)[1])
-    assert supplied == native['generationConfig']['responseJsonSchema']
+    assert batch_api.llm.strict_schema(supplied) == native['text']['format']['schema']
     assert supplied['properties']['synthesis_results']['items']['properties']['evidence_locators']['items']['properties']['location']['enum'] == ['title', 'abstract']
 
 

@@ -1,0 +1,61 @@
+{
+  "source_file": "data/processed/evaluation/primary_comprehensive_audit_20261017/papers/P31/source.txt",
+  "source_sha256": "77ea428ec7f1808bd0af407f4837c90c270c5a958ee6695c932bd446f47b4198",
+  "review": "All five recovered records inspected against source and actual normalized/public findings. This is separate from original frozen comparison.",
+  "checks": [
+    {
+      "item_index": 1,
+      "finding_id": "finding:443954aa8dff07ebca",
+      "entity_label": "Body temperature effects",
+      "admission": "main_graph",
+      "source_locator": "C007",
+      "literal_source_quote": "The compound increased rectal tem- perature in both sexes, the peak occurring approximately 40 min after injection",
+      "judgment": "MDMA temperature response and sex difference retained; preclinical design correct.",
+      "material_new_scientific_distortion_found": false
+    },
+    {
+      "item_index": 2,
+      "finding_id": "finding:5bf0b6503cb2d68053",
+      "entity_label": "Body temperature effects",
+      "admission": "main_graph",
+      "source_locator": "C007",
+      "literal_source_quote": "The temperature response nevertheless appeared enhanced when the change induced by quinidine alone had been subtracted",
+      "judgment": "Adjusted quinidine-pretreatment contrast retained in full summary; atomic MDMA overview remains coarse and does not encode the modifier.",
+      "material_new_scientific_distortion_found": false
+    },
+    {
+      "item_index": 3,
+      "finding_id": "finding:1580c5684ec31af34e",
+      "entity_label": "Body temperature effects",
+      "admission": "main_graph",
+      "source_locator": "C008",
+      "literal_source_quote": "Male rats showed a marked hyperthermic response to MDA, while females had a small and variable response",
+      "judgment": "MDA sex contrast and opposite concentration contrast retained.",
+      "material_new_scientific_distortion_found": false
+    },
+    {
+      "item_index": 4,
+      "finding_id": "finding:3e978b9455e417ba8c",
+      "entity_label": "Neurotoxicity/cytotoxicity",
+      "admission": "main_graph",
+      "source_locator": "C009",
+      "literal_source_quote": "The binding of [3H]-paroxetine to the presynaptic 5-HT transporter site was decreased by 27% in MDMA treated rats",
+      "judgment": "MDMA delayed neurotoxicity category supported; seven-day timing and 5mg/kg null retained, cortical binding73% and amines60% refer toTable4 cohort.",
+      "material_new_scientific_distortion_found": false
+    },
+    {
+      "item_index": 5,
+      "finding_id": "finding:6094e0feb582eb669e",
+      "entity_label": "Neurotoxicity/cytotoxicity",
+      "admission": "main_graph",
+      "source_locator": "C009",
+      "literal_source_quote": "There was no evidence for a sex difference in this effect.",
+      "judgment": "MDA delayed neurotoxicity and sex-null qualification retained.",
+      "material_new_scientific_distortion_found": false
+    }
+  ],
+  "limitations": [
+    "Quinidine pretreatment remains explicit in record prose but absent from atomic overview identity. This pre-existing coarse attribution is not declared resolved.",
+    "This confirms recovery from identity transport failure, not five new model-correct decisions."
+  ]
+}

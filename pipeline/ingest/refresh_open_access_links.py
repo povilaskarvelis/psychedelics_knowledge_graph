@@ -53,7 +53,7 @@ from pipeline.ingest.metadata_utils import (  # noqa: E402
     usable_email,
 )
 
-DEFAULT_ROUTING_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_domain_routing_gemini.parquet"
+DEFAULT_ROUTING_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_domain_routing.parquet"
 OA_FIELDS = (
     "open_access_is_oa",
     "open_access_status",
