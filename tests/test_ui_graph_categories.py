@@ -797,7 +797,7 @@ def test_versioned_static_assets_are_browser_immutable() -> None:
     assert headers["/ui/*.js"]["Cache-Control"] == "public, max-age=31536000, immutable"
     assert headers["/ui/*.css"]["Cache-Control"] == "public, max-age=31536000, immutable"
     assert 'styles.css?v=20260917-analysis-overview-v1' in html_source
-    assert 'app.js?v=20260918-v2-release-v1' in html_source
+    assert 'app.js?v=20261022-preview-data-v1' in html_source
     assert 'research-model.js?v=20260905-v1' in html_source
     assert 'research-analysis.js?v=20260917-analysis-compact-v1' in html_source
     assert 'research-analysis.css?v=20260917-analysis-compact-v1' in html_source

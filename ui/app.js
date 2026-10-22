@@ -12419,6 +12419,10 @@ function graphPayloadPointerCandidates() {
   if (LOCAL_GRAPH_DATA_HOSTS.has(window.location.hostname)) {
     return [GRAPH_PAYLOAD_PUBLIC_PREVIEW_POINTER_URL];
   }
+  if (window.location.hostname === "psychedelicskg.netlify.app" ||
+      window.location.hostname.endsWith("--psychedelicskg.netlify.app")) {
+    return ["/browser/active.json"];
+  }
   return [GRAPH_PAYLOAD_REMOTE_POINTER_URL];
 }
 

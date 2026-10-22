@@ -137,6 +137,10 @@ function localDataSourceRequested() {
 function selectedDataPointerUrl() {
   if (localDataSourceRequested()) return LOCAL_DATA_POINTER_URL;
   if (LOCAL_DATA_HOSTS.has(window.location.hostname)) return PUBLIC_PREVIEW_POINTER_URL;
+  if (window.location.hostname === "psychedelicskg.netlify.app" ||
+      window.location.hostname.endsWith("--psychedelicskg.netlify.app")) {
+    return "/browser/active.json";
+  }
   return PUBLIC_DATA_POINTER_URL;
 }
 

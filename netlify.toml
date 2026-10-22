@@ -2,6 +2,13 @@
   command = "bash scripts/build_site.sh"
   publish = "dist"
 
+# Serve only the public browser bucket through this fixed target. Netlify
+# previews use this same-origin path because R2 permits production origins only.
+[[redirects]]
+  from = "/browser/*"
+  to = "https://data.psychedelicskg.com/browser/:splat"
+  status = 200
+
 [[redirects]]
   from = "/ui/methods.html"
   to = "/methods/"
