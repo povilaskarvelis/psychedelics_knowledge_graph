@@ -151,6 +151,16 @@ uses `?data-source=local` on a loopback host. The normal local preview uses
 `bash scripts/preview_site.sh public`; Graph and Methods then exercise the same
 R2 path used in production.
 
+Netlify-hosted copies of this project (`psychedelicskg.netlify.app` and
+`*--psychedelicskg.netlify.app`, including Deploy Previews and branch deploys)
+read `/browser/active.json` on their own origin. The fixed `/browser/*` proxy in
+`netlify.toml` forwards those requests to the public browser bucket at
+`https://data.psychedelicskg.com/browser/*`. Release paths in the pointer and
+subsequent detail chunks stay on the preview origin, so Graph, Analyze, and
+Methods can load the same published release without adding each preview to
+R2's CORS policy. Production custom domains continue to fetch R2 directly.
+The proxy has no credentials and does not route to the private API bucket.
+
 Because Cloudflare does not cache JSON by default, add a Cache Rule for the
 immutable release objects:
 
