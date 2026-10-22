@@ -74,6 +74,9 @@ a DOI list, use the [scoped update workflow](docs/scoped_paper_updates.md).
 
 ## Local site preview
 
+Use the Node.js version pinned in `.node-version` for JavaScript tools and tests.
+Netlify reads the same version pin for its builds.
+
 Preview local UI changes against the currently published R2 data:
 
 ```bash
