@@ -11069,50 +11069,70 @@ async function loadAnalysisAndRender({ resetYears = false, showTransition = fals
   const token = ++explorerRenderToken;
   const analysisDataReady = analysisDataIsReady();
   const analysisIndexReadyTask = ensureAnalysisIndexReady();
+  let loadingShown = false;
+  let loadingTimer = 0;
+  const showLoading = () => {
+    if (token !== explorerRenderToken || explorerMode !== "analysis") return;
+    loadingShown = true;
+    graphEl.innerHTML = analysisLoadingHtml(analysisDataIsReady()
+      ? "Preparing charts and evidence coverage…"
+      : "Loading analysis…");
+    setExplorerWorkspaceHeight(GRAPH_BASE_HEIGHT_PX);
+  };
   cancelExplorerSearchRender();
   closeExplorerSearchOptions();
   explorerSearchMatrix = null;
   stopExplorerWorkspaceAutosize();
   graphEl.setAttribute("aria-busy", "true");
   if (showTransition || !analysisDataReady) {
-    graphEl.innerHTML = analysisLoadingHtml();
-    setExplorerWorkspaceHeight(GRAPH_BASE_HEIGHT_PX);
+    showLoading();
+  } else {
+    // Cached views stay instant; slower queries get feedback without a flash.
+    loadingTimer = window.setTimeout(showLoading, 150);
   }
   clearDetailForTransition();
   cardsEl.innerHTML = "";
   if (studyListEl) studyListEl.innerHTML = "";
   try {
+    // Preloaded data can still require expensive chart preparation. Let the
+    // browser paint the new workspace before doing that work, even when warm.
+    if (loadingShown) await waitForPaint();
+    if (token !== explorerRenderToken || explorerMode !== "analysis") return;
     if (!analysisDataReady) await loadAnalysisData();
+    if (token !== explorerRenderToken || explorerMode !== "analysis") return;
+    if (!analysisDataReady) {
+      const status = graphEl.querySelector(".explorer-loading");
+      if (status) status.textContent = "Preparing charts and evidence coverage…";
+      await waitForPaint();
+      if (token !== explorerRenderToken || explorerMode !== "analysis") return;
+    }
+    updateAnalysisPrewarmState("ready");
+    applyClaimLayerStore();
+    const sourceClaims = isAnalysisCompoundSection()
+      ? explorerSourceClaims().filter(claimHasAnalysisCompound)
+      : explorerSourceClaims();
+    syncYearFilterControls(sourceClaims, resetYears);
+    await analysisIndexReadyTask;
+    if (token !== explorerRenderToken || explorerMode !== "analysis") return;
+    const indexedResult = await queryAnalysisIndex().catch(() => null);
+    if (token !== explorerRenderToken || explorerMode !== "analysis") return;
+    // A delayed loader also needs a paint before synchronous chart rendering.
+    if (loadingShown) await waitForPaint();
+    if (token !== explorerRenderToken || explorerMode !== "analysis") return;
+    activeAnalysisIndexResult = indexedResult;
+    activeAnalysisIndexQueryKey = indexedResult ? analysisIndexQueryKey() : "";
+    explorerMatrixMemo = null;
+    updateModeUI();
+    renderAnalysisSurface();
+    graphEl.removeAttribute("aria-busy");
   } catch (error) {
-    if (token === explorerRenderToken) {
+    if (token === explorerRenderToken && explorerMode === "analysis") {
       graphEl.removeAttribute("aria-busy");
       graphEl.innerHTML = `<div class="explorer-loading" role="alert">Analysis could not be loaded. <button type="button" class="ghost small" data-analysis-retry>Retry</button></div>`;
     }
-    return;
+  } finally {
+    window.clearTimeout(loadingTimer);
   }
-  if (token !== explorerRenderToken || explorerMode !== "analysis") return;
-  if (!analysisDataReady) {
-    const status = graphEl.querySelector(".explorer-loading");
-    if (status) status.textContent = "Preparing charts and evidence coverage…";
-    await waitForPaint();
-    if (token !== explorerRenderToken || explorerMode !== "analysis") return;
-  }
-  updateAnalysisPrewarmState("ready");
-  applyClaimLayerStore();
-  const sourceClaims = isAnalysisCompoundSection()
-    ? explorerSourceClaims().filter(claimHasAnalysisCompound)
-    : explorerSourceClaims();
-  syncYearFilterControls(sourceClaims, resetYears);
-  await analysisIndexReadyTask;
-  if (token !== explorerRenderToken || explorerMode !== "analysis") return;
-  const indexedResult = await queryAnalysisIndex().catch(() => null);
-  if (token !== explorerRenderToken || explorerMode !== "analysis") return;
-  activeAnalysisIndexResult = indexedResult;
-  activeAnalysisIndexQueryKey = indexedResult ? analysisIndexQueryKey() : "";
-  explorerMatrixMemo = null;
-  updateModeUI();
-  renderAnalysisSurface();
-  graphEl.removeAttribute("aria-busy");
 }
 
 function switchExplorerLens(nextLens, options = {}) {
@@ -11165,6 +11185,7 @@ function detachElementChildren(element) {
 function captureAnalysisWorkspaceSnapshot() {
   if (
     explorerMode !== "analysis" ||
+    graphEl.getAttribute("aria-busy") === "true" ||
     !graphEl.firstElementChild ||
     graphEl.querySelector(".explorer-loading")
   ) {
@@ -12623,9 +12644,9 @@ function createLazyAnalysisCard(claim, siblings, selectionContext = null) {
   return card;
 }
 
-function analysisLoadingHtml() {
+function analysisLoadingHtml(message = "Loading analysis…") {
   return `<div class="analysis-loading" role="status" aria-live="polite">
-    <p class="explorer-loading">Loading analysis…</p>
+    <p class="explorer-loading">${escapeHtml(message)}</p>
     <div class="analysis-loading-panels" aria-hidden="true"><i></i><i></i><i></i></div>
   </div>`;
 }
