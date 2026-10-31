@@ -1,0 +1,23 @@
+const fs=require('fs');
+const {chromium}=require('/Users/frank/Library/Caches/ms-playwright-go/1.57.0/package');
+(async()=>{
+ const browser=await chromium.launch({headless:true,executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
+ const page=await browser.newPage({viewport:{width:1440,height:1100}});
+ await page.goto('http://127.0.0.1:8011/?data-source=local',{waitUntil:'networkidle'});
+ await page.locator('#graph path[data-compound="MDMA"][data-target="Post-traumatic stress disorder"]').dispatchEvent('click');
+ await page.waitForFunction(()=>document.querySelector('#graphDetail')?.innerText.includes('MDMA'));
+ const panel=page.locator('#graphDetail .trend-card').filter({has:page.getByRole('heading',{name:'Authors',exact:true})});
+ await panel.waitFor();
+ const text=await panel.innerText();
+ const lines=text.split('\n').map(s=>s.trim()).filter(Boolean).slice(1);
+ const authors=[];for(let i=0;i<lines.length-1;i++){const m=lines[i+1].match(/^(\d+) stud(?:y|ies)$/);if(m)authors.push({name:lines[i],papers:Number(m[1])});}if(!authors.length)throw new Error('No author counts found: '+text);
+ const result={compound:'MDMA',topic:'Post-traumatic stress disorder',authors,sourceText:await page.locator('#graphDetail').innerText()};
+ await page.getByRole('tab',{name:'Analyze',exact:true}).click();
+ await page.locator('#explorerEntitySelect').selectOption({label:'Authors'});
+ await page.locator('#explorerSearchInput').fill('Rick Doblin');
+ await page.locator('#explorerSearchOptions [data-explorer-search-key]').filter({hasText:'Rick Doblin'}).first().click();
+ await page.locator('.analytics-network-panel svg').waitFor();
+ result.researcherConnections=await page.locator('.analytics-network-panel svg').evaluate(e=>({labels:[...e.querySelectorAll('text')].map(t=>t.textContent),edges:[...e.querySelectorAll('path')].map(p=>({width:Number(p.getAttribute('stroke-width')),color:p.getAttribute('stroke'),d:p.getAttribute('d')}))}));
+ fs.writeFileSync(__dirname+'/src/v9-authors.json',JSON.stringify(result,null,2));
+ console.log(JSON.stringify({authors,text}));await browser.close();
+})().catch(e=>{console.error(e);process.exitCode=1});

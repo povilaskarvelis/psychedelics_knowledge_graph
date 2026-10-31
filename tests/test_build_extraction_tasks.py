@@ -84,6 +84,34 @@ def route_row(**overrides: object) -> dict:
 
 
 class BuildExtractionTasksTest(unittest.TestCase):
+    def test_candidate_abstracts_survive_sparse_enrichment_without_erasing_cache_values(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            pd.DataFrame([
+                route_row(doi=doi, route_id=doi, route_action="extract_from_abstract_only", access_tier="abstract_only")
+                for doi in ["10.1000/blank-cache", "10.1000/candidate-only", "10.1000/cache-only"]
+            ]).to_parquet(root / "routes.parquet", index=False)
+            pd.DataFrame([
+                {"doi": "10.1000/blank-cache", "study_title": "Stale title", "abstract": ""},
+                {"doi": "10.1000/cache-only", "abstract": "A valid enrichment abstract."},
+            ]).to_parquet(root / "metadata.parquet", index=False)
+            pd.DataFrame([
+                {"doi": "10.1000/blank-cache", "study_title": "Corrected title", "abstract": "A verified candidate abstract."},
+                {"doi": "10.1000/candidate-only", "abstract": "An abstract absent from enrichment."},
+                {"doi": "10.1000/cache-only", "abstract": ""},
+            ]).to_parquet(root / "candidates.parquet", index=False)
+            args = make_args(root, only_ready=True)
+            args.candidate_table = str(root / "candidates.parquet")
+            tasks, report = build_tasks(args)
+
+        by_doi = {task["study_doi"]: task for task in tasks}
+        self.assertEqual(len(tasks), 3)
+        self.assertEqual(by_doi["10.1000/blank-cache"]["paper_metadata"]["study_title"], "Corrected title")
+        self.assertEqual(by_doi["10.1000/blank-cache"]["content"]["abstract"], "A verified candidate abstract.")
+        self.assertEqual(by_doi["10.1000/candidate-only"]["content"]["abstract"], "An abstract absent from enrichment.")
+        self.assertEqual(by_doi["10.1000/cache-only"]["content"]["abstract"], "A valid enrichment abstract.")
+        self.assertEqual(report["by_task_status"], {"ready_for_model": 3})
+
     def test_prompt_or_schema_asset_change_invalidates_task_identity(self) -> None:
         route_context = {"domain_route": "clinical_outcome", "route_action": "extract_from_abstract_only"}
         contract = {

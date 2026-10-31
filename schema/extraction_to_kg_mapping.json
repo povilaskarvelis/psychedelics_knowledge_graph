@@ -96,6 +96,16 @@
       "status": "planned",
       "entity_type": "public_health_entity",
       "description": "Population-level measure, access/equity measure, policy measure, harm-reduction measure, use pattern, or public-health impact measure."
+    },
+    "reported_measurement": {
+      "status": "current",
+      "entity_type": "measurement_entity",
+      "description": "Literal reported endpoint retained in paper detail without inferring a condition, diagnosis, or controlled domain category."
+    },
+    "recommendation_topic": {
+      "status": "current",
+      "entity_type": "recommendation_entity",
+      "description": "Literal topic of a native guideline or consensus recommendation, retained as secondary guidance in paper detail without observed-effect attribution."
     }
   },
   "relation_types": {
@@ -225,6 +235,18 @@
       "status": "planned",
       "from": "compound_or_intervention_or_policy",
       "to": "public_health_measure"
+    },
+    "reports_measurement": {
+      "status": "current",
+      "from": "compound",
+      "to": "reported_measurement",
+      "description": "Reports the saved measured endpoint; does not assert therapeutic efficacy or a condition-specific result."
+    },
+    "has_recommendation": {
+      "status": "current",
+      "from": "compound",
+      "to": "recommendation_topic",
+      "description": "Attributed guideline or consensus recommendation; not an observed treatment effect."
     }
   },
   "common_edge_attributes": [

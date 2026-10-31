@@ -11,7 +11,9 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import os
 from pathlib import Path
+import tempfile
 
 import pandas as pd
 
@@ -32,6 +34,11 @@ ALLOWED_FORMATS = {
     "commentary_or_editorial",
     "preprint_or_unpublished",
     "video_lecture",
+    "book_chapter",
+    "news_summary",
+    "educational_summary",
+    "supplementary_material",
+    "correction_record",
 }
 def clean(value: object) -> str:
     if value is None or (isinstance(value, float) and pd.isna(value)):
@@ -96,6 +103,11 @@ def reason_for(publication_format: str) -> str:
             "The retrieved record is an educational video lecture rather than an eligible "
             "published article, review, or meta-analysis."
         ),
+        "book_chapter": "The record is a book chapter rather than an eligible journal article or evidence synthesis.",
+        "news_summary": "The record summarizes another publication as news rather than reporting its own substantive evidence or synthesis.",
+        "educational_summary": "The record is a teaching or CME summary without its own substantive findings or synthesis.",
+        "supplementary_material": "The record is a standalone supplementary object rather than the main evidence report.",
+        "correction_record": "The record is a correction or erratum rather than an independent evidence report.",
     }[publication_format]
 
 
@@ -120,7 +132,7 @@ def audit_exclusions(path: Path) -> list[dict]:
                 "decision": "exclude",
                 "reason_code": publication_format,
                 "publication_format": publication_format,
-                "reason": reason_for(publication_format),
+                "reason": clean(row.get("reason", "")) or reason_for(publication_format),
                 "evidence": clean(row.get("format_evidence", ""))
                 or clean(row.get("evidence_excerpt", ""))
                 or "Direct retrieved-document inspection",
@@ -335,7 +347,21 @@ def main() -> int:
     payload["updated_at_utc"] = decided_at
     payload["records"] = [existing[doi] for doi in sorted(existing)]
     ledger_path.parent.mkdir(parents=True, exist_ok=True)
-    ledger_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    # Readers must see a complete ledger even if registration is interrupted.
+    with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=ledger_path.parent,
+                                     prefix=f".{ledger_path.name}.", suffix=".tmp", delete=False) as stream:
+        temporary_path = Path(stream.name)
+        try:
+            stream.write(json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        except BaseException:
+            temporary_path.unlink(missing_ok=True)
+            raise
+    try:
+        os.replace(temporary_path, ledger_path)
+    finally:
+        temporary_path.unlink(missing_ok=True)
     if legacy_path is not None:
         report["legacy_records_annotated"] = annotate_legacy_migrations(
             legacy_path,

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "record_count": 52,
+  "record_count": 75,
   "description": "Exceptional curator-reviewed PDF identities bound to exact file hashes. These records do not authorize a different download or DOI alias.",
   "records": [
     {
@@ -463,6 +463,217 @@
       "expected_title": "Use of Psilocybin in the Treatment of Mental Disorders: Systematic Review of Clinical Trials",
       "review_basis": "Visual review of the 22-page review confirms the exact requested title, authors, journal, volume, and manuscript identifier 555852. The publisher header prints apparent DOI typo 10.19080/JCMAH.2024.13.5558512, which correctly triggered the automatic conflicting-DOI gate; this attestation is limited to the reviewed file hash.",
       "reviewed_at": "2026-07-21"
+    },
+    {
+      "requested_doi": "10.46747/cfp.7210605",
+      "pdf_sha256": "9a3b901cfaaa875d5bf8cf4cbbb953833a6eb5e9348fb64d22439eacc02e24cc",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.46747/cfp.7210605",
+      "expected_title": "Psychedelic-assisted psychotherapy: Emerging paradigm.",
+      "review_basis": "First page: Clinical Review; Psychedelic-assisted psychotherapy / Emerging paradigm; Daniel Shane, Sabrina Akhtar, Emma Hapke; Canadian Family Physician volume 72 October 2026, page 605. Matches current selected report title, journal, date, volume/page; article title is split across lines. Reviewed source audit: data/processed/corpus/living_update_20261015/manual_fulltext_review/batch_01_document_identity_audit.csv.",
+      "reviewed_at": "2026-10-16"
+    },
+    {
+      "requested_doi": "10.7249/rhq-13-04-08",
+      "pdf_sha256": "0657787094965b90625c02c2132d84e6598e7cd625bc2c4ce1391c38a5cf7c8a",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://www.rand.org/pubs/periodicals/health-quarterly/issues/v13/n4/08.html",
+      "expected_title": "U.S. Veterans and Psychedelics: Prevalence of Use and Policy Preferences.",
+      "review_basis": "35-page browser print of complete RAND Health Quarterly article. First page: exact article title; Michelle Priest, Terry L. Schell, Ben Senator, Beau Kilmer; RAND Health Quarterly 2026 13(4):8; source footer https://www.rand.org/pubs/periodicals/health-quarterly/issues/v13/n4/08.html. Full Text starts on page 2. This is the journal report, not identically titled RAND report DOI rra4334-3. Reviewed source audit: data/processed/corpus/living_update_20261015/manual_fulltext_review/batch_01_document_identity_audit.csv.",
+      "reviewed_at": "2026-10-16"
+    },
+    {
+      "requested_doi": "10.1254/jjp.51.321",
+      "pdf_sha256": "040eb090990b5167646e65f4742ed55e24a0c5f7f386b2052b8a5b3b4ebde41d",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.1254/jjp.51.321",
+      "expected_title": "Opioid Effects of Racemic Ketamine on the Excitability of Sciatic Nerve and Skeletal Muscle Fibers of the Frog",
+      "review_basis": "Codex visually checked original page one: exact title, Jong Hwa Lee and George B Frank, Japanese Journal of Pharmacology 51,321-327(1989). Original DOI navigation reaches ScienceDirect PII S0021519819400929, same main PDF. Seven-page scan. Embedded archive DOI and imperfect OCR defeat automatic identity matching. This approves only these reviewed bytes, no DOI alias or eligibility change. First-page render and hash-bound import attestation preserved in provider_browser_pass_20261020.",
+      "reviewed_at": "2026-10-19T23:15:50.038430+00:00"
+    },
+    {
+      "requested_doi": "10.1016/0304-3940(89)90159-6",
+      "pdf_sha256": "b408ce7512cbc3491ba4f0f70c2288f67dd47eaaf510b5ef57f21e1fdb5b244f",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.1016/0304-3940(89)90159-6",
+      "expected_title": "The effect of prototypic sigma ligands on the binding of [3H]dextromethorphan to guinea pig brain.",
+      "review_basis": "The six-page original Neuroscience Letters PDF has the printed title The effects of prototypic sigma ligands on the binding of [3H]dextromethorphan to guinea pig brain, Klein/Paturzo/Musacchio, 97 (1989), pages175-180. Page one was rendered and visually checked; final page180 ends with references. The actual publisher DOI page supplied this main PDF. Sigma glyph OCR and supplied singular/plural title variation do not identify another report.",
+      "reviewed_at": "2026-10-21T12:38:28.466212+00:00",
+      "source_artifact": "data/processed/discovery/runs/pcp_scope_addition_20261019/downstream/provider_browser_pass_20261020/sciencedirect_resume_20261021/pdf_identity_review_315_316/identity_source_review.json"
+    },
+    {
+      "requested_doi": "10.1016/0091-3057(86)90477-6",
+      "pdf_sha256": "14b9f66b222a348cc986c1e9e598b87f0692047b5caa81aadd2cc7991b56b6bc",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://doi.org/10.1016/0091-3057(86)90477-6",
+      "expected_title": "Differential effects of 5-hydroxytryptamine1a selective drugs on the 5-HT behavioral syndrome.",
+      "review_basis": "The seven-page original Pharmacology Biochemistry & Behavior PDF has the printed title Differential Effects of 5-Hydroxytryptamine 1A Selective Drugs on the 5-HT Behavioral Syndrome, Lisa M. Smith and Stephen J. Peroutka, volume24 (1986), pages1513-1519. Page one was rendered and visually checked, and last page1519 ends with references. The actual publisher DOI page supplied this main PDF. OCR spacing/subscript variation prevented automatic title matching.",
+      "reviewed_at": "2026-10-21T12:38:28.466212+00:00",
+      "source_artifact": "data/processed/discovery/runs/pcp_scope_addition_20261019/downstream/provider_browser_pass_20261020/sciencedirect_resume_20261021/pdf_identity_review_315_316/identity_source_review.json"
+    },
+    {
+      "requested_doi": "10.1016/j.bbr.2019.112368",
+      "pdf_sha256": "d5a8c03bbb93811f51dadbe48618886b8d7173047f9f6f1e609fc09f0503fb60",
+      "document_kind": "single_article_pdf",
+      "source_url": "https://www.sciencedirect.com/science/article/am/pii/S0166432819309568",
+      "expected_title": "Synthetic cathinones and their phenethylamine analogues produce distinct psychomotor and reward behavior in crayfish.",
+      "review_basis": "Publisher DOI/title page explicitly offers this open manuscript. Rendered first page prints Version of Record with the exact same ScienceDirect PII S0166432819309568. PDF metadata title exactly matches the article. The 36-page English manuscript begins at Introduction and contains Methods, Results, Discussion, figure legends, references and figures, ending with its graphical abstract. It lacks the title page and abstract within its own pages; this is preserved as an accepted-manuscript source limitation. Identity is attested only for these exact reviewed bytes, without a DOI alias or lower matching threshold.",
+      "reviewed_at": "2026-10-21T13:57:33.848483+00:00",
+      "source_artifact": "data/processed/discovery/runs/pcp_scope_addition_20261019/downstream/provider_browser_pass_20261020/sciencedirect_resume_20261021/crayfish_manuscript_identity_review_20261021/source_identity_review.json",
+      "source_quality_note": "Publisher-offered accepted manuscript; title page and abstract absent from PDF. Keep publication metadata/abstract separate and preserve this version label."
+    },
+    {
+      "requested_doi": "10.1254/jjp.43.341",
+      "pdf_sha256": "44007161eeeca400f3deea3092d34d26babf715bd9252ddf59f86cca0a353361",
+      "document_kind": "single_article_pdf",
+      "source_url": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/pdfs/10.1016_s0021-5198_19_43465-3__f3fb851e03.pdf",
+      "expected_title": "Two kinds of modification by 5-methoxy-N,N-dimethyltryptamine of contractile responses to electrical stimulation of isolated guinea-pig vas deferens.",
+      "review_basis": "Complete direct Tesseract text of visually checked English Yoshida/Kuga1987 report, Japan.J.Pharmacol43,341–349; legacy IDs are the same paper The original source title/authors/report and publication format were individually checked; this attestation identifies only these exact bytes, not alternative DOIs. Source/action receipts: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "reviewed_at": "2026-10-22"
+    },
+    {
+      "requested_doi": "10.1016/j.fjurol.2024.102754",
+      "pdf_sha256": "5d24c29106e4992183cc52fff3a3d7f61e133ff60f4321eb6f1f408635451a77",
+      "document_kind": "single_article_pdf",
+      "source_url": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/pdfs/10.1016_j.fjurol.2024.102754__c59656a719.pdf",
+      "expected_title": "Management of ketamine cystitis: National guidelines from the French Association of Urology (CUROPF/CTMH).",
+      "review_basis": "Original English main-text regions; explicit page/column boundaries; complete detected source tables retained. No translation or scientific rewriting. The original source title/authors/report and publication format were individually checked; this attestation identifies only these exact bytes, not alternative DOIs. Source/action receipts: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "reviewed_at": "2026-10-22"
+    },
+    {
+      "requested_doi": "10.12923/2353-8627/2023-0007",
+      "pdf_sha256": "a09b9fda347040cd182d698a13f1656f7a8a5fc93f3d6c8a9aebd39f3c81c634",
+      "document_kind": "single_article_pdf",
+      "source_url": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/pdfs/10.12923_2353-8627_2023-0007__8678c45366.pdf",
+      "expected_title": "An analysis of the fulfilment criteria for a medical experiment with regards to the use of intravenous ketamine in the treatment of drugresistant depression",
+      "review_basis": "Original English main-text regions; explicit page/column boundaries; complete detected source tables retained. No translation or scientific rewriting. The original source title/authors/report and publication format were individually checked; this attestation identifies only these exact bytes, not alternative DOIs. Source/action receipts: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "reviewed_at": "2026-10-22"
+    },
+    {
+      "requested_doi": "10.2478/cpp-2021-0010",
+      "pdf_sha256": "f7cf20fc35b946984b86cdafdd19f9d854de55023c9cf66933572d942cd88d02",
+      "document_kind": "single_article_pdf",
+      "source_url": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/pdfs/10.2478_cpp-2021-0010__accac203e1.pdf",
+      "expected_title": "New drugs in psychiatry - cariprazine, lurasidone, esketamine",
+      "review_basis": "Original English main-text regions; explicit page/column boundaries; complete detected source tables retained. No translation or scientific rewriting. The original source title/authors/report and publication format were individually checked; this attestation identifies only these exact bytes, not alternative DOIs. Source/action receipts: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "reviewed_at": "2026-10-22"
+    },
+    {
+      "requested_doi": "10.2478/fobio-2014-0014",
+      "pdf_sha256": "c06bf439b14eb97c3af14d984f7b093fec73938eee3601294f2f8a5f1b8551c6",
+      "document_kind": "single_article_pdf",
+      "source_url": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/pdfs/10.2478_fobio-2014-0014__92bdb94db3.pdf",
+      "expected_title": "The effect of particular active substances of hallucinogenic mushrooms",
+      "review_basis": "Original English reading-order text from Introduction through Conclusions, before References/Polish duplicate. The original source title/authors/report and publication format were individually checked; this attestation identifies only these exact bytes, not alternative DOIs. Source/action receipts: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "reviewed_at": "2026-10-22"
+    },
+    {
+      "requested_doi": "10.32394/pe.75.13",
+      "pdf_sha256": "7cb671b856f42b424c89b3bc6009528e5bd51d45bfd43e9a69aab43fb8b67698",
+      "document_kind": "single_article_pdf",
+      "source_url": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/pdfs/10.32394_pe.75.13__dd40df8a80.pdf",
+      "expected_title": "Smoking tobacco, use of marijuana and other psychoactive substances by students of Silesian universities.",
+      "review_basis": "Original parallel English left prose column, all pages; complete detected table rectangles appended with bilingual labels. Source PDF is preserved; no machine translation. The original source title/authors/report and publication format were individually checked; this attestation identifies only these exact bytes, not alternative DOIs. Source/action receipts: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "reviewed_at": "2026-10-22"
+    },
+    {
+      "requested_doi": "10.32999/2663-970x/2025-14-6",
+      "pdf_sha256": "eb81229e9debe738ce2ca3ad49e9652264e55cebe5e1c52746713563e4f7d9b3",
+      "document_kind": "single_article_pdf",
+      "source_url": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/pdfs/10.32999_2663-970x_2025-14-6__ddd81733fd.pdf",
+      "expected_title": "Ketamine-Assisted Psychotherapy for Treatment- Resistant Depression with Comorbid Post-Traumatic Stress Disorder in Veterans",
+      "review_basis": "Original parallel English left prose column, all pages; complete detected table rectangles appended with bilingual labels. Source PDF is preserved; no machine translation. The original source title/authors/report and publication format were individually checked; this attestation identifies only these exact bytes, not alternative DOIs. Source/action receipts: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "reviewed_at": "2026-10-22"
+    },
+    {
+      "requested_doi": "10.4467/12307483pfs.20.008.15448",
+      "pdf_sha256": "71b8eaa85c457cd6165ab61dd0e8c500dc3751278ba53ae374bf1b882840f9c0",
+      "document_kind": "single_article_pdf",
+      "source_url": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/pdfs/10.4467_12307483pfs.20.008.15448__39c742a67f.pdf",
+      "expected_title": "Screening method for the analysis of blood and urine for the presence of naturally occurring toxic compounds from mushrooms (fungi) using the LC-MS method",
+      "review_basis": "Original English main-text regions; explicit page/column boundaries; complete detected source tables retained. No translation or scientific rewriting. The original source title/authors/report and publication format were individually checked; this attestation identifies only these exact bytes, not alternative DOIs. Source/action receipts: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "reviewed_at": "2026-10-22"
+    },
+    {
+      "requested_doi": "10.4467/12307483pfs.21.013.15883",
+      "pdf_sha256": "20e9df996ad05f04c7670e9251f16071c83770b553e0dbb65c0a95e3e2640dfe",
+      "document_kind": "single_article_pdf",
+      "source_url": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/pdfs/10.4467_12307483pfs.21.013.15883__1025c76f4b.pdf",
+      "expected_title": "The detection and determination of new LSD derivatives in biological material using the LC-MS/MS technique",
+      "review_basis": "Original English main-text regions; explicit page/column boundaries; complete detected source tables retained. No translation or scientific rewriting. The original source title/authors/report and publication format were individually checked; this attestation identifies only these exact bytes, not alternative DOIs. Source/action receipts: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "reviewed_at": "2026-10-22"
+    },
+    {
+      "requested_doi": "10.5114/fpn.2023.131979",
+      "pdf_sha256": "59c1fd86b7cee1ba1c8bc807f1ea80ee3ee27237e8bc2105ef08d2bf94dae0f9",
+      "document_kind": "single_article_pdf",
+      "source_url": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/pdfs/10.5114_fpn.2023.131979__4233ea1abc.pdf",
+      "expected_title": "Therapeutic potential of N,N-dimethyltryptamine in the treatment of psychiatric and neurodegenerative disorders",
+      "review_basis": "Original English main-text regions; explicit page/column boundaries; complete detected source tables retained. No translation or scientific rewriting. The original source title/authors/report and publication format were individually checked; this attestation identifies only these exact bytes, not alternative DOIs. Source/action receipts: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "reviewed_at": "2026-10-22"
+    },
+    {
+      "requested_doi": "10.5114/fpn.2023.133519",
+      "pdf_sha256": "930fd911142c41d8d4ab904e7082a7e1df77241f96f45428f3d26091ab34d37e",
+      "document_kind": "single_article_pdf",
+      "source_url": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/pdfs/10.5114_fpn.2023.133519__0cf411d003.pdf",
+      "expected_title": "MDMA-assisted psychotherapy in the treatment of PTSD in adults – literature review",
+      "review_basis": "Original English main-text regions; explicit page/column boundaries; complete detected source tables retained. No translation or scientific rewriting. The original source title/authors/report and publication format were individually checked; this attestation identifies only these exact bytes, not alternative DOIs. Source/action receipts: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "reviewed_at": "2026-10-22"
+    },
+    {
+      "requested_doi": "10.5114/fpn.2024.147494",
+      "pdf_sha256": "c7c6f959fae339c64a66ba6cb4d6690cf6c0557648068411684f2e4170a2a94c",
+      "document_kind": "single_article_pdf",
+      "source_url": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/pdfs/10.5114_fpn.2024.147494__9129518fc1.pdf",
+      "expected_title": "A review of the antidepressant effects of esketamine and arketamine in treatment-resistant depression",
+      "review_basis": "Original English main-text regions; explicit page/column boundaries; complete detected source tables retained. No translation or scientific rewriting. The original source title/authors/report and publication format were individually checked; this attestation identifies only these exact bytes, not alternative DOIs. Source/action receipts: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "reviewed_at": "2026-10-22"
+    },
+    {
+      "requested_doi": "10.5937/smclk5-51004",
+      "pdf_sha256": "79eb55b3ad40dac258e9c0a097b2a28545d043959cfd9b32fbb64b6104782296",
+      "document_kind": "single_article_pdf",
+      "source_url": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/pdfs/10.5937_smclk5-51004__c71ee537cf.pdf",
+      "expected_title": "Use of intranasal esketamine in the treatment of treatment-resistant depression: A case report",
+      "review_basis": "Original parallel English right prose column, all pages; complete detected table rectangles appended with bilingual labels. Source PDF is preserved; no machine translation. The original source title/authors/report and publication format were individually checked; this attestation identifies only these exact bytes, not alternative DOIs. Source/action receipts: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "reviewed_at": "2026-10-22"
+    },
+    {
+      "requested_doi": "10.5348/ijcri-201758-cr-10797",
+      "pdf_sha256": "d59a06d3fc2486e11c64522cc021510cda6485de014cdb09fcf888d6ee6755f4",
+      "document_kind": "single_article_pdf",
+      "source_url": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/provider_browser_pass_20261020/pass08_identity_holds/ijcri-107975201797-hummelen.pdf",
+      "expected_title": "What’s with all the water? Diuretic use for cerebral edema due to ecstasy",
+      "review_basis": "pdftotext conversion of identity-reviewed main article The original source title/authors/report and publication format were individually checked; this attestation identifies only these exact bytes, not alternative DOIs. Source/action receipts: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "reviewed_at": "2026-10-22"
+    },
+    {
+      "requested_doi": "10.4172/2167-7972.1000340",
+      "pdf_sha256": "c3a20e73d965962db7a92b4218046123627e8098d5cc50c334fd727da1fc5973",
+      "document_kind": "single_article_pdf",
+      "source_url": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/provider_browser_pass_20261020/pass08_identity_holds/Salvia_Divinorum_A_Case_Report.pdf",
+      "expected_title": "Salvia Divinorum: A Case Report",
+      "review_basis": "pdftotext conversion of identity-reviewed main article The original source title/authors/report and publication format were individually checked; this attestation identifies only these exact bytes, not alternative DOIs. Source/action receipts: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "reviewed_at": "2026-10-22"
+    },
+    {
+      "requested_doi": "10.4172/2475-7675.1000305",
+      "pdf_sha256": "1d002fd29c861d39abec1f49bd9346d584b0a50cfd0aeada6ce103523feca210",
+      "document_kind": "single_article_pdf",
+      "source_url": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/pdfs/10.4172_2475-7675.1000305__cc20e404c2.pdf",
+      "expected_title": "Isolation of a Potent Naturally Occurring Hallucinogen, Salvinorin A, from Salvia divinorum and Investigation of Its Photo-degradation",
+      "review_basis": "pdftotext conversion of identity-reviewed main article The original source title/authors/report and publication format were individually checked; this attestation identifies only these exact bytes, not alternative DOIs. Source/action receipts: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "reviewed_at": "2026-10-22"
+    },
+    {
+      "requested_doi": "10.1016/0006-2952(89)90480-2",
+      "pdf_sha256": "e97e06e11719beb5e1babd1cf4927c04cb6a4b9f0faa73797b323cdc03816331",
+      "document_kind": "single_article_pdf",
+      "expected_title": "Effects of diazepam on regional brain homovanillic acid following phencyclidine or delta 9-tetrahydrocannabinol.",
+      "source_url": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/provider_browser_pass_20261020/source_boundary_review_20261021/10.1016_0006-2952(89)90480-2.pdf",
+      "review_basis": "Reviewed original complete PCP/diazepam short communication pp2385–2387; lossless source-region PDF derivative includes only that report and its references. Original multi-paper page scan preserved; exact selected regions/provenance in derivative receipt. Only derivative hash is authorized.",
+      "reviewed_at": "2026-10-22"
     }
   ]
 }

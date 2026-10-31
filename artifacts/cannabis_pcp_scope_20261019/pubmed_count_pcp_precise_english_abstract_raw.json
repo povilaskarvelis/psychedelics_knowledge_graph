@@ -1,0 +1,1 @@
+{"header": {"type": "esearch", "version": "0.3"}, "esearchresult": {"count": "4784", "retmax": "0", "retstart": "0", "idlist": [], "translationset": [], "querytranslation": "(\"Phencyclidine\"[MeSH Terms] OR \"Phencyclidine\"[Title/Abstract]) AND \"english\"[Language] AND \"hasabstract\"[All Fields] AND 1800/01/01:2026/10/19[Date - Publication]"}}

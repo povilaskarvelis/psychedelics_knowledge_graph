@@ -33,6 +33,7 @@ TERMINAL_MANUAL_STATUSES = {
     "excluded_publication_format",
     "invalid_nonresolving_doi",
     "reviewed_pending_pdf_reconciliation",
+    "reviewed_no_accessible_pdf",
 }
 QUEUE_COLUMNS = [
     "doi",
@@ -179,12 +180,31 @@ def export_manual_pdf_queue(
     output_txt: Path = DEFAULT_OUTPUT_TXT,
     route_action: str = DEFAULT_ROUTE_ACTION,
     manual_progress_csv: Path | None = None,
+    require_automated_retrieval_complete: bool = False,
 ) -> dict:
     if selection_table is not None:
-        selected = selected_worklist_rows(pd.read_parquet(selection_table))
+        worklist = pd.read_parquet(selection_table)
+        if require_automated_retrieval_complete:
+            active = worklist.copy()
+            if "selected_for_downstream" in active:
+                active = active[active["selected_for_downstream"].map(truthy)]
+            actions = active.get("fulltext_enrichment_action", pd.Series("", index=active.index))
+            pending = actions.isin({"fetch_pmc_xml", "refresh_access_metadata"})
+            status = active.get("pdf_download_status", pd.Series("", index=active.index)).fillna("").astype(str)
+            local = active.get("has_local_pdf", pd.Series(False, index=active.index)).map(truthy)
+            pending |= actions.eq("download_known_pdf") & status.eq("") & ~local
+            if pending.any():
+                counts = actions[pending].value_counts().to_dict()
+                raise ValueError(
+                    f"Manual handoff refused: automated full-text actions remain: {counts}. "
+                    "Complete those actions and rebuild the worklist before exporting."
+                )
+        selected = selected_worklist_rows(worklist)
         source_table = selection_table
         source_kind = "fulltext_enrichment_worklist"
     else:
+        if require_automated_retrieval_complete:
+            raise ValueError("--require-automated-retrieval-complete requires --selection-table")
         selected = selected_route_rows(pd.read_parquet(route_table), route_action)
         source_table = route_table
         source_kind = "extraction_routes"
@@ -294,6 +314,7 @@ def export_manual_pdf_queue(
         "manual_progress_csv": str(manual_progress_csv.resolve()) if manual_progress_csv is not None else "",
         "skipped_local_pdf": skipped_local_pdf,
         "skipped_terminal_manual_status": skipped_terminal_manual_status,
+        "require_automated_retrieval_complete": require_automated_retrieval_complete,
         "rows": len(output_df),
     }
     print(f"MANUAL_PDF_QUEUE: exported rows={len(output_df):,} csv={output_csv}", flush=True)
@@ -315,6 +336,10 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-txt", default=str(DEFAULT_OUTPUT_TXT))
     parser.add_argument("--route-action", default=DEFAULT_ROUTE_ACTION)
     parser.add_argument(
+        "--require-automated-retrieval-complete", action="store_true",
+        help="Refuse a final handoff while the worklist still has unattempted PMC, access-refresh, or direct-PDF actions.",
+    )
+    parser.add_argument(
         "--manual-progress-csv",
         default="",
         help="Optional DOI progress ledger; terminal manual outcomes are omitted and partial outcomes are preserved.",
@@ -334,6 +359,7 @@ def main() -> int:
         output_txt=Path(args.output_txt).resolve(),
         route_action=args.route_action,
         manual_progress_csv=Path(args.manual_progress_csv).resolve() if args.manual_progress_csv.strip() else None,
+        require_automated_retrieval_complete=args.require_automated_retrieval_complete,
     )
     return 0
 

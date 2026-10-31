@@ -1,0 +1,511 @@
+[
+  {
+    "audit_index": 428,
+    "doi": "10.1177/02698811231161627",
+    "item": {
+      "result_id": "R7",
+      "addresses_question_ids": [
+        "Q3"
+      ],
+      "result_role": "other",
+      "importance_in_paper": "supporting",
+      "relationship_statement": "The exploratory pooled-data analysis found no significant correlation between peak dissociation and anxiety improvement at 24 hours post-administration.",
+      "primary_subject_area": "clinical_outcome",
+      "subject_areas": [
+        "clinical_outcome",
+        "subjective_experience"
+      ],
+      "evidence_source": "human",
+      "population_or_system": "Participants in included ketamine trials with peak CADSS and anxiety data",
+      "intervention_or_exposure": "Ketamine; association between peak dissociation and subsequent anxiety improvement",
+      "comparator": null,
+      "outcome_or_entity": "Association between peak CADSS score and percentage improvement in anxiety",
+      "outcome_measure": "R² from linear regression",
+      "timepoint_or_window": "Peak dissociation during infusion in most studies; anxiety improvement at 24 hours",
+      "effect_estimate": {
+        "metric": "R²",
+        "estimate": "0.011",
+        "p_value": "p = 0.808",
+        "model": "Linear regression",
+        "analysis_scale": "Pooled study data",
+        "unit_of_analysis": "Participants",
+        "adjustment_status": "Exploratory; no covariate adjustment reported"
+      },
+      "evidence_size": {
+        "study_count": "8",
+        "participant_count": "222"
+      },
+      "analysis_context": {
+        "analysis_type": "Exploratory correlation using linear regression",
+        "dependency_handling": "Pooled data from multiple studies."
+      },
+      "interpretation": {
+        "finding_direction": "no_detected_effect",
+        "outcome_orientation": "neutral",
+        "statistical_interpretation": "No significant correlation was detected (p = 0.808).",
+        "authors_interpretation": "The authors report no significant relationship at this time point and caution that the analysis used relatively few pooled data points."
+      },
+      "evidence_locators": [
+        {
+          "location": "results",
+          "locator": "C015",
+          "supporting_text": "no significant correlation between peak level of dissociation and improvement in anxiety symptoms (R² = 0.011, p = 0.808"
+        }
+      ],
+      "limitations": [
+        "This exploratory analysis was based on pooled data from a limited number of studies."
+      ],
+      "extraction_uncertainties": []
+    }
+  },
+  {
+    "audit_index": 428,
+    "doi": "10.1177/02698811231161627",
+    "item": {
+      "result_id": "R8",
+      "addresses_question_ids": [
+        "Q3"
+      ],
+      "result_role": "other",
+      "importance_in_paper": "supporting",
+      "relationship_statement": "The exploratory pooled-data analysis found no significant correlation between peak dissociation and anxiety improvement at 7–14 days post-administration.",
+      "primary_subject_area": "clinical_outcome",
+      "subject_areas": [
+        "clinical_outcome",
+        "subjective_experience"
+      ],
+      "evidence_source": "human",
+      "population_or_system": "Participants in included ketamine trials with peak CADSS and anxiety data",
+      "intervention_or_exposure": "Ketamine; association between peak dissociation and subsequent anxiety improvement",
+      "comparator": null,
+      "outcome_or_entity": "Association between peak CADSS score and percentage improvement in anxiety",
+      "outcome_measure": "R² from linear regression",
+      "timepoint_or_window": "Peak dissociation during infusion in most studies; anxiety improvement at 7–14 days",
+      "effect_estimate": {
+        "metric": "R²",
+        "estimate": "0.171",
+        "p_value": "p = 0.268",
+        "model": "Linear regression",
+        "analysis_scale": "Pooled study data",
+        "unit_of_analysis": "Participants",
+        "adjustment_status": "Exploratory; no covariate adjustment reported"
+      },
+      "evidence_size": {
+        "study_count": "9",
+        "participant_count": "237"
+      },
+      "analysis_context": {
+        "analysis_type": "Exploratory correlation using linear regression",
+        "dependency_handling": "Pooled data from multiple studies."
+      },
+      "interpretation": {
+        "finding_direction": "no_detected_effect",
+        "outcome_orientation": "neutral",
+        "statistical_interpretation": "No significant correlation was detected (p = 0.268).",
+        "authors_interpretation": "The authors report no significant relationship at this time point and caution that the analysis used relatively few pooled data points."
+      },
+      "evidence_locators": [
+        {
+          "location": "results",
+          "locator": "C015",
+          "supporting_text": "there was no significant correlation between the two scores (R² = 0.171, p = 0.268)"
+        }
+      ],
+      "limitations": [
+        "This exploratory analysis was based on pooled data from a limited number of studies."
+      ],
+      "extraction_uncertainties": []
+    }
+  },
+  {
+    "audit_index": 431,
+    "doi": "10.3389/fpsyt.2026.1835709",
+    "item": {
+      "result_id": "R3",
+      "addresses_question_ids": [
+        "Q2"
+      ],
+      "result_role": "secondary_synthesis",
+      "importance_in_paper": "supporting",
+      "relationship_statement": "Across three studies, ketamine was not associated with a statistically significant reduction in craving severity compared with control at less than one month.",
+      "primary_subject_area": "subjective_experience",
+      "subject_areas": [
+        "subjective_experience",
+        "clinical_outcome"
+      ],
+      "evidence_source": "human",
+      "population_or_system": "Adults with SUD",
+      "intervention_or_exposure": "Ketamine",
+      "comparator": "Control conditions",
+      "outcome_or_entity": "Craving severity",
+      "outcome_measure": "Hedges’s g",
+      "timepoint_or_window": "Less than 1 month",
+      "effect_estimate": {
+        "metric": "Hedges’s g",
+        "estimate": "−0.09",
+        "interval_type": "confidence_interval",
+        "interval_level": "95%",
+        "interval_lower": "−0.47",
+        "interval_upper": "0.28",
+        "interval_reported": "95% CI: −0.47 to 0.28",
+        "p_value": "p = 0.62",
+        "analysis_scale": "Standardized mean difference"
+      },
+      "evidence_size": {
+        "study_count": "3 studies"
+      },
+      "heterogeneity": {
+        "i_squared": "0.00%"
+      },
+      "analysis_context": {
+        "analysis_type": "Craving severity meta-analysis stratified by follow-up"
+      },
+      "interpretation": {
+        "finding_direction": "no_detected_effect",
+        "outcome_orientation": "unclear",
+        "statistical_interpretation": "The confidence interval includes zero and p = 0.62; a reduction in craving was not detected.",
+        "authors_interpretation": "The authors report no significant effect on craving severity at less than one month."
+      },
+      "evidence_locators": [
+        {
+          "location": "figure",
+          "locator": "C014",
+          "supporting_text": "Ketamine was not associated with a significant reduction in craving at <1 month (three studies; Hedges’s g = −0.09, 95% CI: −0.47 to 0.28, I 2 = 0.00%, p = 0.62)"
+        }
+      ],
+      "limitations": [
+        "Only three studies contributed to this time-stratified analysis."
+      ],
+      "extraction_uncertainties": []
+    }
+  },
+  {
+    "audit_index": 431,
+    "doi": "10.3389/fpsyt.2026.1835709",
+    "item": {
+      "result_id": "R4",
+      "addresses_question_ids": [
+        "Q2"
+      ],
+      "result_role": "secondary_synthesis",
+      "importance_in_paper": "supporting",
+      "relationship_statement": "Across four comparisons, ketamine was associated with a statistically significant reduction in craving severity compared with control at 1–6 months.",
+      "primary_subject_area": "subjective_experience",
+      "subject_areas": [
+        "subjective_experience",
+        "clinical_outcome"
+      ],
+      "evidence_source": "human",
+      "population_or_system": "Adults with SUD",
+      "intervention_or_exposure": "Ketamine",
+      "comparator": "Control conditions",
+      "outcome_or_entity": "Craving severity",
+      "outcome_measure": "Hedges’s g",
+      "timepoint_or_window": "1–6 months",
+      "effect_estimate": {
+        "metric": "Hedges’s g",
+        "estimate": "−0.38",
+        "interval_type": "confidence_interval",
+        "interval_level": "95%",
+        "interval_lower": "−0.67",
+        "interval_upper": "−0.08",
+        "interval_reported": "95% CI: −0.67 to −0.08",
+        "p_value": "p = 0.01",
+        "analysis_scale": "Standardized mean difference"
+      },
+      "evidence_size": {
+        "study_count": "6 studies supplied craving data overall; four comparisons contributed to this time stratum",
+        "effect_or_experiment_count": "4 comparisons"
+      },
+      "heterogeneity": {
+        "i_squared": "16.84%"
+      },
+      "analysis_context": {
+        "analysis_type": "Craving severity meta-analysis stratified by follow-up",
+        "dependency_handling": "Seven comparisons from six studies provided extractable craving data."
+      },
+      "interpretation": {
+        "finding_direction": "supports",
+        "favors": "Ketamine",
+        "outcome_orientation": "beneficial",
+        "statistical_interpretation": "The confidence interval excludes zero and p = 0.01, supporting lower craving severity under ketamine on the reported standardized scale.",
+        "authors_interpretation": "The authors describe a modest craving reduction at more than one month and note that craving and abstinence may change on different time courses."
+      },
+      "evidence_locators": [
+        {
+          "location": "figure",
+          "locator": "C014",
+          "supporting_text": "was associated with greater craving reduction at 1–6 months (four comparisons; Hedges’s g = −0.38, 95% CI: −0.67 to −0.08, I 2 = 16.84%, p = 0.01)"
+        }
+      ],
+      "limitations": [
+        "The craving synthesis consisted of a limited number of studies and comparisons."
+      ],
+      "extraction_uncertainties": []
+    }
+  },
+  {
+    "audit_index": 438,
+    "doi": "10.1016/j.psychres.2024.116337",
+    "item": {
+      "result_id": "R5",
+      "addresses_question_ids": [
+        "Q3"
+      ],
+      "result_role": "secondary_synthesis",
+      "importance_in_paper": "main",
+      "relationship_statement": "Psilocybin was associated with a higher risk of adverse events, particularly nausea; the abstract reports a risk ratio of 8.35 with p < 0.001 for the reported nausea finding.",
+      "primary_subject_area": "safety_tolerability",
+      "subject_areas": [
+        "safety_tolerability"
+      ],
+      "evidence_source": "human",
+      "population_or_system": "Adults with MDD",
+      "intervention_or_exposure": "Psilocybin",
+      "comparator": "Placebo",
+      "outcome_or_entity": "Nausea",
+      "outcome_measure": "Risk of nausea (adverse event)",
+      "timepoint_or_window": null,
+      "effect_estimate": {
+        "metric": "Risk ratio (RR)",
+        "estimate": "8.35",
+        "p_value": "p < 0.001"
+      },
+      "evidence_size": {
+        "study_count": "Three RCTs overall; adverse-event-specific count not stated",
+        "participant_count": "389 patients overall; adverse-event-specific count not stated"
+      },
+      "analysis_context": {
+        "analysis_type": "Network meta-analysis"
+      },
+      "interpretation": {
+        "finding_direction": "supports",
+        "favors": "Placebo for lower nausea risk",
+        "outcome_orientation": "harmful",
+        "statistical_interpretation": "The abstract reports a higher risk of adverse events, particularly nausea, and gives RR = 8.35 with p < 0.001.",
+        "authors_interpretation": "The authors state that psilocybin was associated with a higher risk of adverse events, particularly nausea."
+      },
+      "evidence_locators": [
+        {
+          "location": "abstract",
+          "locator": "Abstract results",
+          "supporting_text": "However, psilocybin was associated with a higher risk of adverse events, particularly nausea (RR = 8.35; p < 0.001)."
+        }
+      ],
+      "extraction_uncertainties": [
+        "The abstract does not clarify whether RR = 8.35 applies specifically to nausea or to adverse events overall, although nausea is singled out in the same sentence."
+      ]
+    }
+  },
+  {
+    "audit_index": 458,
+    "doi": "10.1177/02698811261424199",
+    "item": {
+      "result_id": "R5",
+      "addresses_question_ids": [
+        "Q4"
+      ],
+      "result_role": "meta_regression",
+      "importance_in_paper": "main",
+      "relationship_statement": "In the subset of studies reporting mystical-experience scores, higher scores were associated with larger reductions in death anxiety; the reported moderator coefficient was positive but its confidence interval slightly included zero.",
+      "primary_subject_area": "subjective_experience",
+      "subject_areas": [
+        "subjective_experience",
+        "clinical_outcome"
+      ],
+      "evidence_source": "human",
+      "population_or_system": "Subset of studies reporting mystical-experience scores",
+      "intervention_or_exposure": "Psychedelic experiences varying in reported mystical-experience level",
+      "comparator": "Lower versus higher mystical-experience scores",
+      "outcome_or_entity": "Change in death anxiety",
+      "outcome_measure": "Mystical-experience score as a continuous moderator of standardized effect size",
+      "timepoint_or_window": null,
+      "effect_estimate": {
+        "metric": "Meta-regression coefficient B",
+        "estimate": "4.90",
+        "interval_type": "confidence_interval",
+        "interval_level": "95%",
+        "interval_lower": "−0.005",
+        "interval_upper": "9.804",
+        "interval_reported": "95% CI [−0.005, 9.804]",
+        "standard_error": "2.50",
+        "p_value": "p = 0.050",
+        "model": "Mixed-effects meta-regression",
+        "analysis_scale": "Meta-regression coefficient",
+        "unit_of_analysis": "k = 5"
+      },
+      "evidence_size": {
+        "effect_or_experiment_count": "k = 5"
+      },
+      "analysis_context": {
+        "analysis_type": "Mixed-effects meta-regression",
+        "subgroup_or_moderator": "Mystical-experience score, continuous moderator",
+        "meta_regression_coefficient": "B = 4.90"
+      },
+      "interpretation": {
+        "finding_direction": "supports",
+        "favors": "Higher mystical-experience scores",
+        "outcome_orientation": "beneficial",
+        "statistical_interpretation": "The coefficient was reported significant at p = 0.050, the stated boundary value; the 95% confidence interval [−0.005, 9.804] slightly includes zero.",
+        "authors_interpretation": "The authors state that higher mystical-experience scores were associated with larger reductions in death anxiety, while the small subset and borderline statistical result warrant caution."
+      },
+      "evidence_locators": [
+        {
+          "location": "results",
+          "locator": "Mystical-experience meta-regression",
+          "supporting_text": "The moderator was statistically significant ( B = 4.90, SE = 2.50, z = 1.96, p = 0.050, 95%CI [−0.005, 9.804])"
+        },
+        {
+          "location": "results",
+          "locator": "Discussion",
+          "supporting_text": "higher levels of mystical experience associated with greater benefit"
+        }
+      ],
+      "limitations": [
+        "The model included only k = 5.",
+        "The reported confidence interval slightly includes zero despite the authors describing the moderator as statistically significant at p = 0.050."
+      ]
+    }
+  },
+  {
+    "audit_index": 462,
+    "doi": "10.1371/journal.pone.0258849",
+    "item": {
+      "result_id": "R1",
+      "addresses_question_ids": [
+        "Q1"
+      ],
+      "result_role": "primary_synthesis",
+      "importance_in_paper": "main",
+      "relationship_statement": "Across placebo-controlled human experiments, MDMA was associated with a moderate-to-large increase in self-reported sociability-related outcomes compared with placebo.",
+      "primary_subject_area": "subjective_experience",
+      "subject_areas": [
+        "subjective_experience"
+      ],
+      "evidence_source": "human",
+      "population_or_system": "Healthy young adult volunteers in placebo-controlled experimental studies",
+      "intervention_or_exposure": "MDMA; study doses and regimens varied",
+      "comparator": "Placebo",
+      "outcome_or_entity": "Self-reported sociability-related outcomes, including feeling loving, talkative, friendly, sociable, and extraverted",
+      "outcome_measure": "Pooled standardized mean difference (Cohen's d)",
+      "timepoint_or_window": "Acute experimental drug sessions; exact assessment windows varied or were not reported",
+      "effect_estimate": {
+        "metric": "Cohen's d",
+        "estimate": "0.86",
+        "interval_type": "confidence_interval",
+        "interval_level": "95%",
+        "interval_lower": "0.68",
+        "interval_upper": "1.04",
+        "interval_reported": "95% CI [0.68, 1.04]",
+        "model": "Multilevel meta-analysis",
+        "analysis_scale": "Standardized mean difference",
+        "unit_of_analysis": "Effect sizes nested within studies",
+        "adjustment_status": "Accounted for dependencies among effect sizes nested within studies"
+      },
+      "evidence_size": {
+        "study_count": "27 studies",
+        "participant_count": "592 participants",
+        "effect_or_experiment_count": "54 effect sizes",
+        "dataset_or_comparison_count": "30 within-person conditions"
+      },
+      "heterogeneity": {
+        "q_statistic": "χ2(53) = 173.1",
+        "q_p_value": "p = 1.2 x 10-14",
+        "authors_interpretation": "The Q-test indicated heterogeneity in the effect sizes."
+      },
+      "analysis_context": {
+        "analysis_type": "Multilevel meta-analysis",
+        "sensitivity_method": "Sensitivity analyses varying the assumed within-person correlation from 0 to .9 in steps of .1; authors report that results did not substantively change.",
+        "dependency_handling": "Modeled effect-size variance, between-outcome-within-study variance, and between-study variance."
+      },
+      "interpretation": {
+        "finding_direction": "supports",
+        "favors": "MDMA over placebo for self-reported sociability-related outcomes",
+        "outcome_orientation": "beneficial",
+        "statistical_interpretation": "The pooled estimate is positive and its 95% confidence interval excludes zero.",
+        "authors_interpretation": "The authors characterize the effect as moderate to large and caution that significant heterogeneity warrants careful interpretation."
+      },
+      "evidence_locators": [
+        {
+          "location": "results",
+          "locator": "C012",
+          "supporting_text": "the average effect of MDMA on sociability is moderate to large (d = 0.86; 95% CI [0.68, 1.04]"
+        },
+        {
+          "location": "results",
+          "locator": "C012",
+          "supporting_text": "A Q-test was significant (χ 2 (53) = 173.1, p = 1.2 x 10 -14 ), indicating heterogeneity"
+        }
+      ],
+      "limitations": [
+        "The included studies varied in design and operationalization of subjective outcomes.",
+        "The analysis included placebo comparisons only, not active-control comparisons.",
+        "Participants were largely sampled from Western, educated, industrialized cultures, and no clinical samples were included.",
+        "Many studies assessed sociability as a secondary outcome, and participants were typically tested alone."
+      ],
+      "extraction_uncertainties": []
+    }
+  },
+  {
+    "audit_index": 462,
+    "doi": "10.1371/journal.pone.0258849",
+    "item": {
+      "result_id": "R2",
+      "addresses_question_ids": [
+        "Q1"
+      ],
+      "result_role": "secondary_synthesis",
+      "importance_in_paper": "supporting",
+      "relationship_statement": "The same multilevel synthesis expressed as a correlation indicated a positive association between MDMA and self-reported sociability-related outcomes compared with placebo.",
+      "primary_subject_area": "subjective_experience",
+      "subject_areas": [
+        "subjective_experience"
+      ],
+      "evidence_source": "human",
+      "population_or_system": "Healthy young adult volunteers in placebo-controlled experimental studies",
+      "intervention_or_exposure": "MDMA; study doses and regimens varied",
+      "comparator": "Placebo",
+      "outcome_or_entity": "Self-reported sociability-related outcomes",
+      "outcome_measure": "Correlation effect size (r)",
+      "timepoint_or_window": "Acute experimental drug sessions; exact assessment windows varied or were not reported",
+      "effect_estimate": {
+        "metric": "r",
+        "estimate": ".39",
+        "interval_type": "confidence_interval",
+        "interval_level": "95%",
+        "interval_lower": ".32",
+        "interval_upper": ".46",
+        "interval_reported": "95% CI [.32, .46]",
+        "model": "Multilevel meta-analysis",
+        "analysis_scale": "Correlation",
+        "unit_of_analysis": "Effect sizes nested within studies",
+        "adjustment_status": "Accounted for dependencies among effect sizes nested within studies"
+      },
+      "evidence_size": {
+        "study_count": "27 studies",
+        "participant_count": "592 participants",
+        "effect_or_experiment_count": "54 effect sizes",
+        "dataset_or_comparison_count": "30 within-person conditions"
+      },
+      "analysis_context": {
+        "analysis_type": "Multilevel meta-analysis",
+        "dependency_handling": "Accounted for effect sizes nested within studies."
+      },
+      "interpretation": {
+        "finding_direction": "supports",
+        "favors": "MDMA over placebo for self-reported sociability-related outcomes",
+        "outcome_orientation": "beneficial",
+        "statistical_interpretation": "The reported 95% confidence interval is entirely above zero.",
+        "authors_interpretation": "Reported by the authors alongside the Cohen's d estimate as evidence of a moderate-to-large effect."
+      },
+      "evidence_locators": [
+        {
+          "location": "abstract",
+          "locator": "C001",
+          "supporting_text": "d = 0.86; 95% CI [0.68, 1.04]; r = .39; 95% CI [.32, .46]"
+        }
+      ],
+      "extraction_uncertainties": []
+    }
+  }
+]

@@ -116,6 +116,12 @@ def test_high_precision_repository_and_identifier_rules() -> None:
                 "study_journal": "Institutional Repository",
                 "publication_type": "Poster",
             },
+            {
+                "doi": "10.example/pure-letter",
+                "study_title": "A reply to the editor",
+                "publication_type": "Letter",
+                "abstract": "We disagree with the earlier interpretation.",
+            },
         ]
     )
 
@@ -134,6 +140,7 @@ def test_high_precision_repository_and_identifier_rules() -> None:
         "10.1016/j.jalz.2014.07.017": "conference_abstract",
         "10.26226/morressier.example": "conference_abstract",
         "10.31235/osf.io/fv6wj_v1": "preprint_or_unpublished",
-        "10.1056/nejmc0804248": "correspondence_or_letter",
+        "10.example/pure-letter": "correspondence_or_letter",
         "10.example/poster": "conference_poster",
     }
+    assert "10.1056/nejmc0804248" not in formats

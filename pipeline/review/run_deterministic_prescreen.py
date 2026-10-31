@@ -40,6 +40,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
 
 
 ROOT = Path(__file__).resolve().parents[2]
+from pipeline.extract.review_source_types import is_accepted_scholarly_analysis
 DEFAULT_CORPUS_DIR = ROOT / "data" / "processed" / "corpus"
 DEFAULT_PAPERS_TABLE = DEFAULT_CORPUS_DIR / "candidate_papers.parquet"
 DEFAULT_CONTEXTS_TABLE = DEFAULT_CORPUS_DIR / "candidate_contexts.parquet"
@@ -53,7 +54,7 @@ DEFAULT_EXTRACTION_TASKS_JSONL = (
 DEFAULT_RECONCILIATION_REPORT = DEFAULT_CORPUS_DIR / "prescreen_workflow_reconciliation.json"
 TABLE_VERSION = "0.3"
 RULE_VERSION = "deterministic_prescreen_v2_12_20260916"
-CLEANUP_RULE_VERSION = "deterministic_cleanup_luna_v5_20261017"
+CLEANUP_RULE_VERSION = "deterministic_cleanup_v3_20261022"
 MINIMUM_ABSTRACT_WORD_COUNT = 50
 ENGLISH_LANGUAGE_CODES = {"en", "eng", "english"}
 CANDIDATE_PRESCREEN_DEFAULTS = {
@@ -142,6 +143,7 @@ AMBIGUOUS_NARRATIVE_PUBLICATION_TYPES = {
     "insight article",
     "perspective",
     "viewpoint",
+    "letter",
 }
 EVIDENCE_BEARING_PUBLICATION_PATTERNS = (
     re.compile(r"\bcase reports?\b", re.IGNORECASE),
@@ -196,12 +198,26 @@ OUT_OF_SCOPE_PUBLICATION_FORMAT_TYPES = {
     "visual essay": "visual_essay",
 }
 OUT_OF_SCOPE_PUBLICATION_FORMAT_DOI_PATTERNS = (
+    # Verified source-format families from the October source audit. These
+    # remain publication cleanup rules, independent of topic eligibility.
+    # Publisher examples: clinician.nejm.org/JP201004160000003;
+    # academic.oup.com/pch/issue/19/6 (Canadian Paediatric Society abstracts);
+    # academic.oup.com/jsm/issue/23/Supplement_1 (meeting proceedings).
+    (re.compile(r"^10\.1056/jp\d", re.IGNORECASE), "news_summary"),
+    (re.compile(r"^10\.1097/01\.aoa\.", re.IGNORECASE), "news_summary"),
+    (re.compile(r"^10\.5860/choice\.", re.IGNORECASE), "book_review"),
+    (re.compile(r"^10\.1093/pch/19\.6\.e35-\d+$", re.IGNORECASE), "conference_abstract"),
+    (re.compile(r"^10\.1093/jsxmed/qdag002\.\d+$", re.IGNORECASE), "conference_abstract"),
     # Psychopharmacology Institute Quick Takes are educational summaries of
     # other publications, not the underlying evidence report.
     (
         re.compile(r"^10\.64239/pi-qt\d+$", re.IGNORECASE),
         "commentary",
     ),
+    # Child and Adolescent Psychiatry Smart Takes are the same publisher's
+    # named educational-summary series, not their underlying research reports.
+    # Verified primary example: Ketamine for Adolescent Depression (PI-CAPST0804).
+    (re.compile(r"^10\.64239/pi-capst\d+$", re.IGNORECASE), "educational_summary"),
     (
         re.compile(r"^10\.17632/", re.IGNORECASE),
         "dataset_or_data_deposit",
@@ -276,7 +292,7 @@ OUT_OF_SCOPE_PUBLICATION_FORMAT_DOI_PATTERNS = (
     # identifiers. Ordinary FASEB research articles use the 10.1096/fj.* block.
     (
         re.compile(
-            r"^10\.1096/fasebj\.(?:\d{4}\.)?\d+\.(?:s\d+\.|\d+\.a\d)",
+            r"^10\.1096/fasebj\.(?:\d{4}\.)?\d+\.(?:s\d+\.|\d+_supplement\.|\d+\.a\d)",
             re.IGNORECASE,
         ),
         "conference_abstract",
@@ -381,17 +397,9 @@ OUT_OF_SCOPE_PUBLICATION_FORMAT_DOI_PATTERNS = (
         re.compile(r"^10\.32470/ccn\.", re.IGNORECASE),
         "conference_paper",
     ),
-    # Explicit supplement tokens in an item DOI identify contributions to a
-    # journal supplement. In this corpus these are overwhelmingly meeting
-    # abstracts; the broader format label remains accurate for the few review
-    # or article-shaped supplement contributions.
-    (
-        re.compile(
-            r"(?:^|[._/-])(?:supplement(?:ary)?|suppl)(?:[._/-]|$)",
-            re.IGNORECASE,
-        ),
-        "supplement_issue_contribution",
-    ),
+    # A generic supplement token is not enough: real articles and reviews can
+    # be published in supplements. Only verified meeting/object namespaces or
+    # explicit publication types above establish an automatic exclusion.
 )
 
 # Some publishers share a DOI prefix between journals and proceedings. Exclude
@@ -902,7 +910,7 @@ def out_of_scope_publication_format_decision(row: dict) -> dict | None:
     matched_terms = sorted(
         value for value in publication_types if value in OUT_OF_SCOPE_PUBLICATION_FORMAT_TYPES
     )
-    if has_substantive_evidence_signal(row):
+    if has_substantive_evidence_signal(row) or is_accepted_scholarly_analysis(row):
         protected_types = {
             value
             for value in publication_types
@@ -942,13 +950,7 @@ def out_of_scope_publication_format_decision(row: dict) -> dict | None:
                 "corroborated_conference_supplement:"
                 f"{venue_match.group(0)}:{journal_issue}:{journal_pages}"
             )
-    supplement_page_match = SINGLE_PAGE_SUPPLEMENT_PAGES_RE.search(journal_pages)
-    if supplement_page_match:
-        first_page = supplement_page_match.group("first")
-        last_page = supplement_page_match.group("last")
-        if not last_page or last_page == first_page:
-            matched_formats.add("supplement_issue_contribution")
-            matched_terms.append(f"single_page_supplement:{supplement_page_match.group(0)}")
+    # A single S-page is a review/navigation signal, not an exclusion by itself.
     if VISUAL_ESSAY_TEXT_RE.search(" ".join(value for value in (title, abstract) if value)):
         matched_formats.add("visual_essay")
         matched_terms.append("visual essay")
@@ -992,13 +994,15 @@ def non_evidence_artifact_decision(row: dict) -> dict | None:
     for pattern in NON_EVIDENCE_TEXT_PATTERNS:
         match = pattern.search(title_abstract)
         if match:
+            if match.group(0).lower() == "this theoretical article" and is_accepted_scholarly_analysis(row):
+                continue
             matched_terms.append(match.group(0))
     for pattern in NON_EVIDENCE_SOURCE_PATTERNS:
         match = pattern.search(journal)
         if match:
             matched_terms.append(match.group(0))
     non_source_publication_types = publication_types.intersection(NON_SOURCE_PUBLICATION_TYPES)
-    if has_substantive_evidence_signal(row):
+    if has_substantive_evidence_signal(row) or is_accepted_scholarly_analysis(row):
         non_source_publication_types -= AMBIGUOUS_NARRATIVE_PUBLICATION_TYPES
     if non_source_publication_types:
         matched_terms.extend(sorted(non_source_publication_types))

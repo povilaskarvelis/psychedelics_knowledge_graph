@@ -23,6 +23,9 @@ def require_screening_complete():
         state = json.loads(PIPELINE_STATE.read_text())
         if state.get("screening_status") != "complete":
             raise RuntimeError("Fresh Luna screening must finish before extraction can be prepared or run")
+        for addition in state.get("screening_scope_additions", {}).values():
+            if addition.get("screening_status") != "complete":
+                raise RuntimeError("The current Luna screening scope addition must finish before extraction can be prepared or run")
 
 
 def reject_retired_provenance(value):
@@ -70,16 +73,25 @@ def budget_ledger():
         atomic_json(path, ledger)
 
 
-def reserve_budget(key, ceiling):
+def reserve_budget(key, ceiling, *, allow_reservation_overcommit=False):
     with budget_ledger() as ledger:
         if ledger is None:
             return
         if key in ledger["entries"]:
             raise RuntimeError("A prior paid attempt/reservation exists; reconcile it before retrying")
-        committed = sum(e.get("actual_usd", e["reserved_usd"]) for e in ledger["entries"].values())
+        # Explicitly authorized concurrent dispatch can use settled spending
+        # rather than hypothetical maximum output for every unfinished job.
+        # Keep all reservations in the ledger and preserve the default guard.
+        committed = (
+            sum(e.get("actual_usd", 0) for e in ledger["entries"].values())
+            if allow_reservation_overcommit
+            else sum(e.get("actual_usd", e["reserved_usd"]) for e in ledger["entries"].values())
+        )
         if committed + ceiling > ledger["limit_usd"]:
             raise RuntimeError(f"Model API budget would exceed ${ledger['limit_usd']:.2f}; no request submitted")
         ledger["entries"][key] = {"reserved_usd": ceiling}
+        if allow_reservation_overcommit:
+            ledger["entries"][key]["reservation_overcommit_user_authorized"] = True
 
 
 def settle_budget(key, actual):
@@ -266,7 +278,7 @@ def batch_line_error(row):
     return ""
 
 
-def submit(api_client, *, requests_path, job_path, metadata):
+def submit(api_client, *, requests_path, job_path, metadata, allow_reservation_overcommit=False):
     """Durable reservation and idempotency prevent accidental duplicate paid submissions."""
     requests_path, job_path = Path(requests_path), Path(job_path)
     if job_path.exists():
@@ -286,7 +298,7 @@ def submit(api_client, *, requests_path, job_path, metadata):
         ceiling += reservation_cost(row["body"], batch=True)
     if not count or count > 50000 or requests_path.stat().st_size > 200_000_000:
         raise ValueError("Batch must contain 1–50,000 requests and be at most 200 MB")
-    reserve_budget(str(job_path), ceiling)
+    reserve_budget(str(job_path), ceiling, allow_reservation_overcommit=allow_reservation_overcommit)
     atomic_json(job_path, dict(status="submitting", input_sha256=digest))
     with requests_path.open("rb") as f:
         uploaded = api_client.files.create(file=f, purpose="batch")

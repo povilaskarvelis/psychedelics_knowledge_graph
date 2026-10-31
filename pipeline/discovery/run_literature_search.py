@@ -152,7 +152,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--layers",
         default="",
-        help="Comma-separated core,scope,targeted_pairs. Defaults to core,scope for both update and full runs.",
+        help="Comma-separated core,scope,targeted_pairs,scope_delta. Use scope_delta alone for targeted all-time recovery of newly added compounds; defaults to core,scope.",
     )
     parser.add_argument("--from-date", default="")
     parser.add_argument("--to-date", default="")
@@ -247,7 +247,7 @@ def run(args: argparse.Namespace) -> dict:
         default_layers = "core,scope"
         layers = parse_csv_values(
             args.layers or default_layers,
-            ("core", "scope", "targeted_pairs"),
+            ("core", "scope", "targeted_pairs", "scope_delta"),
             "layers",
         )
         if args.mode == "historical_gap":

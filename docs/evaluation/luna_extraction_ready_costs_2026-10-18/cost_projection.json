@@ -1,0 +1,157 @@
+{
+  "generated_at": "2026-10-18T10:21:41.636089+00:00",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "low",
+  "currency": "USD",
+  "pricing_source": "https://developers.openai.com/api/docs/pricing",
+  "model_notes_source": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+  "short_batch_rates_per_million": {
+    "input": 0.05,
+    "cache_read": 0.005,
+    "cache_write": 0.0625,
+    "output": 0.25
+  },
+  "long_batch_rates_per_million": {
+    "input": 0.1,
+    "cache_read": 0.01,
+    "cache_write": 0.125,
+    "output": 0.375
+  },
+  "long_context_above_input_tokens": 272000,
+  "input_estimation": {
+    "encoding": "o200k_base",
+    "metered_calibration_calls": 360,
+    "calibration_mean_adjustment_tokens": -112.08888888888889,
+    "calibration_residual_min": -135,
+    "calibration_residual_max": -88,
+    "limitation": "Local tokenizer plus calibrated schema/envelope overhead, not server-counted exact tokens."
+  },
+  "output_estimation": "Current baseline Luna output usage by domain/depth from360 fresh calls. Saved40-call family pilots for reviews/meta; guideline uses review proxy. Includes reasoning tokens; corpus output lengths can differ.",
+  "cache_assumption": "No cache-read discount assumed. Budget allowance adds25% input cache-write premium, then25% further allowance to combined cost. Not a confidence interval or guaranteed cap.",
+  "lanes": {
+    "primary": {
+      "tasks": 33146,
+      "papers": 18058,
+      "by_depth": {
+        "article_text": 13808,
+        "abstract_only": 19338
+      },
+      "estimated_input_tokens": 208322365,
+      "expected_output_tokens_including_reasoning": 41861968.95665377,
+      "long_context_calls": 0,
+      "input_cost_usd": 10.41611825,
+      "output_cost_usd": 10.465492239163442,
+      "expected_cost_usd": 20.881610489163442,
+      "budget_allowance_usd": 29.3570500645793
+    },
+    "guideline": {
+      "tasks": 35,
+      "papers": 35,
+      "by_depth": {
+        "article_text": 25,
+        "abstract_only": 10
+      },
+      "estimated_input_tokens": 285689,
+      "expected_output_tokens_including_reasoning": 139912.25,
+      "long_context_calls": 0,
+      "input_cost_usd": 0.01428445,
+      "output_cost_usd": 0.0349780625,
+      "expected_cost_usd": 0.049262512499999994,
+      "budget_allowance_usd": 0.06604203125
+    },
+    "review": {
+      "tasks": 4053,
+      "papers": 4053,
+      "by_depth": {
+        "abstract_only": 2032,
+        "article_text": 2021
+      },
+      "estimated_input_tokens": 37980486,
+      "expected_output_tokens_including_reasoning": 15190358.35,
+      "long_context_calls": 0,
+      "input_cost_usd": 1.8990243,
+      "output_cost_usd": 3.7975895874999996,
+      "expected_cost_usd": 5.6966138875,
+      "budget_allowance_usd": 7.7142124531250005
+    },
+    "meta": {
+      "tasks": 350,
+      "papers": 350,
+      "by_depth": {
+        "article_text": 181,
+        "abstract_only": 169
+      },
+      "estimated_input_tokens": 4919725,
+      "expected_output_tokens_including_reasoning": 1769906.65,
+      "long_context_calls": 1,
+      "input_cost_usd": 0.27582295,
+      "output_cost_usd": 0.4433050625,
+      "expected_cost_usd": 0.7191280125,
+      "budget_allowance_usd": 0.9851046875
+    }
+  },
+  "total_tasks": 37584,
+  "unique_papers": 22496,
+  "expected_cost_usd": 27.346614901663443,
+  "budget_allowance_usd": 38.1224092364543,
+  "maximum_configured_output_tokens_cost_plus_expected_input_usd": 167.98700995,
+  "too_large_inputs": [],
+  "batch_partition_plan": {
+    "primary": [
+      {
+        "requests": 4740,
+        "estimated_jsonl_bytes": 133589959
+      },
+      {
+        "requests": 4740,
+        "estimated_jsonl_bytes": 133589956
+      },
+      {
+        "requests": 4741,
+        "estimated_jsonl_bytes": 133598067
+      },
+      {
+        "requests": 4740,
+        "estimated_jsonl_bytes": 133589959
+      },
+      {
+        "requests": 4740,
+        "estimated_jsonl_bytes": 133589952
+      },
+      {
+        "requests": 4740,
+        "estimated_jsonl_bytes": 133589967
+      },
+      {
+        "requests": 4740,
+        "estimated_jsonl_bytes": 133589961
+      }
+    ],
+    "review": [
+      {
+        "requests": 2026,
+        "estimated_jsonl_bytes": 93393061
+      },
+      {
+        "requests": 2027,
+        "estimated_jsonl_bytes": 93393111
+      }
+    ],
+    "meta": [
+      {
+        "requests": 350,
+        "estimated_jsonl_bytes": 21041251
+      }
+    ]
+  },
+  "project_budget": {
+    "authorized_usd": 100.0,
+    "logged_settled_spend_usd": 19.450833755,
+    "unknown_attempt_reservations_usd": 0.63724525,
+    "available_after_reservations_usd": 79.91192099499999
+  },
+  "new_model_calls": 0,
+  "batches_submitted": 0,
+  "record_file": "cost_records.jsonl",
+  "batch_size_plan_note": "Balanced largest-first plan; at most5000 requests and148MB estimated JSONL per job, with2MB headroom for actual custom IDs. Final request bytes and reservations must still pass submission guards."
+}

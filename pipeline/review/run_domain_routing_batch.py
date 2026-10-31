@@ -37,6 +37,9 @@ try:
         clean,
         completed_dois,
         generation_config,
+        screening_profile,
+        screening_instruction,
+        screening_instruction_path,
         merged_routing_metadata,
         load_dotenv,
         normalize_payload,
@@ -68,6 +71,9 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         clean,
         completed_dois,
         generation_config,
+        screening_profile,
+        screening_instruction,
+        screening_instruction_path,
         merged_routing_metadata,
         load_dotenv,
         normalize_payload,
@@ -146,7 +152,7 @@ def model_from_env(args: argparse.Namespace) -> str:
 
 def selected_routing_records(args: argparse.Namespace) -> list[dict]:
     scoped_dois = read_doi_file(Path(args.doi_file).resolve()) if clean(args.doi_file) else set()
-    completed = completed_dois(Path(args.raw_jsonl).resolve()) if getattr(args, "resume", False) else set()
+    completed = completed_dois(Path(args.raw_jsonl).resolve(), screening_profile(args)) if getattr(args, "resume", False) else set()
     candidate_table = clean(getattr(args, "candidate_table", ""))
     routing_metadata = merged_routing_metadata(
         read_table(Path(candidate_table).resolve()) if candidate_table else pd.DataFrame(),
@@ -167,7 +173,7 @@ def selected_routing_records(args: argparse.Namespace) -> list[dict]:
 
 
 def batch_request_for_record(*, api_client: object, record: dict, args: argparse.Namespace) -> dict:
-    request = llm.request_body(model=model_from_env(args), contents=prompt_for_record(record), config=generation_config(args))
+    request = llm.request_body(model=model_from_env(args), contents=prompt_for_record(record, screening_profile(args)), config=generation_config(args))
     return jsonable(request)
 
 
@@ -190,6 +196,8 @@ def write_batch_requests_for_records(args: argparse.Namespace, records: list[dic
     manifest_json = Path(args.manifest_json).resolve()
     client = None
     model = model_from_env(args)
+    profile = screening_profile(args)
+    from pipeline.review import screening_contract as contract
 
     manifest_records = []
     batch_input_jsonl.parent.mkdir(parents=True, exist_ok=True)
@@ -204,8 +212,9 @@ def write_batch_requests_for_records(args: argparse.Namespace, records: list[dic
                     "input_row_index": input_row_index,
                     "doi": normalize_doi(record.get("doi", "")),
                     "study_title": clean(record.get("study_title", "")),
-                    "prompt_chars": len(prompt_for_record(record)),
-                    "prompt_sha256": llm.hashlib.sha256(SYSTEM_INSTRUCTION.encode()).hexdigest(),
+                    "prompt_chars": len(prompt_for_record(record, profile)),
+                    "source_record": record,
+                    "prompt_sha256": llm.hashlib.sha256(screening_instruction(args).encode()).hexdigest(),
                 }
             )
 
@@ -219,6 +228,8 @@ def write_batch_requests_for_records(args: argparse.Namespace, records: list[dic
             "doi_file": str(Path(args.doi_file).resolve()) if clean(args.doi_file) else "",
             "raw_jsonl": str(Path(args.raw_jsonl).resolve()),
             "model": model,
+            "screening_profile": profile,
+            "screening_instruction_file": str(screening_instruction_path(args) or ""),
             "start_index": max(1, int(args.start_index)),
             "limit": int(args.limit),
             "temperature": float(args.temperature),
@@ -392,6 +403,7 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
     duplicate_manifest_keys = sorted(key for key, count in manifest_key_counts.items() if count > 1)
     manifest_by_key = records_by_key(manifest)
     model = clean(manifest.get("inputs", {}).get("model", "")) or model_from_env(args)
+    profile = manifest.get("inputs", {}).get("screening_profile", "v5_class_scope")
     metadata_table = Path(args.metadata_table).resolve()
     prescreen_table = Path(args.prescreen_decisions_table).resolve()
     candidate_table = clean(getattr(args, "candidate_table", ""))
@@ -427,6 +439,8 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
             "generated_at_utc": now_utc(),
             "doi": doi,
             "model": model,
+            "screening_profile": profile,
+            "source_record": manifest_record.get("source_record", {}),
             "status": "error",
             "response_text": text,
             "parsed": {},
@@ -447,7 +461,7 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
                 raise RuntimeError(f"No manifest record found for batch key `{key}`")
             if not doi:
                 raise RuntimeError(f"No DOI found for batch key `{key}`")
-            parsed = normalize_payload(parse_response_text(text))
+            parsed = normalize_payload(parse_response_text(text, profile=profile, record=manifest_record.get("source_record", {})))
             raw_row.update({"status": "ok", "parsed": parsed})
             for usage_key, value in raw_row["usage"].items():
                 if isinstance(value, int):
@@ -579,6 +593,8 @@ def main() -> int:
     add_common_generation_args(prepare)
     prepare.add_argument("--batch-input-jsonl", default=str(default_batch_input_jsonl()))
     prepare.add_argument("--manifest-json", default=str(default_batch_manifest_json()))
+    prepare.add_argument("--screening-profile", choices=["v5_class_scope", "v6_scope_checked"], default="")
+    prepare.add_argument("--screening-instruction-file", default="", help="Explicit frozen instruction file for a documented scope amendment; schema and parser remain those of --screening-profile.")
 
     submit = subparsers.add_parser("submit", help="Upload prepared request JSONL and create a batch job.")
     submit.add_argument("--batch-input-jsonl", default=str(default_batch_input_jsonl()))

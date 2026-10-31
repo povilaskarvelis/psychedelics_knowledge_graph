@@ -246,7 +246,7 @@ def advance(args):
             temp.replace(dest)
         state["screening_status"] = "complete"
         state["screening_table_sha256"] = sha(screening.DEFAULT_OUTPUT_TABLE)
-        state["extraction_status"] = "ready_to_prepare"
+        state["extraction_status"] = "awaiting_fulltext_recovery"
     elif result.get("submitted_now") or result.get("active"):
         state["screening_status"] = "running"
     save(path, state)
@@ -261,6 +261,7 @@ def prepare_extraction(args):
         raise RuntimeError("Complete Luna screening first; no old extraction selection may be reused")
     if sha(screening.DEFAULT_OUTPUT_TABLE) != state["screening_table_sha256"]:
         raise ValueError("Screening table changed after completion")
+    require_fulltext_recovery(state)
     run_command(["pipeline/extract/build_extraction_routes.py"])
     run_command(["pipeline/extract/build_extraction_tasks.py", "--only-ready"])
     run_command(["pipeline/extract/build_review_relationship_tasks.py"])
@@ -270,6 +271,17 @@ def prepare_extraction(args):
     save(state_path, state)
     save(llm.PIPELINE_STATE, state)
     return state
+
+
+def require_fulltext_recovery(state):
+    """Do not confuse existing local artifacts with post-screen retrieval completion."""
+    recovery = state.get("fulltext_recovery", {})
+    if recovery.get("status") != "complete":
+        raise RuntimeError(
+            "Complete and reconcile post-screen open-access/full-text recovery before preparing extraction inputs"
+        )
+    if not state.get("screening_table_sha256") or recovery.get("screening_table_sha256") != state["screening_table_sha256"]:
+        raise ValueError("Full-text recovery must cover this exact screening generation")
 
 
 def repack_screening(args):

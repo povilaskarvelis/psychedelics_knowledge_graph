@@ -170,7 +170,38 @@ OPTIONAL_PRIMARY_OBSERVATION_FIELDS = (
     "value_source_locator",
 )
 
-FINDING_FIELDS = OPTIONAL_PRIMARY_OBSERVATION_FIELDS + (
+# Current Safety source assertions, independent of the coarse graph anchor.
+# Optional for older tables; no rates, diagnoses or seriousness are inferred.
+OPTIONAL_SAFETY_OBSERVATION_FIELDS = (
+    "safety_event_or_measure",
+    "safety_category",
+    "severity",
+    "seriousness",
+    "frequency_or_rate",
+    "discontinuation_or_withdrawal",
+)
+
+# Native cognitive/behavioral measurements have a separate reported-value
+# field. Keep it independent of the effect description and normalized node.
+OPTIONAL_COGNITIVE_OBSERVATION_FIELDS = (
+    "construct_or_behavior", "task_or_measure", "behavioral_context", "statistic_or_value",
+)
+
+OPTIONAL_SUBJECTIVE_OBSERVATION_FIELDS = (
+    "subjective_construct", "instrument_or_measure", "setting_or_context", "relationship_to_outcome",
+)
+
+OPTIONAL_REVIEW_CONTEXT_FIELDS = (
+    "review_context_component", "review_context_summary", "review_context_limitations",
+)
+
+OPTIONAL_RECOMMENDATION_FIELDS = (
+    "recommendation_statement", "recommendation_type", "recommendation_strength",
+    "rationale_or_evidence_basis", "direction_or_tone", "source_document_type", "population_or_system",
+)
+RECOMMENDATION_SOURCE_TYPES = {"guideline", "consensus_statement", "position_statement", "expert_recommendation"}
+
+FINDING_FIELDS = OPTIONAL_REVIEW_CONTEXT_FIELDS + OPTIONAL_RECOMMENDATION_FIELDS + OPTIONAL_SUBJECTIVE_OBSERVATION_FIELDS + OPTIONAL_COGNITIVE_OBSERVATION_FIELDS + OPTIONAL_PRIMARY_OBSERVATION_FIELDS + OPTIONAL_SAFETY_OBSERVATION_FIELDS + (
     "graph_subject_label",
     "graph_subject_kind",
     "graph_subject_source_field",
@@ -365,7 +396,15 @@ FINDING_FIELDS = OPTIONAL_PRIMARY_OBSERVATION_FIELDS + (
 # Explicit publication contract for row-level data sent to a browser. New
 # extraction columns are private by default and appear here only after the UI
 # needs them and their public meaning has been reviewed.
-PUBLIC_BROWSER_DETAIL_FIELDS = OPTIONAL_PRIMARY_OBSERVATION_FIELDS + (
+# Native public-health observations need their numeric estimate and sampling
+# context in paper detail; effect_size may only say "descriptive percentages".
+# These are scientific result fields already loaded from normalized findings.
+OPTIONAL_REAL_WORLD_OBSERVATION_FIELDS = (
+    "exposure_or_policy", "estimate_value", "estimate_unit",
+    "association_or_trend", "time_window", "setting",
+)
+
+PUBLIC_BROWSER_DETAIL_FIELDS = OPTIONAL_REVIEW_CONTEXT_FIELDS + OPTIONAL_RECOMMENDATION_FIELDS + OPTIONAL_SUBJECTIVE_OBSERVATION_FIELDS + OPTIONAL_COGNITIVE_OBSERVATION_FIELDS + OPTIONAL_REAL_WORLD_OBSERVATION_FIELDS + OPTIONAL_PRIMARY_OBSERVATION_FIELDS + OPTIONAL_SAFETY_OBSERVATION_FIELDS + (
     "domain",
     "finding_type",
     "evidence_type",
@@ -1076,6 +1115,15 @@ def finding_from_record(
         if value != "":
             finding[field] = value
 
+    # Preserve the source context and qualifications independently of its
+    # controlled display label. These aliases never synthesize a new assertion.
+    from pipeline.kg.intervention_observation_identity import anchored_review_context
+    if anchored_review_context(raw):
+        for public, native in zip(OPTIONAL_REVIEW_CONTEXT_FIELDS,
+                                  ("context_component", "finding_summary", "notes")):
+            if meaningful(raw.get(native)):
+                finding[public] = raw[native]
+
     paper_authors = author_identities.get(finding.get("paper_id", ""), {})
     if paper_authors.get("reviewed_author_names"):
         finding["authors"] = "; ".join(paper_authors["reviewed_author_names"])
@@ -1322,6 +1370,8 @@ def secondary_literature_source_key(finding: dict) -> str:
         for field in ("paper_type", "source_type")
         if source_type_token(finding.get(field))
     }
+    if explicit_tokens & RECOMMENDATION_SOURCE_TYPES:
+        return REVIEWS_SOURCE_KEY
     if explicit_tokens & META_ANALYSIS_SOURCE_TYPES or any("meta_analysis" in token for token in explicit_tokens):
         return META_ANALYSES_SOURCE_KEY
     if explicit_tokens & REVIEW_SOURCE_TYPES or any("review" in token for token in explicit_tokens):

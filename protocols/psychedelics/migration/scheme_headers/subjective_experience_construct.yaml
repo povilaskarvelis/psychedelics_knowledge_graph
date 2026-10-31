@@ -1,0 +1,32 @@
+scheme: subjective_experience_construct
+title: Subjective experience constructs
+protocol: psychedelics
+status: worked_example
+reuse: field
+node_kind: subjective_experience_construct
+used_by_domains: [subjective_experience]
+external_ids:
+  scheme: none_assigned
+  note: No external identifier scheme has been chosen for these constructs (see SPEC.md, open decision D4).
+matching:
+  implemented_in: >-
+    pipeline/kg/build_evidence_tables.py: match_vocabulary_entity, canonical_subjective_experience_label,
+    subjective_experience_rule_label, subjective_experience_graph_label (read 2026-10-30)
+  key_normalization: ASCII-fold, lowercase, '&' to 'and', non-alphanumeric characters to single spaces (label_key)
+  entity_label:
+    description: Normalizes the extracted entity label of a finding to one concept.
+    steps:
+      - {use: labels_and_aliases, compare: exact_key}
+      - {use: labels_and_aliases, compare: contained_in_text, when_one_match: assign, when_several_matches: mark_as_combination}
+      - {use: extracted_label, condition: unmatched and at most 160 characters, result: detail_only_construct}
+  graph_label:
+    description: Assigns the concept used in the overview graph.
+    steps:
+      - {use: exact_keys_then_concept_labels, fields: label_fields}
+      - {use: patterns, order: declared, stop_at: first_match, fields: label_fields}
+      - {use: extracted_label, fields: label_fields}
+      - {use: patterns, order: declared, stop_at: first_match, fields: context_fields}
+  field_groups:
+    label_fields: [graph_entity_label, raw_entity_label, entity_label, subjective_construct, subjective_construct_category]
+    context_fields: [label_fields, instrument_or_measure, outcome_measure, setting_or_context, relationship_to_outcome,
+                     effect_or_statistic, finding_summary, study_title, support, supporting_quote]

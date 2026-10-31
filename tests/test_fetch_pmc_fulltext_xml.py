@@ -1,7 +1,15 @@
 import json
+import io
 import tempfile
+import threading
+import time
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from types import SimpleNamespace
+from urllib.error import HTTPError
+
+import pytest
 
 import pandas as pd
 
@@ -11,9 +19,40 @@ from pipeline.fulltext.fetch_pmc_fulltext_xml import (
     pmcid_from_metadata,
     sections_from_jats,
     selected_rows,
+    fetch_pmc_oai_xml,
+    FullTextXmlNotAvailable,
 )
 from pipeline.extract.build_extraction_routes import merged_extraction_metadata
 from pipeline.fulltext.convert_pdfs import doi_to_slug
+
+
+@pytest.mark.parametrize("code", ["cannotDisseminateFormat", "idDoesNotExist", "badArgument"])
+def test_oai_http_400_preserves_protocol_error_meaning(code):
+    body = f'<OAI-PMH><error code="{code}">explanation</error></OAI-PMH>'.encode()
+    def get_bytes(*a, **kw):
+        raise HTTPError("https://pmc.ncbi.nlm.nih.gov", 400, "Bad Request", {}, io.BytesIO(body))
+    expected = HTTPError if code == "badArgument" else FullTextXmlNotAvailable
+    with pytest.raises(expected):
+        fetch_pmc_oai_xml(SimpleNamespace(get_bytes=get_bytes), "PMC12345")
+
+
+def test_oai_network_requests_remain_serial_with_multiple_workers():
+    active = 0
+    maximum = 0
+    lock = threading.Lock()
+    def get_bytes(*a, **kw):
+        nonlocal active, maximum
+        with lock:
+            active += 1
+            maximum = max(maximum, active)
+        time.sleep(0.005)
+        with lock:
+            active -= 1
+        return b"<OAI-PMH/>"
+    client = SimpleNamespace(get_bytes=get_bytes)
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        list(executor.map(lambda n: fetch_pmc_oai_xml(client, f"PMC{n}"), range(8)))
+    assert maximum == 1
 
 
 def write_source_identity_audit(root: Path, rows: list[dict]) -> Path:
@@ -127,6 +166,15 @@ class FetchPmcFulltextXmlTest(unittest.TestCase):
                 xml_text=JATS_XML,
                 retrieval_source="pmc_oai_xml",
                 retrieval_trace=[],
+            )
+
+    def test_metadata_and_abstract_xml_is_not_accepted_as_full_text(self) -> None:
+        xml = JATS_XML.split("<body>")[0] + "</article>"
+        with self.assertRaisesRegex(ValueError, "no article body"):
+            build_xml_artifact(
+                {"doi": "10.1000/xml", "study_title": "Example Europe PMC XML paper"},
+                pmcid="PMC123456", endpoint="https://example.test/fulltext.xml",
+                xml_text=xml, retrieval_source="pmc_oai_xml", retrieval_trace=[],
             )
 
     def test_pmcid_from_metadata_accepts_field_or_candidate_urls(self) -> None:

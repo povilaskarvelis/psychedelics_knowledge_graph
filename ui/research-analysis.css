@@ -106,11 +106,12 @@
   .analysis-query-years { width: 100%; }
 }
 @media (max-width: 620px) {
+  .graph-panel { margin-top: 52px; }
   .graph-header-controls .analysis-query-builder { grid-template-columns: minmax(0, 1fr); }
   .research-axis-controls { grid-template-columns: minmax(0, 1fr); }
   .research-coverage-body { padding: 0 12px 12px; }
-  .workspace-tabs { left: 8px; }
-  .workspace-tab { min-width: 94px; padding-inline: 14px; font-size: 0.84rem; }
+  .workspace-tabs { top: -52px; right: 0; left: 0; width: 100%; }
+  .workspace-tab { flex: 1 1 0; min-width: 0; padding-inline: 12px; font-size: 0.84rem; }
 }
 
 .analysis-loading { padding: 24px; }

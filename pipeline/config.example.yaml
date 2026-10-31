@@ -221,6 +221,7 @@ validation:
     - "Ketamine"
     - "S-ketamine"
     - "R-ketamine"
+    - "Phencyclidine"
     - "DOI"
     - "DOB"
     - "DOM"

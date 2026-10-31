@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-19",
+  "profile": "corpus_surveillance",
+  "status": "recommendation_only",
+  "recommendation": "Keep PCP as a core compound with a targeted historical discovery backfill; exclude standalone cannabinoid research from the core; retain substantive core-drug comparisons/interactions; reserve comprehensive cannabinoid coverage for a separate explicit expansion.",
+  "earlier_explanation_correction": "Use for psychedelic purposes alone is too broad to define this corpus consistently. State selected compound families and explicit project exclusions.",
+  "promoted_runs_checked": [
+    "living_full_composite_v3_20260715",
+    "living_update_v3_20260915",
+    "living_update_v3_20261015"
+  ],
+  "dedicated_pcp_queries_in_checked_runs": 0,
+  "dedicated_cannabis_compound_identity_queries_in_checked_runs": 0,
+  "cannabis_terms_role": "All cannabis mentions in these saved queries were cannabis/marijuana use disorder, a potential treatment target.",
+  "pcp_backfill_already_planned_by_existing_scope_delta_logic": true,
+  "pcp_backfill_executed": false,
+  "pcp_query_caution": "Current generated aliases contain bare PCP. Review/disambiguate primary-care and Pneumocystis meanings before executing; preserve phencyclidine full-name/controlled-vocabulary coverage.",
+  "size_checks": {
+    "pcp_precise": 5673,
+    "pcp_precise_english_abstract": 4784,
+    "pcp_bare_acronym": 17047,
+    "cannabis_plant": 53852,
+    "cannabis_cannabinoids": 80099,
+    "cannabis_cannabinoids_english_abstract": 68441,
+    "cannabis_and_pcp": 392
+  },
+  "size_interpretation": "Raw PubMed count checks before full eligibility, deduplication or overlap with the graph; neither additions nor included studies nor estimates of search recall.",
+  "coverage_claim": "Absence of dedicated queries demonstrates a coverage risk, not the proportion missing. Incidental retrieval and shared drug/class indexing may capture substantial literature. No overall recall measured.",
+  "next_steps_if_approved": [
+    "Record the finite core scope and cannabinoid exclusion explicitly in methods.",
+    "Backfill PCP historically in PubMed and OpenAlex using existing discovery workflow and unambiguous aliases.",
+    "Deduplicate, title/abstract-screen only new candidates with Luna, recover accessible full texts only after inclusion, and extract through the existing workflow.",
+    "Keep PCP completeness provisional until backfill reconciles; process additions separately without a new whole-corpus screening round."
+  ],
+  "model_api_calls": 0,
+  "screening_jobs_submitted": 0,
+  "new_search_ingestion_jobs_submitted": 0,
+  "production_mutations": 0,
+  "references": [
+    {
+      "title": "NIH: Psychedelic and Dissociative Drugs",
+      "url": "https://health.nih.gov/health-topics-a-z/psychedelic-drugs"
+    },
+    {
+      "title": "Hallucinations Following Acute Cannabis Dosing (2018)",
+      "doi": "10.1089/can.2017.0052",
+      "pmid": "29682608",
+      "url": "https://journals.sagepub.com/doi/10.1089/can.2017.0052"
+    },
+    {
+      "title": "The psychedelic effects of cannabis: A review of the literature (2024)",
+      "doi": "10.1177/02698811231209194",
+      "pmid": "37947321",
+      "url": "https://journals.sagepub.com/doi/10.1177/02698811231209194"
+    },
+    {
+      "title": "Psychedelic experience dose-dependently modulated by cannabis (2022)",
+      "doi": "10.1007/s00213-021-05999-1",
+      "pmid": "34734314",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34734314/"
+    }
+  ]
+}

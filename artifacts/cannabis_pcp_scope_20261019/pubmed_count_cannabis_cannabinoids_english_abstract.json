@@ -1,0 +1,26 @@
+{
+  "query_name": "cannabis_cannabinoids_english_abstract",
+  "endpoint": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+  "term": "((\"Cannabis\"[MeSH Terms] OR \"Cannabinoids\"[MeSH Terms] OR cannabis[Title/Abstract] OR marijuana[Title/Abstract] OR cannabinoid*[Title/Abstract] OR tetrahydrocannabinol*[Title/Abstract] OR cannabidiol[Title/Abstract]) AND english[Language] AND hasabstract) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+  "date_accessed_utc": "2026-10-19T14:49:39.327842+00:00",
+  "parameters": {
+    "db": "pubmed",
+    "term": "((\"Cannabis\"[MeSH Terms] OR \"Cannabinoids\"[MeSH Terms] OR cannabis[Title/Abstract] OR marijuana[Title/Abstract] OR cannabinoid*[Title/Abstract] OR tetrahydrocannabinol*[Title/Abstract] OR cannabidiol[Title/Abstract]) AND english[Language] AND hasabstract) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+    "retmax": 0,
+    "retmode": "json",
+    "tool": "psychedelics_kg_scope_audit"
+  },
+  "contact_email_provided": true,
+  "count": 68441,
+  "query_translation": "(\"Cannabis\"[MeSH Terms] OR \"Cannabinoids\"[MeSH Terms] OR \"Cannabis\"[Title/Abstract] OR \"marijuana\"[Title/Abstract] OR \"cannabinoid*\"[Title/Abstract] OR \"tetrahydrocannabinol*\"[Title/Abstract] OR \"cannabidiol\"[Title/Abstract]) AND \"english\"[Language] AND \"hasabstract\"[All Fields] AND 1800/01/01:2026/10/19[Date - Publication]",
+  "warnings": null,
+  "errors": null,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status_code": 200
+    }
+  ],
+  "raw_sha256": "ec7cd7bf8ceed304ef59fd5066a1bdacefff08422bf55a9357a7c4e5a0054df9",
+  "interpretation": "Broad database hits, not eligible papers, independent studies, corpus additions, or a recall denominator."
+}

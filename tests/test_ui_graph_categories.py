@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 APP_JS = ROOT / "ui" / "app.js"
 INDEX_HTML = ROOT / "index.html"
 STYLES_CSS = ROOT / "ui" / "styles.css"
+RESEARCH_ANALYSIS_CSS = ROOT / "ui" / "research-analysis.css"
 ANALYSIS_WORKER_JS = ROOT / "ui" / "analysis-worker.js"
 NETLIFY_TOML = ROOT / "netlify.toml"
 GRAPH_VIEW_CONTRACT = ROOT / "schema" / "graph_view_contract.json"
@@ -796,11 +797,10 @@ def test_versioned_static_assets_are_browser_immutable() -> None:
 
     assert headers["/ui/*.js"]["Cache-Control"] == "public, max-age=31536000, immutable"
     assert headers["/ui/*.css"]["Cache-Control"] == "public, max-age=31536000, immutable"
-    assert 'styles.css?v=20260917-analysis-overview-v1' in html_source
-    assert 'app.js?v=20261022-preview-data-v1' in html_source
-    assert 'research-model.js?v=20260905-v1' in html_source
-    assert 'research-analysis.js?v=20260917-analysis-compact-v1' in html_source
-    assert 'research-analysis.css?v=20260917-analysis-compact-v1' in html_source
+    # Releases may legitimately change these versions. Require a versioned URL
+    # for every immutable asset instead of pinning an obsolete release label.
+    for asset in ("styles.css", "app.js", "research-model.js", "research-analysis.js", "research-analysis.css"):
+        assert re.search(re.escape(asset) + r'\?v=[A-Za-z0-9][A-Za-z0-9._-]*["\']', html_source), asset
     assert 'rel="canonical" href="https://psychedelicskg.com/"' in html_source
     assert '"@type": "Dataset"' in html_source
 
@@ -1222,19 +1222,23 @@ def test_graph_allocates_more_label_space_to_the_right_side() -> None:
 
     assert "const GRAPH_LEFT_LABEL_MAX_WIDTH_PX = 180;" in source
     assert "const GRAPH_RIGHT_LABEL_MAX_WIDTH_PX = 210;" in source
-    assert "GRAPH_LEFT_LABEL_MAX_WIDTH_PX + GRAPH_LABEL_MARGIN_BUFFER_PX" in source
-    assert "GRAPH_RIGHT_LABEL_MAX_WIDTH_PX + GRAPH_LABEL_MARGIN_BUFFER_PX + GRAPH_RIGHT_LABEL_GUTTER_PX" in source
+    assert "const leftLabelWidthLimit = compactGraphLayout ? 124 : GRAPH_LEFT_LABEL_MAX_WIDTH_PX;" in source
+    assert "const rightLabelWidthLimit = compactGraphLayout ? 136 : GRAPH_RIGHT_LABEL_MAX_WIDTH_PX;" in source
+    assert "rightLabelWidthLimit + labelMarginBuffer + rightLabelGutter" in source
 
 
-def test_constrained_graph_uses_a_scrollable_canvas_instead_of_scaling_its_contents() -> None:
+def test_phone_graph_fits_the_viewport_while_larger_constrained_graphs_can_scroll() -> None:
     app_source = APP_JS.read_text(encoding="utf-8")
     style_source = STYLES_CSS.read_text(encoding="utf-8")
     graph_source = app_source.split("function buildGraph", 1)[1].split("function render()", 1)[0]
 
     assert "const GRAPH_MIN_LAYOUT_WIDTH_PX = 720;" in app_source
-    assert "viewportWidth < GRAPH_MIN_LAYOUT_WIDTH_PX" in graph_source
-    assert "Math.max(viewportWidth, GRAPH_MIN_LAYOUT_WIDTH_PX)" in graph_source
+    assert "const GRAPH_COMPACT_LAYOUT_BREAKPOINT_PX = 640;" in app_source
+    assert "!compactGraphLayout && viewportWidth < GRAPH_MIN_LAYOUT_WIDTH_PX" in graph_source
+    assert "compactGraphLayout ? Math.max(1, viewportWidth)" in graph_source
+    assert ": Math.max(viewportWidth, GRAPH_MIN_LAYOUT_WIDTH_PX)" in graph_source
     assert 'svg.dataset.horizontalScrollable = horizontallyScrollableGraph ? "true" : "false";' in graph_source
+    assert 'svg.dataset.compactLayout = compactGraphLayout ? "true" : "false";' in graph_source
     assert '.graph svg[data-horizontal-scrollable="true"]' in style_source
     assert "min-width: var(--kg-graph-layout-width);" in style_source
 
@@ -1278,6 +1282,20 @@ def test_constrained_graph_category_tabs_are_a_single_horizontal_scroll_row() ->
     assert "margin-inline: 0 16px;" in category_styles
 
 
+def test_phone_graph_controls_wrap_and_workspace_tabs_align_to_the_panel() -> None:
+    source = STYLES_CSS.read_text(encoding="utf-8")
+    analysis_source = RESEARCH_ANALYSIS_CSS.read_text(encoding="utf-8")
+    phone_styles = source.rsplit("@media (max-width: 640px) {", 1)[1]
+    phone_categories = phone_styles.split(".category-toggle {", 1)[1].split("}", 1)[0]
+
+    assert "overflow: visible;" in phone_styles.split(".explorer-primary-row {", 1)[1].split("}", 1)[0]
+    assert "flex-wrap: wrap;" in phone_styles.split(".filter-center-controls {", 1)[1].split("}", 1)[0]
+    assert "grid-template-columns: repeat(2, minmax(0, 1fr));" in phone_categories
+    assert "width: 100%;" in phone_categories
+    assert ".workspace-tabs { top: -52px; right: 0; left: 0; width: 100%; }" in analysis_source
+    assert ".workspace-tab { flex: 1 1 0; min-width: 0;" in analysis_source
+
+
 def test_query_controls_scroll_when_the_graph_column_is_constrained() -> None:
     source = STYLES_CSS.read_text(encoding="utf-8")
     graph_column_styles = source.split(".graph-column {", 1)[1].split("}", 1)[0]
@@ -1297,7 +1315,7 @@ def test_graph_labels_use_two_lines_without_unspecified_therapy_special_case() -
 
     assert '"psychedelic-assisted therapy (unspecified compounds)"' not in source
     assert "GRAPH_THREE_LINE_LABELS" not in source
-    assert source.count("pos.y, 2);") >= 2
+    assert source.count("pos.y, 2, graphLabelFontSize);") >= 2
 
 
 def test_slash_separated_graph_labels_wrap_without_an_inserted_hyphen() -> None:

@@ -130,3 +130,125 @@ test('finding chunks deduplicate requests, cache results, and retry failures', a
   assert.equal(calls, 2);
   assert.equal(context.analysisDetailRequests, 0);
 });
+
+function deferred() {
+  let resolve;
+  const promise = new Promise(done => { resolve = done; });
+  return { promise, resolve };
+}
+
+function transitionContext(overrides = {}) {
+  const timers = new Map();
+  const attributes = new Map();
+  const events = [];
+  let timerId = 0;
+  const context = contextFor(['loadAnalysisAndRender', 'analysisLoadingHtml', 'escapeHtml'], {
+    explorerRenderToken: 0, explorerMode: 'analysis', explorerSearchMatrix: null,
+    activeAnalysisIndexResult: null, activeAnalysisIndexQueryKey: '', explorerMatrixMemo: null,
+    GRAPH_BASE_HEIGHT_PX: 820,
+    window: {
+      setTimeout(callback, delay) { timers.set(++timerId, { callback, delay }); return timerId; },
+      clearTimeout(id) { timers.delete(id); },
+    },
+    graphEl: {
+      innerHTML: '<div>Previous view</div>',
+      setAttribute(name, value) { attributes.set(name, value); },
+      removeAttribute(name) { attributes.delete(name); },
+      querySelector() { return null; },
+    },
+    cardsEl: {}, studyListEl: {},
+    analysisDataIsReady: () => true,
+    ensureAnalysisIndexReady: async () => true,
+    cancelExplorerSearchRender() {}, closeExplorerSearchOptions() {},
+    stopExplorerWorkspaceAutosize() {}, setExplorerWorkspaceHeight() {}, clearDetailForTransition() {},
+    waitForPaint: async () => { events.push('paint'); },
+    loadAnalysisData: async () => { events.push('load'); },
+    updateAnalysisPrewarmState() {},
+    applyClaimLayerStore() { events.push('prepare'); },
+    isAnalysisCompoundSection: () => false, explorerSourceClaims: () => [],
+    syncYearFilterControls() {}, queryAnalysisIndex: async () => null,
+    analysisIndexQueryKey: () => 'query', updateModeUI() {},
+    renderAnalysisSurface() { events.push('render'); context.graphEl.innerHTML = '<div>Charts</div>'; },
+    ...overrides,
+  });
+  return { context, timers, attributes, events };
+}
+
+for (const ready of [false, true]) {
+  test(`first Analyze entry paints before preparation with ${ready ? 'preloaded' : 'cold'} data`, async () => {
+    const firstPaint = deferred();
+    let paints = 0;
+    const { context, events, attributes } = transitionContext({
+      analysisDataIsReady: () => ready,
+      waitForPaint: () => ++paints === 1 ? firstPaint.promise : Promise.resolve(),
+    });
+    const task = context.loadAnalysisAndRender({ showTransition: true });
+    assert.match(context.graphEl.innerHTML, /analysis-loading-panels/);
+    assert.match(context.graphEl.innerHTML, ready ? /Preparing charts/ : /Loading analysis/);
+    assert.equal(attributes.get('aria-busy'), 'true');
+    assert.deepEqual(events, [], 'expensive work waits for the loading state to paint');
+    firstPaint.resolve();
+    await task;
+    assert.deepEqual(events, ready ? ['prepare', 'render'] : ['load', 'prepare', 'render']);
+    assert.equal(attributes.has('aria-busy'), false);
+  });
+}
+
+test('fast Analyze changes finish without a loading flash or paint delay', async () => {
+  const { context, timers, events } = transitionContext();
+  await context.loadAnalysisAndRender();
+  assert.deepEqual(events, ['prepare', 'render']);
+  assert.equal(timers.size, 0);
+  assert.match(context.graphEl.innerHTML, /Charts/);
+});
+
+test('a slow Analyze query shows feedback and paints it before rendering', async () => {
+  const query = deferred();
+  const { context, timers, events, attributes } = transitionContext({ queryAnalysisIndex: () => query.promise });
+  const task = context.loadAnalysisAndRender();
+  const timer = [...timers.values()][0];
+  assert.equal(timer.delay, 150);
+  assert.match(context.graphEl.innerHTML, /Previous view/);
+  timer.callback();
+  assert.match(context.graphEl.innerHTML, /Preparing charts/);
+  query.resolve(null);
+  await task;
+  assert.deepEqual(events, ['prepare', 'paint', 'render']);
+  assert.equal(timers.size, 0);
+  assert.equal(attributes.has('aria-busy'), false);
+});
+
+test('pending Analyze feedback and results cannot overwrite Explore after navigation', async () => {
+  const index = deferred();
+  const { context, timers, events } = transitionContext({ ensureAnalysisIndexReady: () => index.promise });
+  const task = context.loadAnalysisAndRender();
+  const timer = [...timers.values()][0];
+  context.explorerMode = 'overview';
+  context.explorerRenderToken++;
+  context.graphEl.innerHTML = '<svg>Explore</svg>';
+  timer.callback();
+  index.resolve(true);
+  await task;
+  assert.match(context.graphEl.innerHTML, /Explore/);
+  assert.deepEqual(events, ['prepare']);
+  assert.equal(timers.size, 0);
+});
+
+test('analysis preparation failures clear busy state and offer a retry', async () => {
+  const { context, timers, attributes } = transitionContext({
+    applyClaimLayerStore() { throw new Error('preparation failed'); },
+  });
+  await context.loadAnalysisAndRender();
+  assert.match(context.graphEl.innerHTML, /data-analysis-retry/);
+  assert.equal(attributes.has('aria-busy'), false);
+  assert.equal(timers.size, 0);
+});
+
+test('leaving a pending Analyze query cannot cache old charts under the new view', () => {
+  const context = contextFor(['captureAnalysisWorkspaceSnapshot'], {
+    explorerMode: 'analysis', analysisWorkspaceSnapshot: null,
+    graphEl: { firstElementChild: {}, getAttribute: () => 'true', querySelector: () => null },
+  });
+  context.captureAnalysisWorkspaceSnapshot();
+  assert.equal(context.analysisWorkspaceSnapshot, null);
+});

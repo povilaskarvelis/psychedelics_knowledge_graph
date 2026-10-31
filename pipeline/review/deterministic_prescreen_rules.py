@@ -86,6 +86,7 @@ COMPOUND_SYNONYMS = {
     },
     "s-ketamine": {"s-ketamine", "esketamine", "ketamine"},
     "r-ketamine": {"r-ketamine", "arketamine", "ketamine"},
+    "phencyclidine": {"phencyclidine", "pcp"},
     "ibogaine": {
         "ibogaine",
         "iboga",
@@ -394,7 +395,7 @@ AMBIGUOUS_PSYCHIATRIC_TREATMENT_TERMS = {
     "psychotropic drugs",
 }
 
-AMBIGUOUS_INTERVENTION_ACRONYMS = {"dmt", "dob", "doc", "doet", "doi", "dom", "dipt", "dpt", "lsa", "mda", "stp", "tma"}
+AMBIGUOUS_INTERVENTION_ACRONYMS = {"dmt", "dob", "doc", "doet", "doi", "dom", "dipt", "dpt", "lsa", "mda", "pcp", "stp", "tma"}
 
 AMBIGUOUS_INTERVENTION_CLASS_TERMS = {"dissociative", "dissociatives"}
 
@@ -742,6 +743,19 @@ def doi_compound_context_supported(context: str) -> bool:
             return True
     return False
 
+def pcp_compound_context_supported(context: str) -> bool:
+    """Keep the drug acronym distinct from primary care and Pneumocystis."""
+    text = normalize(context)
+    if re.search(r"\bphencyclidine\b", text, re.IGNORECASE):
+        return True
+    if re.search(r"\b(?:primary care|pneumocystis)\b", text, re.IGNORECASE):
+        return False
+    return bool(re.search(
+        r"\bpcp[- ]induced\b|\b(?:nmda|nmdar|dissociative|hallucinogen\w*|psychotomimetic\w*)\b",
+        text,
+        re.IGNORECASE,
+    )) or ambiguous_intervention_acronym_supported(text)
+
 def matched_targeted_intervention_terms(context: str) -> List[str]:
     out: List[str] = []
     if doi_compound_context_supported(context):
@@ -759,6 +773,7 @@ def matched_in_scope_intervention_terms(context: str) -> List[str]:
     acronym_supported = ambiguous_intervention_acronym_supported(normalized_context)
     class_supported = ambiguous_intervention_class_supported(normalized_context)
     san_pedro_supported = san_pedro_intervention_supported(normalized_context)
+    pcp_supported = pcp_compound_context_supported(normalized_context)
     for match in IN_SCOPE_INTERVENTION_RE.finditer(normalized_context):
         term = IN_SCOPE_INTERVENTION_TERM_BY_LOWER.get(match.group(0).lower(), match.group(0))
         term_lower = term.lower()
@@ -774,7 +789,10 @@ def matched_in_scope_intervention_terms(context: str) -> List[str]:
             and not MDA_PSYCH_SUPPORT_RE.search(normalized_context)
         ):
             continue
-        if term_lower in AMBIGUOUS_INTERVENTION_ACRONYMS and not acronym_supported:
+        if term_lower == "pcp":
+            if not pcp_supported:
+                continue
+        elif term_lower in AMBIGUOUS_INTERVENTION_ACRONYMS and not acronym_supported:
             continue
         if term_lower in AMBIGUOUS_INTERVENTION_CLASS_TERMS and not class_supported:
             continue

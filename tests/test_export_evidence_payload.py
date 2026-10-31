@@ -119,6 +119,50 @@ def write_author_tables(kg_dir: Path, *, paper_id: str = "paper-1", authors: str
 
 
 class ExportEvidencePayloadTest(unittest.TestCase):
+    def test_native_safety_assertions_survive_public_detail_export(self) -> None:
+        # A coarse anchor must not erase the precise event, reported zero rate,
+        # or the distinction between severe and medically serious events.
+        asserted = {
+            "safety_event_or_measure": "Transient dysgeusia",
+            "safety_category": "General tolerability/adverse events",
+            "severity": "severe",
+            "seriousness": "not serious",
+            "frequency_or_rate": "0/24 discontinuations; 3/24 events",
+            "discontinuation_or_withdrawal": "0",
+        }
+        with tempfile.TemporaryDirectory() as tmpdir:
+            kg_dir = Path(tmpdir)
+            pd.DataFrame([{
+                "finding_id": "safety-exact", "paper_id": "paper-safety",
+                "source_name": "routed_extractions", "study_doi": "10.1000/safety",
+                "domain": "safety", "compound": "Psilocybin",
+                "entity_label": "Adverse events", "raw_row_json": "{}", **asserted,
+            }]).to_parquet(kg_dir / "findings.parquet", index=False)
+            findings = load_findings(kg_dir, require_author_identities=False)
+            row = detail_bootstrap_rows(detail_bootstrap_payload(
+                findings, "2026-10-30T00:00:00Z", kg_dir, "primary"
+            ))[0]
+        for key, value in asserted.items():
+            self.assertEqual(row[key], value)
+        self.assertEqual(row["entity_label"], "Adverse events")
+        self.assertNotIn("raw_row_json", row)
+
+    def test_older_tables_do_not_require_safety_assertion_columns(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            kg_dir = Path(tmpdir)
+            pd.DataFrame([{
+                "finding_id": "old", "paper_id": "paper-old",
+                "source_name": "routed_extractions", "study_doi": "10.1000/old",
+                "domain": "safety", "compound": "LSD",
+                "entity_label": "Adverse events", "raw_row_json": "{}",
+            }]).to_parquet(kg_dir / "findings.parquet", index=False)
+            findings = load_findings(kg_dir, require_author_identities=False)
+            row = detail_bootstrap_rows(detail_bootstrap_payload(
+                findings, "2026-10-30T00:00:00Z", kg_dir, "primary"
+            ))[0]
+        for key in evidence_exporter.OPTIONAL_SAFETY_OBSERVATION_FIELDS:
+            self.assertNotIn(key, row)
+
     def test_browser_contract_rejects_forbidden_internal_fields(self) -> None:
         original = evidence_exporter.PUBLIC_BROWSER_DETAIL_FIELDS
         evidence_exporter.PUBLIC_BROWSER_DETAIL_FIELDS = (

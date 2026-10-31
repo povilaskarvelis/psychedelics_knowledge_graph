@@ -5,102 +5,152 @@
     "brain_region": [
       {
         "label": "Prefrontal cortex",
-        "aliases": ["PFC", "prefrontal cortical region"],
+        "aliases": [
+          "PFC",
+          "prefrontal cortical region"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Dorsolateral prefrontal cortex",
-        "aliases": ["DLPFC"],
+        "aliases": [
+          "DLPFC"
+        ],
         "parent": "Prefrontal cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Medial prefrontal cortex",
-        "aliases": ["mPFC", "medial PFC", "medial prefrontal region"],
+        "aliases": [
+          "mPFC",
+          "medial PFC",
+          "medial prefrontal region"
+        ],
         "parent": "Prefrontal cortex",
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Dorsomedial prefrontal cortex",
-        "aliases": ["dmPFC", "DMPFC"],
+        "aliases": [
+          "dmPFC",
+          "DMPFC"
+        ],
         "parent": "Medial prefrontal cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Ventromedial prefrontal cortex",
-        "aliases": ["ventro-medial prefrontal cortex", "ventral medial prefrontal cortex", "vmPFC"],
+        "aliases": [
+          "ventro-medial prefrontal cortex",
+          "ventral medial prefrontal cortex",
+          "vmPFC"
+        ],
         "parent": "Medial prefrontal cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Frontal pole",
-        "aliases": ["frontal poles", "frontopolar cortex"],
+        "aliases": [
+          "frontal poles",
+          "frontopolar cortex"
+        ],
         "parent": "Prefrontal cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Anterior cingulate cortex",
-        "aliases": ["ACC", "anterior cingulate", "anterior cingulate gyrus", "rostral ACC", "rostral anterior cingulate cortex"],
+        "aliases": [
+          "ACC",
+          "anterior cingulate",
+          "anterior cingulate gyrus",
+          "rostral ACC",
+          "rostral anterior cingulate cortex"
+        ],
         "parent": "Cingulate cortex",
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Dorsal anterior cingulate cortex",
-        "aliases": ["dACC", "dorsal ACC"],
+        "aliases": [
+          "dACC",
+          "dorsal ACC"
+        ],
         "parent": "Anterior cingulate cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Midcingulate cortex",
-        "aliases": ["middle cingulate cortex", "MCC"],
+        "aliases": [
+          "middle cingulate cortex",
+          "MCC"
+        ],
         "parent": "Cingulate cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Subgenual anterior cingulate cortex",
-        "aliases": ["subcallosal anterior cingulate cortex", "subgenual cingulate cortex", "sgACC"],
+        "aliases": [
+          "subcallosal anterior cingulate cortex",
+          "subgenual cingulate cortex",
+          "sgACC"
+        ],
         "parent": "Anterior cingulate cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Orbitofrontal cortex",
-        "aliases": ["OFC", "orbital frontal cortex", "frontal orbital cortex"],
+        "aliases": [
+          "OFC",
+          "orbital frontal cortex",
+          "frontal orbital cortex"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Amygdala",
-        "aliases": ["left amygdala", "right amygdala"],
+        "aliases": [
+          "left amygdala",
+          "right amygdala"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Basolateral amygdala",
-        "aliases": ["BLA"],
+        "aliases": [
+          "BLA"
+        ],
         "parent": "Amygdala",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Central amygdala",
-        "aliases": ["central nucleus of the amygdala", "CeA"],
+        "aliases": [
+          "central nucleus of the amygdala",
+          "CeA"
+        ],
         "parent": "Amygdala",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Medial amygdala",
-        "aliases": ["medial amygdaloid nucleus", "MeA"],
+        "aliases": [
+          "medial amygdaloid nucleus",
+          "MeA"
+        ],
         "parent": "Amygdala",
         "ids": {},
         "status": "seed_hierarchy"
@@ -113,41 +163,60 @@
       },
       {
         "label": "Bed nucleus of the stria terminalis",
-        "aliases": ["BNST"],
+        "aliases": [
+          "BNST"
+        ],
         "parent": "Extended amygdala",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Hippocampus",
-        "aliases": ["hippocampal region", "hippocampal formation", "left hippocampus", "right hippocampus", "left hippocampal", "right hippocampal"],
+        "aliases": [
+          "hippocampal region",
+          "hippocampal formation",
+          "left hippocampus",
+          "right hippocampus",
+          "left hippocampal",
+          "right hippocampal"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Hippocampal CA1",
-        "aliases": ["CA1", "hippocampal CA1 area", "CA1 region of hippocampus"],
+        "aliases": [
+          "CA1",
+          "hippocampal CA1 area",
+          "CA1 region of hippocampus"
+        ],
         "parent": "Hippocampus",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Hippocampal CA2",
-        "aliases": ["CA2"],
+        "aliases": [
+          "CA2"
+        ],
         "parent": "Hippocampus",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Hippocampal CA3",
-        "aliases": ["CA3"],
+        "aliases": [
+          "CA3"
+        ],
         "parent": "Hippocampus",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Dentate gyrus",
-        "aliases": ["DG"],
+        "aliases": [
+          "DG"
+        ],
         "parent": "Hippocampus",
         "ids": {},
         "status": "seed_hierarchy"
@@ -161,20 +230,27 @@
       },
       {
         "label": "Subiculum",
-        "aliases": ["hippocampal subiculum"],
+        "aliases": [
+          "hippocampal subiculum"
+        ],
         "parent": "Hippocampus",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Thalamus",
-        "aliases": ["thalamic region", "thalamic subnuclei"],
+        "aliases": [
+          "thalamic region",
+          "thalamic subnuclei"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Pulvinar",
-        "aliases": ["pulvinar nuclei"],
+        "aliases": [
+          "pulvinar nuclei"
+        ],
         "parent": "Thalamus",
         "ids": {},
         "status": "seed_hierarchy"
@@ -188,14 +264,20 @@
       },
       {
         "label": "Paraventricular thalamic nucleus",
-        "aliases": ["paraventricular thalamus", "PVT"],
+        "aliases": [
+          "paraventricular thalamus",
+          "PVT"
+        ],
         "parent": "Thalamus",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Thalamic reticular nucleus",
-        "aliases": ["reticular nucleus of the thalamus", "TRN"],
+        "aliases": [
+          "reticular nucleus of the thalamus",
+          "TRN"
+        ],
         "parent": "Thalamus",
         "ids": {},
         "status": "seed_hierarchy"
@@ -208,7 +290,10 @@
       },
       {
         "label": "Striatum",
-        "aliases": ["striatal", "striatal region"],
+        "aliases": [
+          "striatal",
+          "striatal region"
+        ],
         "parent": "Basal ganglia",
         "ids": {},
         "status": "seed_alias"
@@ -222,7 +307,10 @@
       },
       {
         "label": "Caudate nucleus",
-        "aliases": ["caudate", "caudate nuclei"],
+        "aliases": [
+          "caudate",
+          "caudate nuclei"
+        ],
         "parent": "Dorsal striatum",
         "ids": {},
         "status": "seed_hierarchy"
@@ -236,7 +324,10 @@
       },
       {
         "label": "Caudate-putamen",
-        "aliases": ["caudate putamen", "CPu"],
+        "aliases": [
+          "caudate putamen",
+          "CPu"
+        ],
         "parent": "Dorsal striatum",
         "ids": {},
         "status": "seed_hierarchy"
@@ -264,48 +355,64 @@
       },
       {
         "label": "Anterior striatum",
-        "aliases": ["medial anterior striatum"],
+        "aliases": [
+          "medial anterior striatum"
+        ],
         "parent": "Striatum",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Nucleus accumbens",
-        "aliases": ["NAc"],
+        "aliases": [
+          "NAc"
+        ],
         "parent": "Striatum",
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Nucleus accumbens core",
-        "aliases": ["NAc core"],
+        "aliases": [
+          "NAc core"
+        ],
         "parent": "Nucleus accumbens",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Nucleus accumbens shell",
-        "aliases": ["NAc shell"],
+        "aliases": [
+          "NAc shell"
+        ],
         "parent": "Nucleus accumbens",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Ventral pallidum",
-        "aliases": ["VP"],
+        "aliases": [
+          "VP"
+        ],
         "parent": "Basal ganglia",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Insula",
-        "aliases": ["insular cortex", "left insula", "right insula"],
+        "aliases": [
+          "insular cortex",
+          "left insula",
+          "right insula"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Anterior insula",
-        "aliases": ["AI"],
+        "aliases": [
+          "AI"
+        ],
         "parent": "Insula",
         "ids": {},
         "status": "seed_hierarchy"
@@ -318,47 +425,70 @@
       },
       {
         "label": "Frontal cortex",
-        "aliases": ["frontal cortical region", "frontal lobe", "frontal region", "frontal brain regions"],
+        "aliases": [
+          "frontal cortical region",
+          "frontal lobe",
+          "frontal region",
+          "frontal brain regions"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Occipital cortex",
-        "aliases": ["occipital lobe", "occipital region", "occipital brain regions", "occipital areas"],
+        "aliases": [
+          "occipital lobe",
+          "occipital region",
+          "occipital brain regions",
+          "occipital areas"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Visual cortex",
-        "aliases": ["visual cortical area"],
+        "aliases": [
+          "visual cortical area"
+        ],
         "parent": "Occipital cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Primary visual cortex",
-        "aliases": ["primary visual area", "primary visual area (V1)", "V1"],
+        "aliases": [
+          "primary visual area",
+          "primary visual area (V1)",
+          "V1"
+        ],
         "parent": "Visual cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Inferior visual cortex",
-        "aliases": ["inferior occipital cortex"],
+        "aliases": [
+          "inferior occipital cortex"
+        ],
         "parent": "Visual cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Lingual gyrus",
-        "aliases": ["left lingual gyrus"],
+        "aliases": [
+          "left lingual gyrus"
+        ],
         "parent": "Occipital cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Calcarine cortex",
-        "aliases": ["calcarine", "calcarine sulcus"],
+        "aliases": [
+          "calcarine",
+          "calcarine sulcus"
+        ],
         "parent": "Occipital cortex",
         "ids": {},
         "status": "seed_hierarchy"
@@ -372,33 +502,60 @@
       },
       {
         "label": "Posterior cingulate cortex",
-        "aliases": ["PCC", "posterior cingulate", "posterior cingulate gyrus"],
+        "aliases": [
+          "PCC",
+          "posterior cingulate",
+          "posterior cingulate gyrus"
+        ],
         "parent": "Cingulate cortex",
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Cingulate cortex",
-        "aliases": ["cingulate cortex", "cingulate", "midline cingulate cortex", "supracingulate cortex"],
+        "aliases": [
+          "cingulate cortex",
+          "cingulate",
+          "midline cingulate cortex",
+          "supracingulate cortex"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Retrosplenial cortex",
-        "aliases": ["retrosplenial region", "retrosplenial cortex (RSP)", "RSP", "RSC", "RSA", "retrosplenial agranular area"],
+        "aliases": [
+          "retrosplenial region",
+          "retrosplenial cortex (RSP)",
+          "RSP",
+          "RSC",
+          "RSA",
+          "retrosplenial agranular area"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Prelimbic cortex",
-        "aliases": ["PL cortex", "prelimbic medial prefrontal cortex", "Prelimbic medial prefrontal cortex", "PL mPFC", "prelimbic cortex (PRL)"],
+        "aliases": [
+          "PL cortex",
+          "prelimbic medial prefrontal cortex",
+          "Prelimbic medial prefrontal cortex",
+          "PL mPFC",
+          "prelimbic cortex (PRL)"
+        ],
         "parent": "Medial prefrontal cortex",
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Infralimbic cortex",
-        "aliases": ["IL cortex", "infralimbic cortex (IL)", "Infralimbic medial prefrontal cortex", "IL mPFC"],
+        "aliases": [
+          "IL cortex",
+          "infralimbic cortex (IL)",
+          "Infralimbic medial prefrontal cortex",
+          "IL mPFC"
+        ],
         "parent": "Medial prefrontal cortex",
         "ids": {},
         "status": "seed_alias"
@@ -411,74 +568,103 @@
       },
       {
         "label": "Paraventricular hypothalamic nucleus",
-        "aliases": ["paraventricular nucleus of the hypothalamus", "hypothalamic PVN"],
+        "aliases": [
+          "paraventricular nucleus of the hypothalamus",
+          "hypothalamic PVN"
+        ],
         "parent": "Hypothalamus",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Brainstem",
-        "aliases": ["brain stem"],
+        "aliases": [
+          "brain stem"
+        ],
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Raphe nuclei",
-        "aliases": ["raphe nucleus"],
+        "aliases": [
+          "raphe nucleus"
+        ],
         "parent": "Brainstem",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Dorsal raphe nucleus",
-        "aliases": ["DRN"],
+        "aliases": [
+          "DRN"
+        ],
         "parent": "Raphe nuclei",
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Median raphe nucleus",
-        "aliases": ["MRN", "MnR"],
+        "aliases": [
+          "MRN",
+          "MnR"
+        ],
         "parent": "Raphe nuclei",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Parabrachial nucleus",
-        "aliases": ["PBN", "parabrachial complex"],
+        "aliases": [
+          "PBN",
+          "parabrachial complex"
+        ],
         "parent": "Brainstem",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Locus coeruleus",
-        "aliases": ["locus coeruleus (LC)", "left locus coeruleus"],
+        "aliases": [
+          "locus coeruleus (LC)",
+          "left locus coeruleus"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Ventral tegmental area",
-        "aliases": ["VTA", "ventral tegmental area (VTA)"],
+        "aliases": [
+          "VTA",
+          "ventral tegmental area (VTA)"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Lateral habenula",
-        "aliases": ["LHb", "lateral habenula (LHb)"],
+        "aliases": [
+          "LHb",
+          "lateral habenula (LHb)"
+        ],
         "parent": "Habenula",
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Habenula",
-        "aliases": ["habenular complex"],
+        "aliases": [
+          "habenular complex"
+        ],
         "parent": "Thalamus",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Medial habenula",
-        "aliases": ["MHb", "medial habenula (MHb)"],
+        "aliases": [
+          "MHb",
+          "medial habenula (MHb)"
+        ],
         "parent": "Habenula",
         "ids": {},
         "status": "seed_hierarchy"
@@ -491,14 +677,19 @@
       },
       {
         "label": "Primary motor cortex",
-        "aliases": ["primary motor cortex (M1)", "M1"],
+        "aliases": [
+          "primary motor cortex (M1)",
+          "M1"
+        ],
         "parent": "Motor cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Supplementary motor area",
-        "aliases": ["SMA"],
+        "aliases": [
+          "SMA"
+        ],
         "parent": "Motor cortex",
         "ids": {},
         "status": "seed_hierarchy"
@@ -511,26 +702,36 @@
       },
       {
         "label": "Primary somatosensory cortex",
-        "aliases": ["primary somatosensory cortex (S1)", "S1"],
+        "aliases": [
+          "primary somatosensory cortex (S1)",
+          "S1"
+        ],
         "parent": "Somatosensory cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Sensorimotor cortex",
-        "aliases": ["left sensorimotor cortex"],
+        "aliases": [
+          "left sensorimotor cortex"
+        ],
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Parietal cortex",
-        "aliases": ["parietal lobe", "parietal region"],
+        "aliases": [
+          "parietal lobe",
+          "parietal region"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Superior parietal cortex",
-        "aliases": ["superior parietal lobe"],
+        "aliases": [
+          "superior parietal lobe"
+        ],
         "parent": "Parietal cortex",
         "ids": {},
         "status": "seed_hierarchy"
@@ -544,67 +745,100 @@
       },
       {
         "label": "Postcentral gyrus",
-        "aliases": ["post-central gyrus"],
+        "aliases": [
+          "post-central gyrus"
+        ],
         "parent": "Parietal cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Precuneus",
-        "aliases": ["left precuneus", "precuneus (BA 31)"],
+        "aliases": [
+          "left precuneus",
+          "precuneus (BA 31)"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Temporal cortex",
-        "aliases": ["temporal lobe", "temporal region", "temporal brain regions"],
+        "aliases": [
+          "temporal lobe",
+          "temporal region",
+          "temporal brain regions"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Temporal association cortex",
-        "aliases": ["temporal association area", "temporal association area (TeA)", "TeA"],
+        "aliases": [
+          "temporal association area",
+          "temporal association area (TeA)",
+          "TeA"
+        ],
         "parent": "Temporal cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Anterior temporal lobe",
-        "aliases": ["ATL"],
+        "aliases": [
+          "ATL"
+        ],
         "parent": "Temporal cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Superior temporal gyrus",
-        "aliases": ["STG"],
+        "aliases": [
+          "STG"
+        ],
         "parent": "Temporal cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Fusiform gyrus",
-        "aliases": ["left fusiform gyrus", "right fusiform gyrus", "right-fusiform gyrus"],
+        "aliases": [
+          "left fusiform gyrus",
+          "right fusiform gyrus",
+          "right-fusiform gyrus"
+        ],
         "parent": "Temporal cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Auditory cortex",
-        "aliases": ["auditory cortex", "auditory cortical region"],
+        "aliases": [
+          "auditory cortex",
+          "auditory cortical region"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Heschl's gyrus",
-        "aliases": ["Heschl gyrus", "left Heschl's gyrus", "right Heschl's gyrus"],
+        "aliases": [
+          "Heschl gyrus",
+          "left Heschl's gyrus",
+          "right Heschl's gyrus"
+        ],
         "parent": "Auditory cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Medial temporal lobe",
-        "aliases": ["MTL", "medial temporal lobe (MTL)", "right medial temporal lobe", "right medial temporal lobe (MTL)"],
+        "aliases": [
+          "MTL",
+          "medial temporal lobe (MTL)",
+          "right medial temporal lobe",
+          "right medial temporal lobe (MTL)"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
@@ -616,14 +850,19 @@
       },
       {
         "label": "Medial entorhinal cortex",
-        "aliases": ["medial entorhinal cortex (mEC)", "mEC"],
+        "aliases": [
+          "medial entorhinal cortex (mEC)",
+          "mEC"
+        ],
         "parent": "Entorhinal cortex",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Parahippocampal cortex",
-        "aliases": ["parahippocampus"],
+        "aliases": [
+          "parahippocampus"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
@@ -636,7 +875,11 @@
       },
       {
         "label": "Piriform cortex",
-        "aliases": ["piriform cortex (PirC)", "PirC", "piriform cortices"],
+        "aliases": [
+          "piriform cortex (PirC)",
+          "PirC",
+          "piriform cortices"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
@@ -655,7 +898,9 @@
       },
       {
         "label": "Midbrain",
-        "aliases": [],
+        "aliases": [
+          "mesencephalon"
+        ],
         "parent": "Brainstem",
         "ids": {},
         "status": "seed_alias"
@@ -669,7 +914,9 @@
       },
       {
         "label": "Substantia nigra pars reticulata",
-        "aliases": ["SNr"],
+        "aliases": [
+          "SNr"
+        ],
         "parent": "Substantia nigra",
         "ids": {},
         "status": "seed_hierarchy"
@@ -690,28 +937,47 @@
       },
       {
         "label": "Periaqueductal gray",
-        "aliases": ["periaqueductal grey", "periaqueductal gray (PAG)", "periaqueductal grey (PAG)", "PAG", "periaqueductal gray matter", "periaqueductal grey matter"],
+        "aliases": [
+          "periaqueductal grey",
+          "periaqueductal gray (PAG)",
+          "periaqueductal grey (PAG)",
+          "PAG",
+          "periaqueductal gray matter",
+          "periaqueductal grey matter"
+        ],
         "parent": "Midbrain",
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Dorsal periaqueductal gray",
-        "aliases": ["dorsal periaqueductal grey", "dorsal periaqueductal gray matter", "dorsal periaqueductal gray matter (D-PAG)", "dPAG"],
+        "aliases": [
+          "dorsal periaqueductal grey",
+          "dorsal periaqueductal gray matter",
+          "dorsal periaqueductal gray matter (D-PAG)",
+          "dPAG"
+        ],
         "parent": "Periaqueductal gray",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Ventrolateral periaqueductal gray",
-        "aliases": ["ventrolateral periaqueductal grey", "vlPAG"],
+        "aliases": [
+          "ventrolateral periaqueductal grey",
+          "vlPAG"
+        ],
         "parent": "Periaqueductal gray",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Corpus callosum",
-        "aliases": ["corpus callosum isthmus", "isthmus of corpus callosum", "rostral body of corpus callosum"],
+        "aliases": [
+          "corpus callosum isthmus",
+          "isthmus of corpus callosum",
+          "rostral body of corpus callosum"
+        ],
         "ids": {},
         "status": "controlled_detail"
       },
@@ -730,16 +996,118 @@
       },
       {
         "label": "Spinal dorsal horn",
-        "aliases": ["dorsal horn of the spinal cord", "dorsal horn"],
+        "aliases": [
+          "dorsal horn of the spinal cord",
+          "dorsal horn"
+        ],
         "parent": "Spinal cord",
         "ids": {},
         "status": "seed_hierarchy"
+      },
+      {
+        "label": "Inferior frontal gyrus",
+        "aliases": [
+          "IFG"
+        ],
+        "ids": {},
+        "status": "source_named_region"
+      },
+      {
+        "label": "Intraparietal sulcus",
+        "aliases": [
+          "IPS"
+        ],
+        "ids": {},
+        "status": "source_named_region"
+      },
+      {
+        "label": "Early visual areas",
+        "aliases": [
+          "Early visual area",
+          "EVA"
+        ],
+        "ids": {},
+        "status": "source_named_region"
+      },
+      {
+        "label": "Subthalamic nucleus",
+        "aliases": [
+          "STN",
+          "subthalamic nucleus (STN)"
+        ],
+        "ids": {},
+        "status": "source_supported_neural_anatomy"
+      },
+      {
+        "label": "Rostroventromedial medulla",
+        "aliases": [
+          "RVM",
+          "rostral ventromedial medulla",
+          "rostroventromedial medulla (RVM)"
+        ],
+        "ids": {},
+        "status": "source_supported_neural_anatomy"
+      },
+      {
+        "label": "Dorsal lateral geniculate nucleus",
+        "aliases": [
+          "dLGN",
+          "dorsal lateral geniculate"
+        ],
+        "ids": {},
+        "status": "source_supported_neural_anatomy"
+      },
+      {
+        "label": "Olfactory bulb",
+        "aliases": [],
+        "ids": {},
+        "status": "source_supported_neural_anatomy"
+      },
+      {
+        "label": "Inferior olivary nucleus",
+        "aliases": [
+          "inferior olive",
+          "inferior olivary complex"
+        ],
+        "ids": {},
+        "status": "source_supported_neural_anatomy"
+      },
+      {
+        "label": "Globus pallidus",
+        "aliases": [],
+        "ids": {},
+        "status": "source_supported_neural_anatomy"
+      },
+      {
+        "label": "Hippocampal molecular layer",
+        "aliases": [
+          "molecular layer of the hippocampus",
+          "hippocampal molecular layer"
+        ],
+        "ids": {},
+        "status": "source_supported_neural_anatomy"
+      },
+      {
+        "label": "Visual area V3",
+        "aliases": [
+          "V3",
+          "V3 visual cortex"
+        ],
+        "parent": "Visual cortex",
+        "ids": {},
+        "status": "reviewed_anatomy",
+        "review_id": "saved-explicit-anatomy-20261029"
       }
     ],
     "brain_network": [
       {
         "label": "Default mode network",
-        "aliases": ["DMN", "default-mode network", "default mode", "Default Mode"],
+        "aliases": [
+          "DMN",
+          "default-mode network",
+          "default mode",
+          "Default Mode"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
@@ -758,13 +1126,22 @@
       },
       {
         "label": "Central executive network",
-        "aliases": ["CEN", "executive control network", "central executive"],
+        "aliases": [
+          "CEN",
+          "executive control network",
+          "central executive"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Frontoparietal network",
-        "aliases": ["FPN", "fronto-parietal network", "frontoparietal subsystem", "fronto-parietal"],
+        "aliases": [
+          "FPN",
+          "fronto-parietal network",
+          "frontoparietal subsystem",
+          "fronto-parietal"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
@@ -776,13 +1153,21 @@
       },
       {
         "label": "Visual network",
-        "aliases": ["medial visual network", "visual cortical network"],
+        "aliases": [
+          "medial visual network",
+          "visual cortical network"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Sensorimotor network",
-        "aliases": ["somatosensory network", "somatomotor network", "somato-motor network", "somatomotor"],
+        "aliases": [
+          "somatosensory network",
+          "somatomotor network",
+          "somato-motor network",
+          "somatomotor"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
@@ -794,13 +1179,17 @@
       },
       {
         "label": "Task-positive network",
-        "aliases": ["TPN"],
+        "aliases": [
+          "TPN"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Dorsal attention network",
-        "aliases": ["DAN"],
+        "aliases": [
+          "DAN"
+        ],
         "ids": {},
         "status": "seed_alias"
       }
@@ -808,593 +1197,1669 @@
     "neural_circuit": [
       {
         "label": "Ventral tegmental area–basolateral amygdala dopaminergic circuit",
-        "aliases": ["Dopaminergic projections from the VTA to the BLA", "VTA-to-BLA dopaminergic projections", "dopaminergic projections from the ventral tegmental area to the basolateral amygdala"],
+        "aliases": [
+          "Dopaminergic projections from the VTA to the BLA",
+          "VTA-to-BLA dopaminergic projections",
+          "dopaminergic projections from the ventral tegmental area to the basolateral amygdala"
+        ],
         "ids": {},
         "status": "controlled_detail"
       },
       {
         "label": "Frontostriatal circuit",
-        "aliases": ["fronto-striatal circuit", "prefrontal-striatal circuit"],
+        "aliases": [
+          "fronto-striatal circuit",
+          "prefrontal-striatal circuit"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Amygdala-prefrontal circuit",
-        "aliases": ["amygdala-PFC circuit", "prefrontal-amygdala circuit"],
+        "aliases": [
+          "amygdala-PFC circuit",
+          "prefrontal-amygdala circuit"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Thalamocortical circuit",
-        "aliases": ["thalamocortical", "thalamoneocortical circuit", "thalamo-cortical circuit", "thalamocortical connectivity", "thalamocortical pathway"],
+        "aliases": [
+          "thalamocortical",
+          "thalamoneocortical circuit",
+          "thalamo-cortical circuit",
+          "thalamocortical connectivity",
+          "thalamocortical pathway"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Hippocampal-prefrontal circuit",
-        "aliases": ["hippocampal-prefrontal connectivity", "mPFC-hippocampus coupling", "ventral CA1/subiculum to prelimbic cortex"],
+        "aliases": [
+          "hippocampal-prefrontal connectivity",
+          "mPFC-hippocampus coupling",
+          "ventral CA1/subiculum to prelimbic cortex"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Cortico-striatal circuit",
-        "aliases": ["cortico-striatal circuit", "corticostriatal circuit"],
+        "aliases": [
+          "cortico-striatal circuit",
+          "corticostriatal circuit"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Mesolimbic reward circuit",
-        "aliases": ["mesoaccumbens dopamine circuit", "VTA-NAc circuit"],
+        "aliases": [
+          "mesoaccumbens dopamine circuit",
+          "VTA-NAc circuit"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Schaffer collateral-CA1 circuit",
-        "aliases": ["Schaffer Collateral-CA1 synapse", "Schaffer collateral-commissural pathway", "CA3-CA1 circuit"],
+        "aliases": [
+          "Schaffer Collateral-CA1 synapse",
+          "Schaffer collateral-commissural pathway",
+          "CA3-CA1 circuit",
+          "CA3–CA1 Schaffer collateral pathway",
+          "Schaffer collateral–CA1 synapses",
+          "Schaffer collateral→CA1 (SC→CA1)",
+          "Schaffer collateral-to-CA1 synapses",
+          "Schaffer collateral–CA1 (SC-CA1)",
+          "CA3–CA1 Schaffer collateral synapse",
+          "CA3 Schaffer collateral-to-CA1 pyramidal neuron synapses",
+          "Schaffer collateral–CA1 pathway",
+          "Schaffer collateral pathway, CA3 to CA1",
+          "CA1 Schaffer collateral pathway",
+          "Schaffer collateral/commissural afferents to CA1"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Hippocampal trisynaptic circuit",
-        "aliases": ["hippocampal trisynaptic circuitry", "HTC"],
+        "aliases": [
+          "hippocampal trisynaptic circuitry",
+          "HTC"
+        ],
         "ids": {},
         "status": "controlled_detail"
       },
       {
         "label": "Frontal-limbic circuit",
-        "aliases": ["frontal limbic circuit"],
+        "aliases": [
+          "frontal limbic circuit"
+        ],
         "ids": {},
         "status": "controlled_detail"
       },
       {
         "label": "Mossy fiber pathway",
-        "aliases": ["mossy fibre projections", "mossy fiber projections"],
+        "aliases": [
+          "mossy fibre projections",
+          "mossy fiber projections"
+        ],
         "ids": {},
         "status": "controlled_detail"
+      },
+      {
+        "label": "Perforant path–dentate granule cell circuit",
+        "aliases": [
+          "Perforant path–granule cell synapses"
+        ],
+        "ids": {},
+        "status": "source_supported_neural_anatomy"
       }
     ],
     "cognitive_behavioral_construct": [
       {
         "label": "Global cognition",
-        "aliases": ["global cognitive outcome", "general cognitive performance", "cognition across all domains", "neuropsychological performance", "neurocognitive function"],
+        "aliases": [
+          "global cognitive outcome",
+          "general cognitive performance",
+          "cognition across all domains",
+          "neuropsychological performance",
+          "neurocognitive function",
+          "Cognitive performance",
+          "Cognition",
+          "Cognitive functioning",
+          "Cognitive impairment",
+          "Overall cognitive performance",
+          "Overall cognition",
+          "General cognitive ability"
+        ],
         "ids": {},
-        "status": "seed_alias"
+        "status": "seed_alias",
+        "exact_only_terms": [
+          "Cognition",
+          "Cognitive performance",
+          "Cognitive functioning",
+          "Cognitive impairment"
+        ],
+        "whole_field_aliases": [
+          "Overall cognitive performance",
+          "Overall cognition",
+          "General cognitive ability"
+        ]
       },
       {
         "label": "Cognitive flexibility",
-        "aliases": ["behavioral flexibility", "cognitive rigidity", "perseveration"],
+        "aliases": [
+          "behavioral flexibility",
+          "cognitive rigidity",
+          "perseveration",
+          "Cognitive inflexibility"
+        ],
         "ids": {},
-        "status": "seed_alias"
+        "status": "seed_alias",
+        "whole_field_aliases": [
+          "Cognitive inflexibility"
+        ]
       },
       {
         "label": "Psychological flexibility",
-        "aliases": ["psychological inflexibility", "Acceptance and Action Questionnaire", "AAQ-II", "experiential avoidance", "values-congruent living"],
+        "aliases": [
+          "psychological inflexibility",
+          "Acceptance and Action Questionnaire",
+          "AAQ-II",
+          "experiential avoidance",
+          "values-congruent living"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Reversal learning",
-        "aliases": ["discrimination reversal", "transition reversal", "serial reversal learning", "choice reversal learning"],
+        "aliases": [
+          "discrimination reversal",
+          "transition reversal",
+          "serial reversal learning",
+          "choice reversal learning"
+        ],
         "parent": "Cognitive flexibility",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Set shifting",
-        "aliases": ["set-shifting", "attentional set shifting", "extra-dimensional shift", "Wisconsin Card Sorting Test", "WCST", "Penn Conditional Exclusion Test", "PCET"],
+        "aliases": [
+          "set-shifting",
+          "attentional set shifting",
+          "extra-dimensional shift",
+          "Wisconsin Card Sorting Test",
+          "WCST",
+          "Penn Conditional Exclusion Test",
+          "PCET",
+          "Mental set switching"
+        ],
         "parent": "Cognitive flexibility",
         "ids": {},
-        "status": "seed_hierarchy"
+        "status": "seed_hierarchy",
+        "whole_field_aliases": [
+          "Mental set switching"
+        ]
       },
       {
         "label": "Creativity",
-        "aliases": ["creative thinking", "divergent thinking", "divergent association"],
+        "aliases": [
+          "creative thinking",
+          "divergent thinking",
+          "divergent association"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Decentering",
-        "aliases": ["decentring", "cognitive defusion"],
+        "aliases": [
+          "decentring",
+          "cognitive defusion"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Mindfulness",
-        "aliases": ["mindful awareness", "Five Facet Mindfulness Questionnaire", "FFMQ", "Mindful Attention Awareness Scale", "MAAS", "Kentucky Inventory of Mindfulness Skills", "KIMS"],
+        "aliases": [
+          "mindful awareness",
+          "Five Facet Mindfulness Questionnaire",
+          "FFMQ",
+          "Mindful Attention Awareness Scale",
+          "MAAS",
+          "Kentucky Inventory of Mindfulness Skills",
+          "KIMS"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Emotional processing",
-        "aliases": ["emotion processing", "emotion recognition", "emotional face processing", "negative emotional processing"],
+        "aliases": [
+          "emotion processing",
+          "emotion recognition",
+          "emotional face processing",
+          "negative emotional processing",
+          "Recognition of emotions in facial expressions",
+          "Recognition of negative facial emotions"
+        ],
         "ids": {},
-        "status": "seed_alias"
+        "status": "seed_alias",
+        "whole_field_aliases": [
+          "Recognition of emotions in facial expressions",
+          "Recognition of negative facial emotions"
+        ]
       },
       {
         "label": "Reward processing",
-        "aliases": ["reward function", "reward valuation", "reinforcement processing"],
+        "aliases": [
+          "reward function",
+          "reward valuation",
+          "reinforcement processing"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Anhedonia",
-        "aliases": ["anhedonia-like behavior", "anhedonic behavior", "sucrose preference", "hedonic capacity", "hedonic responsiveness", "Snaith-Hamilton Pleasure Scale", "SHAPS"],
+        "aliases": [
+          "anhedonia-like behavior",
+          "anhedonic behavior",
+          "sucrose preference",
+          "hedonic capacity",
+          "hedonic responsiveness",
+          "Snaith-Hamilton Pleasure Scale",
+          "SHAPS"
+        ],
         "parent": "Reward processing",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Reward responsiveness",
-        "aliases": ["reward sensitivity", "reward threshold", "intracranial self-stimulation", "ICSS", "Probabilistic Reward Task", "reward response bias"],
+        "aliases": [
+          "reward sensitivity",
+          "reward threshold",
+          "intracranial self-stimulation",
+          "ICSS",
+          "Probabilistic Reward Task",
+          "reward response bias"
+        ],
         "parent": "Reward processing",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Reward learning",
-        "aliases": ["appetitive learning", "reward feedback learning", "reinforcement learning from reward", "sign-tracking", "goal-tracking"],
+        "aliases": [
+          "appetitive learning",
+          "reward feedback learning",
+          "reinforcement learning from reward",
+          "sign-tracking",
+          "goal-tracking"
+        ],
         "parent": "Reward processing",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Motivation",
-        "aliases": ["goal-directed motivation", "incentive motivation", "effort-based motivation", "motivational processing", "readiness to change"],
+        "aliases": [
+          "goal-directed motivation",
+          "incentive motivation",
+          "effort-based motivation",
+          "motivational processing",
+          "readiness to change"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Fear extinction",
-        "aliases": ["extinction learning", "extinction recall", "extinction retrieval"],
+        "aliases": [
+          "extinction learning",
+          "extinction recall",
+          "extinction retrieval"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Executive function",
-        "aliases": ["executive functioning", "cognitive function", "decision making", "planning"],
+        "aliases": [
+          "executive functioning",
+          "cognitive function",
+          "decision making",
+          "planning",
+          "Cognitive control"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Attention",
-        "aliases": ["attentional performance", "5-choice serial reaction time task", "5-CSRTT", "vigilance"],
+        "aliases": [
+          "attentional performance",
+          "5-choice serial reaction time task",
+          "5-CSRTT",
+          "vigilance"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Inhibitory control",
-        "aliases": ["impulsivity", "response inhibition", "impulsive action"],
+        "aliases": [
+          "impulsivity",
+          "response inhibition",
+          "impulsive action",
+          "Cognitive inhibition",
+          "Executive inhibition",
+          "Inhibitory response control"
+        ],
         "ids": {},
-        "status": "seed_alias"
+        "status": "seed_alias",
+        "whole_field_aliases": [
+          "Cognitive inhibition",
+          "Executive inhibition",
+          "Inhibitory response control"
+        ]
       },
       {
         "label": "Memory",
-        "aliases": ["memory performance", "memory acquisition", "learning and memory"],
+        "aliases": [
+          "memory performance",
+          "memory acquisition",
+          "learning and memory"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Working memory",
-        "aliases": ["spatial working memory", "n-back"],
+        "aliases": [
+          "spatial working memory",
+          "n-back",
+          "Working-memory performance"
+        ],
         "parent": "Memory",
         "ids": {},
-        "status": "seed_hierarchy"
+        "status": "seed_hierarchy",
+        "whole_field_aliases": [
+          "Working-memory performance"
+        ]
       },
       {
         "label": "Recognition memory",
-        "aliases": ["object recognition", "novel object recognition", "recognition memory"],
+        "aliases": [
+          "object recognition",
+          "novel object recognition",
+          "recognition memory",
+          "Object recognition memory"
+        ],
         "parent": "Memory",
         "ids": {},
-        "status": "seed_hierarchy"
+        "status": "seed_hierarchy",
+        "whole_field_aliases": [
+          "Object recognition memory"
+        ]
       },
       {
         "label": "Spatial memory",
-        "aliases": ["spatial learning", "spatial learning and memory", "water maze", "Morris water maze", "Cincinnati water maze"],
+        "aliases": [
+          "spatial learning",
+          "spatial learning and memory",
+          "water maze",
+          "Morris water maze",
+          "Cincinnati water maze"
+        ],
         "parent": "Memory",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Fear memory",
-        "aliases": ["conditioned fear", "fear conditioning", "learned fear", "contextual fear", "contextual fear conditioning", "cued fear conditioning", "tone fear conditioning", "trace fear conditioning", "conditioned freezing", "freezing time", "percentage time spent freezing", "CFC", "TFC"],
+        "aliases": [
+          "conditioned fear",
+          "fear conditioning",
+          "learned fear",
+          "contextual fear",
+          "contextual fear conditioning",
+          "cued fear conditioning",
+          "tone fear conditioning",
+          "trace fear conditioning",
+          "conditioned freezing",
+          "freezing time",
+          "percentage time spent freezing",
+          "CFC",
+          "TFC"
+        ],
         "parent": "Memory",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Autobiographical memory",
-        "aliases": ["autobiographical recollection", "personal event memory"],
+        "aliases": [
+          "autobiographical recollection",
+          "personal event memory"
+        ],
         "parent": "Memory",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Episodic memory",
-        "aliases": ["episodic recollection", "episodic recall"],
+        "aliases": [
+          "episodic recollection",
+          "episodic recall"
+        ],
         "parent": "Memory",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Verbal memory",
-        "aliases": ["verbal learning and memory", "word learning", "verbal recall", "Rey Auditory Verbal Learning Test", "California Verbal Learning Test", "Hopkins Verbal Learning Test"],
+        "aliases": [
+          "verbal learning and memory",
+          "word learning",
+          "verbal recall",
+          "Rey Auditory Verbal Learning Test",
+          "California Verbal Learning Test",
+          "Hopkins Verbal Learning Test"
+        ],
         "parent": "Memory",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Visuospatial memory",
-        "aliases": ["visual-spatial memory", "object-location memory"],
+        "aliases": [
+          "visual-spatial memory",
+          "object-location memory"
+        ],
         "parent": "Memory",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Visual memory",
-        "aliases": ["visual learning and memory", "visual paired-association memory"],
+        "aliases": [
+          "visual learning and memory",
+          "visual paired-association memory"
+        ],
         "parent": "Memory",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Semantic memory",
-        "aliases": ["semantic retrieval"],
+        "aliases": [
+          "semantic retrieval"
+        ],
         "parent": "Memory",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Prospective memory",
-        "aliases": ["prospective remembering"],
+        "aliases": [
+          "prospective remembering"
+        ],
         "parent": "Memory",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Sensory memory",
-        "aliases": ["auditory sensory memory", "sensory-auditory memory"],
+        "aliases": [
+          "auditory sensory memory",
+          "sensory-auditory memory"
+        ],
         "parent": "Memory",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Declarative memory",
-        "aliases": ["declarative learning"],
+        "aliases": [
+          "declarative learning"
+        ],
         "parent": "Memory",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Short-term memory",
-        "aliases": ["immediate memory span"],
+        "aliases": [
+          "immediate memory span"
+        ],
         "parent": "Memory",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Associative memory",
-        "aliases": ["associative learning", "paired-associate memory", "paired associative learning"],
+        "aliases": [
+          "associative learning",
+          "paired-associate memory",
+          "paired associative learning"
+        ],
         "parent": "Memory",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Conditioned taste aversion",
-        "aliases": ["taste aversion learning"],
+        "aliases": [
+          "taste aversion learning"
+        ],
         "parent": "Memory",
         "ids": {},
         "status": "controlled_detail"
       },
       {
         "label": "Self-related processing",
-        "aliases": ["self-compassion", "self-criticism", "self-acceptance"],
+        "aliases": [
+          "self-compassion",
+          "self-criticism",
+          "self-acceptance",
+          "Self-referential processing",
+          "Self-referential cognition"
+        ],
         "ids": {},
-        "status": "controlled_detail"
+        "status": "controlled_detail",
+        "whole_field_aliases": [
+          "Self-referential processing",
+          "Self-referential cognition"
+        ]
       },
       {
         "label": "Memory consolidation",
-        "aliases": ["consolidation of memory", "overnight memory consolidation"],
+        "aliases": [
+          "consolidation of memory",
+          "overnight memory consolidation"
+        ],
         "parent": "Memory",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Memory retrieval",
-        "aliases": ["retrieval of memory", "memory recall"],
+        "aliases": [
+          "retrieval of memory",
+          "memory recall"
+        ],
         "parent": "Memory",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Motor coordination",
-        "aliases": ["rotarod", "ataxia", "dystaxia", "gait", "tremor"],
+        "aliases": [
+          "rotarod",
+          "ataxia",
+          "dystaxia",
+          "gait",
+          "tremor"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Head-twitch response",
-        "aliases": ["head twitch response", "head-twitch response", "HTR", "hallucinogen-like behavior", "hallucinogenic-like behavior", "psychedelic-like behavior"],
+        "aliases": [
+          "head twitch response",
+          "head-twitch response",
+          "HTR",
+          "hallucinogen-like behavior",
+          "hallucinogenic-like behavior",
+          "psychedelic-like behavior",
+          "Head twitches",
+          "Head-twitch behavior"
+        ],
         "ids": {},
-        "status": "seed_alias"
+        "status": "seed_alias",
+        "whole_field_aliases": [
+          "Head twitches",
+          "Head-twitch behavior"
+        ]
       },
       {
         "label": "Psychomotor sensitization",
-        "aliases": ["locomotor sensitization", "sensitization"],
+        "aliases": [
+          "locomotor sensitization",
+          "sensitization"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Stress-coping behavior",
-        "aliases": ["depression-like behavior", "depressive-like behavior", "antidepressant-like behavior", "behavioral despair", "forced swim test", "tail suspension test", "learned helplessness"],
+        "aliases": [
+          "depression-like behavior",
+          "depressive-like behavior",
+          "antidepressant-like behavior",
+          "behavioral despair",
+          "forced swim test",
+          "tail suspension test",
+          "learned helplessness"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Threat avoidance",
-        "aliases": ["approach-avoidance", "avoidance behavior", "avoidance task"],
+        "aliases": [
+          "approach-avoidance",
+          "avoidance behavior",
+          "avoidance task"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Anxiety-like behavior",
-        "aliases": ["anxiety behavior", "anxiety", "anxiogenic behavior", "anxiolytic behavior", "elevated plus maze", "elevated zero maze", "novelty-suppressed feeding", "bottom dwelling", "light-dark test"],
+        "aliases": [
+          "anxiety behavior",
+          "anxiety",
+          "anxiogenic behavior",
+          "anxiolytic behavior",
+          "elevated plus maze",
+          "elevated zero maze",
+          "novelty-suppressed feeding",
+          "bottom dwelling",
+          "light-dark test"
+        ],
         "parent": "Threat avoidance",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Avoidance learning",
-        "aliases": ["active avoidance", "passive avoidance", "one-trial passive avoidance", "step-down passive avoidance", "step-through latency", "shuttle box test"],
+        "aliases": [
+          "active avoidance",
+          "passive avoidance",
+          "one-trial passive avoidance",
+          "step-down passive avoidance",
+          "step-through latency",
+          "shuttle box test"
+        ],
         "parent": "Memory",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Compulsivity",
-        "aliases": ["compulsive-like behavior", "obsessive-compulsive-like behavior", "anticompulsive-like behavior", "marble burying", "perseverative behavior"],
+        "aliases": [
+          "compulsive-like behavior",
+          "obsessive-compulsive-like behavior",
+          "anticompulsive-like behavior",
+          "marble burying",
+          "perseverative behavior",
+          "Compulsive behavior"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Drug self-administration",
-        "aliases": ["self-administration", "drug intake", "alcohol intake", "ethanol intake", "two-bottle choice", "2BC"],
+        "aliases": [
+          "self-administration",
+          "drug intake",
+          "alcohol intake",
+          "ethanol intake",
+          "two-bottle choice",
+          "2BC"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Drug seeking",
-        "aliases": ["addiction behavior", "drug-seeking behavior", "drug seeking", "alcohol seeking", "ethanol seeking", "cocaine seeking"],
+        "aliases": [
+          "addiction behavior",
+          "drug-seeking behavior",
+          "drug seeking",
+          "alcohol seeking",
+          "ethanol seeking",
+          "cocaine seeking"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Craving",
-        "aliases": ["drug craving", "alcohol craving", "craving-like behavior", "cue-induced craving", "urge to smoke"],
+        "aliases": [
+          "drug craving",
+          "alcohol craving",
+          "craving-like behavior",
+          "cue-induced craving",
+          "urge to smoke"
+        ],
         "parent": "Drug seeking",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Drug cue reactivity",
-        "aliases": ["alcohol-cue reactivity", "drug-cue reactivity", "smoking-cue reactivity", "reactivity to drug-related cues"],
+        "aliases": [
+          "alcohol-cue reactivity",
+          "drug-cue reactivity",
+          "smoking-cue reactivity",
+          "reactivity to drug-related cues"
+        ],
         "parent": "Drug seeking",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Drug reinstatement",
-        "aliases": ["drug seeking & reinstatement", "cue-induced reinstatement", "priming-induced reinstatement", "drug-induced reinstatement", "reinstatement of drug seeking"],
+        "aliases": [
+          "drug seeking & reinstatement",
+          "cue-induced reinstatement",
+          "priming-induced reinstatement",
+          "drug-induced reinstatement",
+          "reinstatement of drug seeking"
+        ],
         "parent": "Drug seeking",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Relapse",
-        "aliases": ["relapse-like behavior", "alcohol relapse behavior", "alcohol deprivation effect", "anti-relapse effect"],
+        "aliases": [
+          "relapse-like behavior",
+          "alcohol relapse behavior",
+          "alcohol deprivation effect",
+          "anti-relapse effect"
+        ],
         "parent": "Drug seeking",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Drug motivation",
-        "aliases": ["motivation for drug reinforcement", "economic demand for drugs", "drug demand elasticity"],
+        "aliases": [
+          "motivation for drug reinforcement",
+          "economic demand for drugs",
+          "drug demand elasticity"
+        ],
         "parent": "Drug seeking",
         "ids": {},
         "status": "seed_hierarchy"
       },
       {
         "label": "Conditioned place preference",
-        "aliases": ["CPP", "place preference"],
+        "aliases": [
+          "CPP",
+          "place preference"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Sensorimotor gating",
-        "aliases": ["sensory gating", "prepulse inhibition", "PPI"],
+        "aliases": [
+          "sensory gating",
+          "prepulse inhibition",
+          "PPI"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Processing speed",
-        "aliases": ["processing speed", "reaction time", "psychomotor performance"],
+        "aliases": [
+          "processing speed",
+          "reaction time",
+          "psychomotor performance",
+          "Psychomotor speed",
+          "Speed of processing"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Time perception",
-        "aliases": ["time perception", "temporal perception", "interval timing", "temporal bisection", "temporal bisection task", "temporal reproduction", "temporal reproduction task", "temporal discrimination", "temporal discrimination task", "time estimation", "time production"],
+        "aliases": [
+          "time perception",
+          "temporal perception",
+          "interval timing",
+          "temporal bisection",
+          "temporal bisection task",
+          "temporal reproduction",
+          "temporal reproduction task",
+          "temporal discrimination",
+          "temporal discrimination task",
+          "time estimation",
+          "time production"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Perceptual processing",
-        "aliases": ["visual perception", "visual processing", "perceptual processing"],
+        "aliases": [
+          "visual perception",
+          "visual processing",
+          "perceptual processing",
+          "Visual motion processing",
+          "Visual orientation processing",
+          "Visual sensory processing"
+        ],
         "ids": {},
-        "status": "seed_alias"
+        "status": "seed_alias",
+        "whole_field_aliases": [
+          "Visual motion processing",
+          "Visual orientation processing",
+          "Visual sensory processing"
+        ]
       },
       {
         "label": "Drug discrimination",
-        "aliases": ["discriminative stimulus effects", "drug-appropriate lever responding", "drug-lever responding"],
+        "aliases": [
+          "discriminative stimulus effects",
+          "drug-appropriate lever responding",
+          "drug-lever responding"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Social cognition",
-        "aliases": ["social cognition and interaction", "empathy", "cognitive empathy", "emotional empathy", "theory of mind", "Reading the Mind in the Eyes", "Multifaceted Empathy Test", "MASC"],
+        "aliases": [
+          "social cognition and interaction",
+          "empathy",
+          "cognitive empathy",
+          "emotional empathy",
+          "theory of mind",
+          "Reading the Mind in the Eyes",
+          "Multifaceted Empathy Test",
+          "MASC"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Social interaction",
-        "aliases": ["social behavior", "social interaction", "sociability", "social preference", "social approach", "prosocial behavior", "aggression", "aggressive behavior"],
+        "aliases": [
+          "social behavior",
+          "social interaction",
+          "sociability",
+          "social preference",
+          "social approach",
+          "prosocial behavior",
+          "aggression",
+          "aggressive behavior"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Psychotomimetic effects",
-        "aliases": ["psychotomimetic symptoms", "psychosis-like experience", "psychosis-like effects", "psychotic-like symptoms", "schizophrenia-like symptoms", "positive symptoms", "thought disorder", "BPRS", "PANSS"],
+        "aliases": [
+          "psychotomimetic symptoms",
+          "psychosis-like experience",
+          "psychosis-like effects",
+          "psychotic-like symptoms",
+          "schizophrenia-like symptoms",
+          "positive symptoms",
+          "thought disorder",
+          "BPRS",
+          "PANSS"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Pain behavior",
-        "aliases": ["nociception and pain behavior", "pain behavior", "nociceptive behavior", "antinociception", "allodynia", "hyperalgesia", "hot plate", "tail flick", "von Frey", "paw withdrawal"],
+        "aliases": [
+          "nociception and pain behavior",
+          "pain behavior",
+          "nociceptive behavior",
+          "antinociception",
+          "allodynia",
+          "hyperalgesia",
+          "hot plate",
+          "tail flick",
+          "von Frey",
+          "paw withdrawal"
+        ],
         "ids": {},
         "status": "seed_alias"
+      },
+      {
+        "label": "Stereotyped behavior",
+        "aliases": [
+          "Stereotypic behavior",
+          "stereotypy",
+          "Stereotyped oral behavior",
+          "Stereotyped shaking behavior"
+        ],
+        "ids": {},
+        "status": "source_supported_behavioral_construct",
+        "whole_field_aliases": [
+          "Stereotyped oral behavior",
+          "Stereotyped shaking behavior"
+        ]
+      },
+      {
+        "label": "Operant responding",
+        "aliases": [
+          "Operant behavior",
+          "food-reinforced operant responding",
+          "food-reinforced responding",
+          "food-maintained responding"
+        ],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Verbal fluency",
+        "aliases": [
+          "Letter fluency",
+          "phonemic fluency",
+          "semantic fluency"
+        ],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Seizure behavior",
+        "aliases": [
+          "Seizure-like behavior",
+          "Convulsive behavior"
+        ],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Seizure susceptibility",
+        "aliases": [
+          "Convulsant susceptibility"
+        ],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Catalepsy",
+        "aliases": [
+          "Cataleptic behavior"
+        ],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained.",
+        "whole_field_aliases": [
+          "Cataleptic behavior"
+        ]
+      },
+      {
+        "label": "Dyskinesia",
+        "aliases": [],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Conditioned place aversion",
+        "aliases": [
+          "CPA"
+        ],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Neuroticism",
+        "aliases": [],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Openness to experience",
+        "aliases": [
+          "Openness"
+        ],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained.",
+        "exact_only_terms": [
+          "Openness"
+        ]
+      },
+      {
+        "label": "Conscientiousness",
+        "aliases": [],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Agreeableness",
+        "aliases": [],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Extraversion",
+        "aliases": [],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Sexual risk behavior",
+        "aliases": [
+          "Risky sexual behavior",
+          "Sexual risk-taking"
+        ],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained.",
+        "whole_field_aliases": [
+          "Sexual risk-taking"
+        ]
+      },
+      {
+        "label": "Grooming behavior",
+        "aliases": [
+          "Self-grooming behavior",
+          "Grooming",
+          "Self-grooming"
+        ],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained.",
+        "whole_field_aliases": [
+          "Grooming",
+          "Self-grooming"
+        ]
+      },
+      {
+        "label": "Latent inhibition",
+        "aliases": [],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Driving performance",
+        "aliases": [],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Emotion regulation",
+        "aliases": [
+          "Emotional regulation"
+        ],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained.",
+        "whole_field_aliases": [
+          "Emotional regulation"
+        ]
+      },
+      {
+        "label": "Cognitive reappraisal",
+        "aliases": [],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Discrimination learning",
+        "aliases": [
+          "Visual discrimination learning"
+        ],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Rumination",
+        "aliases": [],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Sensation seeking",
+        "aliases": [],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Novelty seeking",
+        "aliases": [],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Risk-taking behavior",
+        "aliases": [
+          "Risk taking behavior"
+        ],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Delay discounting",
+        "aliases": [
+          "Impulsive choice",
+          "Temporal discounting"
+        ],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained.",
+        "whole_field_aliases": [
+          "Temporal discounting"
+        ]
+      },
+      {
+        "label": "Absorption",
+        "aliases": [],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained.",
+        "exact_only_terms": [
+          "Absorption"
+        ]
+      },
+      {
+        "label": "Nature relatedness",
+        "aliases": [
+          "Connectedness to nature"
+        ],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Suggestibility",
+        "aliases": [],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Metaphysical beliefs",
+        "aliases": [
+          "Metaphysical belief"
+        ],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained.",
+        "whole_field_aliases": [
+          "Metaphysical belief"
+        ]
+      },
+      {
+        "label": "Semantic processing",
+        "aliases": [
+          "Semantic activation"
+        ],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Sleep-wake behavior",
+        "aliases": [
+          "Sleep behavior",
+          "Sleep-wake behavior"
+        ],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Habituation",
+        "aliases": [
+          "Habituation learning"
+        ],
+        "ids": {},
+        "status": "reviewed_saved_endpoint",
+        "review_id": "saved-endpoint-vocabulary-20261029",
+        "normalization_note": "Endpoint identity only; original task, population, design and result are retained."
+      },
+      {
+        "label": "Convergent thinking",
+        "aliases": [],
+        "ids": {},
+        "status": "seed_alias",
+        "whole_field_only": true,
+        "normalization_note": "Literal measured construct; not an alias for a broader or neighboring construct. No new overview view is implied."
+      },
+      {
+        "label": "Visual learning",
+        "aliases": [],
+        "ids": {},
+        "status": "seed_alias",
+        "whole_field_only": true,
+        "normalization_note": "Literal measured construct; not an alias for a broader or neighboring construct. No new overview view is implied."
+      },
+      {
+        "label": "Procedural learning",
+        "aliases": [
+          "Procedural memory learning"
+        ],
+        "ids": {},
+        "status": "seed_alias",
+        "whole_field_only": true,
+        "normalization_note": "Literal measured construct; not an alias for a broader or neighboring construct. No new overview view is implied."
+      },
+      {
+        "label": "Sequence learning",
+        "aliases": [
+          "Sequential learning",
+          "Serial learning"
+        ],
+        "ids": {},
+        "status": "seed_alias",
+        "whole_field_only": true,
+        "normalization_note": "Literal measured construct; not an alias for a broader or neighboring construct. No new overview view is implied."
+      },
+      {
+        "label": "Motor learning",
+        "aliases": [
+          "Motor skill learning"
+        ],
+        "ids": {},
+        "status": "seed_alias",
+        "whole_field_only": true,
+        "normalization_note": "Literal measured construct; not an alias for a broader or neighboring construct. No new overview view is implied."
+      },
+      {
+        "label": "Social recognition",
+        "aliases": [],
+        "ids": {},
+        "status": "seed_alias",
+        "whole_field_only": true,
+        "normalization_note": "Literal measured construct; not an alias for a broader or neighboring construct. No new overview view is implied."
+      },
+      {
+        "label": "Social functioning",
+        "aliases": [],
+        "ids": {},
+        "status": "seed_alias",
+        "whole_field_only": true,
+        "normalization_note": "Literal measured construct; not an alias for a broader or neighboring construct. No new overview view is implied."
       }
     ],
     "subjective_experience_construct": [
       {
         "label": "Mystical-type experience",
-        "aliases": ["mystical experience", "complete mystical experience", "oceanic boundlessness", "OBN", "experience of unity", "self-transcendence", "transcendence", "noetic sense", "ineffability"],
+        "aliases": [
+          "mystical experience",
+          "complete mystical experience",
+          "oceanic boundlessness",
+          "OBN",
+          "experience of unity",
+          "self-transcendence",
+          "transcendence",
+          "noetic sense",
+          "ineffability",
+          "Mystical experiences",
+          "Mystical-type experiences",
+          "Mystical-experience scores"
+        ],
         "ids": {},
-        "status": "seed_alias"
+        "status": "seed_alias",
+        "whole_field_aliases": [
+          "Mystical experiences",
+          "Mystical-type experiences",
+          "Mystical-experience scores"
+        ]
       },
       {
         "label": "Ego dissolution",
-        "aliases": ["ego-dissolution", "ego boundary dissolution", "ego loss", "ego death", "ego disintegration"],
+        "aliases": [
+          "ego-dissolution",
+          "ego boundary dissolution",
+          "ego loss",
+          "ego death",
+          "ego disintegration"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Challenging experience",
-        "aliases": ["difficult experience", "bad trip", "psychological distress", "adverse mental states", "acute anxiety", "somatic challenges", "dread"],
+        "aliases": [
+          "difficult experience",
+          "bad trip",
+          "psychological distress",
+          "adverse mental states",
+          "acute anxiety",
+          "somatic challenges",
+          "dread"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Psychological insight",
-        "aliases": ["insight", "personal insight", "acute psychological insight", "insightful", "self-acceptance", "identity transformation"],
+        "aliases": [
+          "insight",
+          "personal insight",
+          "acute psychological insight",
+          "insightful",
+          "self-acceptance",
+          "identity transformation"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Emotional breakthrough",
-        "aliases": ["emotional release", "emotional catharsis"],
+        "aliases": [
+          "emotional release",
+          "emotional catharsis"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Dissociation",
-        "aliases": ["Dissociation & derealization", "dissociation", "dissociative symptoms", "dissociative state", "derealization", "depersonalization", "depersonalization-derealization", "DP/DR", "DDD", "CADSS", "self-alienation", "disembodiment"],
+        "aliases": [
+          "Dissociation & derealization",
+          "dissociation",
+          "dissociative symptoms",
+          "dissociative state",
+          "derealization",
+          "depersonalization",
+          "depersonalization-derealization",
+          "DP/DR",
+          "DDD",
+          "CADSS",
+          "self-alienation",
+          "disembodiment",
+          "State dissociation"
+        ],
         "ids": {},
-        "status": "seed_alias"
+        "status": "seed_alias",
+        "whole_field_aliases": [
+          "State dissociation"
+        ]
       },
       {
         "label": "Altered state profile",
-        "aliases": ["Altered states of consciousness", "altered state of consciousness", "altered states", "psychedelic experience", "subjective effects", "ASC", "5D-ASC", "11D-ASC", "3D-ASC", "APZ", "continuous subjective experience", "primary process thinking"],
+        "aliases": [
+          "Altered states of consciousness",
+          "altered state of consciousness",
+          "altered states",
+          "psychedelic experience",
+          "subjective effects",
+          "ASC",
+          "5D-ASC",
+          "11D-ASC",
+          "3D-ASC",
+          "APZ",
+          "continuous subjective experience",
+          "primary process thinking",
+          "Subjective drug effects"
+        ],
         "ids": {},
-        "status": "seed_alias"
+        "status": "seed_alias",
+        "whole_field_aliases": [
+          "Subjective drug effects"
+        ]
       },
       {
         "label": "Time distortion",
-        "aliases": ["altered time perception", "time distortion", "time dilation", "time compression", "time sped up", "time slowed down", "timelessness", "loss of temporal awareness", "space-time distortion", "sense of time"],
+        "aliases": [
+          "altered time perception",
+          "time distortion",
+          "time dilation",
+          "time compression",
+          "time sped up",
+          "time slowed down",
+          "timelessness",
+          "loss of temporal awareness",
+          "space-time distortion",
+          "sense of time"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Near-death-like experience",
-        "aliases": ["near-death experience", "NDE phenomenology", "near-death experience phenomenology", "Greyson NDE scale"],
+        "aliases": [
+          "near-death experience",
+          "NDE phenomenology",
+          "near-death experience phenomenology",
+          "Greyson NDE scale"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Subjective intensity",
-        "aliases": ["Experience intensity", "subjective drug intensity", "drug effect intensity", "global subjective intensity", "subjective intensity of drug effects", "subjective intensity of the experience", "strength of effect", "peak experience", "highness"],
+        "aliases": [
+          "Experience intensity",
+          "subjective drug intensity",
+          "drug effect intensity",
+          "global subjective intensity",
+          "subjective intensity of drug effects",
+          "subjective intensity of the experience",
+          "strength of effect",
+          "peak experience",
+          "highness",
+          "Subjective effect intensity"
+        ],
         "ids": {},
-        "status": "seed_alias"
+        "status": "seed_alias",
+        "whole_field_aliases": [
+          "Subjective effect intensity"
+        ]
       },
       {
         "label": "Perceptual alterations",
-        "aliases": ["hallucinogenic effects", "visual hallucinations", "hallucinations", "drug-induced synaesthesia", "perceptual alteration", "perceptual alterations", "perceptual changes", "visual phenomena", "auditory and visual phenomena", "elementary imagery", "complex imagery", "synthetic synesthesia", "sensory changes"],
+        "aliases": [
+          "hallucinogenic effects",
+          "visual hallucinations",
+          "hallucinations",
+          "drug-induced synaesthesia",
+          "perceptual alteration",
+          "perceptual alterations",
+          "perceptual changes",
+          "visual phenomena",
+          "auditory and visual phenomena",
+          "elementary imagery",
+          "complex imagery",
+          "synthetic synesthesia",
+          "sensory changes",
+          "Altered perception",
+          "Altered sensory experience"
+        ],
         "ids": {},
-        "status": "seed_alias"
+        "status": "seed_alias",
+        "whole_field_aliases": [
+          "Altered perception",
+          "Altered sensory experience"
+        ]
       },
       {
         "label": "Connectedness",
-        "aliases": ["Connectedness & empathy", "connectedness", "social connection", "connection", "closeness to others", "trusting of others", "community", "communitas", "togetherness", "emotional intimacy", "love", "pro-social effects", "prosocial effects"],
+        "aliases": [
+          "Connectedness & empathy",
+          "connectedness",
+          "social connection",
+          "connection",
+          "closeness to others",
+          "trusting of others",
+          "community",
+          "communitas",
+          "togetherness",
+          "emotional intimacy",
+          "love",
+          "pro-social effects",
+          "prosocial effects"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Empathy",
-        "aliases": ["empathy", "empathogenic", "entactogenic", "emotional empathy", "empathy-related effects"],
+        "aliases": [
+          "empathy",
+          "empathogenic",
+          "entactogenic",
+          "emotional empathy",
+          "empathy-related effects"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Personal significance",
-        "aliases": ["meaningfulness", "meaning in life", "presence of meaning in life", "personally meaningful", "personal meaningfulness", "purpose in life", "important experience", "significant experience", "meaningful experience", "personal significance", "life satisfaction"],
+        "aliases": [
+          "meaningfulness",
+          "meaning in life",
+          "presence of meaning in life",
+          "personally meaningful",
+          "personal meaningfulness",
+          "purpose in life",
+          "important experience",
+          "significant experience",
+          "meaningful experience",
+          "personal significance",
+          "life satisfaction"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Spiritual significance",
-        "aliases": ["spirituality", "spiritual outlook", "spiritual significance", "spiritual cleansing", "sacred sensemaking", "direct encounter with the divine", "supernatural quality", "religious well-being", "existential well-being", "numinous"],
+        "aliases": [
+          "spirituality",
+          "spiritual outlook",
+          "spiritual significance",
+          "spiritual cleansing",
+          "sacred sensemaking",
+          "direct encounter with the divine",
+          "supernatural quality",
+          "religious well-being",
+          "existential well-being",
+          "numinous"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Euphoria",
-        "aliases": ["Mood & euphoria", "euphoria", "euphoric", "drug liking", "liking", "good effects", "high", "emotional bliss", "bliss"],
+        "aliases": [
+          "Mood & euphoria",
+          "euphoria",
+          "euphoric",
+          "drug liking",
+          "liking",
+          "good effects",
+          "high",
+          "emotional bliss",
+          "bliss"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Positive affect",
-        "aliases": ["well-being", "wellbeing", "positive mood", "positive affect", "contentedness", "calmness", "alertness", "happiness", "peacefulness", "serenity", "joy", "awe", "satisfaction"],
+        "aliases": [
+          "well-being",
+          "wellbeing",
+          "positive mood",
+          "positive affect",
+          "contentedness",
+          "calmness",
+          "alertness",
+          "happiness",
+          "peacefulness",
+          "serenity",
+          "joy",
+          "awe",
+          "satisfaction"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Negative affect",
-        "aliases": ["dysphoria", "negative mood", "negative effects", "tension", "worry", "anxiety", "paranoia", "confusion"],
+        "aliases": [
+          "dysphoria",
+          "negative mood",
+          "negative effects",
+          "tension",
+          "worry",
+          "anxiety",
+          "paranoia",
+          "confusion"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Somatic sensations",
-        "aliases": ["Embodiment & bodily sensations", "embodiment", "somatic", "bodily sensations", "body sensations", "unusual bodily sensations", "physical effects", "negative bodily feelings", "nausea", "vomiting"],
+        "aliases": [
+          "Embodiment & bodily sensations",
+          "embodiment",
+          "somatic",
+          "bodily sensations",
+          "body sensations",
+          "unusual bodily sensations",
+          "physical effects",
+          "negative bodily feelings",
+          "nausea",
+          "vomiting"
+        ],
         "ids": {},
         "status": "seed_alias"
       }
@@ -1402,145 +2867,236 @@
     "pharmacokinetic_parameter": [
       {
         "label": "Cmax",
-        "aliases": ["maximum concentration", "peak plasma concentration"],
+        "aliases": [
+          "maximum concentration",
+          "peak plasma concentration"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Tmax",
-        "aliases": ["time to maximum concentration", "time to peak concentration"],
+        "aliases": [
+          "time to maximum concentration",
+          "time to peak concentration"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "AUC",
-        "aliases": ["area under the curve", "area under the concentration-time curve", "AUC0-inf", "AUC 0-inf", "AUC 0-72h", "AUC ratio"],
+        "aliases": [
+          "area under the curve",
+          "area under the concentration-time curve",
+          "AUC0-inf",
+          "AUC 0-inf",
+          "AUC 0-72h",
+          "AUC ratio"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Half-life",
-        "aliases": ["elimination half-life", "terminal half-life", "t1/2", "T1/2"],
+        "aliases": [
+          "elimination half-life",
+          "terminal half-life",
+          "t1/2",
+          "T1/2"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Clearance",
-        "aliases": ["CL", "CL/F", "drug clearance", "apparent clearance"],
+        "aliases": [
+          "CL",
+          "CL/F",
+          "drug clearance",
+          "apparent clearance"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Bioavailability",
-        "aliases": ["absolute bioavailability", "relative bioavailability"],
+        "aliases": [
+          "absolute bioavailability",
+          "relative bioavailability"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Volume of distribution",
-        "aliases": ["Vd", "apparent volume of distribution"],
+        "aliases": [
+          "Vd",
+          "apparent volume of distribution"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Exposure-response relationship",
-        "aliases": ["exposure response", "exposure-response"],
+        "aliases": [
+          "exposure response",
+          "exposure-response"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Dose-response relationship",
-        "aliases": ["dose response", "dose-response"],
+        "aliases": [
+          "dose response",
+          "dose-response"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Concentration",
-        "aliases": ["concentration level", "concentration_level", "plasma concentration", "drug concentration"],
+        "aliases": [
+          "concentration level",
+          "concentration_level",
+          "plasma concentration",
+          "drug concentration"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "IC50",
-        "aliases": ["half maximal inhibitory concentration"],
+        "aliases": [
+          "half maximal inhibitory concentration"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "EC50",
-        "aliases": ["half maximal effective concentration"],
+        "aliases": [
+          "half maximal effective concentration"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "ED50",
-        "aliases": ["median effective dose"],
+        "aliases": [
+          "median effective dose"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Km",
-        "aliases": ["Michaelis constant", "Vmax_and_Km"],
+        "aliases": [
+          "Michaelis constant",
+          "Vmax_and_Km"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Concentration-response relationship",
-        "aliases": ["concentration response", "concentration-response"],
+        "aliases": [
+          "concentration response",
+          "concentration-response"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Metabolic ratio",
-        "aliases": ["metabolite ratio"],
+        "aliases": [
+          "metabolite ratio"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Receptor occupancy",
-        "aliases": ["5-HT2AR receptor occupancy", "target occupancy"],
+        "aliases": [
+          "5-HT2AR receptor occupancy",
+          "target occupancy"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Dissolution profile",
-        "aliases": ["dissolution_profile", "drug release profile", "in vitro release"],
+        "aliases": [
+          "dissolution_profile",
+          "drug release profile",
+          "in vitro release"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Exposure measurement",
-        "aliases": ["parent exposure", "analyte exposure", "systemic exposure", "exposure profile"],
+        "aliases": [
+          "parent exposure",
+          "analyte exposure",
+          "systemic exposure",
+          "exposure profile"
+        ],
         "ids": {},
         "status": "seed_category"
       },
       {
         "label": "Route/formulation effect",
-        "aliases": ["route effect", "formulation effect", "route of administration effect"],
+        "aliases": [
+          "route effect",
+          "formulation effect",
+          "route of administration effect"
+        ],
         "ids": {},
         "status": "seed_category"
       },
       {
         "label": "Tissue distribution",
-        "aliases": ["compartment distribution", "brain exposure", "CSF exposure", "tissue exposure", "distribution profile"],
+        "aliases": [
+          "compartment distribution",
+          "brain exposure",
+          "CSF exposure",
+          "tissue exposure",
+          "distribution profile"
+        ],
         "ids": {},
         "status": "seed_category"
       },
       {
         "label": "Exposure modifier",
-        "aliases": ["exposure interaction", "drug interaction", "co-exposure modifier", "pharmacogenomic modifier"],
+        "aliases": [
+          "exposure interaction",
+          "drug interaction",
+          "co-exposure modifier",
+          "pharmacogenomic modifier"
+        ],
         "ids": {},
         "status": "seed_category"
       },
       {
         "label": "Excretion/elimination",
-        "aliases": ["elimination profile", "urinary excretion", "renal excretion", "excretion profile"],
+        "aliases": [
+          "elimination profile",
+          "urinary excretion",
+          "renal excretion",
+          "excretion profile"
+        ],
         "ids": {},
         "status": "seed_category"
       },
       {
         "label": "Detection/monitoring",
-        "aliases": ["exposure detection", "biological monitoring", "hair exposure monitoring", "wastewater exposure monitoring"],
+        "aliases": [
+          "exposure detection",
+          "biological monitoring",
+          "hair exposure monitoring",
+          "wastewater exposure monitoring"
+        ],
         "ids": {},
         "status": "seed_category"
       }
@@ -1548,43 +3104,68 @@
     "intervention_component": [
       {
         "label": "Therapeutic approaches",
-        "aliases": ["treatment approaches", "therapy models", "psychotherapy approaches"],
+        "aliases": [
+          "treatment approaches",
+          "therapy models",
+          "psychotherapy approaches"
+        ],
         "ids": {},
         "status": "seed_parent"
       },
       {
         "label": "Session components",
-        "aliases": ["session features", "treatment session components"],
+        "aliases": [
+          "session features",
+          "treatment session components"
+        ],
         "ids": {},
         "status": "seed_parent"
       },
       {
         "label": "Delivery formats",
-        "aliases": ["delivery models", "care delivery formats"],
+        "aliases": [
+          "delivery models",
+          "care delivery formats"
+        ],
         "ids": {},
         "status": "seed_parent"
       },
       {
         "label": "Provider & support factors",
-        "aliases": ["provider factors", "support factors", "therapist and facilitator factors"],
+        "aliases": [
+          "provider factors",
+          "support factors",
+          "therapist and facilitator factors"
+        ],
         "ids": {},
         "status": "seed_parent"
       },
       {
         "label": "Setting & cultural context",
-        "aliases": ["setting factors", "ceremonial and cultural context"],
+        "aliases": [
+          "setting factors",
+          "ceremonial and cultural context"
+        ],
         "ids": {},
         "status": "seed_parent"
       },
       {
         "label": "Implementation & access factors",
-        "aliases": ["implementation factors", "access factors", "implementation and delivery"],
+        "aliases": [
+          "implementation factors",
+          "access factors",
+          "implementation and delivery"
+        ],
         "ids": {},
         "status": "seed_parent"
       },
       {
         "label": "Participant & contextual moderators",
-        "aliases": ["participant moderators", "contextual moderators", "patient context factors"],
+        "aliases": [
+          "participant moderators",
+          "contextual moderators",
+          "patient context factors"
+        ],
         "ids": {},
         "status": "seed_parent"
       },
@@ -1865,127 +3446,281 @@
     "public_health_measure": [
       {
         "label": "Population use & trends",
-        "aliases": ["prevalence", "incidence", "lifetime prevalence", "past-year prevalence", "population trend", "wastewater consumption estimate", "population-normalised daily loads"],
+        "aliases": [
+          "prevalence",
+          "incidence",
+          "lifetime prevalence",
+          "past-year prevalence",
+          "population trend",
+          "wastewater consumption estimate",
+          "population-normalised daily loads"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Use patterns & practices",
-        "aliases": ["use pattern", "pattern of use", "frequency of use", "route of administration", "co-use pattern", "consumption pattern"],
+        "aliases": [
+          "use pattern",
+          "pattern of use",
+          "frequency of use",
+          "route of administration",
+          "co-use pattern",
+          "consumption pattern"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Motivations & intentions",
-        "aliases": ["motivations for use", "reasons for use", "purpose of use", "intentions to use", "willingness to use", "future use intentions"],
+        "aliases": [
+          "motivations for use",
+          "reasons for use",
+          "purpose of use",
+          "intentions to use",
+          "willingness to use",
+          "future use intentions"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Predictors & correlates",
-        "aliases": ["predictors of use", "correlates of use", "determinants of use", "risk factors for use", "demographic differences in use"],
+        "aliases": [
+          "predictors of use",
+          "correlates of use",
+          "determinants of use",
+          "risk factors for use",
+          "demographic differences in use"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Perceived benefits & harms",
-        "aliases": ["perceived benefit", "perceived efficacy", "perceived harm", "perceived risk", "self-reported benefit", "self-reported improvement"],
+        "aliases": [
+          "perceived benefit",
+          "perceived efficacy",
+          "perceived harm",
+          "perceived risk",
+          "self-reported benefit",
+          "self-reported improvement"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Health & functioning outcomes",
-        "aliases": ["mental health outcome", "health status", "quality of life", "psychological distress", "social functioning", "long-term morbidity"],
+        "aliases": [
+          "mental health outcome",
+          "health status",
+          "quality of life",
+          "psychological distress",
+          "social functioning",
+          "long-term morbidity"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Problematic use & dependence",
-        "aliases": ["problematic use", "misuse", "abuse liability", "dependence", "addiction potential", "substance use disorder", "drug dependence", "compulsive use"],
+        "aliases": [
+          "problematic use",
+          "misuse",
+          "abuse liability",
+          "dependence",
+          "addiction potential",
+          "substance use disorder",
+          "drug dependence",
+          "compulsive use"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Acute harms & healthcare use",
-        "aliases": ["acute intoxication", "overdose", "emergency presentation", "poison-center call", "hospitalization", "acute toxicity", "fatal poisoning", "healthcare utilization"],
+        "aliases": [
+          "acute intoxication",
+          "overdose",
+          "emergency presentation",
+          "poison-center call",
+          "hospitalization",
+          "acute toxicity",
+          "fatal poisoning",
+          "healthcare utilization"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Treatment effectiveness & care outcomes",
-        "aliases": ["real-world effectiveness", "treatment response", "response and remission", "treatment completion", "treatment discontinuation", "care outcomes"],
+        "aliases": [
+          "real-world effectiveness",
+          "treatment response",
+          "response and remission",
+          "treatment completion",
+          "treatment discontinuation",
+          "care outcomes"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Harm reduction practices",
-        "aliases": ["harm reduction", "safer use", "risk reduction", "trip-sitter use", "drug information seeking", "behavior change after drug checking"],
+        "aliases": [
+          "harm reduction",
+          "safer use",
+          "risk reduction",
+          "trip-sitter use",
+          "drug information seeking",
+          "behavior change after drug checking"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Drug composition & adulteration",
-        "aliases": ["drug composition", "adulteration", "substitution", "purity", "potency", "unexpected drug detection", "product mislabeling"],
+        "aliases": [
+          "drug composition",
+          "adulteration",
+          "substitution",
+          "purity",
+          "potency",
+          "unexpected drug detection",
+          "product mislabeling"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Availability & market trends",
-        "aliases": ["market availability", "drug availability", "cryptomarket", "darknet market", "street price", "drug supply trend"],
+        "aliases": [
+          "market availability",
+          "drug availability",
+          "cryptomarket",
+          "darknet market",
+          "street price",
+          "drug supply trend"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Access & equity",
-        "aliases": ["treatment access", "access barrier", "health equity", "ethnoracial inclusion", "treatment availability", "underserved population"],
+        "aliases": [
+          "treatment access",
+          "access barrier",
+          "health equity",
+          "ethnoracial inclusion",
+          "treatment availability",
+          "underserved population"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Implementation & acceptability",
-        "aliases": ["implementation", "service delivery", "acceptability", "feasibility", "provider attitudes", "practice readiness", "provider training"],
+        "aliases": [
+          "implementation",
+          "service delivery",
+          "acceptability",
+          "feasibility",
+          "provider attitudes",
+          "practice readiness",
+          "provider training"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Economic & resource impacts",
-        "aliases": ["cost-effectiveness", "incremental cost-effectiveness ratio", "ICER", "quality-adjusted life years", "QALY", "cost savings", "resource use", "economic burden"],
+        "aliases": [
+          "cost-effectiveness",
+          "incremental cost-effectiveness ratio",
+          "ICER",
+          "quality-adjusted life years",
+          "QALY",
+          "cost savings",
+          "resource use",
+          "economic burden"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Policy & legal outcomes",
-        "aliases": ["policy outcome", "regulation", "legal status", "decriminalization", "criminal justice", "arrest outcome", "drug scheduling"],
+        "aliases": [
+          "policy outcome",
+          "regulation",
+          "legal status",
+          "decriminalization",
+          "criminal justice",
+          "arrest outcome",
+          "drug scheduling"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Ethics & governance",
-        "aliases": ["research ethics", "ethical governance", "informed consent", "participant autonomy", "cultural appropriation", "distributive justice"],
+        "aliases": [
+          "research ethics",
+          "ethical governance",
+          "informed consent",
+          "participant autonomy",
+          "cultural appropriation",
+          "distributive justice"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Commercialization & public communication",
-        "aliases": ["commercialization", "commodification", "psychedelic industry", "venture capital", "media hype", "public advocacy", "public perception"],
+        "aliases": [
+          "commercialization",
+          "commodification",
+          "psychedelic industry",
+          "venture capital",
+          "media hype",
+          "public advocacy",
+          "public perception"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Environmental sustainability",
-        "aliases": ["conservation", "overharvesting", "wild population pressure", "habitat loss", "threatened species", "ecological sustainability"],
+        "aliases": [
+          "conservation",
+          "overharvesting",
+          "wild population pressure",
+          "habitat loss",
+          "threatened species",
+          "ecological sustainability"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Research landscape",
-        "aliases": ["research landscape", "evidence landscape", "publication patterns", "research funding", "methodological quality", "research agenda"],
+        "aliases": [
+          "research landscape",
+          "evidence landscape",
+          "publication patterns",
+          "research funding",
+          "methodological quality",
+          "research agenda"
+        ],
         "ids": {},
         "status": "seed_alias"
       },
       {
         "label": "Other real-world topics",
-        "aliases": ["other real-world topic", "other public-health outcome", "other real-world outcome"],
+        "aliases": [
+          "other real-world topic",
+          "other public-health outcome",
+          "other real-world outcome"
+        ],
         "ids": {},
         "status": "seed_alias"
       }

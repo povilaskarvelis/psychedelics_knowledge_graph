@@ -1,0 +1,1542 @@
+{
+  "rows": [
+    {
+      "key": "ketamine",
+      "name": "Ketamine"
+    },
+    {
+      "key": "mdma",
+      "name": "MDMA"
+    },
+    {
+      "key": "psilocybin",
+      "name": "Psilocybin"
+    },
+    {
+      "key": "lsd",
+      "name": "LSD"
+    },
+    {
+      "key": "s-ketamine",
+      "name": "S-ketamine"
+    },
+    {
+      "key": "ayahuasca",
+      "name": "Ayahuasca"
+    },
+    {
+      "key": "dmt",
+      "name": "DMT"
+    },
+    {
+      "key": "doi",
+      "name": "DOI"
+    },
+    {
+      "key": "salvinorin a",
+      "name": "Salvinorin A"
+    },
+    {
+      "key": "ibogaine",
+      "name": "Ibogaine"
+    },
+    {
+      "key": "mescaline",
+      "name": "Mescaline"
+    },
+    {
+      "key": "r-ketamine",
+      "name": "R-ketamine"
+    },
+    {
+      "key": "5-meo-dmt",
+      "name": "5-MeO-DMT"
+    },
+    {
+      "key": "psilocin",
+      "name": "Psilocin"
+    },
+    {
+      "key": "mda",
+      "name": "MDA"
+    },
+    {
+      "key": "(2r,6r)-hydroxynorketamine",
+      "name": "(2R,6R)-hydroxynorketamine"
+    },
+    {
+      "key": "2c-b",
+      "name": "2C-B"
+    },
+    {
+      "key": "methoxetamine",
+      "name": "Methoxetamine"
+    },
+    {
+      "key": "25i-nbome",
+      "name": "25I-NBOMe"
+    },
+    {
+      "key": "methylone",
+      "name": "Methylone"
+    },
+    {
+      "key": "dextromethorphan",
+      "name": "Dextromethorphan"
+    },
+    {
+      "key": "nitrous oxide",
+      "name": "Nitrous oxide"
+    },
+    {
+      "key": "dom",
+      "name": "DOM"
+    },
+    {
+      "key": "noribogaine",
+      "name": "Noribogaine"
+    }
+  ],
+  "cells": [
+    {
+      "compound": "ketamine",
+      "area": "Conditions",
+      "count": 1985,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "ketamine",
+      "area": "Safety",
+      "count": 1996,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "ketamine",
+      "area": "Cognition",
+      "count": 872,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "ketamine",
+      "area": "Behavior",
+      "count": 947,
+      "color": "#d27694"
+    },
+    {
+      "compound": "ketamine",
+      "area": "Subjective effects",
+      "count": 356,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "ketamine",
+      "area": "Treatment context",
+      "count": 185,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "ketamine",
+      "area": "Real-world use",
+      "count": 870,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "ketamine",
+      "area": "Brain regions",
+      "count": 775,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "ketamine",
+      "area": "Molecular effects",
+      "count": 1743,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "ketamine",
+      "area": "Targets",
+      "count": 760,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "mdma",
+      "area": "Conditions",
+      "count": 315,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "mdma",
+      "area": "Safety",
+      "count": 1412,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "mdma",
+      "area": "Cognition",
+      "count": 528,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "mdma",
+      "area": "Behavior",
+      "count": 449,
+      "color": "#d27694"
+    },
+    {
+      "compound": "mdma",
+      "area": "Subjective effects",
+      "count": 260,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "mdma",
+      "area": "Treatment context",
+      "count": 142,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "mdma",
+      "area": "Real-world use",
+      "count": 1711,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "mdma",
+      "area": "Brain regions",
+      "count": 254,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "mdma",
+      "area": "Molecular effects",
+      "count": 929,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "mdma",
+      "area": "Targets",
+      "count": 359,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "psilocybin",
+      "area": "Conditions",
+      "count": 667,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "psilocybin",
+      "area": "Safety",
+      "count": 549,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "psilocybin",
+      "area": "Cognition",
+      "count": 253,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "psilocybin",
+      "area": "Behavior",
+      "count": 197,
+      "color": "#d27694"
+    },
+    {
+      "compound": "psilocybin",
+      "area": "Subjective effects",
+      "count": 473,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "psilocybin",
+      "area": "Treatment context",
+      "count": 335,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "psilocybin",
+      "area": "Real-world use",
+      "count": 511,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "psilocybin",
+      "area": "Brain regions",
+      "count": 148,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "psilocybin",
+      "area": "Molecular effects",
+      "count": 230,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "psilocybin",
+      "area": "Targets",
+      "count": 175,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "lsd",
+      "area": "Conditions",
+      "count": 104,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "lsd",
+      "area": "Safety",
+      "count": 297,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "lsd",
+      "area": "Cognition",
+      "count": 111,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "lsd",
+      "area": "Behavior",
+      "count": 115,
+      "color": "#d27694"
+    },
+    {
+      "compound": "lsd",
+      "area": "Subjective effects",
+      "count": 267,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "lsd",
+      "area": "Treatment context",
+      "count": 97,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "lsd",
+      "area": "Real-world use",
+      "count": 523,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "lsd",
+      "area": "Brain regions",
+      "count": 76,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "lsd",
+      "area": "Molecular effects",
+      "count": 127,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "lsd",
+      "area": "Targets",
+      "count": 187,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "s-ketamine",
+      "area": "Conditions",
+      "count": 593,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "s-ketamine",
+      "area": "Safety",
+      "count": 462,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "s-ketamine",
+      "area": "Cognition",
+      "count": 135,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "s-ketamine",
+      "area": "Behavior",
+      "count": 133,
+      "color": "#d27694"
+    },
+    {
+      "compound": "s-ketamine",
+      "area": "Subjective effects",
+      "count": 89,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "s-ketamine",
+      "area": "Treatment context",
+      "count": 39,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "s-ketamine",
+      "area": "Real-world use",
+      "count": 122,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "s-ketamine",
+      "area": "Brain regions",
+      "count": 87,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "s-ketamine",
+      "area": "Molecular effects",
+      "count": 236,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "s-ketamine",
+      "area": "Targets",
+      "count": 97,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "ayahuasca",
+      "area": "Conditions",
+      "count": 116,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "ayahuasca",
+      "area": "Safety",
+      "count": 148,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "ayahuasca",
+      "area": "Cognition",
+      "count": 83,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "ayahuasca",
+      "area": "Behavior",
+      "count": 64,
+      "color": "#d27694"
+    },
+    {
+      "compound": "ayahuasca",
+      "area": "Subjective effects",
+      "count": 255,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "ayahuasca",
+      "area": "Treatment context",
+      "count": 173,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "ayahuasca",
+      "area": "Real-world use",
+      "count": 238,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "ayahuasca",
+      "area": "Brain regions",
+      "count": 34,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "ayahuasca",
+      "area": "Molecular effects",
+      "count": 56,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "ayahuasca",
+      "area": "Targets",
+      "count": 16,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "dmt",
+      "area": "Conditions",
+      "count": 27,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "dmt",
+      "area": "Safety",
+      "count": 115,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "dmt",
+      "area": "Cognition",
+      "count": 30,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "dmt",
+      "area": "Behavior",
+      "count": 36,
+      "color": "#d27694"
+    },
+    {
+      "compound": "dmt",
+      "area": "Subjective effects",
+      "count": 157,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "dmt",
+      "area": "Treatment context",
+      "count": 25,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "dmt",
+      "area": "Real-world use",
+      "count": 128,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "dmt",
+      "area": "Brain regions",
+      "count": 20,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "dmt",
+      "area": "Molecular effects",
+      "count": 81,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "dmt",
+      "area": "Targets",
+      "count": 127,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "doi",
+      "area": "Conditions",
+      "count": 2,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "doi",
+      "area": "Safety",
+      "count": 45,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "doi",
+      "area": "Cognition",
+      "count": 49,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "doi",
+      "area": "Behavior",
+      "count": 180,
+      "color": "#d27694"
+    },
+    {
+      "compound": "doi",
+      "area": "Subjective effects",
+      "count": 2,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "doi",
+      "area": "Treatment context",
+      "count": 0,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "doi",
+      "area": "Real-world use",
+      "count": 2,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "doi",
+      "area": "Brain regions",
+      "count": 80,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "doi",
+      "area": "Molecular effects",
+      "count": 250,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "doi",
+      "area": "Targets",
+      "count": 363,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "salvinorin a",
+      "area": "Conditions",
+      "count": 11,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "salvinorin a",
+      "area": "Safety",
+      "count": 52,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "salvinorin a",
+      "area": "Cognition",
+      "count": 19,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "salvinorin a",
+      "area": "Behavior",
+      "count": 52,
+      "color": "#d27694"
+    },
+    {
+      "compound": "salvinorin a",
+      "area": "Subjective effects",
+      "count": 44,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "salvinorin a",
+      "area": "Treatment context",
+      "count": 5,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "salvinorin a",
+      "area": "Real-world use",
+      "count": 54,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "salvinorin a",
+      "area": "Brain regions",
+      "count": 17,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "salvinorin a",
+      "area": "Molecular effects",
+      "count": 75,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "salvinorin a",
+      "area": "Targets",
+      "count": 184,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "ibogaine",
+      "area": "Conditions",
+      "count": 80,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "ibogaine",
+      "area": "Safety",
+      "count": 124,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "ibogaine",
+      "area": "Cognition",
+      "count": 6,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "ibogaine",
+      "area": "Behavior",
+      "count": 29,
+      "color": "#d27694"
+    },
+    {
+      "compound": "ibogaine",
+      "area": "Subjective effects",
+      "count": 41,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "ibogaine",
+      "area": "Treatment context",
+      "count": 25,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "ibogaine",
+      "area": "Real-world use",
+      "count": 29,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "ibogaine",
+      "area": "Brain regions",
+      "count": 15,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "ibogaine",
+      "area": "Molecular effects",
+      "count": 68,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "ibogaine",
+      "area": "Targets",
+      "count": 46,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "mescaline",
+      "area": "Conditions",
+      "count": 16,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "mescaline",
+      "area": "Safety",
+      "count": 53,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "mescaline",
+      "area": "Cognition",
+      "count": 17,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "mescaline",
+      "area": "Behavior",
+      "count": 15,
+      "color": "#d27694"
+    },
+    {
+      "compound": "mescaline",
+      "area": "Subjective effects",
+      "count": 81,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "mescaline",
+      "area": "Treatment context",
+      "count": 35,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "mescaline",
+      "area": "Real-world use",
+      "count": 139,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "mescaline",
+      "area": "Brain regions",
+      "count": 2,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "mescaline",
+      "area": "Molecular effects",
+      "count": 19,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "mescaline",
+      "area": "Targets",
+      "count": 26,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "r-ketamine",
+      "area": "Conditions",
+      "count": 17,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "r-ketamine",
+      "area": "Safety",
+      "count": 61,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "r-ketamine",
+      "area": "Cognition",
+      "count": 42,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "r-ketamine",
+      "area": "Behavior",
+      "count": 65,
+      "color": "#d27694"
+    },
+    {
+      "compound": "r-ketamine",
+      "area": "Subjective effects",
+      "count": 5,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "r-ketamine",
+      "area": "Treatment context",
+      "count": 0,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "r-ketamine",
+      "area": "Real-world use",
+      "count": 0,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "r-ketamine",
+      "area": "Brain regions",
+      "count": 16,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "r-ketamine",
+      "area": "Molecular effects",
+      "count": 81,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "r-ketamine",
+      "area": "Targets",
+      "count": 38,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "5-meo-dmt",
+      "area": "Conditions",
+      "count": 17,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "5-meo-dmt",
+      "area": "Safety",
+      "count": 41,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "5-meo-dmt",
+      "area": "Cognition",
+      "count": 11,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "5-meo-dmt",
+      "area": "Behavior",
+      "count": 24,
+      "color": "#d27694"
+    },
+    {
+      "compound": "5-meo-dmt",
+      "area": "Subjective effects",
+      "count": 53,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "5-meo-dmt",
+      "area": "Treatment context",
+      "count": 17,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "5-meo-dmt",
+      "area": "Real-world use",
+      "count": 28,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "5-meo-dmt",
+      "area": "Brain regions",
+      "count": 9,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "5-meo-dmt",
+      "area": "Molecular effects",
+      "count": 39,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "5-meo-dmt",
+      "area": "Targets",
+      "count": 55,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "psilocin",
+      "area": "Conditions",
+      "count": 1,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "psilocin",
+      "area": "Safety",
+      "count": 29,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "psilocin",
+      "area": "Cognition",
+      "count": 7,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "psilocin",
+      "area": "Behavior",
+      "count": 27,
+      "color": "#d27694"
+    },
+    {
+      "compound": "psilocin",
+      "area": "Subjective effects",
+      "count": 2,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "psilocin",
+      "area": "Treatment context",
+      "count": 1,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "psilocin",
+      "area": "Real-world use",
+      "count": 14,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "psilocin",
+      "area": "Brain regions",
+      "count": 15,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "psilocin",
+      "area": "Molecular effects",
+      "count": 50,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "psilocin",
+      "area": "Targets",
+      "count": 95,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "mda",
+      "area": "Conditions",
+      "count": 0,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "mda",
+      "area": "Safety",
+      "count": 36,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "mda",
+      "area": "Cognition",
+      "count": 1,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "mda",
+      "area": "Behavior",
+      "count": 7,
+      "color": "#d27694"
+    },
+    {
+      "compound": "mda",
+      "area": "Subjective effects",
+      "count": 6,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "mda",
+      "area": "Treatment context",
+      "count": 2,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "mda",
+      "area": "Real-world use",
+      "count": 90,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "mda",
+      "area": "Brain regions",
+      "count": 2,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "mda",
+      "area": "Molecular effects",
+      "count": 22,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "mda",
+      "area": "Targets",
+      "count": 14,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "(2r,6r)-hydroxynorketamine",
+      "area": "Conditions",
+      "count": 7,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "(2r,6r)-hydroxynorketamine",
+      "area": "Safety",
+      "count": 27,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "(2r,6r)-hydroxynorketamine",
+      "area": "Cognition",
+      "count": 25,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "(2r,6r)-hydroxynorketamine",
+      "area": "Behavior",
+      "count": 54,
+      "color": "#d27694"
+    },
+    {
+      "compound": "(2r,6r)-hydroxynorketamine",
+      "area": "Subjective effects",
+      "count": 1,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "(2r,6r)-hydroxynorketamine",
+      "area": "Treatment context",
+      "count": 0,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "(2r,6r)-hydroxynorketamine",
+      "area": "Real-world use",
+      "count": 0,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "(2r,6r)-hydroxynorketamine",
+      "area": "Brain regions",
+      "count": 22,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "(2r,6r)-hydroxynorketamine",
+      "area": "Molecular effects",
+      "count": 78,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "(2r,6r)-hydroxynorketamine",
+      "area": "Targets",
+      "count": 40,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "2c-b",
+      "area": "Conditions",
+      "count": 1,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "2c-b",
+      "area": "Safety",
+      "count": 33,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "2c-b",
+      "area": "Cognition",
+      "count": 7,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "2c-b",
+      "area": "Behavior",
+      "count": 7,
+      "color": "#d27694"
+    },
+    {
+      "compound": "2c-b",
+      "area": "Subjective effects",
+      "count": 20,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "2c-b",
+      "area": "Treatment context",
+      "count": 2,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "2c-b",
+      "area": "Real-world use",
+      "count": 63,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "2c-b",
+      "area": "Brain regions",
+      "count": 3,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "2c-b",
+      "area": "Molecular effects",
+      "count": 12,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "2c-b",
+      "area": "Targets",
+      "count": 15,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "methoxetamine",
+      "area": "Conditions",
+      "count": 3,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "methoxetamine",
+      "area": "Safety",
+      "count": 37,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "methoxetamine",
+      "area": "Cognition",
+      "count": 5,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "methoxetamine",
+      "area": "Behavior",
+      "count": 11,
+      "color": "#d27694"
+    },
+    {
+      "compound": "methoxetamine",
+      "area": "Subjective effects",
+      "count": 6,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "methoxetamine",
+      "area": "Treatment context",
+      "count": 0,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "methoxetamine",
+      "area": "Real-world use",
+      "count": 29,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "methoxetamine",
+      "area": "Brain regions",
+      "count": 1,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "methoxetamine",
+      "area": "Molecular effects",
+      "count": 10,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "methoxetamine",
+      "area": "Targets",
+      "count": 18,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "25i-nbome",
+      "area": "Conditions",
+      "count": 1,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "25i-nbome",
+      "area": "Safety",
+      "count": 40,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "25i-nbome",
+      "area": "Cognition",
+      "count": 2,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "25i-nbome",
+      "area": "Behavior",
+      "count": 12,
+      "color": "#d27694"
+    },
+    {
+      "compound": "25i-nbome",
+      "area": "Subjective effects",
+      "count": 3,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "25i-nbome",
+      "area": "Treatment context",
+      "count": 0,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "25i-nbome",
+      "area": "Real-world use",
+      "count": 28,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "25i-nbome",
+      "area": "Brain regions",
+      "count": 3,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "25i-nbome",
+      "area": "Molecular effects",
+      "count": 12,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "25i-nbome",
+      "area": "Targets",
+      "count": 13,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "methylone",
+      "area": "Conditions",
+      "count": 0,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "methylone",
+      "area": "Safety",
+      "count": 27,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "methylone",
+      "area": "Cognition",
+      "count": 3,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "methylone",
+      "area": "Behavior",
+      "count": 16,
+      "color": "#d27694"
+    },
+    {
+      "compound": "methylone",
+      "area": "Subjective effects",
+      "count": 5,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "methylone",
+      "area": "Treatment context",
+      "count": 0,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "methylone",
+      "area": "Real-world use",
+      "count": 22,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "methylone",
+      "area": "Brain regions",
+      "count": 3,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "methylone",
+      "area": "Molecular effects",
+      "count": 10,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "methylone",
+      "area": "Targets",
+      "count": 12,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "dextromethorphan",
+      "area": "Conditions",
+      "count": 17,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "dextromethorphan",
+      "area": "Safety",
+      "count": 30,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "dextromethorphan",
+      "area": "Cognition",
+      "count": 5,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "dextromethorphan",
+      "area": "Behavior",
+      "count": 15,
+      "color": "#d27694"
+    },
+    {
+      "compound": "dextromethorphan",
+      "area": "Subjective effects",
+      "count": 12,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "dextromethorphan",
+      "area": "Treatment context",
+      "count": 2,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "dextromethorphan",
+      "area": "Real-world use",
+      "count": 10,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "dextromethorphan",
+      "area": "Brain regions",
+      "count": 0,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "dextromethorphan",
+      "area": "Molecular effects",
+      "count": 8,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "dextromethorphan",
+      "area": "Targets",
+      "count": 18,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "nitrous oxide",
+      "area": "Conditions",
+      "count": 10,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "nitrous oxide",
+      "area": "Safety",
+      "count": 20,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "nitrous oxide",
+      "area": "Cognition",
+      "count": 7,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "nitrous oxide",
+      "area": "Behavior",
+      "count": 1,
+      "color": "#d27694"
+    },
+    {
+      "compound": "nitrous oxide",
+      "area": "Subjective effects",
+      "count": 11,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "nitrous oxide",
+      "area": "Treatment context",
+      "count": 0,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "nitrous oxide",
+      "area": "Real-world use",
+      "count": 11,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "nitrous oxide",
+      "area": "Brain regions",
+      "count": 8,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "nitrous oxide",
+      "area": "Molecular effects",
+      "count": 8,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "nitrous oxide",
+      "area": "Targets",
+      "count": 8,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "dom",
+      "area": "Conditions",
+      "count": 0,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "dom",
+      "area": "Safety",
+      "count": 8,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "dom",
+      "area": "Cognition",
+      "count": 1,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "dom",
+      "area": "Behavior",
+      "count": 27,
+      "color": "#d27694"
+    },
+    {
+      "compound": "dom",
+      "area": "Subjective effects",
+      "count": 1,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "dom",
+      "area": "Treatment context",
+      "count": 0,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "dom",
+      "area": "Real-world use",
+      "count": 3,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "dom",
+      "area": "Brain regions",
+      "count": 1,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "dom",
+      "area": "Molecular effects",
+      "count": 6,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "dom",
+      "area": "Targets",
+      "count": 28,
+      "color": "#b779ad"
+    },
+    {
+      "compound": "noribogaine",
+      "area": "Conditions",
+      "count": 2,
+      "color": "#82a9d8"
+    },
+    {
+      "compound": "noribogaine",
+      "area": "Safety",
+      "count": 16,
+      "color": "#d6a84f"
+    },
+    {
+      "compound": "noribogaine",
+      "area": "Cognition",
+      "count": 3,
+      "color": "#a88bd1"
+    },
+    {
+      "compound": "noribogaine",
+      "area": "Behavior",
+      "count": 5,
+      "color": "#d27694"
+    },
+    {
+      "compound": "noribogaine",
+      "area": "Subjective effects",
+      "count": 0,
+      "color": "#55b7ab"
+    },
+    {
+      "compound": "noribogaine",
+      "area": "Treatment context",
+      "count": 0,
+      "color": "#d1846f"
+    },
+    {
+      "compound": "noribogaine",
+      "area": "Real-world use",
+      "count": 0,
+      "color": "#9bab62"
+    },
+    {
+      "compound": "noribogaine",
+      "area": "Brain regions",
+      "count": 2,
+      "color": "#5f9eb5"
+    },
+    {
+      "compound": "noribogaine",
+      "area": "Molecular effects",
+      "count": 16,
+      "color": "#72a77c"
+    },
+    {
+      "compound": "noribogaine",
+      "area": "Targets",
+      "count": 22,
+      "color": "#b779ad"
+    }
+  ]
+}

@@ -1,0 +1,949 @@
+class,reuse,destination,file,line,end,lines,items,name,rule,sample
+S,field,scope.yaml / entities.yaml,pipeline/discovery/strategy.py,26,39,14,12,AMBIGUOUS_ACRONYMS,scope or anchor-entity identity,dmt | dob | doc | doet | doi
+S,field,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,2119,2134,16,1,CLASS_LEVEL_COMPOUND_RE,scope or anchor-entity identity,\b(classic(?:al)?\s+psychedelics?|seroto
+S,field,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,2135,2153,19,1,IN_SCOPE_NON_ATOMIC_SUBJECT_RE,scope or anchor-entity identity,\b(classic(?:al)?\s+psychedelics?|seroto
+S,field,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,2154,2169,16,1,OUT_OF_SCOPE_NON_ATOMIC_SUBJECT_HEAD_RE,scope or anchor-entity identity,^\s*(?:(?:illicit\s+(?:use\s+of\s+(?:pre
+S,field,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,2178,2185,8,1,OUT_OF_SCOPE_NON_ATOMIC_TERM_RE,scope or anchor-entity identity,\b(?:stimulants?|psychostimulants?|amphe
+S,field,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,2186,2189,4,1,OUT_OF_SCOPE_EXPLICIT_DESCRIPTION_RE,scope or anchor-entity identity,\b(?:synthetic\s+cannabinoid\s+receptor\
+S,field,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,2200,2205,6,1,FINDING_LEVEL_PSYCHEDELIC_CLASS_RE,scope or anchor-entity identity,\b(?:classic(?:al)?(?:\s+serotonergic)?\
+S,field,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,2207,2252,46,44,REFERENCE_CONTROL_COMPOUND_KEYS,scope or anchor-entity identity,5 ht | 5 hydroxytryptamine | 5 hydroxytryptophan | 8 oh dpat | amphetamine
+S,field,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,2253,2258,6,4,GRAPH_EXCLUDED_COMPOUND_SCOPES,scope or anchor-entity identity,out_of_scope | out_of_scope_comparator | out_of_scope_nonpsychedelic | reference_control
+S,field,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,2259,2269,11,18,GRAPH_EXCLUDED_COMPOUND_LABEL_SCOPES,scope or anchor-entity identity,Cannabidiol | out_of_scope_nonpsychedelic | Cannabis | out_of_scope_nonpsychedelic | D-cycloserine
+S,field,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,2270,2286,17,30,RAW_GRAPH_EXCLUDED_COMPOUND_LABEL_SCOPES,scope or anchor-entity identity,4 chlorokynurenine | out_of_scope_comparator | 4 cl kyn | out_of_scope_comparator | cathodal transcranial direct current sti
+S,field,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,2747,2755,9,1,UNREGISTERED_CHEMICAL_DERIVATIVE_RE,scope or anchor-entity identity,\b(?:MLD[- ]?41|ETH[- ]?LAD|AL[- ]?LAD|(
+S,discipline,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,2757,2760,4,1,CHEMICAL_RELATIVE_IDENTITY_RE,manual review,\b(?:analog(?:ue)?s?|derivatives?|derive
+S,discipline,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,2761,2765,5,1,CHEMICAL_SUBSTITUTION_PREFIX_RE,manual review,"\b(?:[1-9](?:,[1-9])*[- ](?:MeO|HO|OH|Me"
+S,discipline,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,2766,2772,7,1,REFERENTIAL_COMPOUND_SUBJECT_RE,manual review,\b(?:endogenous|purified|isolated|porcin
+S,field,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,3131,3138,8,12,COMPOUND_TEXT_LABEL_SUPERSEDES,scope or anchor-entity identity,S-ketamine | Ketamine | R-ketamine | Ketamine | 5-MeO-DMT
+S,discipline,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,3139,3142,4,1,COMPOUND_COMBO_TEXT_RE,manual review,\b(and|or|plus|followed by|combined with
+S,discipline,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,3143,3150,8,1,EXPLICIT_COMPOUND_COADMIN_RE,manual review,\b(?:coadministered|co-administered|coad
+S,discipline,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,3151,3155,5,1,EXPLICIT_COMPOUND_SEQUENCE_RE,manual review,\b(?:followed by|then (?:received|admini
+S,discipline,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,3176,3180,5,1,PRIMARY_COMPOUND_REVERSE_CUE_RE,manual review,\b(?:was|is|as)\s+(?:the\s+)?(?:primary|
+S,discipline,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,3187,3191,5,1,COMPOUND_LIST_METADATA_RE,manual review,\b(?:oral|intravenous|intranasal|subcuta
+S,field,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,3200,3215,16,7,OVERVIEW_SUBJECT_CLASS_RULES,scope or anchor-entity identity,Classic psychedelics | Hallucinogens | NMDA receptor antagonists | Dissociatives | Tryptamines
+S,field,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,3223,3227,5,1,PSYCHEDELIC_THERAPY_RE,manual review,\bpsychedelic[- ]assisted (?:therap(?:y|
+S,field,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,3232,3236,5,1,PSYCHEDELIC_MIXED_CONTEXT_RE,manual review,\b(?:(?:mixed|various) (?:psychedelic|co
+S,field,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,3552,3561,10,1,VALIDATED_UNREGISTERED_COMPOUND_BLOCK_RE,scope or anchor-entity identity,\b(ablation|activation|adults?|animals?|
+S,field,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,10749,10753,5,1,NONTHERAPEUTIC_PLAIN_USE_RE,field regex,\b(?:psychedelic|hallucinogen|lsd|mdma|p
+S,field,scope.yaml / entities.yaml,pipeline/kg/build_evidence_tables.py,10819,10827,9,14,SUBSTANCE_USE_SUBJECT_FAMILY_KEYS,manual review,arketamine | ketamine | esketamine | ketamine | hallucinogens
+S,field,scope.yaml / entities.yaml,pipeline/kg/compound_combinations.py,24,124,101,131,NAMED_COMBINATION_DEFINITIONS,manual review,canonical_alias | pharmahuasca | component_sets | DMT | Harmine
+S,field,scope.yaml / entities.yaml,pipeline/kg/convert_review_relationship_bundles_to_evidence_rows.py,79,84,6,4,GRAPH_EXCLUDED_COMPOUND_SCOPES,scope or anchor-entity identity,out_of_scope | out_of_scope_comparator | out_of_scope_nonpsychedelic | reference_control
+S,field,scope.yaml / entities.yaml,pipeline/kg/convert_review_relationship_bundles_to_evidence_rows.py,85,92,8,1,PSYCHEDELIC_SCOPE_CLASS_RE,scope or anchor-entity identity,\b(?:psychedelic\w*|hallucinogen\w*|psyc
+S,field,scope.yaml / entities.yaml,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,128,133,6,1,GRAPH_SUBJECT_CLASS_RE,scope or anchor-entity identity,\b(classic(?:al)? psychedelics?|psychede
+S,field,scope.yaml / entities.yaml,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,155,158,4,1,SUBSTITUTED_TRYPTAMINE_RE,manual review,"\b(?:n\s*,\s*n[- ]?)?(?:di(?:methyl|ethy"
+S,field,scope.yaml / entities.yaml,pipeline/kg/real_world_subjects.py,30,35,6,8,CLASS_RULES,manual review,\b(?:classic(?:al)?(?: serotonergic)?|se | Classic psychedelics | \bhallucinogens?\b | Hallucinogens | \bdissociatives?\b
+S,field,scope.yaml / entities.yaml,pipeline/review/audit_screening_correction_fulltext.py,29,29,1,1,DRUG,manual review,phencyclidine|\bPCP\b|ketamine|\bMDMA\b|
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,13,153,141,266,COMPOUND_SYNONYMS,scope or anchor-entity identity,psilocybin | psilocybin | psilocibin | psilocibina | psilocybina
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,155,188,34,85,CLINICAL_OUTCOME_SYNONYMS,scope or anchor-entity identity,post-traumatic stress disorder | post-traumatic stress disorder | posttraumatic stress disorder | ptsd | complex post-traumatic stress disorder
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,239,384,146,144,IN_SCOPE_INTERVENTION_CLASS_TERMS,scope or anchor-entity identity,atypical psychedelic | atypical psychedelics | classic hallucinogen | classic hallucinogens | classic psychedelic
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,390,396,7,5,AMBIGUOUS_PSYCHIATRIC_TREATMENT_TERMS,manual review,experimental therapeutics | new treatments for psychiatric disorders | novel agents | psychiatric drugs | psychotropic drugs
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,398,398,1,13,AMBIGUOUS_INTERVENTION_ACRONYMS,scope or anchor-entity identity,dmt | dob | doc | doet | doi
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,402,457,56,54,AMBIGUOUS_ACRONYM_SUPPORT_TERMS,scope or anchor-entity identity,classic hallucinogen | classic hallucinogens | classic psychedelic | classic psychedelics | classical hallucinogen
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,480,484,5,1,PSYCHEDELIC_CLASS_CHEMISTRY_RE,scope or anchor-entity identity,\b(?:tryptamines?|phenethylamines?|pheny
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,486,490,5,1,PSYCHEDELIC_CLASS_QUALIFIER_RE,scope or anchor-entity identity,\b(?:hallucinogenic?|psychedelic(?:-like
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,492,496,5,1,PSYCHEDELIC_CLASS_TARGET_RE,scope or anchor-entity identity,\b(?:5[-\s]?HT\s*2[AC]?|5[-\s]?hydroxytr
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,498,502,5,1,PSYCHEDELIC_CLASS_ASSAY_RE,scope or anchor-entity identity,\b(?:binding|affinity|selectivity|agonis
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,504,509,6,1,LSD_NON_PSYCH_ACRONYM_RE,scope or anchor-entity identity,\b(?:lysosomal\s+storage\s+(?:disorders?
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,511,515,5,1,LSD_PSYCH_SUPPORT_RE,scope or anchor-entity identity,\b(?:lysergic|lysergide|d[-\s]?LSD|psych
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,517,522,6,1,MDA_NON_PSYCH_ACRONYM_RE,scope or anchor-entity identity,\b(?:malondialdehyde|maximal\s+dentate\s
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,524,528,5,1,MDA_PSYCH_SUPPORT_RE,scope or anchor-entity identity,\b(?:methylenedioxy(?:amphetamine|metham
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,530,534,5,1,SAN_PEDRO_SUPPORT_RE,field regex,\b(?:cact(?:us|i)|mescaline|echinopsis|t
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,536,545,10,8,KETAMINE_ONLY_INTERVENTION_TERMS,scope or anchor-entity identity,arketamine | esketamine | ketamina | ketamine | kétamine
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,547,558,12,10,KETAMINE_ACUTE_CARE_ALLOWED_CLASS_TERMS,scope or anchor-entity identity,dissociative | dissociative anaesthetic | dissociative anaesthetics | dissociative anesthetic | dissociative anesthetics
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,560,566,7,1,KETAMINE_ACUTE_CARE_ANESTHESIA_RE,scope or anchor-entity identity,\b(?:sedation|sedative|procedural\s+seda
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,570,576,7,1,KETAMINE_ACUTE_CARE_TITLE_RE,scope or anchor-entity identity,\b(?:sedation|sedative|procedural\s+seda
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,578,597,20,1,KETAMINE_ACUTE_CARE_TITLE_PROTECTOR_RE,scope or anchor-entity identity,\b(?:pain|painful|analgesi\w*|analgésie|
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,599,603,5,1,FIVE_MEO_DMT_VARIANT_RE,manual review,\b(?:5[-\s]?MeO[-\s]?DMT|MeODMT|5[-\s]?M
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,605,609,5,1,DOI_FULL_NAME_RE,manual review,"\b(?:1[-\s]?\(?2,5[-\s]?dimethoxy[-\s]?4"
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,611,615,5,1,DOI_IDENTIFIER_RE,manual review,\b(?:article\s+DOI|corrects?\s+the\s+art
+S,field,scope.yaml / entities.yaml,pipeline/review/deterministic_prescreen_rules.py,617,622,6,1,DOI_COMPOUND_CONTEXT_RE,scope or anchor-entity identity,\b(?:5[-\s]?HT\s*2[AC]?|5[-\s]?hydroxytr
+S,field,scope.yaml / entities.yaml,pipeline/review/screening_contract.py,30,34,5,8,SCOPE_CLASSES,scope or anchor-entity identity,classic_psychedelic | entactogen | dissociative_hallucinogen | iboga_alkaloid | psychedelic_kappa_agonist
+S,field,scope.yaml / entities.yaml,pipeline/review/screening_contract.py,158,178,21,73,extras,manual review,pcp | phencyclidine | PCP | angel dust | nitrous oxide
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,139,183,45,129,OUTCOME_MEASURE_PATTERNS,manual review,MADRS-SI | \bmadrs\s*[- ]?\s*si\b | MADRS | \bmadrs\b | montgomery\s+asberg
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,601,607,7,1,PUBLIC_HEALTH_STRICT_PROBLEMATIC_USE_RE,manual review,\b(misuse|abuse liability|abuse potentia
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,608,839,232,21,PUBLIC_HEALTH_TOPIC_RULES,manual review,Drug composition & adulteration | Acute harms & healthcare use | Problematic use & dependence | Treatment effectiveness & care outcomes | Economic & resource impacts
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,841,856,16,28,PUBLIC_HEALTH_LEGACY_TOPIC_FALLBACKS,manual review,microdosing | Use patterns & practices | recreational use | Use patterns & practices | self treatment
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,857,904,48,92,PUBLIC_HEALTH_RAW_TOPIC_FALLBACKS,manual review,epidemiology | Population use & trends | epidemiology and surveillance | Population use & trends | epidemiology and mental health
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,905,940,36,6,PUBLIC_HEALTH_USE_CONTEXT_RULES,manual review,Microdosing | Recreational/nightlife | Self-treatment | Ceremonial/retreat | Polysubstance
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,941,948,8,12,PUBLIC_HEALTH_LEGACY_USE_CONTEXT_BY_KEY,manual review,microdosing | Microdosing | recreational use | Recreational/nightlife | self treatment
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,949,959,11,9,PUBLIC_HEALTH_DATA_SOURCE_TYPES,manual review,survey | poison_center_toxicology | wastewater | drug_checking | administrative_registry
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,1006,1013,8,1,WITHDRAWAL_ENDPOINT_RE,manual review,\b(naloxone[- ]precipitated withdrawal|w
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,1014,1017,4,1,OPIOID_WITHDRAWAL_CONTEXT_RE,manual review,\b(opioid(?! receptor)|opiate|oxycodone|
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,1032,1036,5,1,GENERIC_LOCOMOTOR_CONTEXT_RE,manual review,\b(open[- ]field|locomotor|locomotion|di
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,1037,1057,21,19,GENERIC_BEHAVIOR_NOT_GRAPHABLE_KEYS,manual review,exploratory behavior | feeding behavior | hyperactivity | hyperlocomotion | locomotion
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,1058,1079,22,40,CONTROLLED_BEHAVIORAL_DETAIL_LABELS,manual review,arousal | Arousal | exploratory behavior | Exploratory behavior | feeding behavior
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,1081,1090,10,1,BRAIN_MEASURE_NOT_GRAPHABLE_RE,manual review,\b(mismatch negativity|mmn|p300|alpha po
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,1091,1151,61,28,BRAIN_MEASURE_GRAPH_RULES,manual review,Functional connectivity | MMN | P300 | ERP | BOLD response
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,1163,1168,6,4,BROAD_BRAIN_SYSTEM_NOT_GRAPHABLE_KEYS,manual review,cerebral cortex | cortex | functional brain network | neocortex
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,1169,1535,367,60,COGNITIVE_BEHAVIORAL_RULES,manual review,Global cognition | Psychotomimetic effects | Fear extinction | Drug discrimination | Conditioned place preference
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,1536,1557,22,40,COGNITIVE_BEHAVIORAL_LABEL_FALLBACKS,manual review,addiction behavior | Drug seeking | anhedonia | Anhedonia | anxiety
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,1558,1567,10,8,COGNITIVE_BEHAVIORAL_BROAD_LABEL_KEYS,manual review,cognitive flexibility | cognitive function | drug seeking | memory | memory consolidation
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,1568,1625,58,51,COGNITIVE_BEHAVIORAL_ALLOWED_REFINEMENTS,manual review,reward processing | anhedonia | motivation | reward learning | reward processing
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,1669,1804,136,19,SUBJECTIVE_EXPERIENCE_RULES,manual review,Mystical-type experience | Near-death-like experience | Ego dissolution | Emotional breakthrough | Psychological insight
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,1805,1836,32,60,SUBJECTIVE_EXPERIENCE_LABEL_FALLBACKS,manual review,altered state of consciousness | Altered state profile | altered states of consciousness | Altered state profile | challenging experience
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,1849,1855,7,1,SUBJECTIVE_EXPERIENCE_SAFETY_RE,manual review,\b(daily panic|panic attacks?|visual sno
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,1856,1860,5,1,SUBJECTIVE_EXPERIENCE_NONADVERSE_RE,manual review,\b(no (?:clinically significant |serious
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,1867,1872,6,1,PERSISTENT_POST_ACUTE_RE,manual review,\b(persist(?:s|ed|ent|ently|ing)?|lastin
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,1873,1880,8,1,ADVERSE_PERSISTENT_PSYCHIATRIC_OR_PERCEPTUAL_RE,manual review,\b(neuropsychiatric syndromes?|psychopat
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,2477,2603,127,147,CANONICAL_ENTITY_FORMAT_GROUPS,manual review,biomarker_readout | TNF-α levels | TNF-alpha levels | biomarker_readout | TNF-α mRNA expression
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,3181,3185,5,1,COMPOUND_CONTEXT_TEXT_RE,manual review,\b(chemsex|sexuali[sz]ed drug use|sexual
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,4793,4819,27,61,CONDITION_LABEL_SUPERSEDES,manual review,Alcohol use disorder | Substance use disorder | Anorexia nervosa | Eating disorders | Bipolar depression
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,4834,4845,12,1,CONDITION_ANALOG_CONTEXT_RE,manual review,\b(\w+(?:[- ]like)\s+(?:symptoms?|effect
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,4846,4854,9,1,SUBJECTIVE_EFFECT_CONTEXT_RE,manual review,\b(psychotomimetic|psychosis[- ]like|psy
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,5483,5494,12,1,DIRECT_TARGET_EVIDENCE_RE,manual review,\b(binding|affinity|potency|selectivity|
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,5495,5505,11,1,READOUT_EVIDENCE_RE,manual review,\b(expression|levels?|concentration|cont
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,5507,5507,1,1,READOUT_EXPRESSION_RE,manual review,\b(expression|immunoreactivity|immunosta
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,5510,5510,1,1,READOUT_UPTAKE_RE,manual review,\b(uptake|reuptake|transport-associated|
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,5511,5514,4,1,READOUT_AVAILABILITY_RE,manual review,\b(availability|binding potential|uptake
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,5515,5518,4,1,READOUT_PHOSPHORYLATION_RE,manual review,\b(phosphorylat\w*|phospho|p[- ]?(?:akt|
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,5519,5519,1,1,READOUT_ACTIVATION_RE,manual review,\b(activation|activated|activity|functio
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,5520,5524,5,1,READOUT_ELECTROPHYSIOLOGY_RE,manual review,\b(current|currents|epsc|ipsc|mepsc|mips
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,5525,5528,4,1,READOUT_TRAFFICKING_RE,manual review,\b(surface|cell surface|trafficking|inte
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,5530,5538,9,7,PATHWAY_NODE_LABELS,manual review,akt | erk | gsk3b | mtor | mtorc1
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,5576,5695,120,15,MOLECULAR_EFFECT_RULES,manual review,Gut microbiome | Neuroinflammation & immune signaling | Cell injury & survival | Cellular stress & mitochondrial function | Neurogenesis
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,5697,5722,26,48,MOLECULAR_EFFECT_CATEGORY_ALIASES,manual review,inflammation | Neuroinflammation & immune signaling | cellular stress | Cellular stress & mitochondrial function | oxidative stress
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,5727,5737,11,9,GENERIC_MOLECULAR_EFFECT_PLACEHOLDER_KEYS,manual review,neurotransmitter signaling | monoaminergic system | serotonergic system | dopaminergic system | cholinergic system
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,5741,5997,257,218,MOLECULAR_SUBTOPIC_RULES_BY_PARENT,manual review,Neuroplasticity | BDNF–TrkB signaling | Dendritic & spine remodeling | Synaptic potentiation & depression | Synaptic proteins & vesicle remodeling
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,6074,6090,17,15,MOLECULAR_SPECIFIC_PARENT_RULES,manual review,Gut microbiome | Neuroinflammation & immune signaling | Cell injury & survival | Cellular stress & mitochondrial function | Neurogenesis
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,6467,6499,33,62,PK_PARAMETER_DISPLAY_OVERRIDES,manual review,alkaloid concentration | Concentration | blood brain barrier penetration | Blood-brain barrier penetration | concentration
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,6567,6582,16,1,INTERVENTION_NON_NODE_RE,manual review,\b(route of administration|intramuscular
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,6583,6882,300,48,INTERVENTION_TOPIC_RULES,manual review,Dosing & administration | Control conditions | Treatment intensity & duration | Preparation–integration protocols | Cognitive behavioral therapy
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,7553,7809,257,46,SAFETY_ENDPOINT_PATTERNS,manual review,Serotonin syndrome | Seizure/convulsion | Suicidality risk | Mania/hypomania risk | Psychosis risk
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,7810,7816,7,5,SAFETY_SUMMARY_LABELS,manual review,Overall tolerability | Serious adverse events | Discontinuation due to adverse events | Adverse events | All-cause discontinuation
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,7817,7854,38,29,SAFETY_SPECIFIC_ENDPOINT_PATTERNS,manual review,Arrhythmia risk | QT prolongation | Blood pressure elevation | Blood pressure reduction | Heart-rate elevation
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,7855,7887,33,61,SAFETY_SPECIFIC_PARENT_LABELS,manual review,Electrolyte/fluid balance | Adverse events | Arrhythmia risk | Cardiovascular safety | QT prolongation
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,7888,8013,126,23,SYMPTOM_ENDPOINT_PATTERNS,manual review,Treatment response | Remission | Relapse | Treatment discontinuation | Treatment acceptability
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,8268,8275,8,12,SYMPTOM_DISPLAY_LABEL_OVERRIDES,manual review,Anxiety | Anxiety & panic | Anxiety disorders | Anxiety & panic | Depression
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,9837,9840,4,1,PSYCHOSIS_FAMILY_ENTITY_RE,manual review,\b(psychotomimetic|psychosis(?:[- ]like)
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,9841,9847,7,1,PSYCHOTOMIMETIC_STATEMENT_RE,manual review,\b(psychotomimetic|psychosis[- ]like|psy
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,9943,9992,50,14,REVIEW_OUTCOME_NORMALIZATION_RULES,manual review,Low mood & depressive symptoms | symptom_problem | Treatment response | symptom_problem | Treatment response
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,9994,9999,6,1,PRECLINICAL_STRESS_COPING_EVIDENCE_RE,manual review,\b(?:forced[- ]swim(?:ming)?(?: test)?|t
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,10725,10728,4,1,NONTHERAPEUTIC_OBSERVATIONAL_DESIGN_RE,manual review,\b(?:observational|cross[- ]sectional|co
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,10729,10736,8,1,NONTHERAPEUTIC_EXPOSURE_STATUS_RE,manual review,\b(?:lifetime|past[- ](?:year|month)|his
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,10737,10742,6,1,NONTHERAPEUTIC_EXPOSURE_GROUP_RE,manual review,\b(?:non[- ]?(?:users?|abusers?|exposed)
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,10743,10748,6,1,NONTHERAPEUTIC_ASSOCIATION_RE,manual review,\b(?:associated|association|correlated|c
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,10754,10759,6,1,THERAPEUTIC_OBSERVATIONAL_INTENT_RE,manual review,\b(?:treat(?:ment|ed|ing)|therap(?:y|eut
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,10760,10767,8,1,THERAPEUTIC_OBSERVATIONAL_TEMPORAL_RE,manual review,"\b(?:following|after|post[- ])(?:.{0,45}"
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,10768,10774,7,1,THERAPEUTIC_OBSERVATIONAL_OUTCOME_RE,manual review,\b(?:improv(?:e|ed|ements?|ing)|benefit(
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,10775,10778,4,1,THERAPEUTIC_OBSERVATIONAL_REGIMEN_RE,manual review,\b(?:\d+(?:\.\d+)?\s*(?:mg|mcg|ug|µg)(?:
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,10793,10803,11,1,NONTHERAPEUTIC_DISEASE_MODEL_RE,manual review,\b(?:model psychosis|psychosis model|ser
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,10808,10811,4,1,NONTHERAPEUTIC_HPPD_RE,manual review,\b(?:hppd|hallucinogen persisting percep
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,10813,10818,6,4,SUBSTANCE_USE_DISORDER_SUFFIXES,manual review, use disorder |  dependence |  dependency |  addiction
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,10828,10837,10,1,SUBSTANCE_USE_LIABILITY_RE,manual review,\b(?:can|may|could) lead to (?:the )?dev
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,10838,10843,6,1,SUBSTANCE_USE_EXPOSURE_COHORT_RE,manual review,\b(?:past|prior|previous|early[- ]life|l
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,10844,10849,6,1,SUBSTANCE_USE_THERAPEUTIC_TEMPORAL_RE,manual review,"\b(?:following|after|post[- ])(?:.{0,55}"
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,10850,10854,5,1,SUBSTANCE_USE_NONINTERVENTION_EXPOSURE_RE,manual review,\b(?:naturalistic|illicit|recreational) 
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,10855,10862,8,1,SUBSTANCE_USE_POPULATION_ONLY_OUTCOME_RE,manual review,"\bfamily history of .{0,180}\b(?:predict"
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/build_evidence_tables.py,10863,10875,13,34,SUBSTANCE_USE_CONDITION_ALIASES,manual review,alcohol | alcohol | alcoholism | ethanol | cannabis
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,139,143,5,1,GRAPH_SUBJECT_CONTEXT_RE,manual review,\b(chemsex|sexuali[sz]ed drug use|sexual
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/real_world_subjects.py,36,42,7,1,MEASUREMENT_RE,manual review,\b(?:use|users?|using|consum\w*|prevalen
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/real_world_subjects.py,43,50,8,1,MIXED_RE,manual review,\b(?:chemsex|polydrug|poly[- ]?substance
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/real_world_subjects.py,51,51,1,1,IDENTITY_MODIFIER_RE,manual review,\b(?:analog(?:ue)?s?|derivatives?|metabo
+V,discipline,vocabularies/*.yaml or views.yaml,pipeline/kg/real_world_subjects.py,52,52,1,1,PREDICTOR_RE,manual review,\b(?:status|policy|policies|laws?|legali
+V,field,vocabularies/*.yaml or views.yaml,pipeline/kg/use_contexts.py,37,41,5,1,SEXUALIZED_DRUG_USE_RE,manual review,\b(?:sexuali[sz]ed drug use|substance[- 
+V,discipline,vocabularies/*.yaml or views.yaml,scripts/build_analysis_index.py,20,25,6,8,CONDITION_LABELS,manual review,attention-deficit/hyperactivity disorder | ADHD | distress associated with life-threatenin | Distress in life-threatening illness | nicotine dependence
+V,discipline,vocabularies/*.yaml or views.yaml,scripts/build_analysis_index.py,26,33,8,12,TARGET_LABELS,manual review,alpha7 nicotinic acetylcholine receptor  | α7 nAChR | alpha3beta4 nicotinic acetylcholine rece | α3β4 nAChR | alpha4beta2 nicotinic acetylcholine rece
+V,field,vocabularies/*.yaml or views.yaml,scripts/build_compound_pages.py,23,75,53,70,CATEGORY_DEFINITIONS,manual review,key | conditions | label | Conditions & symptoms | kinds
+V,field,vocabularies/*.yaml or views.yaml,ui/app.js,94,100,7,5,ANALYSIS_COMPARISON_COLORS,manual review,#55b7ab | #82a9d8 | #a88bd1 | #5f9eb5 | #b779ad
+V,field,vocabularies/*.yaml or views.yaml,ui/app.js,105,116,12,10,EXPLORER_AREA_COLORS,manual review,#82a9d8 | #d6a84f | #a88bd1 | #d27694 | #55b7ab
+V,field,vocabularies/*.yaml or views.yaml,ui/app.js,131,157,27,25,CATEGORY_COLORS,manual review,#708aa7 | #b89a5b | #a96f7e | #69a196 | #b98278
+V,discipline,vocabularies/*.yaml or views.yaml,ui/app.js,246,251,6,8,CONDITION_GRAPH_LABEL_OVERRIDES,manual review,attention-deficit/hyperactivity disorder | ADHD | distress associated with life-threatenin | Distress in life-threatening illness | nicotine dependence
+V,discipline,vocabularies/*.yaml or views.yaml,ui/app.js,252,262,11,18,CONDITION_GRAPH_CLARIFIERS,manual review,bipolar disorder | Umbrella or subtype-unspecified bipolar  | bipolar i disorder | Bipolar subtype defined by manic episode | bipolar ii disorder
+V,discipline,vocabularies/*.yaml or views.yaml,ui/app.js,263,270,8,12,TARGET_GRAPH_LABEL_OVERRIDES,manual review,alpha7 nicotinic acetylcholine receptor  | α7 nAChR | alpha3beta4 nicotinic acetylcholine rece | α3β4 nAChR | alpha4beta2 nicotinic acetylcholine rece
+V,discipline,vocabularies/*.yaml or views.yaml,ui/app.js,1003,1073,71,30,PATHWAY_READOUT_FAMILY_RULES,manual review,Gut microbiome | /\b(gut|microbiome|microbiota|microbial| | Neuroinflammation & immune signaling | /\b(inflamm\w*|cytokine\w*|interleukin\w | Cell injury & survival
+V,discipline,vocabularies/*.yaml or views.yaml,ui/app.js,1109,1170,62,30,NEUROPLASTICITY_FINDING_THEME_RULES,manual review,BDNF–TrkB signaling | /\b(?:m|pro)?bdnf\b|\btrkb\b|\bntrk2\b|\ | Dendritic & spine remodeling | /dendrit|spine|spinogenesis|dendritogene | Synaptic potentiation & depression
+V,field,vocabularies/*.yaml or views.yaml,ui/app.js,2422,2427,6,4,DOSING_SCHEDULE_ORDER,manual review,Microdosing | Dose-ranging | Repeated dosing | Single-dose session
+V,field,vocabularies/*.yaml or views.yaml,ui/app.js,2428,2434,7,5,SESSION_CONTEXT_ORDER,manual review,Therapy-assisted session | Clinical administration | Ceremony & retreat | Naturalistic use | Preclinical experiment
+V,field,vocabularies/*.yaml or views.yaml,ui/app.js,2520,2526,7,5,DOSING_SCHEDULE_LABELS,manual review,Single-dose session | Repeated dosing | Dose-ranging | Microdosing | Repeated dosing
+V,field,vocabularies/*.yaml or views.yaml,ui/app.js,2527,2533,7,5,SESSION_CONTEXT_LABELS,manual review,Therapy-assisted session | Ceremony & retreat | Clinical administration | Naturalistic use | Preclinical experiment
+V,field,vocabularies/*.yaml or views.yaml,ui/app.js,2741,2763,23,21,PUBLIC_HEALTH_TOPIC_ORDER,manual review,Population use & trends | Use patterns & practices | Motivations & intentions | Predictors & correlates | Perceived benefits & harms
+V,field,vocabularies/*.yaml or views.yaml,ui/app.js,2764,2771,8,6,PUBLIC_HEALTH_CONTEXT_ORDER,manual review,Microdosing | Recreational/nightlife | Self-treatment | Ceremonial/retreat | Polysubstance
+V,field,vocabularies/*.yaml or views.yaml,ui/app.js,2772,2781,10,8,PUBLIC_HEALTH_DATA_SOURCE_ORDER,manual review,Survey | Poison center/toxicology | Wastewater | Drug checking | Administrative/registry
+V,field,vocabularies/*.yaml or views.yaml,ui/app.js,2782,2791,10,8,PUBLIC_HEALTH_DATA_SOURCE_LABELS,manual review,Survey | Poison center/toxicology | Wastewater | Drug checking | Administrative/registry
+V,discipline,vocabularies/*.yaml or views.yaml,ui/app.js,2859,2874,16,14,BRAIN_MEASURE_ORDER,manual review,Functional connectivity | BOLD response | Cerebral blood flow | Glucose metabolism | Receptor occupancy
+V,field,vocabularies/*.yaml or views.yaml,ui/compound.js,36,47,12,10,CATEGORY_COLORS,manual review,#708aa7 | #b89a5b | #a96f7e | #69a196 | #b98278
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/discovery/strategy.py,548,553,6,4,entity_lists,names evidence domains or node kinds,target | brain_region_or_network | cognitive_behavioral_task | indication
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/discovery/strategy.py,554,559,6,8,module_ids,names evidence domains or node kinds,target | targeted_target_pair | brain_region_or_network | targeted_brain_system_pair | cognitive_behavioral_task
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/discovery/strategy.py,560,565,6,8,datasets,names evidence domains or node kinds,target | mechanistic | brain_region_or_network | mechanistic | cognitive_behavioral_task
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/extract/build_extraction_routes.py,135,147,13,22,PRIMARY_PROMPT_BY_DOMAIN,names evidence domains or node kinds,clinical_outcome | primary_clinical | safety_tolerability | primary_safety | molecular_target
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/extract/build_review_paper_complete_evaluation.py,40,51,12,10,EVALUATION_DOMAINS,names evidence domains or node kinds,clinical_outcome | safety_tolerability | molecular_target | molecular_pathway_readout | brain_system
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/extract/extraction_profile_matrix.py,43,55,13,22,PRIMARY_PROMPT_BY_DOMAIN,names evidence domains or node kinds,clinical_outcome | primary_clinical | safety_tolerability | primary_safety | molecular_target
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/extract/route_extraction_profiles.py,49,62,14,12,DOMAIN_PROMPT_PATHS,names evidence domains or node kinds,clinical_outcome | safety_tolerability | molecular_target | molecular_pathway_readout | brain_system
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/extract/route_extraction_profiles.py,145,172,28,56,ENTITY_TYPES_BY_DOMAIN,names evidence domains or node kinds,clinical_outcome | disorder | symptom_or_outcome | not_applicable | uncertain
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,491,496,6,4,EXPERIMENTAL_SYSTEM_METADATA_DOMAINS,names evidence domains or node kinds,molecular_target | molecular_pathway_readout | brain_system | pharmacokinetics_exposure
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,534,558,25,23,PUBLIC_HEALTH_CONTEXT_FIELDS,names evidence domains or node kinds,data_source_type | study_design_category | public_health_topic_category | public_health_measure | graph_entity_label
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,559,576,18,16,PUBLIC_HEALTH_TOPIC_CONTEXT_FIELDS,names evidence domains or node kinds,public_health_measure | exposure_or_policy | exposure_or_intervention | population | population_or_setting
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,577,582,6,4,PUBLIC_HEALTH_TOPIC_MEASURE_FIELDS,names evidence domains or node kinds,public_health_measure | effect_or_statistic | estimate_unit | association_or_trend
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,583,600,18,16,PUBLIC_HEALTH_USE_CONTEXT_FIELDS,names evidence domains or node kinds,real_world_use_context | compound | compound_original | compound_or_exposure | public_health_measure
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,960,979,20,18,COGNITIVE_BEHAVIORAL_CONTEXT_FIELDS,domain-specific field names,graph_construct_label | construct_family | raw_task_or_measure | graph_entity_label | raw_entity_label
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,980,988,9,7,COGNITIVE_BEHAVIORAL_MEASURE_FIELDS,domain-specific field names,raw_task_or_measure | task_or_measure | model_or_measure | outcome_measure | primary_outcome
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,989,1005,17,15,WITHDRAWAL_CONDITION_CONTEXT_FIELDS,domain-specific field names,raw_task_or_measure | task_or_measure | model_or_measure | outcome_measure | primary_outcome
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,1024,1031,8,6,COGNITIVE_BEHAVIORAL_LABEL_FIELDS,domain-specific field names,graph_entity_label | raw_entity_label | entity_label | construct_or_behavior | behavior_or_task
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,1152,1157,6,4,BRAIN_MEASURE_COMPATIBLE_ENTITY_KINDS,names evidence domains or node kinds,biomarker_readout | brain_measure | brain_network | neural_circuit
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,1650,1656,7,5,SUBJECTIVE_EXPERIENCE_LABEL_FIELDS,domain-specific field names,graph_entity_label | raw_entity_label | entity_label | subjective_construct | subjective_construct_category
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,1657,1668,12,9,SUBJECTIVE_EXPERIENCE_CONTEXT_FIELDS,domain-specific field names,instrument_or_measure | outcome_measure | setting_or_context | relationship_to_outcome | effect_or_statistic
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,1837,1848,12,10,SUBJECTIVE_EXPERIENCE_SAFETY_CONTEXT_FIELDS,domain-specific field names,graph_entity_label | raw_entity_label | entity_label | subjective_construct | subjective_construct_category
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,1884,1894,11,9,ROUTE_NATIVE_ENTITY_KINDS,names evidence domains or node kinds,brain_region | brain_network | neural_circuit | brain_measure | cognitive_behavioral_construct
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,1895,1902,8,6,REGISTRY_BACKED_ENTITY_KINDS,names evidence domains or node kinds,condition_indication | symptom_problem | target | pathway_process | biomarker_readout
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,1903,1913,11,9,VOCABULARY_BACKED_ENTITY_KINDS,names evidence domains or node kinds,brain_region | brain_network | neural_circuit | brain_measure | cognitive_behavioral_construct
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,1914,1927,14,11,GRAPH_ENTITY_KINDS,names evidence domains or node kinds,reported_measurement | compound | exposure_context | condition_indication | symptom_problem
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,1928,1949,22,40,ENTITY_TYPE_BY_KIND,names evidence domains or node kinds,reported_measurement | measurement_entity | compound | compound | exposure_context
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,1950,1956,7,10,ENTITY_KIND_ALIASES,names evidence domains or node kinds,molecular_readout | biomarker_readout | brain_readout | biomarker_readout | neural_readout
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,1957,1973,17,30,DOMAIN_DEFAULT_ENTITY_KIND,names evidence domains or node kinds,general_primary | reported_measurement | clinical_outcome | condition_indication | safety_tolerability
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,1974,1984,11,9,COMPOUND_LABEL_FIELDS,domain-specific field names,compound | canonical_compound | compound_or_class | compound_or_exposure | compound_or_intervention
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,1985,2101,117,126,ENTITY_LABEL_FIELDS_BY_KIND,names evidence domains or node kinds,condition_indication | condition_or_indication | condition_or_population | disorder | condition
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,2190,2199,10,8,FINDING_LEVEL_SCOPE_FIELDS,manual review,dose_or_exposure | dose | finding_summary | summary_statement | support
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,3156,3171,16,14,COMBINATION_EVIDENCE_FIELDS,domain-specific field names,graph_subject_label | compound_or_exposure | compound_or_intervention | intervention_or_exposure | exposure_or_intervention
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,3192,3198,7,5,NON_ATOMIC_GRAPH_SUBJECT_KINDS,manual review,compound_class | compound_combination | exposure_context | paper_topic | treatment_regimen
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,3237,3252,16,14,PSYCHEDELIC_OVERVIEW_CONTEXT_FIELDS,names evidence domains or node kinds,primary_compounds_or_classes | compound_or_class | compound_or_exposure | compound_or_intervention | intervention_or_exposure
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,3253,3261,9,7,PSYCHEDELIC_SUBJECT_CONTEXT_FIELDS,domain-specific field names,primary_compounds_or_classes | compound_or_class | compound_or_exposure | compound_or_intervention | intervention_or_exposure
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,3267,3270,4,1,SPECIFIC_COMPOUND_WITH_CLASS_PARENTHETICAL_RE,manual review,^\s*[A-Za-z0-9][A-Za-z0-9+_.-]*\s*\([^)]
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,4607,4620,14,12,USE_CONTEXT_EVIDENCE_FIELDS,domain-specific field names,graph_subject_label | compound_or_exposure | compound_or_intervention | intervention_or_exposure | exposure_or_intervention
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,4621,4630,10,8,USE_CONTEXT_COMPONENT_FIELDS,domain-specific field names,graph_subject_label | compound_or_exposure | compound_or_intervention | intervention_or_exposure | exposure_or_intervention
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,4825,4833,9,7,BROAD_CONDITION_CONTEXT_FIELDS,domain-specific field names,clinical_context_condition | population | population_or_subgroup | condition_or_population | finding_summary
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,5540,5562,23,21,MOLECULAR_EFFECT_CONTEXT_FIELDS,names evidence domains or node kinds,molecular_effect_category | specific_readout_or_marker | mechanistic_relationship_type | graph_entity_label | graph_entity_original
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,5563,5575,13,11,MOLECULAR_EFFECT_LABEL_FIELDS,names evidence domains or node kinds,molecular_effect_category | graph_entity_label | graph_entity_original | raw_entity_label | canonical_entity
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,6216,6232,17,15,fields,names evidence domains or node kinds,target | target_type | pathway_or_readout | pathway_or_process | readout_or_biomarker
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,8075,8088,14,12,fields,names evidence domains or node kinds,graph_entity_original | raw_entity_label | pathway_or_readout | pathway_or_process | readout_or_biomarker
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,8695,8702,8,6,CONDITION_SPLIT_FIELDS,domain-specific field names,condition_or_population | disorder | condition | graph_entity_label | entity_label
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,8773,8785,13,11,SAFE_ENTITY_SPLIT_KINDS,names evidence domains or node kinds,compound | symptom_problem | safety_adverse_event | target | pathway_process
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,9191,9199,9,7,candidate_fields,names evidence domains or node kinds,pathway_or_process | pathway_or_readout | specific_readout_or_marker | readout_or_biomarker | readout_or_measure
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/build_evidence_tables.py,9201,9209,9,7,candidate_fields,names evidence domains or node kinds,specific_readout_or_marker | readout_or_biomarker | readout_or_measure | readout | pathway_or_readout
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py,34,45,12,20,DOMAIN_ENTITY_KIND,names evidence domains or node kinds,clinical_outcome | symptom_problem | safety_tolerability | safety_adverse_event | molecular_target
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py,47,51,5,1,SAFETY_RE,manual review,\b(adverse|side effect|safety|tolerab|ri
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py,52,56,5,1,MOLECULAR_RE,manual review,\b(bdnf|protein|gene|expression|serum|pl
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py,57,61,5,1,BRAIN_RE,manual review,\b(brain|cortex|cortical|gyrus|amygdala|
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py,62,66,5,1,INTERVENTION_CONTEXT_RE,manual review,\b(session|psychotherapy|therapy quantit
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py,67,71,5,1,PUBLIC_HEALTH_RE,manual review,\b(prevalence|population|community|adole
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py,84,92,9,1,GENERIC_CLINICAL_OUTCOME_RE,manual review,^(?:(?:study[- ]defined|overall|pooled|c
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py,93,97,5,1,MOLECULAR_READOUT_RE,manual review,\b(level|levels|density|expression|conce
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py,98,105,8,1,BRAIN_MEASURE_RE,manual review,\b(functional connectiv\w*|within.networ
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py,106,110,5,1,COGNITIVE_RE,manual review,\b(cognit|memory|attention|executive|inh
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py,111,116,6,1,INTERVENTION_CONTEXT_FACTOR_RE,manual review,\b(infusion method|bolus|route of admini
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py,117,123,7,5,CLINICAL_CONTEXT_RULES,manual review,Depressive symptoms | PTSD symptoms | Anxiety symptoms | Pain intensity | Substance use symptoms
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py,190,195,6,4,semantic_overrides,manual review,safety_tolerability | molecular_pathway_readout | brain_system | cognitive_behavioral
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py,206,213,8,6,rules,manual review,molecular_target | molecular_pathway_readout | brain_system | intervention_context | real_world_public_health
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_review_relationship_bundles_to_evidence_rows.py,93,93,1,4,SUBJECT_ROLES,names evidence domains or node kinds,compound | compound_class | intervention | co_intervention
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_review_relationship_bundles_to_evidence_rows.py,94,114,21,19,OBJECT_ROLE_ORDER,names evidence domains or node kinds,safety_event | condition | outcome | target | pathway_or_process
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_review_relationship_bundles_to_evidence_rows.py,115,147,33,76,ROLE_GRAPH_MAPPING,names evidence domains or node kinds,condition | clinical_outcome | condition_indication | condition_or_indication | outcome
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_review_relationship_bundles_to_evidence_rows.py,153,160,8,24,NAMED_OUTCOME_DOMAIN_MAPPING,names evidence domains or node kinds,cognitive_behavioral | cognitive_behavioral | cognitive_behavioral_construct | graph_construct_label | subjective_experience
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_review_relationship_bundles_to_evidence_rows.py,164,168,5,11,PROJECTABLE_OBJECT_ROLES,names evidence domains or node kinds,condition | outcome | safety_event | target | pathway_or_process
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,103,113,11,9,COMPOUND_FIELDS,domain-specific field names,compound | canonical_compound | compound_or_class | compound_or_exposure | compound_or_intervention
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,134,138,5,1,GRAPH_SUBJECT_COMBINATION_RE,manual review,\b(and/or|and|or|plus|combined with|comb
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,148,154,7,5,EXPLICIT_NON_ATOMIC_GRAPH_SUBJECT_KINDS,manual review,compound_class | compound_combination | exposure_context | paper_topic | treatment_regimen
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,193,207,15,26,ENTITY_KIND_ALIASES,names evidence domains or node kinds,condition | condition_indication | disorder | condition_indication | clinical_condition
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,209,220,12,20,DOMAIN_DEFAULT_ENTITY_KIND,names evidence domains or node kinds,clinical_outcome | condition_indication | safety_tolerability | safety_adverse_event | molecular_target
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,222,256,35,74,ENTITY_LABEL_FIELDS_BY_KIND,names evidence domains or node kinds,condition_indication | condition_or_indication | entity | condition_or_population | population_or_system
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,534,543,10,16,rules,manual review,case_report | \bcase report\b | case_series | \bcase series\b | qualitative
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,879,883,5,6,anchor_fields,names evidence domains or node kinds,brain_region | brain_region | brain_network | brain_network | neural_circuit
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/pk_relationships.py,38,42,5,6,PK_OBJECT_KIND_ENTITY_KINDS,names evidence domains or node kinds,metabolite_or_analyte | compound | enzyme_or_transporter | target | metabolic_or_transport_pathway
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/pk_relationships.py,333,354,22,20,fields,names evidence domains or node kinds,pk_relationship_type | pk_graph_object_label | pk_or_exposure_parameter | analyte_type | metabolite_or_analyte
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/project_review_relationship_bundles.py,37,37,1,4,RELATIONSHIP_NODE_FORMS,names evidence domains or node kinds,combination | interaction | context | paper_topic
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/kg/subject_role_guards.py,16,16,1,4,BIOLOGICAL_DOMAINS,names evidence domains or node kinds,safety_tolerability | subjective_experience | clinical_outcome | cognitive_behavioral
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/publish/export_evidence_payload.py,75,90,16,14,GRAPH_BOOTSTRAP_ENTITY_KINDS,names evidence domains or node kinds,exposure_context | condition_indication | safety_adverse_event | cognitive_behavioral_construct | subjective_experience_construct
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/publish/export_evidence_payload.py,175,182,8,6,OPTIONAL_SAFETY_OBSERVATION_FIELDS,domain-specific field names,safety_event_or_measure | safety_category | severity | seriousness | frequency_or_rate
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/review/run_domain_routing.py,48,59,12,10,DOMAIN_ROUTES,names evidence domains or node kinds,clinical_outcome | safety_tolerability | molecular_target | molecular_pathway_readout | brain_system
+B,n/a,derived from domains.yaml and schema role annotations,pipeline/validate/evaluate_deterministic_projection.py,106,106,1,4,non_atomic_kinds,manual review,compound_class | compound_combination | exposure_context | treatment_regimen
+B,n/a,derived from domains.yaml and schema role annotations,ui/app.js,7364,7385,22,12,meta,manual review,literature | literature |  | compound | compounds
+E,discipline,base profile shared by biomedical protocols,pipeline/extract/assay_family.py,25,51,27,25,ASSAY_FAMILY_ORDER,manual review,Binding assays | Receptor activity | fMRI | PET | SPECT
+E,discipline,base profile shared by biomedical protocols,pipeline/extract/assay_family.py,53,69,17,28,ASSAY_FAMILY_ALIASES,manual review,binding / affinity | Binding assays | functional activity | Receptor activity | imaging / connectivity
+E,discipline,base profile shared by biomedical protocols,pipeline/fulltext/build_llm_evidence_packets.py,82,114,33,31,PRIMARY_EMPIRICAL_COMMON_MARKERS,manual review,method | material | participant | patient | subject
+E,discipline,base profile shared by biomedical protocols,pipeline/fulltext/build_llm_evidence_packets.py,116,155,40,38,PRIMARY_EMPIRICAL_TOPIC_MARKERS,manual review,assay | binding | affinity | receptor | transporter
+E,discipline,base profile shared by biomedical protocols,pipeline/fulltext/build_llm_evidence_packets.py,174,216,43,41,SECONDARY_SYNTHESIS_MARKERS,manual review,systematic review | meta-analysis | metaanalysis | network meta | evidence synthesis
+E,discipline,base profile shared by biomedical protocols,pipeline/fulltext/build_llm_evidence_packets.py,227,261,35,33,REVIEW_COVERAGE_MARKERS,manual review,review | scope | objective | aim | overview
+E,discipline,base profile shared by biomedical protocols,pipeline/fulltext/pdf_alternate_sources.py,102,108,7,5,NON_PRIMARY_PDF_HEADINGS,base evidence vocabulary,supplementary material | supplemental material | supplementary information | supplemental information | supporting information
+E,discipline,base profile shared by biomedical protocols,pipeline/ingest/abstract_quality.py,36,39,4,1,PEER_REVIEW_TITLE_RE,base evidence vocabulary,(?:^|\b)(?:decision letter|author respon
+E,discipline,base profile shared by biomedical protocols,pipeline/ingest/enrich_paper_open_science.py,201,205,5,1,REVIEW_TITLE_RE,regex rule,\b(?:systematic|scoping|narrative|umbrel
+E,discipline,base profile shared by biomedical protocols,pipeline/ingest/enrich_paper_open_science.py,206,210,5,1,TRIAL_PUBLICATION_RE,base evidence vocabulary,\b(?:randomized controlled trial|control
+E,discipline,base profile shared by biomedical protocols,pipeline/ingest/preprint_detection.py,9,22,14,12,PREPRINT_DOI_PATTERNS,base evidence vocabulary,doi:bioRxiv/medRxiv | doi:PsyArXiv/OSF | doi:OSF preprint | doi:OSF preprint | doi:OSF
+E,discipline,base profile shared by biomedical protocols,pipeline/ingest/preprint_detection.py,24,35,12,10,PREPRINT_VENUE_MARKERS,base evidence vocabulary,biorxiv | medrxiv | psyarxiv | chemrxiv | authorea
+E,general,base profile shared by biomedical protocols,pipeline/kg/build_evidence_tables.py,514,518,5,1,SYSTEM_IN_VITRO_RE,manual review,\b(in[- ]?vitro|cell culture|cultures?|c
+E,general,base profile shared by biomedical protocols,pipeline/kg/build_evidence_tables.py,519,523,5,1,SYSTEM_EX_VIVO_RE,manual review,\b(ex[- ]?vivo|slice(?:s)?|brain tissue|
+E,general,base profile shared by biomedical protocols,pipeline/kg/build_evidence_tables.py,524,528,5,1,SYSTEM_CLINICAL_RE,manual review,\b(clinical trial|clinical study|patient
+E,general,base profile shared by biomedical protocols,pipeline/kg/build_evidence_tables.py,529,533,5,1,SYSTEM_IN_VIVO_RE,manual review,\b(in[- ]?vivo|animal model|mouse|mice|r
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/build_evidence_tables.py,1628,1636,9,1,OBJECTIVE_TIME_TASK_RE,manual review,\b(temporal (?:bisection|reproduction|di
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/build_evidence_tables.py,1637,1644,8,1,SUBJECTIVE_TIME_DISTORTION_RE,manual review,\b(altered time perception|time percepti
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/build_evidence_tables.py,1645,1649,5,1,SELF_REPORT_TIME_CONTEXT_RE,manual review,\b(v(?:isual)?\s*analog(?:ue)?\s*scale|v
+E,general,base profile shared by biomedical protocols,pipeline/kg/build_evidence_tables.py,4855,4864,10,1,NON_CLINICAL_MODEL_POPULATION_RE,manual review,\b(healthy\s+(?:human\s+)?(?:volunteers?
+E,general,base profile shared by biomedical protocols,pipeline/kg/build_evidence_tables.py,6885,6891,7,10,GENERAL_TOPIC_COVERAGE_LABELS,manual review,evidence gap | Evidence gaps | research landscape | Research landscape | methodological contribution
+E,general,base profile shared by biomedical protocols,pipeline/kg/build_evidence_tables.py,7528,7535,8,1,SAFETY_WORSENED_RISK_RE,manual review,\b(increas(?:ed|es|ing)|higher|greater|e
+E,general,base profile shared by biomedical protocols,pipeline/kg/build_evidence_tables.py,7536,7542,7,1,SAFETY_NON_WORSENED_RE,manual review,\b(decreas(?:ed|es|ing)|lower|reduc(?:ed
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/build_evidence_tables.py,9924,9928,5,6,REVIEW_COVERAGE_FOCUS_LABELS,base evidence vocabulary,paper_defining | Main focus | major_supporting | Major supporting topic | secondary_context
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/build_evidence_tables.py,10135,10139,5,1,META_ANALYSIS_POPULATION_ENTITY_RE,base evidence vocabulary,\b(adults?|patients?|participants?|peopl
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/build_evidence_tables.py,10140,10144,5,1,META_ANALYSIS_OUTCOME_ENTITY_RE,regex rule,\b(symptoms?|scores?|response|remission|
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/build_evidence_tables.py,10779,10783,5,1,THERAPEUTIC_OBSERVATIONAL_NONUSER_COMPARATOR_RE,base evidence vocabulary,\b(?:non[- ]?(?:users?|abusers?|exposed)
+E,general,base profile shared by biomedical protocols,pipeline/kg/build_methods_flow.py,21,30,10,16,PRISMA_CANDIDATE_PRESCREEN_LABELS,manual review,exclude_obvious_irrelevant | No clear in-scope psychedelic evidence s | exclude_no_usable_abstract | No usable abstract; title alone insuffic | exclude_missing_abstract
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/build_methods_flow.py,32,37,6,8,PRISMA_PUBLIC_LLM_SCREENING_LABELS,base evidence vocabulary,excluded_during_llm_screening | Out of scope after LLM-based screening | background_context_only | Background/context only | not_selected_for_extraction
+E,general,base profile shared by biomedical protocols,pipeline/kg/build_methods_flow.py,80,95,16,24,GRAPH_DISPOSITION_LABELS,manual review,represented | Represented in the current graph | adjudicated_outside_scope | Outside the graph's evidence scope | no_extractable_finding
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/build_methods_flow.py,113,120,8,12,METHODS_BIBLIOGRAPHY_STAGE_LABELS,base evidence vocabulary,selected_for_extraction | Selected for evidence extraction | excluded_during_llm_screening | Out of scope after LLM-based screening | background_context_only
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/build_methods_flow.py,131,140,10,8,METHODS_BIBLIOGRAPHY_KG_LABEL_ORDER,base evidence vocabulary,Represented in graph | Outside the graph's evidence scope | No specific finding available for graph  | Available text too limited for reliable  | Source document could not be verified
+E,general,base profile shared by biomedical protocols,pipeline/kg/build_methods_flow.py,142,152,11,18,METHODS_BIBLIOGRAPHY_SCREENING_REASONS,manual review,exclude_obvious_irrelevant | No clear in-scope psychedelic evidence s | exclude_no_usable_abstract | No usable abstract; title alone insuffic | exclude_missing_abstract
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py,72,78,7,1,CLINICAL_POPULATION_CONDITION_RE,base evidence vocabulary,\b(patient|patients|participant|particip
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py,79,83,5,1,BROAD_CLINICAL_POPULATION_RE,base evidence vocabulary,\b(?:mental health|psychiatric|psycholog
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/convert_review_relationship_bundles_to_evidence_rows.py,170,174,5,6,REVIEW_COVERAGE_FOCUS_LABELS,base evidence vocabulary,paper_defining | Main focus | major_supporting | Major supporting topic | secondary_context
+E,general,base profile shared by biomedical protocols,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,144,147,4,1,GRAPH_SUBJECT_DOSE_RE,manual review,\b\d+(?:\.\d+)?\s*(?:micrograms?|mcg|ug|
+E,general,base profile shared by biomedical protocols,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,160,191,32,60,DIRECTION_NORMALIZATION,manual review,positive | positive | positive association | positive_association | positive_association
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/pk_relationships.py,21,34,14,24,PK_RELATIONSHIP_LABELS,manual review,exposure_characterized | exposure characterized | metabolized_to | metabolized to | metabolized_by
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/pk_relationships.py,44,56,13,11,PK_PARAMETER_PATTERNS,manual review,Cmax | Tmax | AUC | Half-life | Clearance
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/pk_relationships.py,58,62,5,1,PHARMACODYNAMIC_PARAMETER_RE,manual review,\b(?:ec50|ic50|ed50|emax|occupancy|recep
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/pk_relationships.py,63,67,5,1,MEASURED_EXPOSURE_RE,manual review,\b(?:cmax|tmax|auc|half[- ]?life|clearan
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/pk_relationships.py,69,74,6,1,METABOLIC_TARGET_RE,manual review,\b(cyp\d|cytochrome|mao[- ]?[ab]?|monoam
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/pk_relationships.py,76,81,6,1,METABOLISM_PATHWAY_RE,manual review,\b(n[- ]?demethylation|o[- ]?demethylati
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/pk_relationships.py,82,86,5,1,INTERACTION_RE,manual review,\b(inhibit\w*|inhibitor|induc\w*|interac
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/pk_relationships.py,87,91,5,1,METABOLITE_CONTEXT_RE,manual review,\b(metabolite|metabolized|metabolised|co
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/pk_relationships.py,92,96,5,1,EXPOSURE_RESPONSE_RE,manual review,\b(exposure[- ]response|concentration[- 
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/pk_relationships.py,97,101,5,1,DISTRIBUTION_RE,manual review,\b(brain|cerebrospinal|csf|tissue|volume
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/pk_relationships.py,103,107,5,1,DETECTION_RE,manual review,\b(detection|detected|presence|presence/
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/pk_relationships.py,108,112,5,1,BIOAVAILABILITY_ROUTE_RE,manual review,\b(bioavailability|route|formulation|dis
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/pk_relationships.py,114,133,20,36,ROUTE_LABELS,manual review,oral | Oral administration | p.o. | Oral administration | po
+E,discipline,base profile shared by biomedical protocols,pipeline/kg/pk_relationships.py,135,151,17,30,MATRIX_LABELS,manual review,plasma | plasma exposure | serum | serum exposure | blood
+E,discipline,base profile shared by biomedical protocols,pipeline/review/run_deterministic_prescreen.py,109,136,28,26,NON_SOURCE_PUBLICATION_TYPES,base evidence vocabulary,book chapter | book-chapter | chapter | comment | commentary
+E,general,base profile shared by biomedical protocols,pipeline/review/run_deterministic_prescreen.py,166,199,34,64,OUT_OF_SCOPE_PUBLICATION_FORMAT_TYPES,manual review,abstract book entry | conference_abstract | book | book_or_monograph | book chapter
+E,general,base profile shared by biomedical protocols,pipeline/review/run_deterministic_prescreen.py,200,403,204,41,OUT_OF_SCOPE_PUBLICATION_FORMAT_DOI_PATTERNS,manual review,news_summary | news_summary | book_review | conference_abstract | conference_abstract
+E,discipline,base profile shared by biomedical protocols,pipeline/review/run_deterministic_prescreen.py,563,567,5,1,GENERIC_CODED_CONFERENCE_TITLE_RE,base evidence vocabulary,^\s*(?P<code>(?:AS|CS|EPA|P|PW|O|OP|PL|S
+E,discipline,base profile shared by biomedical protocols,pipeline/review/run_deterministic_prescreen.py,607,613,7,5,PLACEHOLDER_ABSTRACTS,base evidence vocabulary,abstract not available | international audience | no abstract | no abstract available | not available
+E,general,base profile shared by biomedical protocols,pipeline/review/run_screening_correction.py,90,96,7,10,excluded_families,manual review,10.1056/jp | NEJM Journal Watch educational summary ( | 10.1097/01.aoa. | Obstetric Anesthesia Digest summary of a | 10.5860/choice.
+E,discipline,base profile shared by biomedical protocols,ui/app.js,377,388,12,10,REVIEW_DESIGN_LABELS,base evidence vocabulary,Systematic review | Scoping review | Umbrella review | Rapid review | Narrative or literature review
+E,discipline,base profile shared by biomedical protocols,ui/app.js,389,397,9,7,REVIEW_CONTRIBUTION_LABELS,base evidence vocabulary,Evidence synthesis | Mechanistic or conceptual | Methods or framework | Research landscape | Translation or practice
+E,discipline,base profile shared by biomedical protocols,ui/app.js,398,404,7,5,REVIEW_EVIDENCE_STRATUM_LABELS,base evidence vocabulary,Human evidence | Preclinical evidence | Human and preclinical | Research field or methods | Unclear evidence base
+E,discipline,base profile shared by biomedical protocols,ui/app.js,405,411,7,5,REVIEW_RELATIONSHIP_TYPE_LABELS,base evidence vocabulary,Synthesis conclusion | Relationship reviewed | Method or framework | Research landscape | Evidence gap
+E,discipline,base profile shared by biomedical protocols,ui/app.js,417,425,9,7,META_ANALYSIS_DESIGN_LABELS,base evidence vocabulary,Pairwise meta-analysis | Network meta-analysis | Multilevel meta-analysis | Dose-response meta-analysis | Individual-participant-data meta-analysi
+E,discipline,base profile shared by biomedical protocols,ui/app.js,426,434,9,7,META_ANALYSIS_DESIGN_ORDER,base evidence vocabulary,Pairwise meta-analysis | Network meta-analysis | Multilevel meta-analysis | Dose-response meta-analysis | Individual-participant-data meta-analysi
+E,discipline,base profile shared by biomedical protocols,ui/app.js,435,446,12,10,META_ANALYSIS_RESULT_ROLE_LABELS,base evidence vocabulary,Primary pooled result | Secondary pooled result | Subgroup analysis | Sensitivity analysis | Meta-regression
+E,discipline,base profile shared by biomedical protocols,ui/app.js,447,453,7,5,META_ANALYSIS_STUDY_COUNT_BINS,base evidence vocabulary,1-5 studies | 6-10 studies | 11-20 studies | 21-50 studies | More than 50 studies
+E,discipline,base profile shared by biomedical protocols,ui/app.js,604,614,11,9,REAL_WORLD_SAMPLE_SIZE_BINS,base evidence vocabulary,1-100 | 101-500 | 501-1k | 1k-5k | 5k-10k
+E,discipline,base profile shared by biomedical protocols,ui/app.js,1949,1977,29,27,STUDY_DESIGN_CATEGORY_LABELS,base evidence vocabulary,RCT | RCT | RCT | Open-label trial | Single-arm trial
+E,discipline,base profile shared by biomedical protocols,ui/app.js,2098,2131,34,32,STUDY_DESIGN_ORDER,base evidence vocabulary,RCT | Nonrandomized study | Controlled study (randomization unclear) | Comparative study | Open-label trial
+E,discipline,base profile shared by biomedical protocols,ui/app.js,2267,2281,15,13,POPULATION_MODEL_CATEGORY_LABELS,base evidence vocabulary,Human participants | Human participants | Human participants | Human participants | Human participants
+E,discipline,base profile shared by biomedical protocols,ui/app.js,2337,2344,8,6,POPULATION_MODEL_ORDER,base evidence vocabulary,Human participants | Preclinical animals | Cell & tissue studies | In silico studies | Mixed populations / models
+E,discipline,base profile shared by biomedical protocols,ui/app.js,2346,2354,9,7,SAFETY_CONTEXT_ORDER,manual review,Serious/medical intervention | Discontinuation | Acute transient | Persistent/delayed | Preclinical toxicity
+E,discipline,base profile shared by biomedical protocols,ui/app.js,2413,2421,9,7,ADMINISTRATION_ROUTE_ORDER,manual review,Intravenous infusion or injection | Intranasal | Subcutaneous or intramuscular injection | Oral or sublingual | Smoked or vaporized
+E,discipline,base profile shared by biomedical protocols,ui/app.js,2435,2442,8,6,ADMINISTRATION_ROUTE_LABELS,manual review,Oral or sublingual | Intravenous infusion or injection | Intranasal | Subcutaneous or intramuscular injection | Smoked or vaporized
+E,discipline,base profile shared by biomedical protocols,ui/app.js,2443,2519,77,121,ADMINISTRATION_ROUTE_DISPLAY_LABELS,manual review,Oral | p.o. | Oral | per os | Oral
+E,discipline,base profile shared by biomedical protocols,ui/app.js,2690,2716,27,29,routePatterns,manual review,/\b(oral|orally|p\.?o\.?|per os|peroral| | /\b(oral|orally|p\.?o\.?|per os|peroral| | /\b(sublingual|buccal)\b/ | /\b(intravenous|i\.?v\.?|iv\b|infusion|i | /\b(intravenous|i\.?v\.?|iv\b|infusion|i
+E,discipline,base profile shared by biomedical protocols,ui/app.js,2812,2838,27,25,MECHANISTIC_ASSAY_FAMILY_ORDER,manual review,Binding assays | Receptor activity | fMRI | PET | SPECT
+E,discipline,base profile shared by biomedical protocols,ui/app.js,2839,2855,17,29,ASSAY_FAMILY_DISPLAY_LABELS,manual review,binding / affinity | Binding assays | functional activity | Receptor activity | imaging / connectivity
+E,discipline,base profile shared by biomedical protocols,ui/app.js,2875,2890,16,14,MECHANISTIC_RELATIONSHIP_TYPE_ORDER,manual review,Activity change | Connectivity change | Structural change | Metabolic/perfusion change | Neurochemical change
+E,discipline,base profile shared by biomedical protocols,ui/app.js,2891,2902,12,10,MECHANISTIC_RELATIONSHIP_TYPE_LABELS,manual review,Binding/affinity | Agonism/antagonism | Transporter uptake | Neurotransmitter release | Expression change
+E,discipline,base profile shared by biomedical protocols,ui/app.js,3291,3303,13,11,CLINICAL_COMPARATOR_ORDER,base evidence vocabulary,Placebo | Active placebo | Baseline | No comparator | Dose or route comparison
+E,discipline,base profile shared by biomedical protocols,ui/app.js,3305,3315,11,18,CLINICAL_COMPARATOR_LABEL_ALIASES,base evidence vocabulary,placebo vehicle | Placebo | baseline pre post | Baseline | no comparator single arm
+E,discipline,base profile shared by biomedical protocols,ui/app.js,3328,3342,15,13,CLINICAL_FOLLOW_UP_WINDOW_ORDER,base evidence vocabulary,Acute / same day | Early follow-up (1-7 days) | Short follow-up (1-4 weeks) | Medium follow-up (1-3 months) | Long follow-up (4-12 months)
+E,discipline,base profile shared by biomedical protocols,ui/app.js,8526,8529,4,7,EXPERIMENTAL_SYSTEM_ORDER,base evidence vocabulary,Clinical | In vivo | In vitro | Ex vivo | Computational
+E,discipline,base profile shared by biomedical protocols,ui/methods.js,38,44,7,5,PRISMA_STEP_LABELS,base evidence vocabulary,Records identified by literature searche | Records assessed by rules-based screenin | Records retained for LLM-based screening | Reports selected for evidence extraction | Reports included in the knowledge graph
+E,discipline,base profile shared by biomedical protocols,ui/methods.js,45,50,6,4,PRISMA_SIDE_LABELS,base evidence vocabulary,Records not assessed by rules-based scre | Records excluded by rules-based screenin | Records not selected after LLM-based scr | Reports excluded during evidence extract
+E,general,base profile shared by biomedical protocols,ui/methods.js,51,68,18,16,PRISMA_REASON_LABELS,manual review,"No clear in-scope psychedelic evidence s | No usable abstract; title alone insuffic | No abstract available | Ineligible publication type or non-evide | Journal or container record, not a paper"
+E,discipline,base profile shared by biomedical protocols,ui/methods.js,69,82,14,24,BIBLIOGRAPHY_GRAPH_STATUS_LABELS,base evidence vocabulary,In graph | Represented in graph | Represented in graph | Represented in graph | Represented in the current graph
+E,general,base profile shared by biomedical protocols,ui/methods.js,83,90,8,12,BIBLIOGRAPHY_SCREENING_NOTE_LABELS,manual review,No in-scope signal | No clear in-scope psychedelic evidence s | No usable abstract; title insufficient | No usable abstract; title alone insuffic | No abstract
+G,n/a,engine,pipeline/discovery/artifacts.py,14,30,17,15,RECORD_COLUMNS,engine,provider | provider_record_id | pmid | pmcid | doi
+G,n/a,engine,pipeline/discovery/artifacts.py,32,53,22,19,HIT_COLUMNS,manual review,rank_in_partition | run_id | protocol_id | execution_id | search_id
+G,n/a,engine,pipeline/discovery/artifacts.py,223,238,16,14,columns,engine,provider | layer | search_type | executions | complete_executions
+G,n/a,engine,pipeline/discovery/calibration.py,96,100,5,14,columns,engine,provider | layer | search_type | executions | complete_executions
+G,n/a,engine,pipeline/discovery/calibration.py,153,156,4,11,columns,engine,record_id | doi | pmid | openalex_id | title
+G,n/a,engine,pipeline/discovery/calibration.py,180,180,1,4,summary,engine,status | missing_source | required | source
+G,n/a,engine,pipeline/discovery/calibration.py,184,184,1,4,summary,engine,status | missing_flag_column | required | flag_column
+G,n/a,engine,pipeline/discovery/calibration.py,259,269,11,9,summary,engine,status | required | source | flag_column | known_records_in_window
+G,n/a,engine,pipeline/discovery/calibration.py,294,305,12,10,report,engine,schema_version | search_calibration_report_v1 | run_id | retrieval_complete | calibration_gate_passed
+G,n/a,engine,pipeline/discovery/composite.py,204,213,10,8,allowed_partial,engine,search_plan.parquet | search_plan.csv | query_executions.parquet | provider_hits.parquet | provider_hits.parquet.tmp
+G,n/a,engine,pipeline/discovery/composite.py,255,309,55,55,manifest,engine,schema_version | living_search_composite_run_v1 | run_id | protocol_id | strategy_path
+G,n/a,engine,pipeline/discovery/finish_composite_baseline.py,23,23,1,4,terminal_failures,engine,failed | paused_budget | incomplete | calibration_failed
+G,n/a,engine,pipeline/discovery/promote_search_run.py,80,86,7,5,fields,engine,doi | pmid | pmcid | openalex | semantic_scholar
+G,n/a,engine,pipeline/discovery/promote_search_run.py,197,207,11,9,scalar_fields,engine,doi | pmid | pmcid | openalex_id | semantic_scholar_id
+G,n/a,engine,pipeline/discovery/promote_search_run.py,245,252,8,12,defaults,engine,discovery_first_seen_at_utc |  | discovery_last_seen_at_utc |  | discovery_run_ids
+G,n/a,engine,pipeline/discovery/promote_search_run.py,367,376,10,25,columns,engine,context_id | doi | compound | entity | entity_type
+G,n/a,engine,pipeline/discovery/promote_search_run.py,437,441,5,14,columns,engine,record_key | title | publication_year | authors | provider_record_ids
+G,n/a,engine,pipeline/discovery/promote_search_run.py,622,646,25,22,report,engine,schema_version | discovery_promotion_report_v2 | run_id | protocol_id | promoted_at_utc
+G,n/a,engine,pipeline/discovery/providers.py,480,485,6,4,params,engine,per_page | select | mailto | api_key
+G,n/a,engine,pipeline/discovery/retire_search_run.py,77,96,20,18,columns,engine,provider | provider_record_id | doi | pmid | pmcid
+G,n/a,engine,pipeline/discovery/retire_search_run.py,131,153,23,20,report,engine,schema_version | discovery_run_retirement_v1 | run_id | protocol_id | retired_at_utc
+G,n/a,engine,pipeline/discovery/run_citation_expansion.py,230,234,5,15,scalar,engine,provider | provider_record_id | pmid | pmcid | doi
+G,n/a,engine,pipeline/discovery/run_citation_expansion.py,272,306,35,36,manifest,engine,schema_version | citation_expansion_run_v1 | run_id | protocol_id | strategy_hash
+G,n/a,engine,pipeline/discovery/run_literature_search.py,82,86,5,4,openalex_budget_context,engine,source | fallback_or_explicit | requested_session_budget | resolved_session_budget
+G,n/a,engine,pipeline/discovery/runner.py,141,175,35,32,manifest,engine,schema_version | living_search_run_v3 | run_id | generated_at_utc | updated_at_utc
+G,n/a,engine,pipeline/discovery/runner.py,176,181,6,5,state,engine,schema_version | living_search_state_v3 | run_id | updated_at_utc | executions
+G,n/a,engine,pipeline/discovery/runner.py,433,443,11,10,active,engine,partition_id | start_date | end_date | expected_count | initial_expected_count
+G,n/a,engine,pipeline/discovery/runner.py,590,597,8,4,session,engine,started_or_resumed_at_utc | ended_at_utc | request_budgets | providers
+G,n/a,engine,pipeline/discovery/strategy.py,25,25,1,4,SUPPORTED_LAYERS,engine,core | scope | targeted_pairs | scope_delta
+G,n/a,engine,pipeline/discovery/strategy.py,110,110,1,4,required,engine,schema_version | protocol_id | providers | modules
+G,n/a,engine,pipeline/discovery/strategy.py,120,126,7,5,wanted,engine,allowed_compounds | allowed_targets | allowed_brain_regions_and_networks | allowed_cognitive_behavioral_tasks | allowed_disorders
+G,n/a,engine,pipeline/discovery/strategy.py,405,415,11,9,identity,manual review,provider | dataset | layer | search_type | module_id
+G,n/a,engine,pipeline/discovery/strategy.py,870,878,9,7,identity,manual review,search_id | date_basis | start_date | end_date | protocol_id
+G,n/a,engine,pipeline/discovery/strategy.py,912,916,5,4,calibration,engine,known_relevant_check_enabled | required_for_promotion | disabled_reason | Retired pilot calibration; not used by t
+G,n/a,engine,pipeline/discovery/strategy.py,922,972,51,37,metadata,engine,schema_version | living_search_plan_v3 | protocol_id | strategy_path | strategy_hash
+G,n/a,engine,pipeline/extract/assay_family.py,14,23,10,8,EMPTY_ASSAY_VALUES,engine, | none | not applicable | not_applicable | not reported
+G,n/a,engine,pipeline/extract/audit_meta_analysis_extraction_readiness.py,34,55,22,20,CSV_FIELDS,engine,route_id | task_id | study_doi | study_title | study_year
+G,n/a,engine,pipeline/extract/audit_meta_analysis_extraction_readiness.py,163,188,26,23,report,engine,generated_at_utc | schema_version | input_tasks_jsonl | total_tasks_read | meta_analysis_tasks
+G,n/a,engine,pipeline/extract/audit_primary_extraction_readiness.py,36,62,27,25,CSV_FIELDS,engine,route_id | task_id | study_doi | study_title | study_year
+G,n/a,engine,pipeline/extract/audit_primary_extraction_readiness.py,199,228,30,27,report,engine,generated_at_utc | schema_version | input_tasks_jsonl | expected_primary_packet_profile | total_tasks_read
+G,n/a,engine,pipeline/extract/build_extraction_routes.py,92,134,43,74,CANDIDATE_STATUS_DEFAULTS,engine,publication_stage |  | is_preprint_like | preprint_signal_strength | 
+G,n/a,engine,pipeline/extract/build_extraction_routes.py,169,181,13,4,STUDY_SYSTEM_PATTERNS,engine,clinical | preclinical | in_vitro | ex_vivo
+G,n/a,engine,pipeline/extract/build_extraction_routes.py,685,711,27,15,mapping,engine,full_text_available | public_full_text_verified | A converted article-text artifact passes | local_pdf_available | public_full_text_pending_conversion
+G,n/a,engine,pipeline/extract/build_extraction_routes.py,1425,1431,7,5,access_order,engine,full_text_available | local_pdf_available | pdf_download_url_available | abstract_only | no_usable_text
+G,n/a,engine,pipeline/extract/build_extraction_routes.py,1643,1662,20,18,summary,engine,generated_at_utc | table_version | inputs | route_rows | routed_dois
+G,n/a,engine,pipeline/extract/build_extraction_tasks.py,78,84,7,5,COMPATIBLE_PACKET_PROFILES,engine, |  |  |  | 
+G,n/a,engine,pipeline/extract/build_extraction_tasks.py,86,116,31,29,PAPER_METADATA_FIELDS,engine,doi | openalex_id | pmid | pmcid | study_title
+G,n/a,engine,pipeline/extract/build_extraction_tasks.py,118,157,40,38,ROUTE_CONTEXT_FIELDS,engine,route_id | doi | source_family | source_type | secondary_source_types
+G,n/a,engine,pipeline/extract/build_extraction_tasks.py,769,801,33,25,report,engine,generated_at_utc | schema_version | inputs | route_table | metadata_table
+G,n/a,engine,pipeline/extract/build_meta_analysis_v2_tasks.py,30,33,4,4,READY_DEPTH_BY_STATUS,engine,ready_for_article_text_extraction | article_text | ready_for_abstract_extraction | abstract_only
+G,n/a,engine,pipeline/extract/build_meta_analysis_v2_tasks.py,157,164,8,7,source,engine,kind | article_text | status | packet_id | packet_path
+G,n/a,engine,pipeline/extract/build_meta_analysis_v2_tasks.py,171,178,8,9,source,engine,kind | abstract_only | status | packet_id | 
+G,n/a,engine,pipeline/extract/build_meta_analysis_v2_tasks.py,216,231,16,12,report,engine,schema_version | meta_analysis_v2_task_build_report_v1 | generated_at_utc | counts | papers_selected
+G,n/a,engine,pipeline/extract/build_meta_analysis_v2_tasks.py,259,263,5,4,selection_report,engine,selection | explicit_cohort | cohort_jsonl | selected
+G,n/a,engine,pipeline/extract/build_review_paper_complete_bundles.py,190,199,10,6,report,engine,schema_version | review_paper_complete_bundle_report_v1 | generated_at_utc | counts | issue_counts
+G,n/a,engine,pipeline/extract/build_review_paper_complete_bundles.py,211,221,11,9,summary_fields,engine,doi | study_title | review_type | text_depth | expected_domains
+G,n/a,engine,pipeline/extract/build_review_paper_complete_bundles.py,222,239,18,16,item_fields,engine,doi | study_title | text_depth | domain_route | extraction_status
+G,n/a,engine,pipeline/extract/build_review_paper_complete_evaluation.py,272,285,14,12,report,engine,cohort_size | task_count | included_dois | stratum_targets | stratum_counts
+G,n/a,engine,pipeline/extract/build_review_paper_complete_evaluation.py,320,332,13,11,paper_fields,engine,doi | study_title | review_type | text_depth | routed_domains
+G,n/a,engine,pipeline/extract/build_review_paper_complete_evaluation.py,351,366,16,14,relationship_fields,engine,doi | relationship_id | compound_or_class | entity | entity_type
+G,n/a,engine,pipeline/extract/build_review_paper_complete_evaluation.py,446,481,36,31,manifest,engine,schema_version | review_paper_complete_evaluation_v1 | generated_at_utc | cohort_id | status
+G,n/a,engine,pipeline/extract/build_review_relationship_tasks.py,38,41,4,4,READY_DEPTH_BY_STATUS,engine,ready_for_article_text_extraction | article_text | ready_for_abstract_extraction | abstract_only
+G,n/a,engine,pipeline/extract/build_review_relationship_tasks.py,158,165,8,7,source,engine,kind | article_text | status | packet_id | packet_path
+G,n/a,engine,pipeline/extract/build_review_relationship_tasks.py,172,179,8,9,source,engine,kind | abstract_only | status | packet_id | 
+G,n/a,engine,pipeline/extract/build_review_relationship_tasks.py,217,230,14,12,report,engine,schema_version | review_relationship_task_build_report_v3 | generated_at_utc | counts | papers_selected
+G,n/a,engine,pipeline/extract/build_review_relationship_tasks.py,263,267,5,4,selection_report,engine,selection | explicit_cohort | cohort_jsonl | selected
+G,n/a,engine,pipeline/extract/clinical_comparator.py,14,14,1,5,NOT_REPORTED_VALUES,engine, | not_reported | not reported | unknown | uncertain
+G,n/a,engine,pipeline/extract/clinical_comparator.py,15,15,1,4,NOT_APPLICABLE_VALUES,engine,not_applicable | not applicable | n/a | na
+G,n/a,engine,pipeline/extract/clinical_followup_window.py,14,14,1,5,NOT_REPORTED_VALUES,engine, | not_reported | not reported | unknown | uncertain
+G,n/a,engine,pipeline/extract/clinical_followup_window.py,15,15,1,4,NOT_APPLICABLE_VALUES,engine,not_applicable | not applicable | n/a | na
+G,n/a,engine,pipeline/extract/clinical_followup_window.py,16,38,23,42,NUMBER_WORDS,engine,one | 1 | first | 1 | two
+G,n/a,engine,pipeline/extract/clinical_followup_window.py,60,67,8,6,patterns,engine,\b(\d+(?:\.\d+)?)\s*(?:minutes?|mins?|mi | \b(\d+(?:\.\d+)?)\s*(?:hours?|hrs?|hr|h) | \b(?:days?|d|pod)\s*(\d+(?:\.\d+)?)\b|\b | \b(?:week|weeks|wk|w)\s*(\d+(?:\.\d+)?)\ | \b(?:month|mo)\s*(\d+(?:\.\d+)?)\b|\b(\d
+G,n/a,engine,pipeline/extract/clinical_followup_window.py,77,82,6,4,sequence_patterns,engine,"\bdays?\s+([0-9][0-9.,\sandto\-]+) | \bweeks?\s+([0-9][0-9.,\sandto\-]+) | \bmonths?\s+([0-9][0-9.,\sandto\-]+) | \byears?\s+([0-9][0-9.,\sandto\-]+)"
+G,n/a,engine,pipeline/extract/export_packet_profile_queues.py,45,50,6,8,SECTION_SELECTION_STRATEGY_ALIASES,engine,all_sections | full | primary_study | primary_empirical | meta_analysis
+G,n/a,engine,pipeline/extract/export_packet_profile_queues.py,51,56,6,8,SECTION_SELECTION_STRATEGY_COMMAND_LABELS,engine,full | all_sections | primary_empirical | primary_study | secondary_synthesis
+G,n/a,engine,pipeline/extract/export_packet_profile_queues.py,58,71,14,12,CSV_FIELDS,engine,section_selection_strategy | packet_profile | doi | route_ids | domain_routes
+G,n/a,engine,pipeline/extract/extraction_profile_matrix.py,19,27,9,6,ARTICLE_TEXT_ALIASES,engine, | paper_text | body_text | full_text | full_text_seen
+G,n/a,engine,pipeline/extract/io_utils.py,9,18,10,16,SYSTEM_NORMALIZATION,engine,in vitro | in_vitro | in-vitro | in_vitro | in vivo
+G,n/a,engine,pipeline/extract/primary_observation_contract.py,20,56,37,12,SHARED_FIELDS,engine,observation_role | exposure_role | comparison_basis | measurement_type | analysis_unit
+G,n/a,engine,pipeline/extract/repair_extraction_inputs.py,104,105,2,6,summary,engine,papers | native_records | crossref_records | unreturned_pmids | failures
+G,n/a,engine,pipeline/extract/repair_extraction_inputs.py,383,384,2,7,argv,engine,prepare | --run-id | --batch-id | --input-jsonl | --model
+G,n/a,engine,pipeline/extract/repair_extraction_inputs.py,415,418,4,7,result,engine,run_id | batch_id | requests | tasks_path | paths
+G,n/a,engine,pipeline/extract/repair_extraction_inputs.py,441,441,1,4,progress,engine,status | parsed | summary | job_name
+G,n/a,engine,pipeline/extract/repair_extraction_routing.py,57,59,3,7,result,engine,path | before_sha256 | after_sha256 | removed_tasks | added_tasks
+G,n/a,engine,pipeline/extract/repair_extraction_routing.py,133,134,2,5,result,engine,plan | plan_sha256 | owner_sha256 | records | screening_changed
+G,n/a,engine,pipeline/extract/repair_extraction_routing.py,217,220,4,6,result,engine,primary_tasks | review_tasks | rerun_papers | held_or_context_papers | model_calls
+G,n/a,engine,pipeline/extract/review_source_types.py,7,10,4,6,REVIEW_TYPES,engine,review | systematic_review | scoping_review | narrative_review | literature_review
+G,n/a,engine,pipeline/extract/route_extraction_profiles.py,90,102,13,11,PRIMARY_PROMPT_PROFILES,engine,primary_clinical | primary_safety | primary_molecular_target | primary_molecular_pathway | primary_brain_system
+G,n/a,engine,pipeline/extract/run_meta_analysis_v2_batch_api.py,225,234,10,9,manifest,engine,schema_version | meta_analysis_v2_input_snapshot_v1 | created_at_utc | run_id | batch_id
+G,n/a,engine,pipeline/extract/run_meta_analysis_v2_batch_api.py,401,430,30,26,manifest,engine,schema_version | generated_at_utc | status | prepared | run_id
+G,n/a,engine,pipeline/extract/run_meta_analysis_v2_batch_api.py,475,475,1,5,payload,engine,status | checked | job_name | state | batch_job
+G,n/a,engine,pipeline/extract/run_meta_analysis_v2_batch_api.py,709,717,9,7,missing_markers,engine,not reported | not_reported | not applicable | not_applicable | n/a
+G,n/a,engine,pipeline/extract/run_meta_analysis_v2_batch_api.py,718,736,19,17,required_string_fields,engine,question_id | description | result_id | relationship_statement | assessment_id
+G,n/a,engine,pipeline/extract/run_meta_analysis_v2_batch_api.py,737,743,7,5,nullable_result_fields,engine,population_or_system | intervention_or_exposure | comparator | outcome_or_entity | timepoint_or_window
+G,n/a,engine,pipeline/extract/run_meta_analysis_v2_batch_api.py,793,804,12,10,allowed,engine,title | abstract | objective | methods | results
+G,n/a,engine,pipeline/extract/run_meta_analysis_v2_batch_api.py,805,819,15,26,location_rules,engine,title | title | abstract | abstract | objective
+G,n/a,engine,pipeline/extract/run_meta_analysis_v2_batch_api.py,891,899,9,8,raw,engine,batch_key | task_id | study_doi | source_depth | raw_text
+G,n/a,engine,pipeline/extract/run_meta_analysis_v2_batch_api.py,954,969,16,13,report,engine,schema_version | generated_at_utc | status | run_id | batch_id
+G,n/a,engine,pipeline/extract/run_review_relationship_batch_api.py,249,277,29,25,manifest,engine,schema_version | generated_at_utc | status | prepared | run_id
+G,n/a,engine,pipeline/extract/run_review_relationship_batch_api.py,322,322,1,5,payload,engine,status | checked | job_name | state | batch_job
+G,n/a,engine,pipeline/extract/run_review_relationship_batch_api.py,400,408,9,8,raw,engine,batch_key | task_id | study_doi | text_depth | raw_text
+G,n/a,engine,pipeline/extract/run_review_relationship_batch_api.py,446,461,16,13,report,engine,schema_version | generated_at_utc | status | run_id | batch_id
+G,n/a,engine,pipeline/extract/run_review_relationship_extraction.py,111,119,9,8,manifest,engine,schema_version | review_relationship_input_snapshot_v2 | created_at_utc | run_id | model
+G,n/a,engine,pipeline/extract/run_review_relationship_extraction.py,210,217,8,6,strong_basis,engine,title_scope | stated_objective | abstract_result | repeated_synthesis | discussion_emphasis
+G,n/a,engine,pipeline/extract/run_review_relationship_extraction.py,361,378,18,14,report,engine,schema_version | review_relationship_run_report_v3 | generated_at_utc | status | inputs
+G,n/a,engine,pipeline/extract/run_route_extraction.py,85,90,6,1,RECOMMENDS_AGAINST_MARKER_RE,manual review,\b(?:against|avoid|contraindicat(?:e|ed|
+G,n/a,engine,pipeline/extract/run_route_extraction.py,91,105,15,1,SOURCE_IDENTITY_MISMATCH_WARNING_RE,manual review,(?:(?:doi|metadata|study title|title(?: 
+G,n/a,engine,pipeline/extract/run_route_extraction.py,215,221,7,10,replacements,engine,"
+ | \n |  | \r | 	"
+G,n/a,engine,pipeline/extract/run_route_extraction.py,311,317,7,5,out,manual review,task_id | route_id | study_doi | domain_route | source_type
+G,n/a,engine,pipeline/extract/run_route_extraction.py,334,349,16,14,keep_fields,engine,doi | pmid | pmcid | study_title | study_year
+G,n/a,engine,pipeline/extract/run_route_extraction.py,448,455,8,6,allowed,engine,meta_analysis | network_meta_analysis | umbrella_review | systematic_review | secondary_evidence
+G,n/a,engine,pipeline/extract/run_route_extraction.py,946,957,12,11,raw_row,engine,generated_at_utc | input_row_index | task_id | route_id | input_fingerprint
+G,n/a,engine,pipeline/extract/run_route_extraction.py,1041,1070,30,29,report,engine,generated_at_utc | schema_version | route_extraction_run_report_v1 | status | complete
+G,n/a,engine,pipeline/extract/run_route_extraction_batch_api.py,121,121,1,4,TERMINAL_STATES,engine,completed | failed | cancelled | expired
+G,n/a,engine,pipeline/extract/run_route_extraction_batch_api.py,269,280,12,10,metadata,engine,prompt_profile | schema_profile | domain_route | text_depth | source_type
+G,n/a,engine,pipeline/extract/run_route_extraction_batch_api.py,320,358,39,35,manifest,engine,schema_version | generated_at_utc | status | prepared | run_id
+G,n/a,engine,pipeline/extract/run_route_extraction_batch_api.py,431,436,6,5,payload,engine,status | checked | job_name | state | batch_job
+G,n/a,engine,pipeline/extract/run_route_extraction_batch_api.py,609,629,21,9,commands,engine,pipeline/kg/convert_routed_extractions_t | --run-id | --input-jsonl | --tasks-jsonl | --use-default-active-route-table
+G,n/a,engine,pipeline/extract/run_route_extraction_batch_api.py,682,698,17,16,raw_row,engine,generated_at_utc | input_row_index | task_id | route_id | input_fingerprint
+G,n/a,engine,pipeline/extract/run_route_extraction_batch_api.py,730,740,11,9,output_row,engine,task_id | route_id | input_fingerprint | study_doi | prompt_profile
+G,n/a,engine,pipeline/extract/run_route_extraction_batch_api.py,762,795,34,25,report,engine,schema_version | parser_revision | generated_at_utc | status | run_id
+G,n/a,engine,pipeline/extract/run_routed_extraction_batch.py,339,347,9,7,base_outputs,engine,batch_selection_report_json | batch_tasks_jsonl | batch_route_extraction_report_json | run_outputs_jsonl | run_raw_jsonl
+G,n/a,engine,pipeline/extract/run_routed_extraction_batch.py,368,381,14,6,run_cmd,engine,pipeline/extract/run_route_extraction.py | --input-jsonl | --run-id | --out-jsonl | --raw-jsonl
+G,n/a,engine,pipeline/extract/run_routed_extraction_batch.py,400,410,11,5,convert_cmd,engine,pipeline/kg/convert_routed_extractions_t | --run-id | --input-jsonl | --tasks-jsonl | --use-default-active-route-table
+G,n/a,engine,pipeline/extract/run_routed_extraction_batch.py,430,437,8,4,kg_cmd,engine,pipeline/kg/build_evidence_tables.py | --source-preset | routed | --run-id
+G,n/a,engine,pipeline/fulltext/apply_post_retrieval_publication_format_screen.py,62,77,16,27,CANDIDATE_DEFAULTS,engine,post_retrieval_decision |  | post_retrieval_reason |  | post_retrieval_reason_code
+G,n/a,engine,pipeline/fulltext/apply_post_retrieval_publication_format_screen.py,281,289,9,6,result,engine,decision_counts | format_counts | candidate_table | decisions_table | ledger
+G,n/a,engine,pipeline/fulltext/audit_article_text_inputs.py,76,110,35,33,AUDIT_FIELDS,engine,status | section_selection_strategy | internal_packet_profile | doi | study_title
+G,n/a,engine,pipeline/fulltext/audit_article_text_inputs.py,271,305,35,43,base,engine,status | ok | section_selection_strategy | internal_packet_profile | doi
+G,n/a,engine,pipeline/fulltext/audit_article_text_inputs.py,438,455,18,10,lines,engine,# Article Text Input Audit |  |  | This is a no-model audit of the article  | 
+G,n/a,engine,pipeline/fulltext/audit_article_text_inputs.py,509,530,22,19,report,engine,generated_at_utc | schema_version | route_table | artifact_dir_override | queue_rows
+G,n/a,engine,pipeline/fulltext/audit_deterministic_repository_formats.py,28,34,7,5,URL_COLUMNS,engine,open_access_url | best_pdf_url | pdf_url_candidates | probable_pdf_url_candidates | other_url_candidates
+G,n/a,engine,pipeline/fulltext/audit_deterministic_repository_formats.py,44,52,9,1,CODED_ABSTRACT_TITLE_RE,manual review,"^\s*(?:\d{2,4}\s+|(?:P|PS|POS|OR|OP|PL|S"
+G,n/a,engine,pipeline/fulltext/audit_deterministic_repository_formats.py,54,58,5,1,ELSEVIER_CODED_ABSTRACT_DOI_RE,manual review,^10\.1016/(?:j\.(?:artres|cont|jalz|jtho
+G,n/a,engine,pipeline/fulltext/audit_deterministic_repository_formats.py,270,280,11,8,columns,engine,doi | study_title | study_journal | publication_type | retained_for_extraction_candidate
+G,n/a,engine,pipeline/fulltext/audit_deterministic_repository_formats.py,288,297,10,9,report,engine,schema_version | deterministic_repository_format_audit_v1 | generated_at_utc | candidate_rows | retained_not_post_retrieval_excluded_row
+G,n/a,engine,pipeline/fulltext/audit_fulltext_source_identity.py,42,47,6,4,REGISTRY_ACTIONS,engine,accept_correction_original_doi | accept_related_document_doi | ignore_incorrect_extracted_document_doi | no_override_required
+G,n/a,engine,pipeline/fulltext/audit_fulltext_source_identity.py,48,53,6,4,RELATIONSHIP_TYPES,engine,article_version | preprint_repository_version | publisher_doi_alias | publisher_language_alias
+G,n/a,engine,pipeline/fulltext/audit_fulltext_source_identity.py,59,64,6,4,REGISTRY_RECORD_GROUPS,engine,benign_conflict | correction_record | pmc_valid_exact | pmc_valid_known_alias
+G,n/a,engine,pipeline/fulltext/audit_fulltext_source_identity.py,65,70,6,1,CORRECTION_TITLE_RE,manual review,(?:^(?:corrections?\s*(?:&|and)\s*amendm
+G,n/a,engine,pipeline/fulltext/audit_fulltext_source_identity.py,120,120,1,4,required_headings,engine,abstract | introduction | results | discussion
+G,n/a,engine,pipeline/fulltext/audit_manual_pdf_queue_languages.py,189,199,11,8,report,engine,schema_version | manual_pdf_recovery_language_audit_v1 | generated_at_utc | input_rows | recognized_rows
+G,n/a,engine,pipeline/fulltext/audit_retrieved_pdf_publication_formats.py,50,53,4,1,MEETING_PATTERN,engine,\b(?:conference|congress|annual meeting|
+G,n/a,engine,pipeline/fulltext/audit_retrieved_pdf_publication_formats.py,54,58,5,1,THESIS_PATTERN,engine,\b(?:a thesis submitted|doctoral dissert
+G,n/a,engine,pipeline/fulltext/audit_retrieved_pdf_publication_formats.py,274,291,18,15,report,engine,schema_version | retrieved_pdf_publication_format_audit_v | generated_at_utc | inputs | inbox_dir
+G,n/a,engine,pipeline/fulltext/audit_targeted_recovery_documents.py,45,84,40,38,CSV_COLUMNS,engine,recovery_pass | report_path | requested_doi | selected_url | selected_via
+G,n/a,engine,pipeline/fulltext/audit_targeted_recovery_documents.py,160,169,10,8,columns,engine,doi | study_title | study_year | study_journal | publication_type
+G,n/a,engine,pipeline/fulltext/audit_targeted_recovery_documents.py,346,353,8,4,counts,engine,records | by_recovery_pass | by_final_outcome | by_recommended_staging_action
+G,n/a,engine,pipeline/fulltext/browser_download_triage.py,29,43,15,13,NO_ACCESS_PATTERNS,manual review,you do not have access | do not have access to this content | get access | purchase access | rent this article
+G,n/a,engine,pipeline/fulltext/browser_download_triage.py,44,54,11,9,COOKIE_PATTERNS,manual review,we use cookies | accept cookies | cookie policy | checking your browser | browser check
+G,n/a,engine,pipeline/fulltext/browser_download_triage.py,55,55,1,4,HTML_SUFFIXES,engine,.html | .htm | .xhtml | .shtml
+G,n/a,engine,pipeline/fulltext/browser_download_triage.py,249,261,13,14,record,manual review,file | filename | status | reason | orphan_html_companion_dir
+G,n/a,engine,pipeline/fulltext/build_article_text_inputs.py,198,210,13,11,fieldnames,engine,doi | packet_profile | section_selection_strategy | route_ids | domain_routes
+G,n/a,engine,pipeline/fulltext/build_article_text_inputs.py,249,288,40,29,report,engine,generated_at_utc | schema_version | route_table | source_identity_gate | enforced
+G,n/a,engine,pipeline/fulltext/build_browser_recovery_pilot.py,22,28,7,5,RESOLVER_OR_INDEX_HOSTS,engine,api.openalex.org | doi.org | dx.doi.org | openalex.org | pubmed.ncbi.nlm.nih.gov
+G,n/a,engine,pipeline/fulltext/build_browser_recovery_pilot.py,30,30,1,4,TIER_ORDER,manual review,A | B | C | D
+G,n/a,engine,pipeline/fulltext/build_browser_recovery_pilot.py,171,187,17,11,report,engine,scope_reports | candidate_rows | pilot_rows | candidate_tier_counts | candidate_failure_counts
+G,n/a,engine,pipeline/fulltext/build_doi_browser_host_pass.py,96,102,7,6,report,engine,schema_version | doi_browser_host_pass_queue_v1 | queue_rows | host_counts | output_csv
+G,n/a,engine,pipeline/fulltext/build_doi_browser_retry_queue.py,61,73,13,10,report,engine,schema_version | doi_browser_technical_retry_queue_v1 | ranked_rows | prior_browser_errors | excluded_nonarticle_or_invalid_hints
+G,n/a,engine,pipeline/fulltext/build_fulltext_enrichment_worklist.py,550,625,76,48,report,engine,schema_version | fulltext_enrichment_worklist_report_v5 | generated_at_utc | inputs | queue_json
+G,n/a,engine,pipeline/fulltext/build_high_confidence_manual_pdf_queue.py,62,69,8,4,params,engine,"filter | per-page | select | id,doi,display_name,publication_year,typ"
+G,n/a,engine,pipeline/fulltext/build_high_confidence_manual_pdf_queue.py,199,211,13,12,report,engine,schema_version | manual_pdf_recovery_high_confidence_v1 | generated_at_utc | source_queue_rows | local_candidates
+G,n/a,engine,pipeline/fulltext/build_historical_fulltext_backfill.py,277,319,43,40,report,engine,schema_version | historical_fulltext_backfill_report_v2 | generated_at_utc | inputs | active_extraction_pointer
+G,n/a,engine,pipeline/fulltext/build_live_chrome_session_batch.py,34,39,6,1,NONARTICLE_RE,manual review,conference|poster|proceeding|abstract|di
+G,n/a,engine,pipeline/fulltext/build_live_chrome_session_batch.py,142,147,6,16,columns,engine,doi | study_title | study_year | study_journal | publication_type
+G,n/a,engine,pipeline/fulltext/build_live_chrome_session_batch.py,232,236,5,15,order,engine,batch_order | doi | study_title | study_year | study_journal
+G,n/a,engine,pipeline/fulltext/build_live_chrome_session_batch.py,242,280,39,33,report,engine,schema_version | external_chrome_session_bound_pdf_batch_ | generated_at_utc | staging_only | browser_opened
+G,n/a,engine,pipeline/fulltext/build_llm_evidence_packets.py,54,64,11,9,PRIMARY_EMPIRICAL_EXCLUDED_SECTION_TYPES,manual review,introduction | discussion | conclusion | limitations | funding
+G,n/a,engine,pipeline/fulltext/build_llm_evidence_packets.py,66,80,15,13,PRIMARY_EMPIRICAL_EXCLUDED_HEADING_MARKERS,manual review,introduction | background | discussion | comment | commentary
+G,n/a,engine,pipeline/fulltext/build_llm_evidence_packets.py,157,163,7,5,NON_EVIDENCE_SECTION_TYPES,engine,funding | conflicts | ethics | data_availability | supplement
+G,n/a,engine,pipeline/fulltext/build_llm_evidence_packets.py,165,172,8,6,SECONDARY_SYNTHESIS_CORE_SECTION_TYPES,engine,abstract | methods | results | discussion | conclusion
+G,n/a,engine,pipeline/fulltext/build_llm_evidence_packets.py,218,225,8,6,REVIEW_COVERAGE_CORE_SECTION_TYPES,engine,abstract | methods | results | discussion | conclusion
+G,n/a,engine,pipeline/fulltext/build_llm_evidence_packets.py,263,269,7,5,SECONDARY_SOURCE_FAMILIES,engine,evidence_synthesis | opinion_or_commentary | protocol | correction | conference_abstract
+G,n/a,engine,pipeline/fulltext/build_llm_evidence_packets.py,271,303,33,31,PAPER_METADATA_FIELDS,engine,study_doi | openalex_id | pmid | pmcid | study_title
+G,n/a,engine,pipeline/fulltext/build_llm_evidence_packets.py,523,529,7,5,payload,engine,xml_id | label | caption | section_heading | text
+G,n/a,engine,pipeline/fulltext/build_llm_evidence_packets.py,554,561,8,8,payload,engine,table_id | xml_id | label |  | caption
+G,n/a,engine,pipeline/fulltext/build_llm_evidence_packets.py,987,992,6,4,compact,manual review,compound | entity | study_title | study_year
+G,n/a,engine,pipeline/fulltext/build_local_pdf_conversion_selection.py,178,183,6,4,required,engine,doi | selected_for_downstream | fulltext_enrichment_needed | fulltext_enrichment_action
+G,n/a,engine,pipeline/fulltext/build_local_pdf_conversion_selection.py,206,206,1,4,required,engine,doi | retained_for_extraction_candidate | route_action | local_pdf_paths
+G,n/a,engine,pipeline/fulltext/build_local_pdf_conversion_selection.py,409,447,39,33,report,engine,schema_version | local_pdf_conversion_selection_report_v2 | generated_at_utc | inputs | candidate_table
+G,n/a,engine,pipeline/fulltext/build_manual_pdf_exploration_queue.py,40,44,5,14,REPOSITORY_HOST_MARKERS,engine,repository | eprints | scholarworks | dspace | zenodo
+G,n/a,engine,pipeline/fulltext/build_manual_pdf_exploration_queue.py,45,48,4,12,PUBLISHER_HOST_MARKERS,engine,wiley | tandfonline | sciencedirect | elsevier | springer
+G,n/a,engine,pipeline/fulltext/build_manual_pdf_exploration_queue.py,49,56,8,6,LANE_LABELS,engine,direct_pdf_browser_rescue | oa_repository_or_open_journal_landing | oa_publisher_or_doi_clickthrough | lower_confidence_or_metadata_conflict | identity_publication_format_or_language_
+G,n/a,engine,pipeline/fulltext/build_manual_pdf_exploration_queue.py,57,91,35,33,QUEUE_COLUMNS,engine,queue_rank | priority_lane | priority_group | priority_reason | doi
+G,n/a,engine,pipeline/fulltext/build_manual_pdf_exploration_queue.py,336,351,16,14,columns,engine,host_pattern_rank | route_host | route_host_class | candidate_count | high_priority_count
+G,n/a,engine,pipeline/fulltext/build_manual_pdf_exploration_queue.py,444,445,2,5,outputs,engine,queue | host_summary | scout | scout_html | report
+G,n/a,engine,pipeline/fulltext/build_manual_pdf_exploration_queue.py,450,462,13,20,report,engine,schema_version | manual_pdf_recovery_priority_report_v1 | generated_at_utc | policy | scope
+G,n/a,engine,pipeline/fulltext/build_targeted_pdf_recovery_queue.py,43,50,8,6,RESOLVER_HOSTS,engine,doi.org | dx.doi.org | api.openalex.org | openalex.org | pubmed.ncbi.nlm.nih.gov
+G,n/a,engine,pipeline/fulltext/build_targeted_pdf_recovery_queue.py,52,52,1,4,ENGLISH,engine, | en | eng | english
+G,n/a,engine,pipeline/fulltext/build_targeted_pdf_recovery_queue.py,53,77,25,23,CHROME_ONLY_HOSTS,engine,academic.oup.com | onlinelibrary.wiley.com | analyticalsciencejournals.onlinelibrary. | associationofanaesthetists-publications. | bpspubs.onlinelibrary.wiley.com
+G,n/a,engine,pipeline/fulltext/build_targeted_pdf_recovery_queue.py,78,104,27,25,REPOSITORY_HINTS,engine,repository | repo. | eprint | espace. | opus.
+G,n/a,engine,pipeline/fulltext/build_targeted_pdf_recovery_queue.py,109,131,23,63,VERIFIED_DIRECT_OVERRIDES,engine,10.5167/uzh-291670 | zora_dspace_bitstream | https://www.zora.uzh.ch/server/api/core/ | 10.5167/uzh-280475 | zora_dspace_bitstream
+G,n/a,engine,pipeline/fulltext/build_targeted_pdf_recovery_queue.py,212,221,10,8,fields,engine,open_access_url_rank | best_pdf_url_rank | pdf_url_candidates_rank | open_access_url | best_pdf_url
+G,n/a,engine,pipeline/fulltext/build_targeted_pdf_recovery_queue.py,432,440,9,10,candidate,engine,priority | A0 | priority_score | retrieval_mode | automated_verified_repository_direct_pdf
+G,n/a,engine,pipeline/fulltext/build_targeted_pdf_recovery_queue.py,451,459,9,10,candidate,engine,priority | A1 | priority_score | retrieval_mode | external_chrome_confirmed_pdf_control
+G,n/a,engine,pipeline/fulltext/build_targeted_pdf_recovery_queue.py,470,478,9,9,candidate,engine,priority | A2 | priority_score | retrieval_mode | repository_api_then_direct
+G,n/a,engine,pipeline/fulltext/build_targeted_pdf_recovery_queue.py,489,497,9,8,candidate,engine,priority | priority_score | retrieval_mode | route_type | route_url
+G,n/a,engine,pipeline/fulltext/build_targeted_pdf_recovery_queue.py,500,508,9,11,candidate,engine,priority | C2 | priority_score | retrieval_mode | external_chrome_waf_session
+G,n/a,engine,pipeline/fulltext/build_targeted_pdf_recovery_queue.py,511,519,9,10,candidate,engine,priority | D1 | priority_score | retrieval_mode | single_automated_doi_retry
+G,n/a,engine,pipeline/fulltext/build_targeted_pdf_recovery_queue.py,566,605,40,34,report,engine,schema_version | targeted_pdf_recovery_queue_v1 | generated_at_utc | staging_only | candidate_table_modified
+G,n/a,engine,pipeline/fulltext/convert_pdfs.py,104,104,1,5,current,engine,heading | Document | level | text | 
+G,n/a,engine,pipeline/fulltext/convert_pdfs.py,111,115,5,4,current,engine,heading | level | text | 
+G,n/a,engine,pipeline/fulltext/convert_pdfs.py,325,325,1,5,cmd,engine,pdftotext | -layout | -enc | UTF-8 | -
+G,n/a,engine,pipeline/fulltext/convert_pdfs.py,394,407,14,13,artifact,engine,schema_version | 0.1 | created_at_utc | dataset | study_doi
+G,n/a,engine,pipeline/fulltext/convert_routed_local_pdfs.py,488,515,28,22,report,engine,generated_at_utc | route_table | selection_table | metadata_table | candidate_table
+G,n/a,engine,pipeline/fulltext/download_routed_pdfs.py,80,92,13,11,TASK_METADATA_COLUMNS,engine,doi | study_title | study_year | open_access_status | pmid
+G,n/a,engine,pipeline/fulltext/download_routed_pdfs.py,93,103,11,9,CANDIDATE_STATUS_COLUMNS,engine,doi | pdf_download_status | pdf_local_path | pdf_download_failure_category | pdf_download_failure_categories
+G,n/a,engine,pipeline/fulltext/download_routed_pdfs.py,600,614,15,8,annotated,engine,candidate_pdf_download_status | candidate_pdf_local_path | candidate_pdf_failure_category | candidate_pdf_failure_categories | candidate_pdf_retry_recommended
+G,n/a,engine,pipeline/fulltext/download_routed_pdfs.py,639,659,21,33,defaults,engine,pdf_local_path |  | local_pdf_paths |  | local_pdf_count
+G,n/a,engine,pipeline/fulltext/download_routed_pdfs.py,696,702,7,5,updates,engine,best_pdf_url | pdf_url_candidates | probable_pdf_url_candidates | other_url_candidates | pdf_url_quality
+G,n/a,engine,pipeline/fulltext/download_routed_pdfs.py,1104,1124,21,17,result,engine,status | error | selected_url | pdf_url_candidates | attempted_pdf_url_candidates
+G,n/a,engine,pipeline/fulltext/download_routed_pdfs.py,1521,1541,21,17,result,engine,status | error | selected_url | pdf_url_candidates | attempted_pdf_url_candidates
+G,n/a,engine,pipeline/fulltext/download_routed_pdfs.py,1608,1655,48,42,report,engine,generated_at_utc | complete | dry_run | route_table | selection_table
+G,n/a,engine,pipeline/fulltext/export_browser_recovery_document_audit.py,32,43,12,10,payload,engine,schema_version | browser_recovery_document_audit_v2 | generated_at_utc | staging_only | input_csv
+G,n/a,engine,pipeline/fulltext/export_manual_pdf_queue.py,29,37,9,7,TERMINAL_MANUAL_STATUSES,engine,article_pdf_recovered | closed_access | duplicate_of_canonical | excluded_publication_format | invalid_nonresolving_doi
+G,n/a,engine,pipeline/fulltext/export_manual_pdf_queue.py,38,61,24,22,QUEUE_COLUMNS,engine,doi | suggested_pdf_filename | canonical_pdf_path | study_title | study_year
+G,n/a,engine,pipeline/fulltext/export_manual_pdf_queue.py,62,78,17,15,QUEUE_LOOKUP_COLUMNS,engine,doi | study_title | study_year | study_journal | pmid
+G,n/a,engine,pipeline/fulltext/export_manual_pdf_queue.py,305,319,15,13,summary,engine,route_table | selection_table | source_table | source_kind | candidate_table
+G,n/a,engine,pipeline/fulltext/fetch_pmc_fulltext_xml.py,304,323,20,22,artifact,engine,schema_version | 0.1 | created_at_utc | dataset | articles
+G,n/a,engine,pipeline/fulltext/fetch_pmc_fulltext_xml.py,597,606,10,10,record,manual review,doi | pmcid | artifact_path | status | error
+G,n/a,engine,pipeline/fulltext/fetch_pmc_fulltext_xml.py,706,729,24,20,report,engine,complete | generated_at_utc | inputs | routes_table | selection_table
+G,n/a,engine,pipeline/fulltext/import_manual_pdfs.py,53,72,20,18,STOPWORDS,engine,about | after | among | based | between
+G,n/a,engine,pipeline/fulltext/import_manual_pdfs.py,381,387,7,5,url_fields,engine,best_pdf_url | open_access_url | pdf_url_candidates | probable_pdf_url_candidates | other_url_candidates
+G,n/a,engine,pipeline/fulltext/import_manual_pdfs.py,466,466,1,4,required,engine,file_sha256 | requested_doi | final_outcome | recommended_staging_action
+G,n/a,engine,pipeline/fulltext/import_manual_pdfs.py,499,512,14,12,identity_columns,engine,doi | study_title | title | retained_for_extraction_candidate | post_retrieval_decision
+G,n/a,engine,pipeline/fulltext/import_manual_pdfs.py,796,805,10,8,summary,engine,candidate_table | apply | eligible_import_rows | candidate_rows_updated | candidate_rows_matched
+G,n/a,engine,pipeline/fulltext/import_manual_pdfs.py,831,843,13,15,updates,engine,pdf_local_path | local_pdf_paths | local_pdf_count | pdf_sha256 | pdf_download_status
+G,n/a,engine,pipeline/fulltext/import_manual_pdfs.py,916,921,6,4,base,engine,file | source_sha256 | apply | move
+G,n/a,engine,pipeline/fulltext/import_manual_pdfs.py,924,924,1,5,row,manual review,status | invalid_pdf | reason | file_does_not_start_with_pdf_header | destination
+G,n/a,engine,pipeline/fulltext/import_manual_pdfs.py,960,965,6,4,row,manual review,status | needs_review | reason | candidate_matches_json
+G,n/a,engine,pipeline/fulltext/import_manual_pdfs.py,986,997,12,10,skipped_row,engine,status | skipped_not_retained_for_extraction | doi | match_basis | study_title
+G,n/a,engine,pipeline/fulltext/import_manual_pdfs.py,1008,1016,9,7,row,manual review,status | matched | doi | match_basis | study_title
+G,n/a,engine,pipeline/fulltext/import_manual_pdfs.py,1062,1072,11,9,counts,engine,inbox_pdf_files | imported_or_matched | new_imports | replaced_existing | already_present
+G,n/a,engine,pipeline/fulltext/import_manual_pdfs.py,1073,1099,27,22,report,engine,generated_at_utc | inputs | inbox_dir | pdf_dir | manual_csv
+G,n/a,engine,pipeline/fulltext/pdf_alternate_sources.py,33,58,26,24,PUBLISHER_HOST_HINTS,engine,academic.oup.com | akjournals.com | aspetjournals.org | biologicalpsychiatryjournal.com | bmj.com
+G,n/a,engine,pipeline/fulltext/pdf_alternate_sources.py,60,75,16,14,REPOSITORY_NAME_HINTS,engine,archive | deep blue | dspace | edoc | escholarship
+G,n/a,engine,pipeline/fulltext/pdf_alternate_sources.py,77,97,21,19,STOPWORDS,engine,about | after | among | based | between
+G,n/a,engine,pipeline/fulltext/pdf_alternate_sources.py,303,309,7,5,patterns,engine,"<meta[^>]+name=[""']citation_pdf_url[""'][ | <meta[^>]+content=[""']([^""']+)[""'][^>]+n | href\s*=\s*[""']([^""']+\.pdf(?:\?[^""']*)? | href\s*=\s*[""']([^""']*view/pdfCoverPage\ | href\s*=\s*[""']([^""']*/server/api/core/b"
+G,n/a,engine,pipeline/fulltext/prepare_browser_doi_batch.py,21,21,1,5,PROGRESS_COLUMNS,engine,doi | study_title | browser_batch | manual_status | manual_notes
+G,n/a,engine,pipeline/fulltext/rank_manual_pdf_queue.py,27,27,1,4,TIER_ORDER,manual review,A | B | C | D
+G,n/a,engine,pipeline/fulltext/rank_manual_pdf_queue.py,28,42,15,13,PRIORITY_COLUMNS,engine,manual_priority_tier | manual_priority_score | manual_value_score | manual_recoverability_score | manual_host_class
+G,n/a,engine,pipeline/fulltext/rank_manual_pdf_queue.py,43,61,19,17,REPOSITORY_HOST_MARKERS,engine,biorxiv.org | medrxiv.org | osf.io | psyarxiv | figshare
+G,n/a,engine,pipeline/fulltext/rank_manual_pdf_queue.py,62,73,12,10,INSTITUTIONAL_HOST_MARKERS,engine,.edu | .ac. | harvard | cambridge | oxford
+G,n/a,engine,pipeline/fulltext/rank_manual_pdf_queue.py,74,87,14,12,PUBLISHER_HOST_MARKERS,engine,jamanetwork.com | journals.sagepub.com | onlinelibrary.wiley.com | tandfonline.com | sciencedirect.com
+G,n/a,engine,pipeline/fulltext/rank_manual_pdf_queue.py,310,317,8,6,failure_scores,engine,non_pdf_response | forbidden | provider_error | timeout | other_download_failure
+G,n/a,engine,pipeline/fulltext/rank_manual_pdf_queue.py,322,329,8,6,oa_scores,engine,gold | diamond | green | bronze | hybrid
+G,n/a,engine,pipeline/fulltext/rank_manual_pdf_queue.py,334,340,7,5,host_scores,engine,repository_or_preprint | institutional_repository | other_host | publisher_platform | no_url_host
+G,n/a,engine,pipeline/fulltext/rank_manual_pdf_queue.py,377,396,20,13,ranked,engine,manual_priority_tier | manual_priority_score | manual_value_score | manual_recoverability_score | manual_host_class
+G,n/a,engine,pipeline/fulltext/rank_manual_pdf_queue.py,433,448,16,14,report,engine,input_rows | output_csv | output_txt | browser_recovery_csv | doi_article_recovery_csv
+G,n/a,engine,pipeline/fulltext/reconcile_browser_recovery_batch.py,43,43,1,4,accepted,engine,matched | already_present | replaced_existing_pdf | conflict_existing_pdf
+G,n/a,engine,pipeline/fulltext/reconcile_browser_recovery_batch.py,124,130,7,6,report,engine,schema_version | browser_recovery_batch_reconciliation_v1 | generated_at_utc | batch_rows | status_counts
+G,n/a,engine,pipeline/fulltext/reconcile_browser_recovery_batch.py,175,179,5,4,replacement,engine,doi | manual_access_action | suppress_pdf_download | manual_reason
+G,n/a,engine,pipeline/fulltext/reconcile_browser_recovery_batch.py,264,273,10,16,status_map,engine,article_pdf_recovered | article_pdf_recovered | duplicate_of_canonical | duplicate_of_canonical | excluded_publication_format
+G,n/a,engine,pipeline/fulltext/recover_pdf_landing_pages.py,160,167,8,6,LANDING_PAGE_RECOVERY_HEADERS,engine,"User-Agent | Mozilla/5.0 (Macintosh; Intel Mac OS X 1 | Accept | application/pdf,text/html;q=0.9,*/*;q=0. | Accept-Language"
+G,n/a,engine,pipeline/fulltext/recover_pdf_landing_pages.py,169,182,14,12,CHALLENGE_MARKERS,engine,recaptcha | captcha | altcha | awswaf | aws waf
+G,n/a,engine,pipeline/fulltext/recover_pdf_landing_pages.py,184,191,8,6,NO_ANCHOR_PARSE_HOSTS,engine,link.springer.com | www.nature.com | onlinelibrary.wiley.com | academic.oup.com | journals.sagepub.com
+G,n/a,engine,pipeline/fulltext/recover_pdf_landing_pages.py,810,826,17,14,result,engine,doi | study_title | status | error | selected_url
+G,n/a,engine,pipeline/fulltext/recover_pdf_landing_pages.py,857,882,26,22,report,engine,generated_at_utc | dry_run | manual_csv | candidate_table | pdf_dir
+G,n/a,engine,pipeline/fulltext/register_retrieved_pdf_aliases.py,43,43,1,4,required,engine,requested_doi | foreign_front_dois | front_title_score | final_outcome
+G,n/a,engine,pipeline/fulltext/register_retrieved_pdf_aliases.py,128,136,9,7,report,engine,selected_aliases | added | updated | unchanged | registry_records_after
+G,n/a,engine,pipeline/fulltext/register_retrieved_pdf_exclusions.py,25,42,18,16,ALLOWED_FORMATS,engine,conference_abstract | conference_poster | dissertation_or_thesis | non_english_article | correspondence_or_letter
+G,n/a,engine,pipeline/fulltext/register_retrieved_pdf_exclusions.py,324,336,13,11,report,engine,audit_files | audit_exclusions | browser_url_exclusions | legacy_post_retrieval_exclusions | ledger_records_before
+G,n/a,engine,pipeline/fulltext/resolve_artifact_pmcids.py,157,164,8,6,report,engine,artifact_dir | metadata_table | doi_count | counts | request_errors
+G,n/a,engine,pipeline/fulltext/run_local_pdf_conversion_pipeline.py,178,193,16,6,cmd,engine,--image | --container | --config | --concurrency | --pdfalto-memory-mb
+G,n/a,engine,pipeline/fulltext/run_local_pdf_conversion_pipeline.py,202,240,39,19,cmd,engine,--backend | grobid | --doi-file | --report | --route-table
+G,n/a,engine,pipeline/fulltext/run_local_pdf_conversion_pipeline.py,261,280,20,8,cmd,engine,--metadata-table | --prescreen-decisions-table | --fulltext-dir | --source-identity-audit | --paper-root
+G,n/a,engine,pipeline/fulltext/run_local_pdf_conversion_pipeline.py,360,369,10,8,result,engine,batch_index | doi_count | doi_file | report | start
+G,n/a,engine,pipeline/fulltext/run_local_pdf_conversion_pipeline.py,413,420,8,6,retry_record,engine,doi | doi_file | report | start | convert
+G,n/a,engine,pipeline/fulltext/run_local_pdf_conversion_pipeline.py,602,614,13,11,payload,engine,generated_at_utc | status | queue_size | excluded_dois | selection_table
+G,n/a,engine,pipeline/fulltext/run_pdf_retrieval_pipeline.py,206,238,33,26,report,engine,generated_at_utc | dry_run | standard_recovery_enabled | route_table | selection_table
+G,n/a,engine,pipeline/fulltext/source_identity.py,23,29,7,5,VERIFIED_IDENTITY_STATUSES,engine,verified_exact_doi | verified_identity_override | verified_related_doi | verified_title_only | verified_curated_pdf_hash
+G,n/a,engine,pipeline/fulltext/source_identity.py,34,57,24,22,STOPWORDS,engine,about | after | among | and | article
+G,n/a,engine,pipeline/fulltext/source_identity_audit_gate.py,30,33,4,4,REGISTRY_FIELDS,engine,identity_registry | identity registry | pdf_hash_attestation_registry | PDF hash-attestation registry
+G,n/a,engine,pipeline/fulltext/stage_retrieved_pdf_audit.py,41,47,7,10,DESTINATION_BY_ACTION,engine,exclude_publication_format | excluded_publication_format | quarantine_identity_review | identity_review | quarantine_wrong_document
+G,n/a,engine,pipeline/fulltext/stage_retrieved_pdf_audit.py,59,66,8,8,action_map,engine,eligible_for_import | import_validated_article_pdf | identity_review | quarantine_identity_review | do_not_import_as_article_pdf
+G,n/a,engine,pipeline/fulltext/stage_retrieved_pdf_audit.py,130,142,13,5,item,engine,doi | publication_format | recommended_action | source | status
+G,n/a,engine,pipeline/fulltext/stage_retrieved_pdf_audit.py,159,167,9,8,payload,engine,schema_version | retrieved_pdf_audit_staging_v1 | generated_at_utc | apply | audit_csv
+G,n/a,engine,pipeline/fulltext/start_grobid.py,87,97,11,7,cmd,engine,docker | run | -d | --name | -p
+G,n/a,engine,pipeline/ingest/abstract_quality.py,18,24,7,5,PROVIDER_PRIORITY,engine,pubmed | pmc | crossref | semantic_scholar | openalex
+G,n/a,engine,pipeline/ingest/abstract_quality.py,28,35,8,6,NAVIGATION_PHRASES,engine,back to table of contents previous artic | full text figures and data side by side  | article figures and data abstract | article and author information | download citation track citations permis
+G,n/a,engine,pipeline/ingest/abstract_quality.py,40,43,4,1,COLLECTION_TITLE_RE,manual review,\b(?:congress|conference|annual meeting|
+G,n/a,engine,pipeline/ingest/abstract_quality.py,44,47,4,1,COLLECTION_BODY_RE,manual review,\b(?:no\.\s*:\s*abs\d+|abstract\s*(?:no\
+G,n/a,engine,pipeline/ingest/abstract_quality.py,50,56,7,1,NON_ABSTRACT_LEADING_TEXT_RE,manual review,(?:click to (?:increase|decrease) image 
+G,n/a,engine,pipeline/ingest/abstract_quality.py,57,61,5,1,NON_ABSTRACT_LEADING_TITLE_RE,manual review,(?:^review:|\b(?:editorial|book review|w
+G,n/a,engine,pipeline/ingest/abstract_quality.py,62,69,8,6,SECTION_PATTERNS,engine,introduction | methods | results | discussion | references
+G,n/a,engine,pipeline/ingest/abstract_quality.py,98,103,6,8,aliases,engine,semantic_scholar_api | semantic_scholar | s2 | semantic_scholar | pub_med
+G,n/a,engine,pipeline/ingest/audit_paper_funding.py,184,184,1,4,award_columns,engine,award_id | award_name | award_openalex_id | award_doi
+G,n/a,engine,pipeline/ingest/audit_paper_funding.py,307,312,6,4,provenance_fields,engine,provider_record_id | retrieval_run_id | retrieved_at_utc | source_payload_sha256
+G,n/a,engine,pipeline/ingest/audit_paper_funding.py,347,377,31,17,integrity_checks,engine,scope_dois_unique | provider_matrix_complete | all_latest_attempts_terminal | no_latest_provider_errors | assertion_keys_unique
+G,n/a,engine,pipeline/ingest/audit_paper_research_resources.py,53,67,15,13,RESOURCE_COLUMNS,engine,paper_doi | resource_id | resource_id_type | resource_url | resource_title
+G,n/a,engine,pipeline/ingest/audit_paper_research_resources.py,72,82,11,27,RESOURCE_DOI_PREFIXES,engine,10.5061/dryad. | dryad | dataset | 10.5281/zenodo. | zenodo
+G,n/a,engine,pipeline/ingest/audit_paper_research_resources.py,84,101,18,53,REPOSITORY_URL_PATTERNS,engine,dryad | dataset | datadryad.org | doi.org/10.5061/dryad | zenodo
+G,n/a,engine,pipeline/ingest/audit_paper_research_resources.py,103,107,5,1,DATA_HEADING_RE,manual review,\b(data(?:\s+and\s+materials)?\s+availab
+G,n/a,engine,pipeline/ingest/audit_paper_research_resources.py,108,112,5,1,PUBLIC_REPOSITORY_RE,manual review,\b(public(?:ly)?\s+(?:available|accessib
+G,n/a,engine,pipeline/ingest/audit_paper_research_resources.py,113,116,4,1,AVAILABLE_ON_REQUEST_RE,manual review,"\b(?:data|materials|code).{0,80}\bavaila"
+G,n/a,engine,pipeline/ingest/audit_paper_research_resources.py,117,121,5,1,INCLUDED_IN_ARTICLE_RE,manual review,"\b(?:data|information).{0,100}\b(?:inclu"
+G,n/a,engine,pipeline/ingest/audit_paper_research_resources.py,122,126,5,1,NO_NEW_DATA_RE,manual review,\bno\s+(?:new|novel)\s+(?:data|datasets?
+G,n/a,engine,pipeline/ingest/audit_paper_research_resources.py,129,144,16,12,ACCESSION_PATTERNS,engine,geo | dataset | bioproject | dataset | clinicaltrials
+G,n/a,engine,pipeline/ingest/audit_paper_research_resources.py,268,279,12,10,direct_terms,engine,available | deposited | archived | data | code
+G,n/a,engine,pipeline/ingest/audit_paper_research_resources.py,777,782,6,8,params,engine,dbfrom | pubmed | cmd | llinks | retmode
+G,n/a,engine,pipeline/ingest/audit_paper_research_resources.py,1001,1019,19,4,overlap_counts,engine,datacite_only | pubmed_linkout_only | both | neither
+G,n/a,engine,pipeline/ingest/audit_paper_research_resources.py,1179,1187,9,7,required,engine,doi | study_title | study_year | pmid | pmcid
+G,n/a,engine,pipeline/ingest/audit_trial_data_sharing.py,145,150,6,5,params,engine,filter.ids | pageSize | format | json | fields
+G,n/a,engine,pipeline/ingest/audit_trial_data_sharing.py,175,185,11,10,log,engine,provider | clinicaltrials_gov | endpoint | requested_ids | returned_studies
+G,n/a,engine,pipeline/ingest/candidate_status.py,52,62,11,10,summary,engine,candidate_table | dry_run | update_rows | matched_candidate_rows | updated_candidate_rows
+G,n/a,engine,pipeline/ingest/enrich_paper_funding.py,257,264,8,6,report,engine,scope_mode | screened_or_retained_dois | curated_screening_exclusions | doi_file_dois | duplicate_aliases_suppressed
+G,n/a,engine,pipeline/ingest/enrich_paper_funding.py,291,297,7,5,settings,engine,openalex_email | openalex_api_key | ncbi_email | ncbi_api_key | crossref_email
+G,n/a,engine,pipeline/ingest/enrich_paper_funding.py,698,715,18,15,report,engine,schema_version | funding_enrichment_report_v1 | run_id | started_at_utc | inputs
+G,n/a,engine,pipeline/ingest/enrich_paper_metadata.py,41,85,45,43,OUTPUT_COLUMNS,engine,doi | study_title | study_year | authors | abstract
+G,n/a,engine,pipeline/ingest/enrich_paper_metadata.py,90,109,20,18,IDENTITY_METADATA_FIELDS,engine,study_title | study_year | authors | abstract | study_journal
+G,n/a,engine,pipeline/ingest/enrich_paper_metadata.py,275,282,8,5,paper,engine,study_doi | study_title | study_year | authors | abstract
+G,n/a,engine,pipeline/ingest/enrich_paper_metadata.py,397,406,10,6,settings,engine,openalex_email | openalex_api_key | semantic_scholar_api_key | ncbi_email | ncbi_api_key
+G,n/a,engine,pipeline/ingest/enrich_paper_metadata.py,416,461,46,6,clients,engine,openalex | pubmed | pmc | crossref | unpaywall
+G,n/a,engine,pipeline/ingest/enrich_paper_metadata.py,559,567,9,14,provider_settings,engine,openalex_email |  | openalex_api_key |  | semantic_scholar_api_key
+G,n/a,engine,pipeline/ingest/enrich_paper_open_science.py,94,111,18,16,ATTEMPT_COLUMNS,engine,schema_version | provider | request_kind | request_index | endpoint
+G,n/a,engine,pipeline/ingest/enrich_paper_open_science.py,113,132,20,18,TRIAL_RECORD_COLUMNS,engine,schema_version | nct_id | nct_id_aliases | clinicaltrials_url | brief_title
+G,n/a,engine,pipeline/ingest/enrich_paper_open_science.py,134,148,15,13,DATACITE_RECORD_COLUMNS,engine,schema_version | resource_doi | resource_url | resource_title | resource_type_general
+G,n/a,engine,pipeline/ingest/enrich_paper_open_science.py,150,181,32,30,SUMMARY_COLUMNS,engine,schema_version | doi | has_registered_trial | registered_trial_ids | registered_trial_urls
+G,n/a,engine,pipeline/ingest/enrich_paper_open_science.py,285,294,10,8,required,engine,doi | pmid | study_title | abstract | publication_type
+G,n/a,engine,pipeline/ingest/enrich_paper_open_science.py,457,476,20,16,attempt_row,engine,schema_version | provider | request_kind | request_index | endpoint
+G,n/a,engine,pipeline/ingest/enrich_paper_open_science.py,1035,1038,4,4,mappings,engine,shares_data | has_open_data | shares_code | has_shared_code
+G,n/a,engine,pipeline/ingest/enrich_paper_open_science.py,1312,1327,16,6,paths,engine,assertions | resource_candidates | trial_records | datacite_records | provider_attempts
+G,n/a,engine,pipeline/ingest/enrich_paper_open_science.py,1487,1503,17,7,output_paths,engine,assertions | features | resource_candidates | trial_records | datacite_records
+G,n/a,engine,pipeline/ingest/funding_metadata.py,23,44,22,20,ASSERTION_COLUMNS,engine,schema_version | assertion_key | doi | provider | provider_record_id
+G,n/a,engine,pipeline/ingest/funding_metadata.py,46,60,15,13,ATTEMPT_COLUMNS,engine,schema_version | doi | provider | provider_record_id | lookup_identifier
+G,n/a,engine,pipeline/ingest/funding_metadata.py,68,78,11,9,FUNDING_VALUE_FIELDS,engine,funder_name | funder_acronym | funder_openalex_id | funder_ror_id | funder_crossref_id
+G,n/a,engine,pipeline/ingest/funding_metadata.py,113,126,14,12,identity_fields,engine,doi | provider | source_field | funder_name | funder_acronym
+G,n/a,engine,pipeline/ingest/materialize_candidate_funding.py,33,41,9,7,SUMMARY_COLUMNS,engine,funders | grant_ids | funding_metadata_status | funding_providers | funding_assertion_count
+G,n/a,engine,pipeline/ingest/materialize_candidate_funding.py,225,232,8,6,report,engine,paper_rows | paper_dois | papers_in_funding_scope | papers_with_reported_funding | papers_not_enriched
+G,n/a,engine,pipeline/ingest/materialize_paper_open_science.py,34,63,30,56,SOURCE_TO_PAPER_FIELDS,engine,has_registered_trial | has_registered_trial | registered_trial_ids | registered_trial_ids | registered_trial_urls
+G,n/a,engine,pipeline/ingest/materialize_paper_open_science.py,65,71,7,5,BOOLEAN_PAPER_FIELDS,engine,has_registered_trial | has_open_data | has_shared_code | has_preregistered | open_science_has_fulltext_evidence_sourc
+G,n/a,engine,pipeline/ingest/materialize_paper_open_science.py,72,79,8,6,COUNT_PAPER_FIELDS,engine,registered_trial_count | open_data_resource_count | shared_code_resource_count | preregistration_count | open_science_feature_count
+G,n/a,engine,pipeline/ingest/materialize_paper_open_science.py,164,183,20,5,report,engine,paper_rows | papers_in_open_science_scope | papers_not_enriched | papers_with_any_open_science_feature | feature_counts
+G,n/a,engine,pipeline/ingest/metadata_utils.py,30,30,1,6,DEFAULT_METADATA_PROVIDER_ORDER,engine,pubmed | pmc | unpaywall | crossref | openalex
+G,n/a,engine,pipeline/ingest/metadata_utils.py,32,53,22,20,PAPER_METADATA_FIELDS,engine,study_journal | journal_volume | journal_issue | journal_pages | publication_type
+G,n/a,engine,pipeline/ingest/metadata_utils.py,54,59,6,4,PLACEHOLDER_EMAILS,engine,test@example.com | you@example.com | your_real_email@domain.org | your_email@example.com
+G,n/a,engine,pipeline/ingest/metadata_utils.py,442,455,14,24,month_map,engine,jan | 01 | feb | 02 | mar
+G,n/a,engine,pipeline/ingest/metadata_utils.py,1532,1540,9,7,strong_path_markers,engine,/pdf/ | /pdfdirect/ | /content/pdf/ | /articlepdf/ | /doi/pdf/
+G,n/a,engine,pipeline/ingest/metadata_utils.py,1543,1549,7,5,file_path_markers,engine,/files/ | /fulltext | /full-text | /accepted-manuscript | /manuscript
+G,n/a,engine,pipeline/ingest/metadata_utils.py,1838,1838,1,5,OPEN_ACCESS_STATUSES,engine,gold | green | hybrid | bronze | diamond
+G,n/a,engine,pipeline/ingest/metadata_utils.py,1839,1839,1,5,CLOSED_ACCESS_STATUSES,engine,closed | not oa | not open access | paywalled | false
+G,n/a,engine,pipeline/ingest/metadata_utils.py,2060,2060,1,6,allowed,engine,openalex | pubmed | pmc | crossref | unpaywall
+G,n/a,engine,pipeline/ingest/open_science_features.py,45,64,20,18,ASSERTION_COLUMNS,engine,schema_version | assertion_key | doi | feature | identifier
+G,n/a,engine,pipeline/ingest/open_science_features.py,66,82,17,15,RESOURCE_CANDIDATE_COLUMNS,engine,doi | resource_id | resource_id_type | resource_url | repository
+G,n/a,engine,pipeline/ingest/open_science_features.py,101,112,12,30,RESOURCE_DOI_PREFIXES,engine,10.5061/dryad. | dryad | dataset | 10.5281/zenodo. | zenodo
+G,n/a,engine,pipeline/ingest/open_science_features.py,114,134,21,51,REPOSITORY_URL_PATTERNS,engine,dryad | dataset | datadryad.org | doi.org/10.5061/dryad | zenodo
+G,n/a,engine,pipeline/ingest/open_science_features.py,136,143,8,4,ACCESSION_PATTERNS,engine,geo | dataset | bioproject | dataset
+G,n/a,engine,pipeline/ingest/open_science_features.py,145,171,27,6,SPACED_RESOURCE_DOI_PATTERNS,engine,dryad | dataset | zenodo | research_resource | figshare
+G,n/a,engine,pipeline/ingest/open_science_features.py,173,181,9,1,REGISTRATION_STATEMENT_RE,manual review,(?:\b(?:this|the|our)\s+(?:clinical\s+)?
+G,n/a,engine,pipeline/ingest/open_science_features.py,183,188,6,1,PREREGISTRATION_RE,manual review,\b(?:pre[\s-]?registered|preregistered|p
+G,n/a,engine,pipeline/ingest/open_science_features.py,189,202,14,1,FOCAL_PREREGISTRATION_RE,manual review,(?:\b(?:this|our|the\s+(?:current|presen
+G,n/a,engine,pipeline/ingest/open_science_features.py,204,208,5,1,DATA_SECTION_RE,manual review,\b(?:data(?:\s+and\s+materials)?\s+avail
+G,n/a,engine,pipeline/ingest/open_science_features.py,305,314,10,1,DATA_RESTRICTED_OR_PLANNED_RE,manual review,"\b(?:(?:data|datasets?).{0,120}(?:not\s+"
+G,n/a,engine,pipeline/ingest/open_science_features.py,315,320,6,1,EXTERNAL_DATA_RE,manual review,\b(?:we\s+(?:downloaded|obtained|retriev
+G,n/a,engine,pipeline/ingest/open_science_features.py,321,328,8,1,FOCAL_RESOURCE_RE,manual review,\b(?:this\s+study|current\s+study|our\s+
+G,n/a,engine,pipeline/ingest/open_science_features.py,329,333,5,1,GENERIC_SOFTWARE_RE,manual review,\b(?:third[\s-]party|toolbox|software\s+
+G,n/a,engine,pipeline/ingest/open_science_features.py,352,361,10,8,fields,engine,doi | feature | identifier | url | provider
+G,n/a,engine,pipeline/ingest/open_science_features.py,561,567,7,10,element_pairs,engine,<ref-list | </ref-list> | <listbibl | </listbibl> | <biblstruct
+G,n/a,engine,pipeline/ingest/preprint_detection.py,37,47,11,9,PREPRINT_URL_MARKERS,engine,biorxiv.org | medrxiv.org | psyarxiv.com | osf.io/preprints | arxiv.org
+G,n/a,engine,pipeline/ingest/refresh_open_access_links.py,57,63,7,5,OA_FIELDS,engine,open_access_is_oa | open_access_status | open_access_url | best_pdf_url | pdf_url_candidates
+G,n/a,engine,pipeline/ingest/refresh_paper_titles.py,32,32,1,5,TITLE_RISK_PROVIDERS,engine, | crossref | unpaywall | openalex | semantic_scholar
+G,n/a,engine,pipeline/ingest/refresh_pubmed_publication_types.py,121,124,4,1,format_pattern,engine,preprint|conference|meeting abstract|pos
+G,n/a,engine,pipeline/ingest/refresh_pubmed_publication_types.py,350,360,11,14,report,engine,generated_at_utc | status | prepared | dry_run | requested_pmids
+G,n/a,engine,pipeline/ingest/repair_abstract_contamination.py,548,560,13,11,manifest,engine,schema_version | run_id | status | auditing | created_at_utc
+G,n/a,engine,pipeline/ingest/repair_abstract_contamination.py,723,732,10,5,recovery_summary,engine,provider_attempt_rows | valid_abstracts_recovered | provider_abstracts_rejected_as_contamina | unresolved_after_recovery | status_counts_by_provider
+G,n/a,engine,pipeline/ingest/run_batch_abstract_enrichment.py,62,73,12,10,RESULT_COLUMNS,engine,run_id | provider | batch_id | doi | provider_record_id
+G,n/a,engine,pipeline/ingest/run_batch_abstract_enrichment.py,1088,1088,1,4,priority,engine,pubmed | pmc | crossref | semantic_scholar
+G,n/a,engine,pipeline/ingest/run_batch_abstract_enrichment.py,1237,1248,12,11,manifest,engine,schema_version | run_id | status | planned | created_at_utc
+G,n/a,engine,pipeline/ingest/run_batch_abstract_enrichment.py,1448,1461,14,10,summary,engine,schema_version | batch_abstract_enrichment_summary_v1 | run_id | generated_at_utc | scope_records
+G,n/a,engine,pipeline/ingest/run_standard_metadata_enrichment.py,92,113,22,9,command,engine,--papers-table | --output-table | --config | --run-id | --metadata-provider-order
+G,n/a,engine,pipeline/ingest/run_standard_metadata_enrichment.py,125,140,16,6,command,engine,--metadata-table | --candidate-table | --config | --progress-every | --timeout-sec
+G,n/a,engine,pipeline/ingest/run_standard_metadata_enrichment.py,150,167,18,7,command,engine,--metadata-table | --provider-order | --config | --write-every | --progress-every
+G,n/a,engine,pipeline/kg/assemble_combined_release.py,26,43,18,16,CANONICAL_PAPER_METADATA_FIELDS,engine,pmid | pmcid | openalex_id | study_title | study_year
+G,n/a,engine,pipeline/kg/assemble_combined_release.py,494,507,14,12,report,engine,base_input_rows | base_input_papers | base_rows_kept | base_rows_replaced | base_rows_removed_by_current_eligibility
+G,n/a,engine,pipeline/kg/assemble_combined_release.py,667,700,34,24,report,engine,schema_version | combined_routed_release_assembly_v1 | generated_at_utc | run_id | eligibility
+G,n/a,engine,pipeline/kg/assemble_routed_evidence_rows.py,133,155,23,17,report,engine,schema_version | routed_evidence_assembly_report_v2 | generated_at_utc | primary_replacement_mode | doi_aliases_applied
+G,n/a,engine,pipeline/kg/audit_saved_extraction_coverage.py,98,105,8,8,row,manual review,doi | family | task_id | profile | domain
+G,n/a,engine,pipeline/kg/audit_saved_extraction_coverage.py,160,160,1,19,summary,engine,schema_version | saved_extraction_coverage_audit_v1 | created_at_utc | release | kg
+G,n/a,engine,pipeline/kg/build_author_tables.py,54,63,10,8,UNKNOWN_AUTHOR_VALUES,engine, | unknown | unknown author | unknown authors | not available
+G,n/a,engine,pipeline/kg/build_author_tables.py,189,189,1,5,required_review_fields,engine,review_id | reason | sources | reviewed_at | reviewed_by
+G,n/a,engine,pipeline/kg/build_author_tables.py,279,279,1,9,required,engine,review_id | doi | author_position | expected | replacement
+G,n/a,engine,pipeline/kg/build_author_tables.py,311,311,1,4,fields,engine,display_name | raw_author_name | openalex_author_id | orcid
+G,n/a,engine,pipeline/kg/build_author_tables.py,325,325,1,8,required,engine,doi | review_id | expected_source_sha256 | authors | reason
+G,n/a,engine,pipeline/kg/build_author_tables.py,533,537,5,4,params,engine,"filter | per-page | select | id,doi,display_name,publication_year,ids"
+G,n/a,engine,pipeline/kg/build_author_tables.py,819,828,10,8,empty_stats,engine,openalex_profiles_linked_to_orcid | openalex_profiles_with_conflicting_orcid | openalex_profiles_merged_by_shared_orcid | authorship_rows_canonicalized_to_orcid | curated_openalex_profile_mappings
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,116,132,17,20,ROUTED_GRAPH_SOURCES,engine,routed_extractions | path | domain | routed | dataset
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,185,247,63,61,PAPER_FIELDS,engine,study_doi | openalex_id | study_title | authors | study_year
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,498,513,16,14,EXPERIMENTAL_SYSTEM_TEXT_FIELDS,engine,experimental_system_category | population_model_category | system | model_or_system | model_system
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,1883,1883,1,5,SECONDARY_MARKERS,engine,secondary_literature | secondary_evidence | review | meta_analysis | systematic_review
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,2102,2118,17,30,GREEK_FOLD_REPLACEMENTS,engine,α | alpha | Α | Alpha | β
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,2174,2177,4,1,NON_ATOMIC_SUBJECT_HEAD_SPLIT_RE,manual review,"\s*(?:\+|,|/|\band\b|\bor\b|\bplus\b|\bc"
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,4305,4306,2,5,declared_class,engine,label | kind | compound_class | reason | explicit_pooled_psychedelic_class
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,5012,5012,1,9,BRAIN_TEXT_MATCH_SHORT_KEYS,engine,dmn | pcc | drn | fpn | dan
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,5481,5481,1,4,READOUT_REGISTRY_STATUS_TERMS,engine,marker | readout | ligand | neurotransmitter
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,7519,7525,7,5,COMPOUND_BLOCK_STATUSES,engine,compound_class_not_graphable | compound_combo_not_graphable | compound_graph_scope_not_graphable | compound_reference_not_graphable | compound_unmapped
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,7526,7526,1,8,EMPTY_ENDPOINT_VALUES,engine, | none | not_applicable | not applicable | not_reported
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,7543,7552,10,8,SAFETY_PHYSIOLOGY_TERMS,engine,safety | adverse | tolerability | cardiovascular | respiratory
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,8788,8792,5,6,CONTROLLED_ENTITY_SPLIT_PARTS,engine,mu opioid receptor | kappa opioid receptor | anxiety symptoms | depressive symptoms | anxiety symptoms
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,9293,9301,9,7,out,manual review,paper_id | doi | openalex_id | title | authors
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,9849,9855,7,10,REVIEW_DESIGN_CATEGORY_BY_PAPER_TYPE,engine,systematic_review | systematic_review | scoping_review | scoping_review | umbrella_review
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,10710,10719,10,16,aliases,engine,positive association | positive_association | negative association | negative_association | no significant association
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,11409,11414,6,4,shared_fields,engine,proposition_duplicate_count | direction_consistency | graph_admission_status | graph_admission_reason
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,11448,11460,13,10,out,manual review,source_name | domain | dataset | evidence_type | paper_id
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,12150,12154,5,4,funding_report,engine,status | not_available | assertions_path | attempts_path
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,12168,12189,22,8,funding_report,engine,status | ok | assertions_path | assertions_sha256 | attempts_path
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,12191,12201,11,4,open_science_report,engine,status | not_available | features_path | assertions_path
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,12224,12248,25,8,open_science_report,engine,status | ok | features_path | features_sha256 | assertions_path
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,12249,12262,14,7,tables,engine,papers | paper_funding | paper_open_science_assertions | entities | evidence_edges
+G,n/a,engine,pipeline/kg/build_evidence_tables.py,12289,12319,31,22,manifest,engine,kg_table_version | normalization_contract_version | molecular_subtopic_taxonomy_version | generated_at | out_dir
+G,n/a,engine,pipeline/kg/build_methods_flow.py,39,61,23,21,METHODS_BIBLIOGRAPHY_COLUMNS,engine,id | doi | title | authors | year
+G,n/a,engine,pipeline/kg/build_methods_flow.py,63,78,16,14,METHODS_BIBLIOGRAPHY_INTERNED_COLUMNS,engine,initial_screening_status | initial_screening_label | initial_screening_note | llm_screening_status | llm_screening_label
+G,n/a,engine,pipeline/kg/build_methods_flow.py,97,105,9,7,FINAL_GRAPH_EXCLUSION_ORDER,engine,adjudicated_outside_scope | no_extractable_finding | insufficient_source_text | source_not_verified | not_results_report
+G,n/a,engine,pipeline/kg/build_methods_flow.py,106,111,6,4,TRANSITIONAL_GRAPH_DISPOSITIONS,engine,extraction_needed | normalization_needed | source_recovery_needed | manual_review_needed
+G,n/a,engine,pipeline/kg/build_methods_flow.py,122,129,8,6,METHODS_BIBLIOGRAPHY_STAGE_ORDER,engine,selected_for_extraction | excluded_during_llm_screening | background_context_only | not_selected_for_extraction | excluded_during_initial_screening
+G,n/a,engine,pipeline/kg/build_methods_flow.py,332,346,15,10,payloads,engine,pipeline_status | methods_bibliography | graph_inclusion_dispositions | manifest | contract_version
+G,n/a,engine,pipeline/kg/build_methods_flow.py,620,625,6,4,metadata_row,engine,study_doi | openalex_id | study_title | study_year
+G,n/a,engine,pipeline/kg/combine_meta_analysis_v2_evidence_rows.py,93,103,11,9,report,engine,schema_version | meta_analysis_v2_combination_report_v1 | generated_at_utc | counts | rows
+G,n/a,engine,pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py,580,596,17,15,decision,engine,task_id | study_doi | result_id | source_item_index | domain
+G,n/a,engine,pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py,672,807,136,105,row,manual review,route_output_schema_version | task_id | study_doi | study_title | study_year
+G,n/a,engine,pipeline/kg/convert_meta_analysis_v2_to_evidence_rows.py,921,934,14,10,report,engine,schema_version | meta_analysis_v2_evidence_rows_report_v1 | generated_at_utc | counts | rows_by_domain
+G,n/a,engine,pipeline/kg/convert_review_relationship_bundles_to_evidence_rows.py,44,64,21,19,CANONICAL_METADATA_FIELDS,engine,openalex_id | pmid | pmcid | authors | study_journal
+G,n/a,engine,pipeline/kg/convert_review_relationship_bundles_to_evidence_rows.py,73,78,6,4,ACTIVE_CANDIDATE_FIELDS,engine,doi | prescreen_decisions | retained_for_extraction_candidate | extraction_route_status
+G,n/a,engine,pipeline/kg/convert_review_relationship_bundles_to_evidence_rows.py,627,700,74,58,row,manual review,study_doi | study_title | study_year | study_journal | publication_type
+G,n/a,engine,pipeline/kg/convert_review_relationship_bundles_to_evidence_rows.py,767,784,18,16,report,engine,schema_version | review_relationship_evidence_conversion_ | generated_at_utc | counts | bundle_rows
+G,n/a,engine,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,52,63,12,10,MISSING_VALUES,engine, | not_reported | not reported | not_applicable | not applicable
+G,n/a,engine,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,65,98,34,32,PAPER_METADATA_FIELDS,engine,study_doi | doi | pmid | pmcid | openalex_id
+G,n/a,engine,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,100,100,1,5,OPEN_ACCESS_STATUSES,engine,gold | green | hybrid | bronze | diamond
+G,n/a,engine,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,115,126,12,10,GRAPH_SUBJECT_FIELDS,engine,exposure_or_policy | exposure_or_intervention | intervention_or_exposure | compound_or_exposure | compound_or_class
+G,n/a,engine,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,492,510,19,34,explicit_aliases,engine,phase_2_rct | randomized_controlled_trial | phase_3_rct | randomized_controlled_trial | open_label
+G,n/a,engine,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,519,523,5,6,population_designs,engine,in_vitro_cell_model | in_vitro | ex_vivo_tissue_model | ex_vivo | computational_model
+G,n/a,engine,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,1192,1199,8,6,item_identity,engine,task_id | route_id | study_doi | domain_route | source_item_type
+G,n/a,engine,pipeline/kg/convert_routed_extractions_to_evidence_rows.py,1225,1242,18,16,report,engine,generated_at_utc | schema_version | routed_evidence_rows_report_v1 | inputs | input_jsonl
+G,n/a,engine,pipeline/kg/evidence_contribution_roles.py,13,20,8,12,NON_EFFECT_ROLES,engine,method_validation | measurement_validation_not_drug_effect | measurement_definition | measurement_definition_not_drug_effect | expert_judgment
+G,n/a,engine,pipeline/kg/generic_findings.py,5,8,4,6,GENERAL_FINDING_FIELDS,engine,best_domain_guess | entity_or_endpoint | measure_or_method | population_or_system | dose_or_context
+G,n/a,engine,pipeline/kg/graph_view_contract.py,12,19,8,6,REQUIRED_VIEW_FIELDS,engine,id | label | singular | lower_plural | lower_singular
+G,n/a,engine,pipeline/kg/measured_endpoint_repairs.py,16,16,1,7,MISSING,engine, | none | not_reported | not reported | not_applicable
+G,n/a,engine,pipeline/kg/pk_relationships.py,8,19,12,10,MISSING_VALUES,engine, | not_reported | not reported | not_applicable | not applicable
+G,n/a,engine,pipeline/kg/project_review_relationship_bundles.py,172,193,22,15,report,engine,schema_version | review_relationship_projection_report_v2 | generated_at_utc | counts | bundle_rows
+G,n/a,engine,pipeline/kg/real_world_subjects.py,23,23,1,9,MISSING,engine, | not_reported | not reported | not_applicable | not applicable
+G,n/a,engine,pipeline/kg/real_world_subjects.py,24,28,5,8,EXPLICIT_DRUG_FIELDS,engine,compound | canonical_compound | compound_or_class | compound_or_exposure | compound_or_intervention
+G,n/a,engine,pipeline/kg/replay_extraction_release.py,62,63,2,7,manifest,engine,source_release | run_id | input_assets | execution_sources | new_model_calls
+G,n/a,engine,pipeline/kg/replay_extraction_release.py,74,79,6,48,commands,engine,convert_primary | -m | pipeline.kg.convert_routed_extractions_t | --input-jsonl | --tasks-jsonl
+G,n/a,engine,pipeline/kg/replay_extraction_release.py,85,85,1,4,record,manual review,stage | command | exit_code | at_utc
+G,n/a,engine,pipeline/kg/replay_extraction_release.py,88,88,1,6,result,engine,complete | run_id | source_release | new_model_calls | deployment_pointer_changed
+G,n/a,engine,pipeline/kg/research_area_adjudication.py,22,30,9,7,ADJUDICATION_FIELDS,engine,research_area_adjudication_version | research_area_adjudication_id | research_area_adjudication_status | research_area_adjudication_action | research_area_adjudication_rationale
+G,n/a,engine,pipeline/kg/research_area_adjudication.py,267,292,26,24,record,manual review,adjudication_id | adjudication_key | queue_ordinal | finding_id | claim_id
+G,n/a,engine,pipeline/kg/research_area_review.py,16,24,9,7,FIELDS,engine,research_area_routing_version | research_area_input_json | research_area_rule_actions_json | research_area_review_status | research_area_review_reasons_json
+G,n/a,engine,pipeline/kg/subject_role_guards.py,15,15,1,7,EXPOSURE_FIELDS,engine,compound_or_exposure | compound_or_intervention | compound_or_class | compound_or_analyte | exposure_or_policy
+G,n/a,engine,pipeline/kg/update_corpus_graph_status.py,32,41,10,16,GRAPH_STATUS_COLUMNS,engine,graph_inclusion_status |  | graph_inclusion_disposition |  | graph_inclusion_reason
+G,n/a,engine,pipeline/kg/update_corpus_graph_status.py,43,53,11,9,FINAL_DISPOSITIONS,engine,represented | not_reached | adjudicated_outside_scope | no_extractable_finding | insufficient_source_text
+G,n/a,engine,pipeline/kg/update_corpus_graph_status.py,248,254,7,4,required,engine,doi | prescreen_retained_for_extraction_candid | retained_for_extraction_candidate | extraction_route_status
+G,n/a,engine,pipeline/kg/update_corpus_graph_status.py,345,351,7,10,decision,engine,status | not_reached | disposition | not_reached | reason
+G,n/a,engine,pipeline/kg/update_corpus_graph_status.py,353,359,7,10,decision,engine,status | represented | disposition | represented | reason
+G,n/a,engine,pipeline/kg/update_corpus_graph_status.py,363,367,5,4,decision,engine,status | not_represented | source | curated_final_disposition
+G,n/a,engine,pipeline/kg/update_corpus_graph_status.py,369,373,5,4,decision,engine,status | not_represented | source | routed_normalization_audit
+G,n/a,engine,pipeline/kg/update_corpus_graph_status.py,375,379,5,4,decision,engine,status | not_represented | source | completed_extraction_outcome
+G,n/a,engine,pipeline/llm.py,17,17,1,4,TERMINAL_STATES,engine,completed | failed | expired | cancelled
+G,n/a,engine,pipeline/publish/build_query_api_bundle.py,68,76,9,9,manifest,engine,schema_version | run_id | release_id | data_dir | data
+G,n/a,engine,pipeline/publish/export_evidence_payload.py,67,74,8,6,REVIEW_SOURCE_TYPES,engine,review | systematic_review | scoping_review | narrative_review | literature_review
+G,n/a,engine,pipeline/publish/export_evidence_payload.py,99,108,10,8,UNKNOWN_AUTHOR_VALUES,engine, | unknown | unknown author | unknown authors | not available
+G,n/a,engine,pipeline/publish/export_evidence_payload.py,110,157,48,46,PAPER_FIELDS,engine,study_doi | openalex_id | study_title | authors | study_year
+G,n/a,engine,pipeline/publish/export_evidence_payload.py,161,171,11,9,OPTIONAL_PRIMARY_OBSERVATION_FIELDS,engine,extraction_schema_version | observation_role | exposure_role | comparison_basis | measurement_type
+G,n/a,engine,pipeline/publish/export_evidence_payload.py,513,532,20,18,FORBIDDEN_BROWSER_DETAIL_FIELDS,engine,raw_row_json | supporting_quote | confidence_interval | extraction_warnings | needs_human_review
+G,n/a,engine,pipeline/publish/export_evidence_payload.py,533,543,11,9,BOOL_FIELDS,engine,needs_human_review | is_retracted | has_correction | open_access_is_oa | unpaywall_is_oa
+G,n/a,engine,pipeline/publish/export_evidence_payload.py,854,862,9,7,payload,engine,id | name | credited_name | aliases | openalex_author_id
+G,n/a,engine,pipeline/publish/export_evidence_payload.py,1048,1063,16,14,finding,manual review,finding_id | evidence_id | paper_id | domain | finding_type
+G,n/a,engine,pipeline/publish/export_evidence_payload.py,1290,1304,15,13,stats,engine,row_count | graph_finding_count | study_count | normalized_finding_study_count | compound_count
+G,n/a,engine,pipeline/publish/export_evidence_payload.py,1744,1755,12,11,payload,engine,schema_version | generated_at | evidence_source | kg_tables | kg_dir
+G,n/a,engine,pipeline/publish/export_evidence_payload.py,1852,1869,18,9,payload,engine,schema_version | active_graph_bootstraps | active_dashboard_bootstraps | active_detail_bootstraps | active_detail_bootstraps_by_view
+G,n/a,engine,pipeline/publish/export_evidence_payload.py,2000,2039,40,31,manifest,engine,schema_version | generated_at | evidence_source | kg_tables | kg_dir
+G,n/a,engine,pipeline/publish/export_query_api.py,61,75,15,13,PUBLIC_RELATIONSHIP_SOURCE_FIELDS,engine,domain | entity_kind | relation_type | compound_id | compound
+G,n/a,engine,pipeline/publish/export_query_api.py,77,88,12,10,PUBLIC_CONCEPT_SOURCE_FIELDS,engine,entity_id | entity_type | domain | entity_kind | label
+G,n/a,engine,pipeline/publish/export_query_api.py,90,114,25,23,PUBLIC_PAPER_SOURCE_FIELDS,engine,paper_id | doi | openalex_id | title | authors
+G,n/a,engine,pipeline/publish/export_query_api.py,116,126,11,9,PUBLIC_AUTHOR_FIELDS,engine,author_id | display_name | canonical_name | openalex_author_id | openalex_author_ids_json
+G,n/a,engine,pipeline/publish/export_query_api.py,128,137,10,8,PUBLIC_PAPER_AUTHOR_FIELDS,engine,paper_id | author_id | display_name | canonical_name | identity_confidence
+G,n/a,engine,pipeline/publish/export_query_api.py,139,195,57,110,FIELD_DESCRIPTIONS,manual review,"paper_id | Stable paper identifier, normally DOI-ba | doi | Digital Object Identifier without a URL  | openalex_id"
+G,n/a,engine,pipeline/publish/export_query_api.py,197,235,39,66,TABLE_METADATA,engine,papers | description | One row per paper or report in the publi | grain | paper
+G,n/a,engine,pipeline/publish/export_query_api.py,239,251,13,11,PUBLIC_PAPER_SUBTYPES,engine,primary_study | meta_analysis | network_meta_analysis | review | systematic_review
+G,n/a,engine,pipeline/publish/export_query_api.py,253,272,20,32,REQUIRED_NONEMPTY_FIELDS,engine,papers | paper_id | title | concepts | concept_id
+G,n/a,engine,pipeline/publish/export_query_api.py,334,338,5,6,broad_by_source,engine,primary | primary_study | meta_analyses | meta_analysis | reviews
+G,n/a,engine,pipeline/publish/export_query_api.py,396,402,7,12,keys,manual review,papers | paper_id | concepts | concept_id | authors
+G,n/a,engine,pipeline/publish/export_query_api.py,492,499,8,6,required,engine,entities | papers | evidence_edges | findings | authors
+G,n/a,engine,pipeline/publish/export_query_api.py,537,547,11,9,relationship_fields,engine,paper_id | subject_id | subject_label | subject_kind | object_id
+G,n/a,engine,pipeline/publish/export_query_api.py,640,646,7,5,tables,engine,papers | concepts | authors | paper_authors | relationships
+G,n/a,engine,pipeline/publish/export_query_api.py,740,781,42,28,schema_payload,engine,schema_version | generated_at | run_id | tables | graph_views
+G,n/a,engine,pipeline/publish/export_query_api.py,793,833,41,36,manifest,engine,schema_version | public_schema_version | generated_at | run_id | release_id
+G,n/a,engine,pipeline/publish/promote_routed_run.py,57,63,7,5,PUBLIC_QUERY_TABLES,engine,papers | concepts | authors | paper_authors | relationships
+G,n/a,engine,pipeline/publish/promote_routed_run.py,217,226,10,8,pointer,engine,schema_version | release_id | updated_at_utc | run_id | outputs_jsonl
+G,n/a,engine,pipeline/publish/promote_routed_run.py,768,785,18,7,graph_status_command,engine,--candidate-table | --output-table | --kg-dir | --disposition-overrides | --doi-alias-registry
+G,n/a,engine,pipeline/publish/prune_release_history.py,33,38,6,4,LOCAL_RELEASE_ROOTS,engine,graph | kg | query_api | extraction
+G,n/a,engine,pipeline/publish/publish_browser_payload_r2.py,47,51,5,6,METHODS_RELEASE_FILES,engine,pipeline_status | pipeline_status_graph.json | bibliography | methods_bibliography.json | graph_inclusion_dispositions
+G,n/a,engine,pipeline/publish/publish_browser_payload_r2.py,278,283,6,4,entry,engine,key | path | bytes | sha256
+G,n/a,engine,pipeline/publish/publish_browser_payload_r2.py,292,313,22,14,active,engine,schema_version | published_at | run_id | release_id | evidence_release_id
+G,n/a,engine,pipeline/publish/publish_query_api_r2.py,235,240,6,4,entry,engine,key | path | bytes | sha256
+G,n/a,engine,pipeline/publish/publish_query_api_r2.py,251,264,14,12,active,engine,schema_version | contract_key | query_manifest_schema | published_at | run_id
+G,n/a,engine,pipeline/rerun_luna.py,51,56,6,6,patterns,engine,data/processed/corpus/paper_domain_routi | data/processed/corpus/paper_extraction_r | data/processed/extraction/route_extracti | data/processed/extraction/primary_extrac | data/processed/extraction/review_relatio
+G,n/a,engine,pipeline/rerun_luna.py,98,101,4,14,mapping,engine,prescreen_retained_for_extraction_candid | retained_for_extraction_candidate | prescreen_decisions | prescreen_decision | prescreen_actions
+G,n/a,engine,pipeline/rerun_luna.py,142,145,4,4,sources,engine,candidate_table | metadata_table | original_prescreen_table | screening_prompt
+G,n/a,engine,pipeline/rerun_luna.py,217,226,10,10,argv,engine,--queue-json | --candidate-table | --metadata-table | --prescreen-decisions-table | --output-table
+G,n/a,engine,pipeline/review/audit_screening_correction_fulltext.py,32,32,1,6,TEXT_BACKENDS,engine,browser_dom_html | docling | pdftotext | pymupdf | pypdf
+G,n/a,engine,pipeline/review/audit_screening_correction_fulltext.py,157,157,1,17,state,engine,run_id | luna_fulltext_changed_exclusion_audit_20 | status | prepared | reasoning_effort
+G,n/a,engine,pipeline/review/audit_screening_correction_fulltext.py,220,220,1,7,report,engine,status | controls | disagreements | manual_quote_source_adjudications | method
+G,n/a,engine,pipeline/review/audit_screening_correction_fulltext.py,239,239,1,7,report,engine,status | ready_for_source_verification | records | decisions | validation_status
+G,n/a,engine,pipeline/review/build_domain_routing_batch_queue.py,199,206,8,5,part,engine,part | requests | start_index | limit | approx_input_tokens_char4
+G,n/a,engine,pipeline/review/build_domain_routing_batch_queue.py,219,251,33,31,queue,engine,schema_version | domain_routing_luna_batch_queue | name | python | notes
+G,n/a,engine,pipeline/review/repair_screening_identity_metadata.py,43,43,1,6,result,engine,doi | original_title | status | unresolved | provenance
+G,n/a,engine,pipeline/review/run_deterministic_prescreen.py,60,75,16,25,CANDIDATE_PRESCREEN_DEFAULTS,engine,prescreen_retained_for_extraction_candid | prescreen_decisions |  | prescreen_actions | 
+G,n/a,engine,pipeline/review/run_deterministic_prescreen.py,76,98,23,21,SCREENING_FIELDS,engine,study_title | study_year | authors | abstract | study_journal
+G,n/a,engine,pipeline/review/run_deterministic_prescreen.py,100,108,9,7,NON_PAPER_CONTAINER_PUBLICATION_TYPES,engine,component | journal | journal-issue | journal-volume | paratext
+G,n/a,engine,pipeline/review/run_deterministic_prescreen.py,137,147,11,9,AMBIGUOUS_NARRATIVE_PUBLICATION_TYPES,engine,comment | commentary | dispatch | editorial | insight
+G,n/a,engine,pipeline/review/run_deterministic_prescreen.py,1315,1317,3,8,decision,engine,"action | retain_for_screening | confidence | reason | Publication, language and usable-abstrac"
+G,n/a,engine,pipeline/review/run_domain_routing.py,61,66,6,4,METHODOLOGICAL_VALIDITY_TAGS,engine,blinding_expectancy_validity | comparator_control_validity | measurement_psychometric_validity | evidence_quality_bias
+G,n/a,engine,pipeline/review/run_domain_routing.py,76,97,22,20,PAPER_TYPES,engine,primary | meta_analysis | network_meta_analysis | systematic_review | scoping_review
+G,n/a,engine,pipeline/review/run_domain_routing.py,98,109,12,10,SECONDARY_PAPER_TYPES,engine,meta_analysis | network_meta_analysis | systematic_review | scoping_review | umbrella_review
+G,n/a,engine,pipeline/review/run_domain_routing.py,110,120,11,9,NON_PRIMARY_PAPER_TYPES,engine,protocol | trial_registration | commentary_editorial | correction_retraction | peer_review_artifact
+G,n/a,engine,pipeline/review/run_domain_routing.py,124,160,37,61,DOMAIN_RESPONSE_SCHEMA,engine,type | object | properties | domain_tags | type
+G,n/a,engine,pipeline/review/run_domain_routing.py,233,240,8,6,ROUTING_METADATA_FIELDS,engine,study_title | study_year | abstract | publication_type | mesh_terms
+G,n/a,engine,pipeline/review/run_domain_routing.py,558,569,12,10,result,engine,domain_tags | primary_domain | screening_decision | screening_reason | paper_type_group
+G,n/a,engine,pipeline/review/run_domain_routing.py,620,632,13,14,raw_row,engine,generated_at_utc | doi | model | status | error
+G,n/a,engine,pipeline/review/run_domain_routing.py,858,872,15,13,summary,engine,generated_at_utc | table_version | inputs | route_rows | routed_dois
+G,n/a,engine,pipeline/review/run_domain_routing_batch.py,96,96,1,4,TERMINAL_STATES,engine,completed | failed | cancelled | expired
+G,n/a,engine,pipeline/review/run_domain_routing_batch.py,221,248,28,25,manifest,engine,generated_at_utc | schema_version | domain_routing_luna_batch_manifest | status | prepared
+G,n/a,engine,pipeline/review/run_domain_routing_batch.py,302,307,6,5,payload,engine,status | checked | job_name | state | batch_job
+G,n/a,engine,pipeline/review/run_domain_routing_batch.py,323,328,6,5,payload,engine,status | checked | job_name | state | batch_job
+G,n/a,engine,pipeline/review/run_domain_routing_batch.py,438,454,17,17,raw_row,engine,generated_at_utc | doi | model | screening_profile | source_record
+G,n/a,engine,pipeline/review/run_domain_routing_batch.py,477,490,14,16,raw_row,engine,generated_at_utc | doi | model | status | error
+G,n/a,engine,pipeline/review/run_domain_routing_batch.py,515,552,38,34,report,engine,generated_at_utc | schema_version | domain_routing_luna_batch_parse_report | status | inputs
+G,n/a,engine,pipeline/review/run_screening_correction.py,34,38,5,21,SOURCE_OBSERVATIONS,engine,10.1016/j.vaa.2026.101349 | publication_format | conference_abstract | evidence | The title-matched publisher page explici
+G,n/a,engine,pipeline/review/run_screening_correction.py,132,132,1,14,fields,engine,doi | study_title | study_year | abstract | publication_type
+G,n/a,engine,pipeline/review/run_screening_correction.py,194,194,1,24,state,engine,run_id | luna_v6_correction_20261019 | profile | status | prepared_validation
+G,n/a,engine,pipeline/review/run_screening_correction.py,222,222,1,4,manifest,engine,screening_profile | prompt_sha256 | input_sha256 | records
+G,n/a,engine,pipeline/review/run_screening_correction.py,236,236,1,6,stage_state,engine,status | prepared | parts | requests | prepared_at_utc
+G,n/a,engine,pipeline/review/run_screening_correction.py,258,258,1,7,item,engine,doi | key | status | error | issues
+G,n/a,engine,pipeline/review/run_screening_correction.py,374,374,1,9,report,engine,status | evaluated_at_utc | gold_sha256 | validator_sha256 | metrics
+G,n/a,engine,pipeline/review/run_screening_correction.py,437,437,1,11,report,engine,run_id | status | ready_for_result_audit | scoped_papers | decisions
+G,n/a,engine,pipeline/review/screening_contract.py,21,24,4,4,INCLUDE_BASES,engine,drug_effect_or_mechanism | drug_exposure_or_use | central_synthesis_or_analysis | plausible_eligible_thin_record
+G,n/a,engine,pipeline/review/screening_contract.py,25,29,5,7,EXCLUDE_BASES,engine,unrelated_substance | peripheral_mention | analytical_detection_only | environmental_processing_only | anesthesia_analgesia_or_perioperative_co
+G,n/a,engine,pipeline/review/screening_contract.py,203,206,4,1,EXCLUDE_RATIONALE,engine,\b(?:this|the)\s+(?:record|paper|study|a
+G,n/a,engine,pipeline/review/screening_contract.py,207,207,1,1,INCLUDE_RATIONALE,engine,\b(?:this|the)\s+(?:record|paper|study|a
+G,n/a,engine,pipeline/update/build_update_scope.py,81,94,14,12,report,engine,schema_version | doi_update_scope_v1 | doi_count | inputs | manifest
+G,n/a,engine,pipeline/update/run_scoped_paper_update.py,94,97,4,4,SCHEMA_PROFILE_TO_GROUP,engine,review_coverage_schema | reviews | meta_analysis_evidence_schema | meta_analyses
+G,n/a,engine,pipeline/update/run_scoped_paper_update.py,516,519,4,4,reports,engine,reviews | selection | meta_analyses | selection
+G,n/a,engine,pipeline/update/run_scoped_paper_update.py,727,794,68,55,manifest,engine,schema_version | phase | prepared | generated_at_utc | update_id
+G,n/a,engine,pipeline/update/run_scoped_paper_update.py,1126,1130,5,9,artifact_names,engine,primary | scoped_route_extraction_tasks.jsonl | scoped_route_extraction_outputs.jsonl | reviews | scoped_review_relationship_tasks.jsonl
+G,n/a,engine,pipeline/update/run_scoped_paper_update.py,1238,1277,40,35,final_report,engine,schema_version | phase | finalized_candidate | generated_at_utc | update_id
+G,n/a,engine,pipeline/validate/apply_research_area_adjudications.py,89,105,17,23,manifest,engine,status | ok | adjudication_version | source_candidate_dir | out_dir
+G,n/a,engine,pipeline/validate/apply_research_area_release_qa.py,388,415,28,24,result,engine,status | ok | run_id | qa_version | source_second_pass_dir
+G,n/a,engine,pipeline/validate/apply_research_area_second_pass.py,51,58,8,6,decision_fields,engine,research_area_second_pass_version | research_area_second_pass_status | research_area_second_pass_action | research_area_second_pass_rationale | research_area_second_pass_reviewed_at
+G,n/a,engine,pipeline/validate/apply_research_area_second_pass.py,115,144,30,19,result,engine,status | ok | second_pass_version | source_first_pass_dir | out_dir
+G,n/a,engine,pipeline/validate/audit_author_identities.py,328,331,4,8,required,engine,review_id | canonical_name | identity_ids | decision | reason
+G,n/a,engine,pipeline/validate/audit_author_identities.py,361,398,38,29,report,engine,schema_version | author_identity_audit_v2 | kg_dir | baseline_dir | author_identities
+G,n/a,engine,pipeline/validate/carry_forward_research_area_reviews.py,16,20,5,9,IDENTITY_FIELDS,manual review,research_area_evidence_fingerprint | study_doi | domain | compound | entity_label
+G,n/a,engine,pipeline/validate/carry_forward_research_area_reviews.py,52,52,1,4,edge_keys,engine,finding_id | projection_type | entity_id | compound_id
+G,n/a,engine,pipeline/validate/compare_review_relationships_to_manual_gold.py,42,45,4,28,STOPWORDS,engine,a | an | and | are | as
+G,n/a,engine,pipeline/validate/compare_review_relationships_to_manual_gold.py,160,175,16,14,report,engine,schema_version | review_relationship_gold_comparison_v2 | generated_at_utc | lexical_screen_is_not_final_evaluation | lexical_threshold
+G,n/a,engine,pipeline/validate/evaluate_deterministic_projection.py,153,200,48,28,report,engine,schema_version | deterministic_projection_evaluation_v1 | generated_at_utc | baseline_dir | candidate_dir
+G,n/a,engine,pipeline/validate/evaluate_deterministic_projection.py,206,229,24,15,lines,engine,# Deterministic projection evaluation |  |  | No extraction or evaluator model calls w | 
+G,n/a,engine,pipeline/validate/evaluate_research_area_routing.py,85,98,14,11,summary,engine,audit_path | candidate_dir | audit_rows | status_counts | candidate_rows
+G,n/a,engine,pipeline/validate/luna_extraction_comparison.py,64,86,23,8,CLARIFICATIONS,manual review,"primary | ## Finding identity and source attributi | review | ## Entity and qualification checks
+
+Pres | meta"
+G,n/a,engine,pipeline/validate/luna_extraction_comparison.py,364,364,1,8,identity,manual review,schema_version | task_id | route_id | study_doi | domain_route
+G,n/a,engine,pipeline/validate/model_head_to_head.py,25,25,1,4,MODELS,engine,luna | gpt-6-luna | gemini | gemini-3-flash-preview
+G,n/a,engine,pipeline/validate/prepare_graph_comparison_audit.py,88,92,5,8,manifest,engine,seed | requested_by_family | excluded_previous_cases | design | Equal change-direction quotas within fam
+G,n/a,engine,pipeline/validate/prepare_graph_comparison_audit.py,95,95,1,5,columns,engine,doi | study_title | abstract | pmid | pmcid
+G,n/a,engine,pipeline/validate/prepare_graph_comparison_audit.py,139,140,2,6,source,engine,path | sha256 | artifact | artifact_sha256 | saved_doi
+G,n/a,engine,pipeline/validate/prepare_graph_comparison_audit.py,147,151,5,13,packet,engine,index | doi | family | area | finding_selection
+G,n/a,engine,pipeline/validate/prepare_graph_comparison_audit.py,154,156,3,7,summary,engine,unique_papers | saved_bodies_available | reviewed_papers | by_family | by_direction
+G,n/a,engine,pipeline/validate/primary_refinement_experiment.py,23,23,1,4,COHORTS,engine,existing | controlled_historical | previous_fresh | fresh
+G,n/a,engine,pipeline/validate/primary_refinement_experiment.py,145,145,1,7,fields,engine,task_id | route_id | study_doi | domain_route | paper_type
+G,n/a,engine,pipeline/validate/replay_research_area_audit.py,66,73,8,6,keys,manual review,study_doi | compound | support | entity_label | kg_entity_kind_override
+G,n/a,engine,pipeline/validate/replay_research_area_audit.py,80,92,13,11,report,engine,baseline_builder_git_revision | baseline_builder_sha256 | source_rows_sha256 | scoped_source_rows | baseline_rows
+G,n/a,engine,pipeline/workflow/decision_state.py,23,29,7,5,STAGE_ORDER,engine,prescreen | model_screening | post_retrieval | extraction | graph
+G,n/a,engine,pipeline/workflow/decision_state.py,33,82,50,81,CANDIDATE_STAGE_DEFAULTS,engine,model_screening | literature_source_family |  | literature_source_type | 
+G,n/a,engine,pipeline/workflow/decision_state.py,222,237,16,14,summary,engine,candidate_rows | decision_rows | previous_included_dois | current_included_dois | stable_included_dois
+G,n/a,engine,pipeline/workflow/decision_state.py,422,433,12,13,report,engine,schema_version | workflow_decision_reconciliation_v1 | generated_at_utc | decision_stage | policy
+G,n/a,engine,scripts/build_compound_pages.py,18,22,5,6,SOURCE_LABELS,manual review,primary | Primary studies | meta_analyses | Meta-analyses | reviews
+G,n/a,engine,scripts/build_compound_pages.py,76,90,15,13,FIELD_NAMES,engine,domain | compound | entity_label | graph_entity_label | graph_parent_label
+G,n/a,engine,scripts/render_release_metadata.py,15,28,14,12,MONTHS,engine,jan | feb | mar | apr | may
+G,n/a,engine,scripts/render_release_metadata.py,33,40,8,6,required,engine,schema_version | version | release_date | literature_updated | doi
+G,n/a,engine,scripts/serve_site.py,42,46,5,6,METHODS_FILES,engine,pipeline_status | data/kg/views/pipeline_status_graph.json | bibliography | data/kg/views/methods_bibliography.json | graph_inclusion_dispositions
+G,n/a,engine,scripts/serve_site.py,47,47,1,5,LOCAL_PAGE_PATHS,engine,/ | /about/ | /api/ | /feedback/ | /methods/
+G,n/a,engine,scripts/serve_site.py,369,379,11,9,pointer,engine,schema_version | data_source | local | run_id | release_id
+G,n/a,engine,services/query_api/r2_store.py,160,164,5,4,extra_args,engine,Metadata | sha256 | ContentType | CacheControl
+G,n/a,engine,services/query_api/r2_sync.py,227,237,11,8,local_pointer,engine,schema_version | run_id | release_id | evidence_release_id | query_api_r2
+G,n/a,engine,services/query_api/repository.py,31,36,6,4,JSON_VALUE_FIELDS,engine,aliases_json | external_ids_json | name_variants_json | openalex_profile_ids_json
+G,n/a,engine,services/query_api/repository.py,184,189,6,5,identity,manual review,endpoint | filters | scope | public_catalogue | ordering_version
+G,n/a,engine,services/query_api/repository.py,576,610,35,7,facets,engine,paper_types | paper_subtypes | domains | relation_types | concept_kinds
+G,n/a,engine,ui/app.js,52,52,1,4,LOCAL_GRAPH_DATA_HOSTS,engine, | localhost | 127.0.0.1 | ::1
+G,n/a,engine,ui/app.js,63,68,6,4,stats,engine,"[data-stat=""primary-studies""] | [data-stat=""reviews""] | [data-stat=""meta-analyses""] | [data-stat=""total-papers""]"
+G,n/a,engine,ui/app.js,69,69,1,4,HERO_STAT_KEYS,engine,primaryStudies | reviews | metaAnalyses | totalPapers
+G,n/a,engine,ui/app.js,89,93,5,6,COMPARE_EVIDENCE_SOURCES,engine,primary | Primary studies | meta_analyses | Meta-analyses | reviews
+G,n/a,engine,ui/app.js,468,468,1,5,EVIDENCE_VIEW_KEYS,engine,all | primary | meta_analyses | reviews | secondary
+G,n/a,engine,ui/app.js,473,482,10,8,REVIEW_SOURCE_TYPES,engine,review | systematic_review | scoping_review | narrative_review | literature_review
+G,n/a,engine,ui/app.js,594,603,10,8,DEFAULT_SAMPLE_SIZE_BINS,engine,1 | 2-10 | 11-25 | 26-50 | 51-100
+G,n/a,engine,ui/app.js,1930,1943,14,12,labels,engine,Primary studies | Conference/poster | Journal article | Journal article | Preprint
+G,n/a,engine,ui/app.js,2244,2249,6,12,OPEN_SCIENCE_FACETS,engine,has_registered_trial | Registered trial | chip-tone-blue | has_open_data | Open data
+G,n/a,engine,ui/app.js,2939,2954,16,25,measureLabels,engine,functional connectivity | Connectivity change | bold response | Activity change | cerebral blood flow
+G,n/a,engine,ui/app.js,3344,3366,23,21,FOLLOW_UP_NUMBER_WORDS,engine,1 | 1 | 2 | 2 | 3
+G,n/a,engine,ui/app.js,3455,3462,8,6,patterns,engine,/\b(\d+(?:\.\d+)?)\s*(?:minutes?|mins?|m | /\b(\d+(?:\.\d+)?)\s*(?:hours?|hrs?|hr|h | /\b(?:days?|d|pod)\s*(\d+(?:\.\d+)?)\b|\ | /\b(?:week|weeks|wk|w)\s*(\d+(?:\.\d+)?) | /\b(?:month|mo)\s*(\d+(?:\.\d+)?)\b|\b(\
+G,n/a,engine,ui/app.js,5064,5074,11,9,EMPTY_FIELD_VALUES,engine, | not_reported | not reported | not_applicable | not applicable
+G,n/a,engine,ui/app.js,5236,5244,9,7,genericDetailPatterns,engine,/^qualitative summary(?: of scores)?$/ | /^mean\s*(?:\u00b1|\+\/-|plus minus)?\s* | /^descriptive(?: statistics)?$/ | /^count$/ | /^serum concentration$/
+G,n/a,engine,ui/app.js,6253,6255,3,7,orders,engine,clinical | preclinical | in_vitro | in_vivo | ex_vivo
+G,n/a,engine,ui/app.js,7909,7915,7,4,value,engine,topic breadth | research-area breadth | topics | research areas
+G,n/a,engine,ui/app.js,10435,10441,7,5,recordLabels,engine,Papers | Papers | No papers in this selection. | paper | papers
+G,n/a,engine,ui/app.js,12970,13009,40,13,item,engine,outcome | outcome | use_context | secondary_literature | primary_evidence
+G,n/a,engine,ui/compound.js,1190,1194,5,6,headingByView,engine,"Research map | Select an area or concept to trace its c | Research patterns | Compare coverage, publication history, a | Research table"
+G,n/a,engine,ui/methods.js,10,10,1,4,LOCAL_DATA_HOSTS,engine, | localhost | 127.0.0.1 | ::1
+G,n/a,engine,ui/research-analysis.js,2,6,5,10,RESEARCH_FIELDS,engine,Population / model | Study design | Outcome / measure | Comparator | Follow-up
+G,n/a,engine,ui/site-nav.js,2,2,1,4,localHosts,engine, | localhost | 127.0.0.1 | ::1
+G,n/a,engine,ui/view-state.js,9,16,8,29,VIEW_PARAMETERS,manual review,v | mode | section | view | papers
+G,n/a,engine,ui/view-state.js,17,17,1,4,PAPER_VIEWS,engine,all | primary | meta_analyses | reviews

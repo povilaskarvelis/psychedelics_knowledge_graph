@@ -204,6 +204,9 @@ def openalex_compound_terms(label: str) -> list[str]:
 def openalex_compound_identity_query(strategy: dict, label: str) -> str:
     """Build a high-specificity OpenAlex identity query for one compound."""
 
+    override = compound_identity_query_override(strategy, label, "openalex")
+    if override:
+        return override
     contexts = strategy.get("openalex_ambiguous_compound_contexts", {})
     context_terms = contexts.get(label, []) if isinstance(contexts, dict) else []
     terms = openalex_compound_terms(label)
@@ -215,6 +218,17 @@ def openalex_compound_identity_query(strategy: dict, label: str) -> str:
     )
     disambiguated = f"{_quote_phrase(label)} AND {openalex_block(context_terms)}"
     return f"({safe_block} OR ({disambiguated}))" if safe_block else f"({disambiguated})"
+
+
+def compound_identity_query_override(strategy: dict, label: str, provider: str) -> str:
+    """Read an explicit provider-specific identity query from the versioned plan.
+
+    These queries preserve an unrestricted full-name branch while contextualizing
+    an ambiguous alias; the exact expression is frozen in each execution.
+    """
+    overrides = strategy.get("compound_identity_queries", {})
+    entry = overrides.get(label, {}) if isinstance(overrides, dict) else {}
+    return clean(entry.get(provider)) if isinstance(entry, dict) else ""
 
 
 def openalex_core_compound_terms(strategy: dict, label: str) -> list[str]:
@@ -488,7 +502,7 @@ def _scope_definitions(
             if provider == "openalex":
                 query = openalex_compound_identity_query(strategy, compound)
             else:
-                query = _make_query(
+                query = compound_identity_query_override(strategy, compound, provider) or _make_query(
                     provider,
                     compound_terms(compound),
                     [],
@@ -593,16 +607,37 @@ def _targeted_pair_definitions(
 
 def latest_scope_snapshot(history: dict, strategy: dict) -> dict[str, list[str]]:
     runs = history.get("runs", []) if isinstance(history, dict) else []
+    snapshot = None
+    baseline_end = ""
     for run in reversed(runs if isinstance(runs, list) else []):
         if not isinstance(run, dict) or run.get("status") != "promoted":
             continue
         if not run.get("establishes_scope_baseline", False):
             continue
-        snapshot = run.get("scope_snapshot")
-        if isinstance(snapshot, dict):
-            return {key: list(values) for key, values in snapshot.items() if isinstance(values, list)}
-    legacy = strategy.get("legacy_scope_snapshot", {})
-    return {key: list(values) for key, values in legacy.items() if isinstance(values, list)}
+        candidate = run.get("scope_snapshot")
+        if isinstance(candidate, dict):
+            snapshot = candidate
+            baseline_end = clean(run.get("coverage_end_date"))
+            break
+    if snapshot is None:
+        snapshot = strategy.get("legacy_scope_snapshot", {})
+        baseline_end = clean(strategy.get("legacy_coverage_end_date"))
+    out = {key: list(values) for key, values in snapshot.items() if isinstance(values, list)}
+    # A completed targeted historical addition covers that compound without
+    # pretending that every other search module has advanced to the same date.
+    # Never infer coverage from the broader scope_snapshot of a partial run.
+    for run in runs if isinstance(runs, list) else []:
+        if not isinstance(run, dict) or run.get("status") != "promoted":
+            continue
+        if run.get("protocol_id") != strategy.get("protocol_id"):
+            continue
+        if clean(run.get("coverage_end_date")) < baseline_end:
+            continue
+        for compound in run.get("completed_historical_compound_additions", []):
+            values = out.setdefault("allowed_compounds", [])
+            if normalized_key(compound) not in {normalized_key(value) for value in values}:
+                values.append(compound)
+    return out
 
 
 def scope_delta(previous: dict[str, list[str]], current: dict[str, list[str]]) -> dict[str, list[str]]:

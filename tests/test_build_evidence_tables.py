@@ -43,6 +43,7 @@ from pipeline.kg.build_evidence_tables import (
     safety_endpoint_label,
     symptom_endpoint_label,
     write_duckdb_database,
+    write_molecular_coverage_failure,
 )
 
 
@@ -1578,7 +1579,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             ("kappa-opiate receptor", "kappa opioid receptor (OPRK1)"),
             ("mGlu2", "mGluR2 (GRM2)"),
             ("Indolethylamine-N-methyltransferase", "INMT"),
-            ("phencyclidine (PCP) binding sites", "NMDA receptor"),
+            ("phencyclidine (PCP) binding sites", "phencyclidine (PCP) binding sites"),
             ("NMDA glutamate receptors", "NMDA receptor"),
             ("GluN2A N615K NMDA receptor", "GluN2A (GRIN2A)"),
             ("hα3β4 nicotinic acetylcholine receptor", "alpha3beta4 nicotinic acetylcholine receptor"),
@@ -1756,7 +1757,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     "clinical_endpoint": "PTSD symptom severity",
                     "outcome_measure": "PCL-5",
                 },
-                "",
+                "Post-traumatic stress symptoms",
             ),
             (
                 {
@@ -2077,6 +2078,38 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             "Microglial activation",
         )
 
+    def test_receptor_subtopics_recognize_explicit_legacy_and_gene_names(self) -> None:
+        parent = "Receptor regulation & trafficking"
+        cases = [
+            ("NR1 mRNA", "Glutamate receptors"),
+            ("NR2A protein", "Glutamate receptors"),
+            ("pNR2B Tyr1472", "Glutamate receptors"),
+            ("Grm2 mRNA expression", "Glutamate receptors"),
+            ("TRKB:AP2M interaction", "Additional GPCR & growth-factor receptors"),
+            ("trkC mRNA", "Additional GPCR & growth-factor receptors"),
+            ("ErbB4 protein", "Additional GPCR & growth-factor receptors"),
+            ("Tgfbr2 mRNA", "Additional GPCR & growth-factor receptors"),
+            ("5-HT(2A) receptor mRNA", "Serotonin receptors"),
+            ("5-HTR2a mRNA", "Serotonin receptors"),
+            ("Dopamine transporter density", "Monoamine transporters"),
+            ("Dopamine receptors D1, D2, D3, D4, and D5 mRNA", "Dopamine receptors"),
+            ("GABA B1b protein", "GABA receptors"),
+            ("GABA Aα5 protein", "GABA receptors"),
+            ("[3H]naloxone-specific MOR binding", "Opioid receptors"),
+            ("κOR–κOR dimerization", "Opioid receptors"),
+            ("σ1 receptor multimers", "Sigma receptors"),
+            ("S1R immunostaining", "Sigma receptors"),
+            ("orphan receptor abundance", "Other"),
+            ("unidentified protein signal", ""),
+        ]
+        for label, expected in cases:
+            with self.subTest(label=label):
+                self.assertEqual(molecular_finding_subtopic({}, parent, label), expected)
+        # A specific endpoint retains precedence over a different receptor in support.
+        self.assertEqual(molecular_finding_subtopic(
+            {"support": "The same experiment measured 5-HT2A receptor expression."},
+            parent, "NR2B protein"), "Glutamate receptors")
+
     def test_molecular_subtopic_coverage_audit_rejects_large_junk_drawers(self) -> None:
         failing = pd.DataFrame(
             [
@@ -2118,6 +2151,34 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         )
         self.assertEqual(summary["status"], "ok")
         self.assertNotIn("5-HT2 receptor family", {item["parent_label"] for item in summary["parents"]})
+
+    def test_molecular_coverage_failure_preserves_only_audited_residuals(self) -> None:
+        base = {
+            "domain": "molecular_pathway_readout",
+            "graph_parent_label": "Receptor regulation & trafficking",
+            "kg_entity_kind_override": "biomarker_readout",
+            "evidence_type": "primary_evidence",
+            "molecular_finding_subtopic": "Other",
+        }
+        rows = pd.DataFrame([
+            {**base, "study_doi": "10.1/residual"},
+            {**base, "study_doi": "10.1/mapped", "molecular_finding_subtopic": "Serotonin receptors"},
+            {**base, "study_doi": "10.1/review", "evidence_type": "secondary_literature"},
+            {**base, "study_doi": "10.1/target", "kg_entity_kind_override": "target"},
+            {**base, "study_doi": "10.1/other-parent", "graph_parent_label": "Neuroplasticity"},
+        ])
+        coverage = {
+            "status": "failed", "evidence_scope": "primary_evidence",
+            "failed_parents": [base["graph_parent_label"]],
+        }
+        with tempfile.TemporaryDirectory() as temp:
+            out = Path(temp) / "diagnostics"
+            write_molecular_coverage_failure(rows, coverage, out)
+            self.assertEqual(json.loads((out / "molecular_subtopic_coverage_failure.json").read_text()), coverage)
+            saved = pd.read_parquet(out / "molecular_subtopic_coverage_residuals.parquet")
+            self.assertEqual(saved.study_doi.tolist(), ["10.1/residual"])
+            self.assertFalse((out / "findings.parquet").exists())
+            self.assertFalse((out / "manifest.json").exists())
 
     def test_molecular_safety_boundaries_route_adverse_endpoints(self) -> None:
         neurotoxicity = normalize_claim_metadata(

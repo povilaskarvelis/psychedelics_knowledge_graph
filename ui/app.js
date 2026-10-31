@@ -477,6 +477,8 @@ const REVIEW_SOURCE_TYPES = new Set([
   "narrative_review",
   "literature_review",
   "umbrella_review",
+  "commentary_editorial",
+  "other_non_primary",
 ]);
 let entityViewKey = "condition_indication";
 let explorerMode = "overview";
@@ -617,6 +619,7 @@ const GRAPH_LABEL_MARGIN_BUFFER_PX = 36;
 const GRAPH_UNBROKEN_LABEL_WRAP_CHAR_LIMIT = 22;
 const GRAPH_BASE_HEIGHT_PX = 820;
 const GRAPH_MIN_LAYOUT_WIDTH_PX = 720;
+const GRAPH_COMPACT_LAYOUT_BREAKPOINT_PX = 640;
 const GRAPH_MIN_NODE_SPACING_PX = 40;
 const HIDDEN_MAIN_GRAPH_DOMAINS = new Set(["pharmacokinetics_exposure"]);
 const AUTHOR_LABEL_FILTER_PREFIX = "author_label:";
@@ -1512,13 +1515,23 @@ function literatureSourceTypeTokens(claim) {
     .filter(Boolean);
 }
 
+function isRecommendationClaim(claim) {
+  const types = new Set(["guideline", "consensus_statement", "position_statement", "expert_recommendation"]);
+  return isSecondaryLiteratureClaim(claim) && (
+    normalizeValue(claim.kg_entity_kind || claim.entity_kind) === "recommendation_topic" ||
+    [claim.paper_type, claim.source_type].some(value => types.has(sourceTypeToken(value)))
+  );
+}
+
 function isMetaAnalysisClaim(claim) {
+  if (isRecommendationClaim(claim)) return false;
   return literatureSourceTypeTokens(claim).some(
     (token) => META_ANALYSIS_SOURCE_TYPES.has(token) || token.includes("meta_analysis")
   );
 }
 
 function isReviewLiteratureClaim(claim) {
+  if (isRecommendationClaim(claim)) return true;
   if (!isSecondaryLiteratureClaim(claim) || isMetaAnalysisClaim(claim)) return false;
   const tokens = literatureSourceTypeTokens(claim);
   if (!tokens.length) return true;
@@ -1774,21 +1787,21 @@ function estimateLabelWidth(label) {
   return Math.max(40, Math.ceil(text.length * 6.8));
 }
 
-function measureLabelWidth(text) {
+function measureLabelWidth(text, fontSizePx = 16) {
   if (!textMeasureContext) {
-    return estimateLabelWidth(text);
+    return estimateLabelWidth(text) * (fontSizePx / 16);
   }
-  textMeasureContext.font = '16px "IBM Plex Sans", sans-serif';
+  textMeasureContext.font = `${fontSizePx}px "IBM Plex Sans", sans-serif`;
   return textMeasureContext.measureText((text || "").toString()).width;
 }
 
-function fitLabelToWidth(label, maxWidthPx) {
+function fitLabelToWidth(label, maxWidthPx, fontSizePx = 16) {
   const text = (label || "").toString();
   if (maxWidthPx <= 18) return "";
-  if (measureLabelWidth(text) <= maxWidthPx) return text;
+  if (measureLabelWidth(text, fontSizePx) <= maxWidthPx) return text;
 
   const suffix = "...";
-  const suffixWidth = measureLabelWidth(suffix);
+  const suffixWidth = measureLabelWidth(suffix, fontSizePx);
   let low = 0;
   let high = text.length;
   let best = "";
@@ -1796,7 +1809,7 @@ function fitLabelToWidth(label, maxWidthPx) {
   while (low <= high) {
     const mid = Math.floor((low + high) / 2);
     const candidate = `${text.slice(0, mid)}${suffix}`;
-    if (measureLabelWidth(candidate) <= maxWidthPx) {
+    if (measureLabelWidth(candidate, fontSizePx) <= maxWidthPx) {
       best = candidate;
       low = mid + 1;
     } else {
@@ -1809,9 +1822,9 @@ function fitLabelToWidth(label, maxWidthPx) {
   return "";
 }
 
-function wrapUnbrokenLabelToLines(label, maxWidthPx, maxLines = 2) {
+function wrapUnbrokenLabelToLines(label, maxWidthPx, maxLines = 2, fontSizePx = 16) {
   const text = (label || "").toString();
-  if (maxLines < 2 || text.length < 4) return [fitLabelToWidth(text, maxWidthPx)];
+  if (maxLines < 2 || text.length < 4) return [fitLabelToWidth(text, maxWidthPx, fontSizePx)];
 
   const candidates = [];
   for (let index = 2; index <= text.length - 2; index += 1) {
@@ -1819,8 +1832,8 @@ function wrapUnbrokenLabelToLines(label, maxWidthPx, maxLines = 2) {
     const naturalBreak = /[-/]$/.test(prefix);
     const firstLine = naturalBreak ? prefix : `${prefix}-`;
     const secondLine = text.slice(index);
-    const firstWidth = measureLabelWidth(firstLine);
-    const secondWidth = measureLabelWidth(secondLine);
+    const firstWidth = measureLabelWidth(firstLine, fontSizePx);
+    const secondWidth = measureLabelWidth(secondLine, fontSizePx);
     if (firstWidth > maxWidthPx || secondWidth > maxWidthPx) continue;
     candidates.push({
       lines: [firstLine, secondLine],
@@ -1837,21 +1850,21 @@ function wrapUnbrokenLabelToLines(label, maxWidthPx, maxLines = 2) {
 
   const splitIndex = Math.ceil(text.length / 2);
   return [
-    fitLabelToWidth(`${text.slice(0, splitIndex)}-`, maxWidthPx),
-    fitLabelToWidth(text.slice(splitIndex), maxWidthPx),
+    fitLabelToWidth(`${text.slice(0, splitIndex)}-`, maxWidthPx, fontSizePx),
+    fitLabelToWidth(text.slice(splitIndex), maxWidthPx, fontSizePx),
   ];
 }
 
-function wrapLabelToLines(label, maxWidthPx, maxLines = 2) {
+function wrapLabelToLines(label, maxWidthPx, maxLines = 2, fontSizePx = 16) {
   const rawText = (label || "").toString().trim();
   if (!rawText) return [""];
   const words = rawText.split(/\s+/).filter(Boolean);
   const forceUnbrokenWrap =
     words.length === 1 && rawText.length > GRAPH_UNBROKEN_LABEL_WRAP_CHAR_LIMIT && maxLines > 1;
-  if (!forceUnbrokenWrap && measureLabelWidth(rawText) <= maxWidthPx) return [rawText];
+  if (!forceUnbrokenWrap && measureLabelWidth(rawText, fontSizePx) <= maxWidthPx) return [rawText];
 
   if (words.length === 1) {
-    return wrapUnbrokenLabelToLines(rawText, maxWidthPx, maxLines);
+    return wrapUnbrokenLabelToLines(rawText, maxWidthPx, maxLines, fontSizePx);
   }
 
   const lines = [];
@@ -1861,16 +1874,16 @@ function wrapLabelToLines(label, maxWidthPx, maxLines = 2) {
     const word = words[i];
     const candidate = current ? `${current} ${word}` : word;
 
-    if (measureLabelWidth(candidate) <= maxWidthPx) {
+    if (measureLabelWidth(candidate, fontSizePx) <= maxWidthPx) {
       current = candidate;
       continue;
     }
 
     if (!current) {
-      lines.push(fitLabelToWidth(word, maxWidthPx));
+      lines.push(fitLabelToWidth(word, maxWidthPx, fontSizePx));
       if (lines.length === maxLines - 1) {
         const remainder = words.slice(i + 1).join(" ");
-        if (remainder) lines.push(fitLabelToWidth(remainder, maxWidthPx));
+        if (remainder) lines.push(fitLabelToWidth(remainder, maxWidthPx, fontSizePx));
         return lines.slice(0, maxLines);
       }
       current = "";
@@ -1882,21 +1895,21 @@ function wrapLabelToLines(label, maxWidthPx, maxLines = 2) {
 
     if (lines.length === maxLines - 1) {
       const remainder = [current, ...words.slice(i + 1)].join(" ");
-      lines.push(fitLabelToWidth(remainder, maxWidthPx));
+      lines.push(fitLabelToWidth(remainder, maxWidthPx, fontSizePx));
       return lines.slice(0, maxLines);
     }
   }
 
   if (current) {
-    lines.push(fitLabelToWidth(current, maxWidthPx));
+    lines.push(fitLabelToWidth(current, maxWidthPx, fontSizePx));
   }
 
   return lines.slice(0, maxLines);
 }
 
-function setWrappedSvgLabel(textNode, fullLabel, maxWidthPx, x, centerY, maxLines = 2) {
-  const lines = wrapLabelToLines(fullLabel, maxWidthPx, maxLines);
-  const lineHeight = 17;
+function setWrappedSvgLabel(textNode, fullLabel, maxWidthPx, x, centerY, maxLines = 2, fontSizePx = 16) {
+  const lines = wrapLabelToLines(fullLabel, maxWidthPx, maxLines, fontSizePx);
+  const lineHeight = fontSizePx + 1;
   const startY = centerY - ((lines.length - 1) * lineHeight) / 2 + 4;
   textNode.textContent = "";
 
@@ -1935,6 +1948,8 @@ function paperTypeLabel(paperType) {
     scoping_review: "Scoping review",
     meta_analysis: "Meta-analysis",
     review: "Review",
+    commentary_editorial: "Commentary or perspective",
+    other_non_primary: "Scholarly analysis",
   };
   if (labels[normalized]) return labels[normalized];
   if (!normalized) return "Report type unknown";
@@ -3547,6 +3562,11 @@ function chipHtml(kind, label, token = label) {
 }
 
 function literatureTypeLabel(claim) {
+  if (isRecommendationClaim(claim)) {
+    const labels = {guideline: "Guideline", consensus_statement: "Consensus statement",
+      position_statement: "Position statement", expert_recommendation: "Expert recommendation"};
+    return labels[sourceTypeToken(claim.source_type)] || labels[sourceTypeToken(claim.paper_type)] || "Recommendation";
+  }
   const text = [
     claim.paper_type,
     claim.source_type,
@@ -4369,6 +4389,56 @@ function paperFindingContextListHtml(siblingClaims) {
     .join("");
 }
 
+function cognitiveObservationLinesHtml(claim) {
+  if (normalizeValue(claim.kg_domain || claim.domain) !== "cognitive_behavioral" || isSecondaryLiteratureClaim(claim)) return "";
+  const construct = meaningfulText(claim.construct_or_behavior);
+  return [
+    construct && normalizeValue(construct) !== normalizeValue(claim.entity_label)
+      ? claimFieldLineFromValue("Reported construct", construct) : "",
+    claimFieldLineFromValue("Task / measure", claim.task_or_measure),
+    claimFieldLineFromValue("Behavioral context", claim.behavioral_context),
+    claimFieldLineFromValue("Reported value", claim.statistic_or_value),
+  ].join("");
+}
+
+function subjectiveObservationLinesHtml(claim) {
+  if (normalizeValue(claim.kg_domain || claim.domain) !== "subjective_experience" || isSecondaryLiteratureClaim(claim)) return "";
+  const construct = meaningfulText(claim.subjective_construct);
+  return [
+    construct && normalizeValue(construct) !== normalizeValue(claim.entity_label)
+      ? claimFieldLineFromValue("Reported construct", construct) : "",
+    claimFieldLineFromValue("Instrument / measure", claim.instrument_or_measure),
+    claimFieldLineFromValue("Setting / context", claim.setting_or_context),
+    claimFieldLineFromValue("Relationship to outcome", claim.relationship_to_outcome),
+    claimFieldLineFromValue("Reported value", claim.statistic_or_value),
+  ].join("");
+}
+
+function recommendationLinesHtml(claim) {
+  if (!isRecommendationClaim(claim)) return "";
+  return [
+    claimFieldLineFromValue("Recommendation type", displayFieldLabel(meaningfulText(claim.recommendation_type), "")),
+    claimFieldLineFromValue("Stated strength", displayFieldLabel(meaningfulText(claim.recommendation_strength), "")),
+    claimFieldLineFromValue("Stated position", displayFieldLabel(meaningfulText(claim.direction_or_tone), "")),
+    claimFieldLineFromValue("Population / system", meaningfulText(claim.population_or_system) || claim.population),
+    claimFieldLineFromValue("Rationale / evidence basis", claim.rationale_or_evidence_basis),
+  ].join("");
+}
+
+function isReviewContextClaim(claim) {
+  return isSecondaryLiteratureClaim(claim) &&
+    normalizeValue(claim.kg_domain || claim.domain) === "intervention_context" &&
+    Boolean(meaningfulText(claim.review_context_component));
+}
+
+function reviewContextLinesHtml(claim) {
+  if (!isReviewContextClaim(claim)) return "";
+  return [
+    claimFieldLineFromValue("Reviewed context", claim.review_context_component),
+    claimFieldLineFromValue("Source limitations", claim.review_context_limitations),
+  ].join("");
+}
+
 function claimCardInnerHtml(claim, referenceClass = "card-reference", siblingCount = 0, selectionContext = null) {
   const secondary = isSecondaryLiteratureClaim(claim);
   const metaAnalysis = isMetaAnalysisClaim(claim);
@@ -4394,6 +4464,7 @@ function claimCardInnerHtml(claim, referenceClass = "card-reference", siblingCou
       ? claimFieldLineFromValue("Exact exposure", exactExposure)
       : "";
   const specificEntityLine = claimSpecificEntityLine(claim);
+  const safetyEvidenceLines = safetyObservationLinesHtml(claim);
   const paperFindingContext = paperFindingContextSummaryHtml(siblingCount);
   const referenceLine = studyReferenceHtml(claim, referenceClass);
 
@@ -4463,6 +4534,11 @@ function claimCardInnerHtml(claim, referenceClass = "card-reference", siblingCou
         ${mainFindingLine}
         ${exactExposureLine}
         ${specificEntityLine}
+        ${safetyEvidenceLines}
+        ${cognitiveObservationLinesHtml(claim)}
+        ${subjectiveObservationLinesHtml(claim)}
+        ${recommendationLinesHtml(claim)}
+        ${reviewContextLinesHtml(claim)}
         ${evidenceLines}
         ${secondary ? "" : claimFieldLineFromValue("Trial registry", claim.trial_registry_ids)}
         ${referenceLine}
@@ -5186,6 +5262,7 @@ function sampleSizeText(claim) {
 }
 
 function literatureMainFindingLabel(claim) {
+  if (isRecommendationClaim(claim)) return "Recommendation";
   return isMetaAnalysisClaim(claim) ? "Result" : "Summary";
 }
 
@@ -5246,7 +5323,27 @@ function outcomeMeasureSummaryText(claim) {
   return compactUniqueParts([outcome, scale]).join(" · ");
 }
 
+function safetyObservationLinesHtml(claim) {
+  // Preserve the reported event independently of its broad graph category.
+  // Severity and seriousness are separate source assertions, never inferred.
+  return [
+    claimFieldLineFromValue("Safety event/measure", claim.safety_event_or_measure),
+    claimFieldLineFromValue("Safety category", claim.safety_category),
+    claimFieldLineFromValue("Reported frequency/rate", claim.frequency_or_rate),
+    claimFieldLineFromValue("Severity", claim.severity),
+    claimFieldLineFromValue("Seriousness", claim.seriousness),
+    claimFieldLineFromValue("Discontinuation/withdrawal", claim.discontinuation_or_withdrawal),
+  ].join("");
+}
+
 function claimMainFindingText(claim) {
+  if (isReviewContextClaim(claim)) {
+    return meaningfulText(claim.review_context_summary) || meaningfulText(claim.support);
+  }
+  if (isRecommendationClaim(claim)) {
+    // Keep qualifications and recommendations against use intact.
+    return meaningfulText(claim.recommendation_statement) || meaningfulText(claim.support);
+  }
   const support = conciseFindingText(claim.support);
   if (support) return support;
 
@@ -11069,50 +11166,70 @@ async function loadAnalysisAndRender({ resetYears = false, showTransition = fals
   const token = ++explorerRenderToken;
   const analysisDataReady = analysisDataIsReady();
   const analysisIndexReadyTask = ensureAnalysisIndexReady();
+  let loadingShown = false;
+  let loadingTimer = 0;
+  const showLoading = () => {
+    if (token !== explorerRenderToken || explorerMode !== "analysis") return;
+    loadingShown = true;
+    graphEl.innerHTML = analysisLoadingHtml(analysisDataIsReady()
+      ? "Preparing charts and evidence coverage…"
+      : "Loading analysis…");
+    setExplorerWorkspaceHeight(GRAPH_BASE_HEIGHT_PX);
+  };
   cancelExplorerSearchRender();
   closeExplorerSearchOptions();
   explorerSearchMatrix = null;
   stopExplorerWorkspaceAutosize();
   graphEl.setAttribute("aria-busy", "true");
   if (showTransition || !analysisDataReady) {
-    graphEl.innerHTML = analysisLoadingHtml();
-    setExplorerWorkspaceHeight(GRAPH_BASE_HEIGHT_PX);
+    showLoading();
+  } else {
+    // Cached views stay instant; slower queries get feedback without a flash.
+    loadingTimer = window.setTimeout(showLoading, 150);
   }
   clearDetailForTransition();
   cardsEl.innerHTML = "";
   if (studyListEl) studyListEl.innerHTML = "";
   try {
+    // Preloaded data can still require expensive chart preparation. Let the
+    // browser paint the new workspace before doing that work, even when warm.
+    if (loadingShown) await waitForPaint();
+    if (token !== explorerRenderToken || explorerMode !== "analysis") return;
     if (!analysisDataReady) await loadAnalysisData();
+    if (token !== explorerRenderToken || explorerMode !== "analysis") return;
+    if (!analysisDataReady) {
+      const status = graphEl.querySelector(".explorer-loading");
+      if (status) status.textContent = "Preparing charts and evidence coverage…";
+      await waitForPaint();
+      if (token !== explorerRenderToken || explorerMode !== "analysis") return;
+    }
+    updateAnalysisPrewarmState("ready");
+    applyClaimLayerStore();
+    const sourceClaims = isAnalysisCompoundSection()
+      ? explorerSourceClaims().filter(claimHasAnalysisCompound)
+      : explorerSourceClaims();
+    syncYearFilterControls(sourceClaims, resetYears);
+    await analysisIndexReadyTask;
+    if (token !== explorerRenderToken || explorerMode !== "analysis") return;
+    const indexedResult = await queryAnalysisIndex().catch(() => null);
+    if (token !== explorerRenderToken || explorerMode !== "analysis") return;
+    // A delayed loader also needs a paint before synchronous chart rendering.
+    if (loadingShown) await waitForPaint();
+    if (token !== explorerRenderToken || explorerMode !== "analysis") return;
+    activeAnalysisIndexResult = indexedResult;
+    activeAnalysisIndexQueryKey = indexedResult ? analysisIndexQueryKey() : "";
+    explorerMatrixMemo = null;
+    updateModeUI();
+    renderAnalysisSurface();
+    graphEl.removeAttribute("aria-busy");
   } catch (error) {
-    if (token === explorerRenderToken) {
+    if (token === explorerRenderToken && explorerMode === "analysis") {
       graphEl.removeAttribute("aria-busy");
       graphEl.innerHTML = `<div class="explorer-loading" role="alert">Analysis could not be loaded. <button type="button" class="ghost small" data-analysis-retry>Retry</button></div>`;
     }
-    return;
+  } finally {
+    window.clearTimeout(loadingTimer);
   }
-  if (token !== explorerRenderToken || explorerMode !== "analysis") return;
-  if (!analysisDataReady) {
-    const status = graphEl.querySelector(".explorer-loading");
-    if (status) status.textContent = "Preparing charts and evidence coverage…";
-    await waitForPaint();
-    if (token !== explorerRenderToken || explorerMode !== "analysis") return;
-  }
-  updateAnalysisPrewarmState("ready");
-  applyClaimLayerStore();
-  const sourceClaims = isAnalysisCompoundSection()
-    ? explorerSourceClaims().filter(claimHasAnalysisCompound)
-    : explorerSourceClaims();
-  syncYearFilterControls(sourceClaims, resetYears);
-  await analysisIndexReadyTask;
-  if (token !== explorerRenderToken || explorerMode !== "analysis") return;
-  const indexedResult = await queryAnalysisIndex().catch(() => null);
-  if (token !== explorerRenderToken || explorerMode !== "analysis") return;
-  activeAnalysisIndexResult = indexedResult;
-  activeAnalysisIndexQueryKey = indexedResult ? analysisIndexQueryKey() : "";
-  explorerMatrixMemo = null;
-  updateModeUI();
-  renderAnalysisSurface();
-  graphEl.removeAttribute("aria-busy");
 }
 
 function switchExplorerLens(nextLens, options = {}) {
@@ -11165,6 +11282,7 @@ function detachElementChildren(element) {
 function captureAnalysisWorkspaceSnapshot() {
   if (
     explorerMode !== "analysis" ||
+    graphEl.getAttribute("aria-busy") === "true" ||
     !graphEl.firstElementChild ||
     graphEl.querySelector(".explorer-loading")
   ) {
@@ -11397,8 +11515,9 @@ function buildGraph(data) {
     !selected &&
     !detailGraphFilter;
   const viewportWidth = graphEl.clientWidth || 800;
-  const horizontallyScrollableGraph = viewportWidth < GRAPH_MIN_LAYOUT_WIDTH_PX;
-  const width = Math.max(viewportWidth, GRAPH_MIN_LAYOUT_WIDTH_PX);
+  const compactGraphLayout = viewportWidth <= GRAPH_COMPACT_LAYOUT_BREAKPOINT_PX;
+  const horizontallyScrollableGraph = !compactGraphLayout && viewportWidth < GRAPH_MIN_LAYOUT_WIDTH_PX;
+  const width = compactGraphLayout ? Math.max(1, viewportWidth) : Math.max(viewportWidth, GRAPH_MIN_LAYOUT_WIDTH_PX);
   const cacheKey = graphDomCacheKey(width, data);
   const cached = cacheKey ? graphDomCache.get(cacheKey) : null;
   if (cached) {
@@ -11474,14 +11593,22 @@ function buildGraph(data) {
     return a.localeCompare(b);
   });
 
-  const baseSideMargin = clampNumber(Math.floor(width * 0.16), 96, 190);
-  let leftMargin = Math.max(baseSideMargin, GRAPH_LEFT_LABEL_MAX_WIDTH_PX + GRAPH_LABEL_MARGIN_BUFFER_PX);
+  const leftLabelWidthLimit = compactGraphLayout ? 124 : GRAPH_LEFT_LABEL_MAX_WIDTH_PX;
+  const rightLabelWidthLimit = compactGraphLayout ? 136 : GRAPH_RIGHT_LABEL_MAX_WIDTH_PX;
+  const rightLabelGutter = compactGraphLayout ? 8 : GRAPH_RIGHT_LABEL_GUTTER_PX;
+  const labelMarginBuffer = compactGraphLayout ? 20 : GRAPH_LABEL_MARGIN_BUFFER_PX;
+  const baseSideMargin = clampNumber(
+    Math.floor(width * 0.16),
+    compactGraphLayout ? 72 : 96,
+    compactGraphLayout ? 120 : 190
+  );
+  let leftMargin = Math.max(baseSideMargin, leftLabelWidthLimit + labelMarginBuffer);
   let rightMargin = Math.max(
     baseSideMargin,
-    GRAPH_RIGHT_LABEL_MAX_WIDTH_PX + GRAPH_LABEL_MARGIN_BUFFER_PX + GRAPH_RIGHT_LABEL_GUTTER_PX
+    rightLabelWidthLimit + labelMarginBuffer + rightLabelGutter
   );
-  const minCenterWidth = 48;
-  const maxMarginBudget = Math.max(220, width - minCenterWidth);
+  const minCenterWidth = compactGraphLayout ? Math.min(88, width * 0.3) : 48;
+  const maxMarginBudget = Math.max(compactGraphLayout ? 1 : 220, width - minCenterWidth);
   const combinedMargins = leftMargin + rightMargin;
   if (combinedMargins > maxMarginBudget) {
     const scale = maxMarginBudget / combinedMargins;
@@ -11504,14 +11631,15 @@ function buildGraph(data) {
   const workspaceHeight = Math.ceil(Math.max(defaultWorkspaceHeight, height + (graphToolbar?.offsetHeight || 0)));
   const compoundX = margin.left;
   const targetX = width - margin.right;
-  const labelOffset = 22;
+  const labelOffset = compactGraphLayout ? 16 : 22;
+  const graphLabelFontSize = compactGraphLayout ? 13 : 16;
   const leftLabelMaxWidth = Math.min(
-    GRAPH_LEFT_LABEL_MAX_WIDTH_PX,
+    leftLabelWidthLimit,
     Math.max(20, compoundX - labelOffset - 10)
   );
   const rightLabelMaxWidth = Math.min(
-    GRAPH_RIGHT_LABEL_MAX_WIDTH_PX,
-    Math.max(20, width - (targetX + labelOffset) - GRAPH_RIGHT_LABEL_GUTTER_PX - 10)
+    rightLabelWidthLimit,
+    Math.max(20, width - (targetX + labelOffset) - rightLabelGutter - 10)
   );
 
   const compoundStep = (height - margin.top - margin.bottom) / Math.max(compounds.length, 1);
@@ -11573,6 +11701,7 @@ function buildGraph(data) {
   svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
   svg.style.setProperty("--kg-graph-layout-width", `${width}px`);
   svg.dataset.horizontalScrollable = horizontallyScrollableGraph ? "true" : "false";
+  svg.dataset.compactLayout = compactGraphLayout ? "true" : "false";
   svg.dataset.graphStage = graphStage;
   const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
   const edgeLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -11837,7 +11966,7 @@ function buildGraph(data) {
     const node = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     node.setAttribute("cx", pos.x);
     node.setAttribute("cy", pos.y);
-    node.setAttribute("r", 12);
+    node.setAttribute("r", compactGraphLayout ? 10 : 12);
     node.setAttribute("class", "node compound");
     applyGraphNodeColor(node, compoundColors.get(compound) || graphColorForIndex(0, 1));
     if (selected?.type === "compound" && selected.name === compound) {
@@ -11849,7 +11978,7 @@ function buildGraph(data) {
     label.setAttribute("x", pos.x - labelOffset);
     label.setAttribute("class", "node-label");
     label.setAttribute("text-anchor", "end");
-    setWrappedSvgLabel(label, compound, leftLabelMaxWidth, pos.x - labelOffset, pos.y, 2);
+    setWrappedSvgLabel(label, compound, leftLabelMaxWidth, pos.x - labelOffset, pos.y, 2, graphLabelFontSize);
     if (selected?.type === "compound" && selected.name === compound) {
       label.classList.add("selected");
     }
@@ -11918,7 +12047,7 @@ function buildGraph(data) {
     const node = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     node.setAttribute("cx", pos.x);
     node.setAttribute("cy", pos.y);
-    node.setAttribute("r", 12);
+    node.setAttribute("r", compactGraphLayout ? 10 : 12);
     node.setAttribute("class", "node target");
     applyGraphNodeColor(node, targetColors.get(target) || graphColorForIndex(0, 1));
     if (selected?.type === "target" && selected.name === target) {
@@ -11929,7 +12058,7 @@ function buildGraph(data) {
     const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
     label.setAttribute("x", pos.x + labelOffset);
     label.setAttribute("class", "node-label");
-    setWrappedSvgLabel(label, target, rightLabelMaxWidth, pos.x + labelOffset, pos.y, 2);
+    setWrappedSvgLabel(label, target, rightLabelMaxWidth, pos.x + labelOffset, pos.y, 2, graphLabelFontSize);
     if (selected?.type === "target" && selected.name === target) {
       label.classList.add("selected");
     }
@@ -12623,9 +12752,9 @@ function createLazyAnalysisCard(claim, siblings, selectionContext = null) {
   return card;
 }
 
-function analysisLoadingHtml() {
+function analysisLoadingHtml(message = "Loading analysis…") {
   return `<div class="analysis-loading" role="status" aria-live="polite">
-    <p class="explorer-loading">Loading analysis…</p>
+    <p class="explorer-loading">${escapeHtml(message)}</p>
     <div class="analysis-loading-panels" aria-hidden="true"><i></i><i></i><i></i></div>
   </div>`;
 }

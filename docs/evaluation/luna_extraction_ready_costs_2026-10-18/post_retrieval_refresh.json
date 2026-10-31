@@ -1,0 +1,57 @@
+{
+  "schema_version": "workflow_decision_reconciliation_v1",
+  "generated_at_utc": "2026-10-18T10:11:04.215864+00:00",
+  "decision_stage": "post_retrieval",
+  "policy": "preserve_stable_includes_reset_all_other_downstream_state",
+  "candidate_table": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/candidate_papers.parquet",
+  "candidate": {
+    "candidate_rows": 271620,
+    "decision_rows": 2,
+    "previous_included_dois": 2,
+    "current_included_dois": 0,
+    "stable_included_dois": 0,
+    "newly_included_dois": 0,
+    "newly_excluded_dois": 2,
+    "downstream_reset_dois": 2,
+    "updated_candidate_rows": 2,
+    "updated_cells": 67,
+    "reset_columns": [
+      "best_extraction_access_tier",
+      "extraction_prompt_profiles",
+      "extraction_route_actions",
+      "extraction_route_count",
+      "extraction_route_reason",
+      "extraction_route_status",
+      "extraction_routes_table_version",
+      "extraction_routes_updated_at_utc",
+      "extraction_schema_profiles",
+      "graph_inclusion_decision_source",
+      "graph_inclusion_disposition",
+      "graph_inclusion_next_action",
+      "graph_inclusion_reason",
+      "graph_inclusion_release_id",
+      "graph_inclusion_run_id",
+      "graph_inclusion_status",
+      "graph_inclusion_updated_at_utc",
+      "retained_extraction_route_count",
+      "source_text_state",
+      "source_text_state_reason"
+    ],
+    "stable_included_examples": [],
+    "newly_included_examples": [],
+    "newly_excluded_examples": [
+      "10.1093/neuonc/noad137.394",
+      "10.1093/ofid/ofae631.2361"
+    ]
+  },
+  "active_artifacts": [],
+  "active_artifact_allowed_dois": 22496,
+  "historical_artifact_policy": "preserved; only declared active views are filtered",
+  "context": {
+    "stage_name": "post_retrieval_eligibility",
+    "decision_ledger": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/curated/post_retrieval_eligibility_decisions.json",
+    "decisions_table": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/paper_post_retrieval_eligibility_decisions.parquet",
+    "run_id": "luna_extraction_refresh_20261018",
+    "technical_failure_policy": "retrieval_attempt_ledger_only_not_candidate_decision"
+  }
+}

@@ -1,0 +1,286 @@
+{
+  "labels": [
+    ">500",
+    "251-500",
+    "101-250",
+    "51-100",
+    "26-50",
+    "11-25",
+    "2-10",
+    "1",
+    "2019",
+    "2026"
+  ],
+  "cells": [
+    {
+      "yearStart": "2019",
+      "yearEnd": "2019",
+      "yearLabel": "2019",
+      "sampleMin": "251",
+      "sampleMax": "500",
+      "sampleLabel": "251-500",
+      "studyCount": "1",
+      "claimCount": "1"
+    },
+    {
+      "yearStart": "2019",
+      "yearEnd": "2019",
+      "yearLabel": "2019",
+      "sampleMin": "101",
+      "sampleMax": "250",
+      "sampleLabel": "101-250",
+      "studyCount": "1",
+      "claimCount": "1"
+    },
+    {
+      "yearStart": "2020",
+      "yearEnd": "2020",
+      "yearLabel": "2020",
+      "sampleMin": "501",
+      "sampleMax": "",
+      "sampleLabel": ">500",
+      "studyCount": "1",
+      "claimCount": "1"
+    },
+    {
+      "yearStart": "2020",
+      "yearEnd": "2020",
+      "yearLabel": "2020",
+      "sampleMin": "11",
+      "sampleMax": "25",
+      "sampleLabel": "11-25",
+      "studyCount": "1",
+      "claimCount": "3"
+    },
+    {
+      "yearStart": "2021",
+      "yearEnd": "2021",
+      "yearLabel": "2021",
+      "sampleMin": "51",
+      "sampleMax": "100",
+      "sampleLabel": "51-100",
+      "studyCount": "1",
+      "claimCount": "2"
+    },
+    {
+      "yearStart": "2021",
+      "yearEnd": "2021",
+      "yearLabel": "2021",
+      "sampleMin": "11",
+      "sampleMax": "25",
+      "sampleLabel": "11-25",
+      "studyCount": "1",
+      "claimCount": "4"
+    },
+    {
+      "yearStart": "2022",
+      "yearEnd": "2022",
+      "yearLabel": "2022",
+      "sampleMin": "51",
+      "sampleMax": "100",
+      "sampleLabel": "51-100",
+      "studyCount": "3",
+      "claimCount": "11"
+    },
+    {
+      "yearStart": "2022",
+      "yearEnd": "2022",
+      "yearLabel": "2022",
+      "sampleMin": "26",
+      "sampleMax": "50",
+      "sampleLabel": "26-50",
+      "studyCount": "4",
+      "claimCount": "12"
+    },
+    {
+      "yearStart": "2022",
+      "yearEnd": "2022",
+      "yearLabel": "2022",
+      "sampleMin": "11",
+      "sampleMax": "25",
+      "sampleLabel": "11-25",
+      "studyCount": "1",
+      "claimCount": "4"
+    },
+    {
+      "yearStart": "2023",
+      "yearEnd": "2023",
+      "yearLabel": "2023",
+      "sampleMin": "101",
+      "sampleMax": "250",
+      "sampleLabel": "101-250",
+      "studyCount": "2",
+      "claimCount": "8"
+    },
+    {
+      "yearStart": "2023",
+      "yearEnd": "2023",
+      "yearLabel": "2023",
+      "sampleMin": "51",
+      "sampleMax": "100",
+      "sampleLabel": "51-100",
+      "studyCount": "2",
+      "claimCount": "10"
+    },
+    {
+      "yearStart": "2023",
+      "yearEnd": "2023",
+      "yearLabel": "2023",
+      "sampleMin": "26",
+      "sampleMax": "50",
+      "sampleLabel": "26-50",
+      "studyCount": "2",
+      "claimCount": "4"
+    },
+    {
+      "yearStart": "2023",
+      "yearEnd": "2023",
+      "yearLabel": "2023",
+      "sampleMin": "1",
+      "sampleMax": "1",
+      "sampleLabel": "1",
+      "studyCount": "1",
+      "claimCount": "1"
+    },
+    {
+      "yearStart": "2024",
+      "yearEnd": "2024",
+      "yearLabel": "2024",
+      "sampleMin": "51",
+      "sampleMax": "100",
+      "sampleLabel": "51-100",
+      "studyCount": "3",
+      "claimCount": "8"
+    },
+    {
+      "yearStart": "2024",
+      "yearEnd": "2024",
+      "yearLabel": "2024",
+      "sampleMin": "26",
+      "sampleMax": "50",
+      "sampleLabel": "26-50",
+      "studyCount": "3",
+      "claimCount": "11"
+    },
+    {
+      "yearStart": "2024",
+      "yearEnd": "2024",
+      "yearLabel": "2024",
+      "sampleMin": "11",
+      "sampleMax": "25",
+      "sampleLabel": "11-25",
+      "studyCount": "4",
+      "claimCount": "12"
+    },
+    {
+      "yearStart": "2025",
+      "yearEnd": "2025",
+      "yearLabel": "2025",
+      "sampleMin": "51",
+      "sampleMax": "100",
+      "sampleLabel": "51-100",
+      "studyCount": "1",
+      "claimCount": "4"
+    },
+    {
+      "yearStart": "2025",
+      "yearEnd": "2025",
+      "yearLabel": "2025",
+      "sampleMin": "26",
+      "sampleMax": "50",
+      "sampleLabel": "26-50",
+      "studyCount": "6",
+      "claimCount": "16"
+    },
+    {
+      "yearStart": "2025",
+      "yearEnd": "2025",
+      "yearLabel": "2025",
+      "sampleMin": "11",
+      "sampleMax": "25",
+      "sampleLabel": "11-25",
+      "studyCount": "5",
+      "claimCount": "10"
+    },
+    {
+      "yearStart": "2025",
+      "yearEnd": "2025",
+      "yearLabel": "2025",
+      "sampleMin": "1",
+      "sampleMax": "1",
+      "sampleLabel": "1",
+      "studyCount": "1",
+      "claimCount": "1"
+    },
+    {
+      "yearStart": "2026",
+      "yearEnd": "2026",
+      "yearLabel": "2026",
+      "sampleMin": "501",
+      "sampleMax": "",
+      "sampleLabel": ">500",
+      "studyCount": "1",
+      "claimCount": "3"
+    },
+    {
+      "yearStart": "2026",
+      "yearEnd": "2026",
+      "yearLabel": "2026",
+      "sampleMin": "251",
+      "sampleMax": "500",
+      "sampleLabel": "251-500",
+      "studyCount": "1",
+      "claimCount": "1"
+    },
+    {
+      "yearStart": "2026",
+      "yearEnd": "2026",
+      "yearLabel": "2026",
+      "sampleMin": "101",
+      "sampleMax": "250",
+      "sampleLabel": "101-250",
+      "studyCount": "1",
+      "claimCount": "4"
+    },
+    {
+      "yearStart": "2026",
+      "yearEnd": "2026",
+      "yearLabel": "2026",
+      "sampleMin": "51",
+      "sampleMax": "100",
+      "sampleLabel": "51-100",
+      "studyCount": "2",
+      "claimCount": "7"
+    },
+    {
+      "yearStart": "2026",
+      "yearEnd": "2026",
+      "yearLabel": "2026",
+      "sampleMin": "26",
+      "sampleMax": "50",
+      "sampleLabel": "26-50",
+      "studyCount": "2",
+      "claimCount": "7"
+    },
+    {
+      "yearStart": "2026",
+      "yearEnd": "2026",
+      "yearLabel": "2026",
+      "sampleMin": "11",
+      "sampleMax": "25",
+      "sampleLabel": "11-25",
+      "studyCount": "3",
+      "claimCount": "11"
+    },
+    {
+      "yearStart": "2026",
+      "yearEnd": "2026",
+      "yearLabel": "2026",
+      "sampleMin": "1",
+      "sampleMax": "1",
+      "sampleLabel": "1",
+      "studyCount": "1",
+      "claimCount": "1"
+    }
+  ]
+}

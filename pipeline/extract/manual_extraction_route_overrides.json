@@ -1,1 +1,1086 @@
-{"schema_version": "manual_extraction_route_overrides_v1", "notes": ["Previous scope/routing overrides archived for the complete Luna V5 rerun. No earlier model decisions are reused."], "records": []}
+{
+  "schema_version": "manual_extraction_route_overrides_v1",
+  "notes": [
+    "Previous scope/routing overrides archived for the complete Luna V5 rerun. No earlier model decisions are reused.",
+    "Source-review holds added20261022 preserve completed Luna V5 decisions. They withhold unresolved report identities/publication eligibility from extraction without declaring a scientific exclusion. Reasons and primary evidence are recorded per record; no journal or publisher blacklist."
+  ],
+  "records": [
+    {
+      "doi": "10.1016/j.devcel.2006.09.011",
+      "manual_action": "hold_source_review",
+      "manual_reason": "Exact DOI is Chen/Hamm DEP Domains, not the supplied MDMA title/authors. The latter exact title is independently a Society for Endocrinology2001 poster. Correct bibliography but do not transfer its V5 inclusion or alias unrelated reports.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/remaining19_final_dispositions.jsonl",
+      "reviewed_by": "Codex"
+    },
+    {
+      "doi": "10.1136/bjophthalmol-2012-302233",
+      "manual_action": "hold_source_review",
+      "manual_reason": "Exact native report is fellow-eye diabetic vitrectomy; frozen screening abstract belongs to another ketamine report. Restore native abstract for bibliographic correctness; no evidence supports treating this report as the already-screened paper.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/remaining19_final_dispositions.jsonl",
+      "reviewed_by": "Codex"
+    },
+    {
+      "doi": "10.1136/tobaccocontrol-2011-050129",
+      "manual_action": "hold_source_review",
+      "manual_reason": "Exact native report is NRT smoking cessation. The supplied SENSOR text matches medRxiv2022.01.14.22269304. Restore native metadata, preserve orphan preprint provenance, never alias unrelated reports.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/remaining19_final_dispositions.jsonl",
+      "reviewed_by": "Codex"
+    },
+    {
+      "doi": "10.5505/adlitip.2014.08760",
+      "manual_action": "hold_source_review",
+      "manual_reason": "Primary DOI is delinquent children in Kahramanmaraş; supplied mice ketamine/alcohol abstract belongs to DOI-less Chinese PMID22619807. Repair registered report metadata and clear false PMID/abstract linkage; no transfer of eligibility.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/remaining19_final_dispositions.jsonl",
+      "reviewed_by": "Codex"
+    },
+    {
+      "doi": "10.23900/artefactum.v25i6.3542",
+      "manual_action": "hold_source_review",
+      "manual_reason": "Current primary publisher page still attaches a depression abstract to a heart-failure title/body/references. This is a source-level contradiction that cannot be fixed by choosing the desired abstract. Hold both scientific extraction and source substitution.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/remaining19_final_dispositions.jsonl",
+      "reviewed_by": "Codex"
+    },
+    {
+      "doi": "10.2427/6151",
+      "manual_action": "hold_source_review",
+      "manual_reason": "The Teramo report is real, but correct full-paper language/source remains unverified. Cached PMID20984771 is an unrelated penicillin paper and is cleared. Italian title/abstract and journal country alone do not establish absence of an English version.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/remaining19_final_dispositions.jsonl",
+      "reviewed_by": "Codex"
+    },
+    {
+      "doi": "10.3760/cma.j.issn.1001-9030.2013.12.016",
+      "manual_action": "hold_source_review",
+      "manual_reason": "A matching Chinese-journal title is discoverable, but no exact primary body/native full-paper language could be verified. Retain explicit language/source hold, not an exclusion based on country or failed DOI fetch.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/remaining19_final_dispositions.jsonl",
+      "reviewed_by": "Codex"
+    },
+    {
+      "doi": "10.1097/00008506-199210000-00056",
+      "manual_action": "hold_source_review",
+      "manual_reason": "Exact registered one-page source exists; publisher TOC is inaccessible to this run. One page, title capitalization and generic journal-article indexing do not prove conference format. Keep format hold rather than invent confirmation.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/remaining19_final_dispositions.jsonl",
+      "reviewed_by": "Codex"
+    },
+    {
+      "doi": "10.2176/nmc.2.183",
+      "manual_action": "hold_source_review",
+      "manual_reason": "Exact publisher PDF is one numbered Galen-vein contribution sharing page183 with the end of a different LSD report. The LSD material must not be attached to it. Publisher journal label/TOC does not establish full-report versus meeting-abstract format. Hold source/format; do not import neighbouring text.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/remaining19_final_dispositions.jsonl",
+      "reviewed_by": "Codex"
+    },
+    {
+      "doi": "10.59973/emjsr.317",
+      "manual_action": "hold_source_review",
+      "manual_reason": "Fresh primary policy confirms both externally reviewed papers and already academically marked coursework accepted without peer review. Specific paper does not disclose its route. Fast acceptance/student venue alone cannot establish it; hold review-status eligibility rather than blanket-exclude journal.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/remaining19_final_dispositions.jsonl",
+      "reviewed_by": "Codex"
+    },
+    {
+      "doi": "10.1016/j.socscimed.2023.116032",
+      "manual_action": "hold_source_review",
+      "manual_reason": "Exact registered Social Science & Medicine report/abstract is crisis professional-purpose interviews, while supplied title/journal/authors describe a2001Salvia magazine essay. Repair actual bibliography; unrelated report cannot inherit that title’s V5 inclusion.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/primary_checks/crossref/0a5250d601847a5b.json",
+      "reviewed_by": "Codex"
+    },
+    {
+      "doi": "10.1136/bmj.283.6300.1191",
+      "manual_action": "hold_source_review",
+      "manual_reason": "Native identifier/title and publisher DOI title do not jointly establish the report and its abstract.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_batch_rerun_20261022/remaining_failure_recovery_20261025/recovery_plan_v3.json",
+      "reviewed_by": "automated_identifier_and_title_gate"
+    },
+    {
+      "doi": "10.4197/med.20-1.6",
+      "manual_action": "hold_source_review",
+      "manual_reason": "Native identifier/title and publisher DOI title do not jointly establish the report and its abstract.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_batch_rerun_20261022/remaining_failure_recovery_20261025/recovery_plan_v3.json",
+      "reviewed_by": "automated_identifier_and_title_gate"
+    },
+    {
+      "doi": "10.1097/00008877-199808000-00049",
+      "manual_action": "hold_source_review",
+      "manual_reason": "Native identifier/title and publisher DOI title do not jointly establish the report and its abstract.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_batch_rerun_20261022/remaining_failure_recovery_20261025/recovery_plan_v3.json",
+      "reviewed_by": "automated_identifier_and_title_gate"
+    },
+    {
+      "doi": "10.1136/bmj.3.5985.718",
+      "manual_action": "hold_source_review",
+      "manual_reason": "Native identifier/title and publisher DOI title do not jointly establish the report and its abstract.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_batch_rerun_20261022/remaining_failure_recovery_20261025/recovery_plan_v3.json",
+      "reviewed_by": "automated_identifier_and_title_gate"
+    },
+    {
+      "doi": "10.1136/bmj.n3041",
+      "manual_action": "hold_source_review",
+      "manual_reason": "Report identity agrees, but no authenticated abstract is available; the conflicting provider text cannot be reused.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_batch_rerun_20261022/remaining_failure_recovery_20261025/recovery_plan_v3.json",
+      "reviewed_by": "automated_identifier_and_title_gate"
+    },
+    {
+      "doi": "10.1254/jjp.62.131",
+      "manual_action": "hold_source_review",
+      "manual_reason": "Native identifier/title and publisher DOI title do not jointly establish the report and its abstract.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_batch_rerun_20261022/remaining_failure_recovery_20261025/recovery_plan_v3.json",
+      "reviewed_by": "automated_identifier_and_title_gate"
+    },
+    {
+      "doi": "10.1016/j.vaa.2026.101349",
+      "manual_action": "hold_source_review",
+      "manual_reason": "Native identifier/title and publisher DOI title do not jointly establish the report and its abstract.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_batch_rerun_20261022/remaining_failure_recovery_20261025/recovery_plan_v3.json",
+      "reviewed_by": "automated_identifier_and_title_gate"
+    },
+    {
+      "doi": "10.1126/science.170.3957.558-a",
+      "manual_action": "hold_source_review",
+      "manual_reason": "Native identifier/title and publisher DOI title do not jointly establish the report and its abstract.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_batch_rerun_20261022/remaining_failure_recovery_20261025/recovery_plan_v3.json",
+      "reviewed_by": "automated_identifier_and_title_gate"
+    },
+    {
+      "doi": "10.1016/s0306-3747(96)90564-3",
+      "manual_action": "hold_source_review",
+      "manual_reason": "Native identifier/title and publisher DOI title do not jointly establish the report and its abstract.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_batch_rerun_20261022/remaining_failure_recovery_20261025/recovery_plan_v3.json",
+      "reviewed_by": "automated_identifier_and_title_gate"
+    },
+    {
+      "doi": "10.1136/bmj.e6812",
+      "manual_action": "hold_source_review",
+      "manual_reason": "Report identity agrees, but no authenticated abstract is available; the conflicting provider text cannot be reused.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_batch_rerun_20261022/remaining_failure_recovery_20261025/recovery_plan_v3.json",
+      "reviewed_by": "automated_identifier_and_title_gate"
+    },
+    {
+      "doi": "10.1111/bcp.12115",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.20900/jpbs.20190004",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1016/j.yebeh.2019.06.011",
+      "manual_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial."
+    },
+    {
+      "doi": "10.1111/j.1528-1167.2011.03243.x",
+      "manual_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial."
+    },
+    {
+      "doi": "10.5498/wjp.v13.i4.141",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1038/bjp.2008.24",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.2174/138920212802510448",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.3389/fnbeh.2022.990354",
+      "manual_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial."
+    },
+    {
+      "doi": "10.1016/s0021-5198(19)30601-8",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.4103/1673-5374.358617",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1080/10481885.2023.2263488",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1111/1468-0424.12471",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1177/00221678211041836",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1556/2054.2019.020",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.22038/apjmt.2022.19867",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.3390/rel17070756",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.24908/ss.v1i1.3395",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.32859/era.35.48.1-37",
+      "manual_reason": "Abstract reports new cross-cultural analyses, catalogue coding and simulation; not a primary clinical trial, but new research. Match a supported primary profile; do not automatically call it a narrative review.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "primary",
+      "manual_source_type": "primary",
+      "manual_domain_routes": "general_primary",
+      "manual_paper_type_reason": "Abstract reports new cross-cultural analyses, catalogue coding and simulation; not a primary clinical trial, but new research. Match a supported primary profile; do not automatically call it a narrative review."
+    },
+    {
+      "doi": "10.36948/ijfmr.2026.v08i04.85868",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.64074/4c3h8f90",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1016/j.urols.2015.08.001",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1177/0269881119897559",
+      "manual_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial."
+    },
+    {
+      "doi": "10.17140/emoj-3-130",
+      "manual_reason": "Title and metadata say Review, but the original PDF cover says Research and the abstract reports a prospective 425-patient study. Existing primary routing should not be rejected just for a title keyword.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "primary",
+      "manual_source_type": "primary",
+      "manual_domain_routes": "safety_tolerability | real_world_public_health",
+      "manual_paper_type_reason": "Title and metadata say Review, but the original PDF cover says Research and the abstract reports a prospective 425-patient study. Existing primary routing should not be rejected just for a title keyword."
+    },
+    {
+      "doi": "10.1556/2054.2023.00292",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.15695/vurj.v13i1.5403",
+      "manual_reason": "Existing completed venue audit explicitly retained this source: a student/institutional label is not sufficient for exclusion or a new hold. The saved abstract is historical/political scholarly analysis suitable for the already-approved broad Reviews route. Preserve the actual venue and publication metadata; do not treat institutional status as a negative quality verdict.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/journal_credibility_audit_20261022/manual_venue_reviews.jsonl",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v3_prior_source_policy.json",
+      "manual_action": "route_domains",
+      "routing_repair_history": [
+        {
+          "doi": "10.15695/vurj.v13i1.5403",
+          "manual_reason": "Undergraduate journal source; reconcile against the approved source policy. Do not infer exclusion merely from journal obscurity.",
+          "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+          "reviewed_by": "Codex_source_design_review",
+          "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+          "manual_action": "hold_source_review",
+          "routing_repair_history": []
+        }
+      ],
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Existing completed venue audit explicitly retained this source: a student/institutional label is not sufficient for exclusion or a new hold. The saved abstract is historical/political scholarly analysis suitable for the already-approved broad Reviews route. Preserve the actual venue and publication metadata; do not treat institutional status as a negative quality verdict."
+    },
+    {
+      "doi": "10.24972/ijts.2005.24.1.61",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.30674/scripta.67083",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.3368/hopp.65.1.93",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.3390/laws8020012",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1177/0306312720920362",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1177/0957154x251318489",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.36948/ijfmr.2026.v08i04.85913",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1001/jamapsychiatry.2018.3000",
+      "manual_reason": "Primary JAMA page confirms issue Highlights summarizing another report. This is not a new clinical study and should go through existing source-format checks.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "context_only"
+    },
+    {
+      "doi": "10.1007/s11920-017-0855-x",
+      "manual_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial."
+    },
+    {
+      "doi": "10.1080/00952990.2023.2264466",
+      "manual_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial."
+    },
+    {
+      "doi": "10.1159/000026667",
+      "manual_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial."
+    },
+    {
+      "doi": "10.1177/0957154x19894537",
+      "manual_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial."
+    },
+    {
+      "doi": "10.1503/jpn.190073",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.3138/cjhh.594-062022",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1002/hup.348",
+      "manual_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial."
+    },
+    {
+      "doi": "10.1111/j.1749-6632.1996.tb17429.x",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1111/j.1749-6632.1998.tb08237.x",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1111/j.1749-6632.1998.tb10180.x",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1196/annals.1377.003",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.2174/1568026614666140324142409",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1002/qua.560220518",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1111/j.1749-6632.1990.tb16916.x",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1016/j.bbr.2008.12.001",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1016/s0149-7634(98)00024-4",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1055/s-2007-979356",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1097/00008877-199812001-00049",
+      "manual_reason": "Saved abstract is a generic description of Behavioral Pharmacology, not this report. Recover actual record and verify full-paper versus conference format; no DOI-prefix-only exclusion.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "hold_source_review"
+    },
+    {
+      "doi": "10.1097/00008877-199812001-00216",
+      "manual_reason": "Saved abstract is journal boilerplate. Recover actual record and verify publication format; do not simply relabel the boilerplate as a review.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "hold_source_review"
+    },
+    {
+      "doi": "10.11477/mf.1416202667",
+      "manual_reason": "Exact native PubMed record and publisher identify Japanese article with English abstract. English abstract is not verified English full text. Existing source-language check applies.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "context_only"
+    },
+    {
+      "doi": "10.1196/annals.1300.019",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1196/annals.1369.035",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1002/ddr.10290",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1002/hup.369",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1111/j.1749-6632.1990.tb16918.x",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1152/physiolgenomics.00125.2003",
+      "manual_reason": "New postanalysis of published transcript datasets is secondary-data research, not automatically a narrative review. Check the actual eligible-drug contribution separately.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "primary",
+      "manual_source_type": "primary",
+      "manual_domain_routes": "general_primary",
+      "manual_paper_type_reason": "New postanalysis of published transcript datasets is secondary-data research, not automatically a narrative review. Check the actual eligible-drug contribution separately."
+    },
+    {
+      "doi": "10.1001/archpsyc.1969.01740190097014",
+      "manual_reason": "Saved abstract is general background and does not establish source genre. Exact original source needed before choosing an extraction route.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "hold_source_review"
+    },
+    {
+      "doi": "10.1080/02791072.1999.10471741",
+      "manual_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract mixes synthesis with original/author data or a new analysis. Verify report design and reuse/deduplication before choosing primary versus Reviews. Reviewed source genre is synthesis/mini-review/history or summary of studies, including primary observations where reported; use the existing broad Reviews relationship path and preserve publication type, limitations and evidence provenance. Do not count reviewed/reused data as an independent new trial."
+    },
+    {
+      "doi": "10.1097/00007691-200204000-00010",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1037/hop0000088",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1139/cjc-2026-0041",
+      "manual_reason": "Abstract reports new 5-MeO-DMT/bufotenin synthesis methods. Assigned intervention-context extractor expects a different scientific question. Source genre is primary; generic chemistry representation is a separate unresolved issue.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "primary",
+      "manual_source_type": "primary",
+      "manual_domain_routes": "general_primary",
+      "manual_paper_type_reason": "Abstract reports new 5-MeO-DMT/bufotenin synthesis methods. Assigned intervention-context extractor expects a different scientific question. Source genre is primary; generic chemistry representation is a separate unresolved issue."
+    },
+    {
+      "doi": "10.1056/em200404140000005",
+      "manual_reason": "Saved source is NEJM Journal Watch news/summary of other studies, not an original empirical paper. Existing source-format policy applies.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "context_only"
+    },
+    {
+      "doi": "10.1086/383628",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1177/0269881105056660",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1002/dta.203",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1080/02791072.2000.10400447",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1111/j.1556-3537.2010.01019.x",
+      "manual_reason": "Journal-published conference report with interviews; verify existing conference-news policy. Not automatically a conference abstract or primary study.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "hold_source_review"
+    },
+    {
+      "doi": "10.1353/con.0.0050",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.28995/2073-6339-2022-1-109-123",
+      "manual_reason": "Primary publisher issue shows Russian substantive text and English abstract. Existing English-source check applies; do not translate the abstract into an assumed English article.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "context_only"
+    },
+    {
+      "doi": "10.5250/studamerindilite.25.2.0161",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1002/cptx.33",
+      "manual_reason": "Current Protocols methods unit, not a trial or ordinary review. Apply approved protocol/source checks; methodological measurements must not become in-vivo exposure results.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "hold_source_review"
+    },
+    {
+      "doi": "10.1080/02791072.2009.10399768",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1111/j.1360-0443.2010.02948.x",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.1177/1468795x19851405",
+      "manual_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "route_domains",
+      "manual_source_family": "secondary_literature",
+      "manual_source_type": "review",
+      "manual_domain_routes": "general_topic_coverage",
+      "manual_paper_type_reason": "Saved abstract/metadata/warnings support synthesis, historical/conceptual analysis or commentary suited to the already-approved broad Reviews route. This is a routing recommendation, not a new scientific inclusion judgment or confirmed future finding."
+    },
+    {
+      "doi": "10.59082/tnwk8166",
+      "manual_reason": "Republished microcrystal-test compendium monographs. Verify exact source format and original-method status under existing policy; not an automatic Reviews rescue.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+      "manual_action": "hold_source_review"
+    },
+    {
+      "doi": "10.1089/psymed.2022.0002",
+      "manual_reason": "Verified single-trial Bayesian reanalysis, not meta-analysis. The saved identity-accepted PDF already contains the published MADRS correction (Bayes factor 4.6; probability 83.4%); replace stale registry abstract with its corrected abstract using the standard TEI parser. Preserve trial reuse and correction provenance.",
+      "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/reanalysis_correction/source_version_verification.json",
+      "reviewed_by": "Codex_source_design_review",
+      "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v2_reanalysis.json",
+      "manual_action": "route_domains",
+      "routing_repair_history": [
+        {
+          "doi": "10.1089/psymed.2022.0002",
+          "manual_reason": "Single-trial Bayesian reanalysis: primary clinical route is appropriate, but the linked published correction must first be reconciled with the source text. Do not extract uncorrected quantitative results as current evidence.",
+          "evidence_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html",
+          "reviewed_by": "Codex_source_design_review",
+          "routing_repair_plan": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/routing_plan_v1.json",
+          "manual_action": "hold_source_review",
+          "routing_repair_history": []
+        }
+      ],
+      "manual_source_family": "primary",
+      "manual_source_type": "primary",
+      "manual_domain_routes": "clinical_outcome",
+      "manual_paper_type_reason": "Verified single-trial Bayesian reanalysis, not meta-analysis. The saved identity-accepted PDF already contains the published MADRS correction (Bayes factor 4.6; probability 83.4%); replace stale registry abstract with its corrected abstract using the standard TEI parser. Preserve trial reuse and correction provenance."
+    }
+  ]
+}

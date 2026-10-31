@@ -492,6 +492,17 @@ def update_history(path: Path, manifest: dict, report: dict) -> None:
     history = read_json(path) if path.exists() else {"schema_version": "living_search_history_v2", "runs": []}
     runs = history.setdefault("runs", [])
     runs = [row for row in runs if row.get("run_id") != manifest["run_id"]]
+    completed_additions = []
+    plan_path = Path(manifest.get("outputs", {}).get("search_plan_parquet", ""))
+    if plan_path.is_file() and manifest.get("completion_gate_passed"):
+        plan = pd.read_parquet(plan_path)
+        historical = plan.loc[
+            plan.layer.eq("scope_delta") & plan.search_type.eq("historical_compound_identity")
+            & plan.start_date.le("1800-01-01") & plan.date_basis.eq("publication")
+        ]
+        for compound, group in historical.groupby("compound"):
+            if {"pubmed", "openalex"} <= set(group.provider):
+                completed_additions.append(compound)
     runs.append(
         {
             "run_id": manifest["run_id"],
@@ -503,6 +514,7 @@ def update_history(path: Path, manifest: dict, report: dict) -> None:
             "strategy_hash": manifest["strategy_hash"],
             "scope_hash": manifest["scope_hash"],
             "scope_snapshot": manifest["scope_snapshot"],
+            "completed_historical_compound_additions": sorted(completed_additions),
             "providers": manifest["providers"],
             "datasets": manifest["datasets"],
             "layers": manifest["layers"],

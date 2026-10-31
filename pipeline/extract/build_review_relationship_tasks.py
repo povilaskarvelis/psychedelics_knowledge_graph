@@ -21,9 +21,11 @@ import pandas as pd
 
 try:
     from pipeline.extract.io_utils import normalize, read_jsonl, text_parts_from_packet, write_json
+    from pipeline.extract.review_source_types import REVIEW_PATH_TYPES, SCHOLARLY_ANALYSIS_TYPES, is_accepted_scholarly_analysis
 except ModuleNotFoundError:  # pragma: no cover - direct script execution
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.extract.io_utils import normalize, read_jsonl, text_parts_from_packet, write_json
+    from pipeline.extract.review_source_types import REVIEW_PATH_TYPES, SCHOLARLY_ANALYSIS_TYPES, is_accepted_scholarly_analysis
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -32,14 +34,7 @@ DEFAULT_PACKETS = ROOT / "data" / "processed" / "extraction" / "fulltext_packets
 DEFAULT_OUT_DIR = ROOT / "data" / "processed" / "extraction" / "review_relationship_tasks"
 TASK_SCHEMA_VERSION = "review_relationship_task_v3"
 
-REVIEW_TYPES = {
-    "review",
-    "systematic_review",
-    "scoping_review",
-    "narrative_review",
-    "literature_review",
-    "umbrella_review",
-}
+REVIEW_TYPES = REVIEW_PATH_TYPES
 READY_DEPTH_BY_STATUS = {
     "ready_for_article_text_extraction": "article_text",
     "ready_for_abstract_extraction": "abstract_only",
@@ -98,6 +93,9 @@ def production_cohort(candidate_rows: list[dict]) -> tuple[list[dict], dict]:
             continue
         review_type = normalize(candidate.get("primary_secondary_source_type", ""))
         if review_type not in REVIEW_TYPES:
+            continue
+        if review_type in SCHOLARLY_ANALYSIS_TYPES and not is_accepted_scholarly_analysis(candidate):
+            skipped["analysis_without_positive_screen"] += 1
             continue
         doi = normalized_doi(candidate.get("doi", ""))
         if not doi:
@@ -182,10 +180,13 @@ def build_task(cohort: dict, candidate: dict, packet: dict | None, packets_path:
     else:
         raise ValueError(f"Unsupported text depth `{depth}` for {doi}")
 
-    task_id = "reviewrel:" + fingerprint(TASK_SCHEMA_VERSION, doi, depth, source_fingerprint)[:20]
+    from pipeline.extract.task_contract_identity import secondary_contract_fingerprint
+    contract_fingerprint = secondary_contract_fingerprint("review")
+    task_id = "reviewrel:" + fingerprint(TASK_SCHEMA_VERSION, doi, depth, source_fingerprint, contract_fingerprint)[:20]
     return {
         "schema_version": TASK_SCHEMA_VERSION,
         "task_id": task_id,
+        "contract_assets_fingerprint": contract_fingerprint,
         "study_doi": doi,
         "text_depth": depth,
         "paper_metadata": metadata,

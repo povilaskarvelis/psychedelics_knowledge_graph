@@ -28,6 +28,16 @@ are assigned `refresh_access_metadata` and written to
 `fulltext_access_metadata_refresh_dois.txt`, the exact scope for the subsequent
 Unpaywall/OpenAlex access-metadata refresh.
 
+For a fresh screening generation followed by a full extraction rerun, use that
+generation's queue and pre-screen candidate snapshot, with
+`--include-previously-processed`. This audits **all current eligible inclusions**,
+including older abstract-only papers, while preserving the ordinary incremental
+workflow by default. Complete access refresh, PMC/PDF retrieval, identity checks,
+conversion and reconciliation before freezing extraction inputs or reporting a
+final extraction cost. Existing local packets alone do not establish readiness.
+The Luna rerun preparation command requires a completed full-text recovery state
+tied to the exact screening-table hash.
+
 After the refresh, rebuild the worklist. OA-positive records that still lack a
 provider-declared PDF are assigned `resolve_oa_landing_page` and written to
 `fulltext_oa_landing_dois.txt`. Records for which providers report closed access
@@ -66,7 +76,8 @@ Retrieve PMC XML first, then PDFs:
 
 ```bash
 python pipeline/fulltext/fetch_pmc_fulltext_xml.py \
-  --selection-table data/processed/corpus/fulltext_enrichment_worklist.parquet
+  --selection-table data/processed/corpus/fulltext_enrichment_worklist.parquet \
+  --workers 8
 
 python pipeline/fulltext/download_fulltext_worklist_pdfs.py \
   --include-weak-pdf-urls \
@@ -149,8 +160,10 @@ python pipeline/fulltext/download_routed_pdfs.py \
   --progress-every 100
 ```
 
-The alternate-source layer currently supports PMC ID conversion plus PMC viewer
-PDF downloads and OpenAlex repository locations. A Semantic Scholar
+The alternate-source layer supports PMC ID conversion for an XML-retrieval
+handoff and OpenAlex repository locations. PMC viewer pages are not scraped;
+use the approved full-text APIs above. Access challenges enter manual review.
+A Semantic Scholar
 `openAccessPdf` resolver remains available as an explicit optional strategy, but
 is disabled by default and is not part of the standard recovery sequence. Successful files are written as ordinary local PDFs and
 candidate rows keep the standard `downloaded` status; report records include
@@ -491,6 +504,46 @@ eligibility exclusion, a paywall, or a terminal access outcome from a failed
 download alone. Timeouts, WAF responses, missing controls, and other unresolved
 attempts remain only in retrieval logs and retry queues.
 
+The checkpoint now preserves the model-screening result table by default and
+filters the active primary, review-relationship and meta-analysis task queues.
+It sets `retained_for_extraction_candidate=false` immediately for confirmed
+exclusions; a later `retain` decision alone never resurrects a model-excluded
+paper. Rebuilding routes also honors the materialized record decision.
+
+To apply a reviewed subset, use the existing registration schema (CSV fields
+`doi`, `recommended_action=exclude_publication_format`, `publication_format`,
+`format_evidence`, plus optional specific `reason`, `decision_method` and
+`reviewer`). Records with access/retry/review actions are not registrations.
+Book chapters, news/CME summaries, supplementary objects and correction records
+have explicit formats; their reasons must describe the actual source evidence.
+
+```bash
+python pipeline/fulltext/register_retrieved_pdf_exclusions.py \
+  --audit-csv path/to/reviewed_exclusions.csv --run-id publication_cleanup_DATE
+python pipeline/fulltext/register_retrieved_pdf_exclusions.py \
+  --audit-csv path/to/reviewed_exclusions.csv --run-id publication_cleanup_DATE --apply
+python pipeline/fulltext/apply_post_retrieval_publication_format_screen.py \
+  --doi-file path/to/approved_dois.txt --run-id publication_cleanup_DATE
+python pipeline/fulltext/apply_post_retrieval_publication_format_screen.py \
+  --doi-file path/to/approved_dois.txt --run-id publication_cleanup_DATE --apply
+```
+
+The DOI scope limits candidate mutations while the materialized decision table
+still mirrors the complete canonical ledger. The 22 October 2026 application
+uses the previously reviewed 293 record exclusions. It does not convert the
+19 unresolved records into exclusions or blacklist any journal/publisher.
+Future-safe reusable format rules live in the prescreen module; source-verified
+record evidence stays in this ledger. No separate source blacklist or second
+eligibility ledger is needed. Keep original documents, raw Luna answers and
+past audit artifacts; do not edit them to imitate an earlier prescreen finding.
+
+The document auditor checks report identity before assigning an exclusion to
+the intended DOI: a wrong thesis or meeting PDF is quarantined for source
+review. Non-Latin script proportions are review signals, not language verdicts;
+mixed metadata containing an English language code is not automatically a
+non-English exclusion. Confirmed source-specific language findings can still
+be registered in the same eligibility ledger after review.
+
 For a browser-retrieval batch, run the document-level checkpoint before the
 manual importer. It separates validated articles from definite format/language
 exclusions, unresolved identities, and wrong documents:
@@ -703,3 +756,20 @@ python pipeline/fulltext/audit_article_text_inputs.py \
 ```
 
 Use `primary_study` for primary-study section selection.
+
+For reviewed source repairs, persist bibliography in
+`data/curated/paper_metadata_overrides.json` and verified duplicate identifiers
+in `pipeline/validate/doi_alias_registry.json`. A wrong, supplementary,
+incomplete or unverified draft download can use the existing
+`manual_fulltext_access_overrides.json` action `abstract_only` while its parent
+paper remains eligible. Preserve the original source bytes and repair evidence.
+Confirmed publication/language exclusions remain in the post-retrieval
+eligibility ledger described above.
+
+When report identity or publication eligibility cannot be established, use
+`pipeline/extract/manual_extraction_route_overrides.json` with
+`manual_action=hold_source_review` and a specific evidence-linked reason.
+Rebuilding routes makes that record ineligible for extraction and records
+`extraction_route_status=hold_source_review`. This is a reversible source hold;
+it does not rewrite completed model screening or register a confirmed exclusion.
+Resolve the evidence and remove the hold explicitly before rebuilding inputs.

@@ -24,6 +24,24 @@ def test_production_prompt_is_exact_evaluated_v5():
     assert hashlib.sha256(screening.SCREENING_PROMPT_PATH.read_bytes()).hexdigest() == evaluated_sha256
 
 
+def test_approved_scope_amendment_is_used_and_changed_bytes_are_rejected(tmp_path, monkeypatch):
+    instruction = tmp_path / "scope.txt"
+    instruction.write_text("V5 with explicitly included phencyclidine (PCP).\n")
+    state = tmp_path / "pipeline_state.json"
+    state.write_text(json.dumps({
+        "screening_prompt_version": "v5_class_scope",
+        "screening_instruction_file": str(instruction),
+        "screening_instruction_sha256": hashlib.sha256(instruction.read_bytes()).hexdigest(),
+    }))
+    monkeypatch.setattr(llm, "PIPELINE_STATE", state)
+    args = SimpleNamespace(screening_profile="v5_class_scope", max_output_tokens=2048)
+    assert screening.generation_config(args)["instructions"] == instruction.read_text().strip()
+    assert screening.screening_instruction_path(args) == instruction
+    instruction.write_text("Unapproved scope change")
+    with pytest.raises(ValueError, match="approved scope amendment"):
+        screening.generation_config(args)
+
+
 def test_wire_contract_restores_absent_optional_fields_without_losing_zero():
     schema = dict(type="object", required=["required"], properties={
         "required": {"type": "integer"}, "optional": {"type": "string"},
@@ -88,6 +106,26 @@ def test_budget_counts_inflight_reservations_and_settles_actual_usage(tmp_path, 
     assert a["entries"]["batch-b"]["reserved_usd"] == 0.3
 
 
+def test_authorized_concurrent_reservations_preserve_accounting_and_duplicate_guard(tmp_path, monkeypatch):
+    state = tmp_path / "state.json"
+    state.write_text(json.dumps(dict(model_api_budget_usd=1, queue=str(tmp_path / "screening/queue.json"))))
+    monkeypatch.setattr(llm, "PIPELINE_STATE", state)
+    llm.reserve_budget("running", 0.8)
+    with pytest.raises(RuntimeError, match="budget"):
+        llm.reserve_budget("pending", 0.7)
+    llm.reserve_budget("pending", 0.7, allow_reservation_overcommit=True)
+    with pytest.raises(RuntimeError, match="prior paid"):
+        llm.reserve_budget("pending", 0.7, allow_reservation_overcommit=True)
+    ledger = json.loads((tmp_path / "budget.json").read_text())
+    assert ledger["limit_usd"] == 1
+    assert ledger["entries"]["running"]["reserved_usd"] == 0.8
+    assert ledger["entries"]["pending"] == {
+        "reserved_usd": 0.7, "reservation_overcommit_user_authorized": True}
+    llm.settle_budget("running", 0.6)
+    with pytest.raises(RuntimeError, match="budget"):
+        llm.reserve_budget("too-much-settled-spend", 0.7, allow_reservation_overcommit=True)
+
+
 def test_extraction_gate_stays_closed_until_screening_complete(tmp_path, monkeypatch):
     state = tmp_path / "state.json"
     state.write_text(json.dumps(dict(screening_status="prepared")))
@@ -96,6 +134,32 @@ def test_extraction_gate_stays_closed_until_screening_complete(tmp_path, monkeyp
         llm.require_screening_complete()
     state.write_text(json.dumps(dict(screening_status="complete")))
     llm.require_screening_complete()
+
+
+def test_pending_scope_addition_is_part_of_screening_completion(tmp_path, monkeypatch):
+    state = tmp_path / "state.json"
+    value = {"screening_status": "complete", "screening_scope_additions": {
+        "pcp": {"screening_status": "running"}}}
+    state.write_text(json.dumps(value))
+    monkeypatch.setattr(llm, "PIPELINE_STATE", state)
+    with pytest.raises(RuntimeError, match="scope addition must finish"):
+        llm.require_screening_complete()
+    value["screening_scope_additions"]["pcp"]["screening_status"] = "complete"
+    state.write_text(json.dumps(value))
+    llm.require_screening_complete()
+
+
+def test_extraction_preparation_requires_recovery_for_the_same_screening_generation():
+    from pipeline.rerun_luna import require_fulltext_recovery
+
+    state = {"screening_table_sha256": "current"}
+    with pytest.raises(RuntimeError, match="full-text recovery"):
+        require_fulltext_recovery(state)
+    state["fulltext_recovery"] = {"status": "complete", "screening_table_sha256": "old"}
+    with pytest.raises(ValueError, match="exact screening generation"):
+        require_fulltext_recovery(state)
+    state["fulltext_recovery"]["screening_table_sha256"] = "current"
+    require_fulltext_recovery(state)
 
 
 def test_cleanup_only_preserves_format_language_and_text_gates_but_opens_topic():

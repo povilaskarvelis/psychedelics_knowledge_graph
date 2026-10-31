@@ -1,0 +1,105 @@
+# Entities and finding shapes. Format: protocols/SPEC.md section 5.4.
+
+anchor:
+  type: compound
+  description: >-
+    The substance whose effects, mechanisms, exposure or use a finding reports. Every primary
+    finding has an anchor subject; graph edges run from anchors to concepts.
+  display: {singular: compound, plural: compounds}
+  external_ids:
+    policy: Prefer PubChem CID plus ChEMBL molecule ID; add InChIKey or canonical SMILES after structure validation.
+    coverage: 0 of 84 registry entries have an external identifier (data/curated/entity_registry.json)
+  identity_sources:                       # five lists with different membership; to be merged into one registry
+    - {path: data/curated/entity_registry.json, key: compounds, entries: 84, purpose: labels, aliases, out-of-scope substances for exclusion labels}
+    - {path: pipeline/config.example.yaml, key: validation.allowed_compounds, entries: 54, purpose: search anchor block and validation}
+    - {path: pipeline/review/deterministic_prescreen_rules.py, name: COMPOUND_SYNONYMS, entries: 51 canonical names, purpose: prescreen synonyms}
+    - {path: pipeline/discovery/search_strategy.v3.json, key: legacy_scope_snapshot.allowed_compounds, entries: 40, purpose: legacy search scope}
+    - {path: pipeline/review/screening_contract.py, name: known_substances extras, purpose: screening substance names added for the PCP and dissociative scope}
+  identity_overlap: 101 distinct names across the first four lists; 30 appear in all four
+  subject_forms:                          # non-atomic subjects that the graph keeps distinct from single compounds
+    compound_class: e.g. classic psychedelics, hallucinogens, NMDA receptor antagonists (OVERVIEW_SUBJECT_CLASS_RULES)
+    compound_combination: co-administration or sequence of two or more compounds (pipeline/kg/compound_combinations.py)
+    exposure_context: use context without a single compound (pipeline/kg/use_contexts.py)
+    intervention_package: drug plus psychotherapy delivered together
+  subject_roles:                          # extraction candidate primary_observation_v2 exposure_role
+    [focal_exposure, intervention_package, mixed_exposure, measured_predictor, assay_probe, comparator, contextual_exposure]
+
+node_kinds:                               # object kinds; vocabulary sources are listed in vocabularies.yaml
+  condition_indication: {domains: [clinical_outcome], view: condition_indication}
+  symptom_problem: {domains: [clinical_outcome]}
+  safety_adverse_event: {domains: [safety_tolerability], view: safety_adverse_event}
+  target: {domains: [molecular_target, pharmacokinetics_exposure], view: target_system}
+  system_family: {domains: [molecular_target], view: target_system}
+  pathway_process: {domains: [molecular_pathway_readout, pharmacokinetics_exposure], view: pathway_readout}
+  biomarker_readout: {domains: [molecular_pathway_readout, brain_system], view: pathway_readout}
+  brain_region: {domains: [brain_system], view: brain_system}
+  brain_network: {domains: [brain_system], view: brain_system}
+  neural_circuit: {domains: [brain_system], view: brain_system}
+  brain_measure: {domains: [brain_system]}
+  cognitive_behavioral_construct: {domains: [cognitive_behavioral], views: [cognitive_behavioral_construct, behavioral_effect]}
+  subjective_experience_construct: {domains: [subjective_experience], view: subjective_experience_construct}
+  pharmacokinetic_parameter: {domains: [pharmacokinetics_exposure]}
+  metabolite_or_analyte: {domains: [pharmacokinetics_exposure]}
+  enzyme_or_transporter: {domains: [pharmacokinetics_exposure]}
+  intervention_component: {domains: [intervention_context], view: intervention_component}
+  public_health_measure: {domains: [real_world_public_health], view: public_health_measure}
+
+finding_shapes:
+  primary_observation:
+    evidence_type: primary_study
+    description: A result reported by one study for an anchor exposure, measured on one object under stated conditions.
+    roles:
+      subject: anchor or subject_form
+      object: one node kind from the domain
+      comparison: comparator, reference arm or baseline
+      context: [population_or_model, experimental_system, study_design, dose_or_regimen, administration_route, timepoint, sample_size]
+      result: [direction, statistic, value, unit]
+      source: [evidence_location, evidence_locator, text_depth]
+    schemas: domains.yaml extraction.primary_schema (11 schemas)
+    field_naming_problem: >-
+      The 11 primary schemas use 106 distinct field names; 6 appear in all of them. The subject role
+      alone is named compound, compound_or_exposure, compound_or_intervention, compound_or_analyte or
+      exposure_or_policy. The graph builder therefore carries per-domain field lists
+      (e.g. ENTITY_LABEL_FIELDS_BY_KIND, COMPOUND_LABEL_FIELDS). SPEC.md section 5.5 replaces these
+      lists with role annotations on schema fields.
+    shared_role_fields_candidate:          # pipeline/extract/primary_observation_contract.py (opt-in candidate, not production)
+      observation_role: [experimental_result, observational_association, descriptive_measurement, qualitative_finding, observed_adverse_event, care_or_eligibility_practice, analytical_method_result]
+      comparison_basis: [between_groups, within_subject_baseline, dose_comparison, time_comparison, association, descriptive_without_comparator]
+      measurement_type: [clinical_or_behavioral_measure, reported_or_observed_experience, binding, functional_response, expression_or_abundance, phosphorylation, concentration, release_or_uptake, enzyme_activity, connectivity, electrophysiology, anatomy_or_morphology, population_or_service_measure, practice_or_document_measure]
+      analysis_unit: [participants, animals, cells, spines_or_synapses, biological_samples, encounters_or_events, documents, geographical_or_time_units, nested_or_mixed]
+      result_pattern: [increase, decrease, no_detected_difference, positive_association, negative_association, descriptive, mixed]
+      value_status: [source_reported, qualitative_only, ambiguous_or_conflicting]
+  pooled_result:
+    evidence_type: meta_analysis
+    description: A pooled estimate across studies for one question, with evidence size, heterogeneity and appraisal.
+    schema: schema/meta_analysis_evidence_v2.schema.json
+    roles:
+      subject: intervention_or_exposure
+      object: outcome_or_entity
+      comparison: comparator
+      context: [population_or_system, outcome_measure, timepoint_or_window, analysis_context]
+      result: [effect_estimate, evidence_size, heterogeneity, interpretation]
+      appraisal: [risk_of_bias_assessments, certainty_assessments, publication_bias_assessments]
+      source: [evidence_locators]
+  review_relationship:
+    evidence_type: review
+    description: A relationship that a review states or examines, with its prominence in the review and its evidence stratum.
+    schema: schema/review_relationships_v2.bundle.schema.json
+    roles:
+      anchors: role-labelled anchors (subject roles compound, compound_class, intervention, co_intervention; object roles such as condition, outcome, safety_event, target, pathway_or_process)
+      relation: [relationship_kind, relation_phrase, direction_or_tone]
+      context: [evidence_stratum, paper_prominence, centrality_basis, domain_labels]
+      source: [evidence_locators]
+  pk_relationship:
+    evidence_type: primary_study
+    description: A pharmacokinetic relation between a compound and a parameter, metabolite, enzyme, matrix or effect.
+    relation_types: [exposure_characterized, metabolized_to, metabolized_by, metabolized_via, exposure_altered_by,
+                     route_or_formulation_changes_exposure, distributed_to, eliminated_by, exposure_linked_to_effect,
+                     detected_or_monitored_in, other_pk_relationship]
+    implemented_in: pipeline/kg/pk_relationships.py
+  recommendation:
+    evidence_type: guideline_or_consensus
+    description: A recommendation about an anchor, with type, strength and evidence basis.
+    schema: schema/recommendation_consensus.schema.json
+
+evidence_types: [primary_study, meta_analysis, review, guideline_or_consensus, contextual_record]   # base profile candidate

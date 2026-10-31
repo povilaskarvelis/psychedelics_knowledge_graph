@@ -120,6 +120,13 @@
     "MDA": ["psychedelic", "hallucinogen", "entactogen", "phenethylamine"],
     "TMA": ["psychedelic", "hallucinogen", "phenethylamine", "trimethoxyamphetamine"]
   },
+  "compound_identity_queries": {
+    "Phencyclidine": {
+      "rationale": "Explicit PCP scope addition, 19 October 2026. Full-name and MeSH coverage are unrestricted; the ambiguous PCP acronym requires drug context to limit primary-care and Pneumocystis matches. No negative terms suppress genuine mixed-topic papers.",
+      "pubmed": "(Phencyclidine[MeSH Terms] OR phencyclidine[Text Word] OR (PCP[Title/Abstract] AND (NMDA[Title/Abstract] OR NMDAR[Title/Abstract] OR ketamine[Title/Abstract] OR dissociat*[Title/Abstract] OR hallucinog*[Title/Abstract] OR psychotomimetic[Title/Abstract] OR schizophrenia[Title/Abstract] OR intoxica*[Title/Abstract] OR \"drug abuse\"[Title/Abstract] OR \"drug use\"[Title/Abstract])))",
+      "openalex": "(phencyclidine OR (PCP AND (NMDA OR NMDAR OR ketamine OR dissociative OR dissociation OR hallucinogen OR hallucinogenic OR psychotomimetic OR schizophrenia OR intoxication OR \"drug abuse\" OR \"drug use\")))"
+    }
+  },
   "targeted_pairs": [],
   "modules": [
     {

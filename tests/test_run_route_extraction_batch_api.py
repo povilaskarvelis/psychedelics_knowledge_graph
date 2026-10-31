@@ -18,6 +18,71 @@ from pipeline.extract.run_route_extraction_batch_api import (
 )
 
 
+@pytest.mark.parametrize("domain,prompt_profile,optional_field", [
+    ("cognitive_behavioral", "primary_cognitive_behavioral", "construct_family"),
+    ("molecular_pathway_readout", "primary_molecular_pathway", "molecular_effect_category"),
+    ("real_world_public_health", "primary_real_world_public_health", "real_world_use_context"),
+])
+@pytest.mark.parametrize("required_null", [False, True])
+def test_batch_parser_restores_referenced_optional_nulls_without_accepting_required_nulls(
+    tmp_path, monkeypatch, domain, prompt_profile, optional_field, required_null,
+):
+    from pipeline import llm
+    from pipeline.extract import run_route_extraction_batch_api as runner
+    from pipeline.extract.route_extraction_profiles import (
+        profile_for_task, load_schema_for_profile, schema_for_native,
+    )
+
+    task = {"task_id": "task-one", "route_id": "route-one", "study_doi": "10.example/one",
+            "extraction_contract": {"prompt_profile": prompt_profile,
+                "schema_profile": "primary_evidence_schema", "domain_route": domain}}
+    profile = profile_for_task(task)
+    schema = schema_for_native(load_schema_for_profile(profile, domain))
+    item_schema = schema["properties"]["items"]["items"]
+    # Required evidence stays present; only an API-added optional null is absent.
+    item = {key: "not_reported" for key in item_schema["required"]}
+    for key in item_schema["required"]:
+        prop = item_schema["properties"][key]
+        if prop.get("enum"):
+            item[key] = prop["enum"][0]
+    item[optional_field] = None
+    required_key = item_schema["required"][0]
+    if required_null:
+        item[required_key] = None
+    result = {"schema_version": profile.output_schema_version, "task_id": "task-one",
+              "route_id": "route-one", "study_doi": task["study_doi"],
+              "domain_route": domain, "paper_type": "primary_study", "text_depth": "abstract_only",
+              "extraction_status": "extracted", "items": [item], "warnings": []}
+    paths = {k: tmp_path / (k + ".jsonl") for k in ["manifest_json", "results_jsonl",
+             "batch_raw_jsonl", "batch_outputs_jsonl", "parse_report_json"]}
+    paths["manifest_json"].write_text(json.dumps({"records": [{"key": "request-one",
+        "task_id": "task-one", "route_id": "route-one", "study_doi": task["study_doi"]}]}))
+    response = {"status": "completed", "model": "gpt-6-luna",
+                "usage": {"input_tokens": 10, "output_tokens": 10},
+                "output_text": json.dumps(result)}
+    paths["results_jsonl"].write_text(json.dumps({"custom_id": "request-one",
+        "response": {"status_code": 200, "body": response}}) + "\n")
+    tasks_path = tmp_path / "tasks.jsonl"
+    tasks_path.write_text(json.dumps(task) + "\n")
+    run_dir = tmp_path / "run"
+    run_dir.mkdir()
+    monkeypatch.setattr(runner, "batch_paths", lambda args: paths)
+    monkeypatch.setattr(runner, "appendable_output_paths", lambda run_id: {
+        "run_dir": run_dir, "raw_jsonl": run_dir / "raw.jsonl", "outputs_jsonl": run_dir / "out.jsonl"})
+    monkeypatch.setattr(runner, "materialize_run_projection_from_batch_files", lambda path: {})
+    report = runner.parse_batch_results(SimpleNamespace(input_jsonl=tasks_path, env_file=tmp_path / "absent.env",
+        run_id="test", batch_id="batch_001", skip_rebuild=True, model="gpt-6-luna"))
+    expected = "schema_error" if required_null else "ok"
+    assert report["summary"]["status_counts"] == {expected: 1}
+    parsed = read_jsonl(paths["batch_outputs_jsonl"])[0]["result"]["items"][0]
+    assert optional_field not in parsed
+    if required_null:
+        assert parsed[required_key] is None
+    else:
+        assert parsed[required_key] == item[required_key]
+    assert json.loads(llm.response_text(response))["items"][0][optional_field] is None
+
+
 @pytest.mark.parametrize("rows", [[], [{"key": "a"}],
     [{"key": "a"}, {"key": "a"}, {"key": "b"}],
     [{"key": "a"}, {"key": "b"}, {"key": "unknown"}]])

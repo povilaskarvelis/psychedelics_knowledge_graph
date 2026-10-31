@@ -1,0 +1,41 @@
+[
+  {
+    "run_id": "living_full_composite_v3_20260715",
+    "coverage_start": "1800-01-01",
+    "coverage_end": "2026-07-15",
+    "executions": 577,
+    "pcp_in_allowed_compounds": false,
+    "cannabis_in_allowed_compounds": false,
+    "phencyclidine_queries": 0,
+    "cannabis_queries": 29,
+    "pcp_compound_identity_queries": 0,
+    "cannabis_compound_identity_queries": 0,
+    "search_plan_sha256": "4b6fe7ed48394bd21b4b29906e06299059d35d04bfe1b9aa2a847a62c1466f55"
+  },
+  {
+    "run_id": "living_update_v3_20260915",
+    "coverage_start": "2026-07-01",
+    "coverage_end": "2026-09-15",
+    "executions": 345,
+    "pcp_in_allowed_compounds": false,
+    "cannabis_in_allowed_compounds": false,
+    "phencyclidine_queries": 0,
+    "cannabis_queries": 17,
+    "pcp_compound_identity_queries": 0,
+    "cannabis_compound_identity_queries": 0,
+    "search_plan_sha256": "e1689eee482748f32a9bd08d972ee1e1559ce3fab78f6eada6a501efb5bf6184"
+  },
+  {
+    "run_id": "living_update_v3_20261015",
+    "coverage_start": "2026-09-01",
+    "coverage_end": "2026-10-15",
+    "executions": 345,
+    "pcp_in_allowed_compounds": false,
+    "cannabis_in_allowed_compounds": false,
+    "phencyclidine_queries": 0,
+    "cannabis_queries": 17,
+    "pcp_compound_identity_queries": 0,
+    "cannabis_compound_identity_queries": 0,
+    "search_plan_sha256": "f40fb0b65a3e63e7c1c84a26ba71b6958648c3356959e0cde191f714448b8b68"
+  }
+]

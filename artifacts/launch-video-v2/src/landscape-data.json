@@ -1,0 +1,361 @@
+{
+  "timeline": [
+    {
+      "year": 2000,
+      "papers": 3,
+      "label": "2000: 3 unique papers; Safety: 1, Subjective effects: 1, Other: 1"
+    },
+    {
+      "year": 2001,
+      "papers": 2,
+      "label": "2001: 2 unique papers; Safety: 2"
+    },
+    {
+      "year": 2002,
+      "papers": 6,
+      "label": "2002: 6 unique papers; Safety: 1, Real-world use: 2, Subjective effects: 1, Other: 2"
+    },
+    {
+      "year": 2003,
+      "papers": 4,
+      "label": "2003: 4 unique papers; Real-world use: 3, Other: 1"
+    },
+    {
+      "year": 2004,
+      "papers": 5,
+      "label": "2004: 5 unique papers; Safety: 2, Real-world use: 2, Subjective effects: 1"
+    },
+    {
+      "year": 2005,
+      "papers": 5,
+      "label": "2005: 5 unique papers; Conditions: 1, Safety: 1, Real-world use: 1, Subjective effects: 1, Other: 1"
+    },
+    {
+      "year": 2006,
+      "papers": 9,
+      "label": "2006: 9 unique papers; Conditions: 1, Safety: 1, Real-world use: 5, Subjective effects: 2"
+    },
+    {
+      "year": 2007,
+      "papers": 7,
+      "label": "2007: 7 unique papers; Safety: 1, Real-world use: 1, Subjective effects: 2, Other: 3"
+    },
+    {
+      "year": 2008,
+      "papers": 5,
+      "label": "2008: 5 unique papers; Real-world use: 3, Subjective effects: 2"
+    },
+    {
+      "year": 2009,
+      "papers": 8,
+      "label": "2009: 8 unique papers; Conditions: 1, Safety: 2, Real-world use: 5"
+    },
+    {
+      "year": 2010,
+      "papers": 11,
+      "label": "2010: 11 unique papers; Conditions: 1, Safety: 4, Real-world use: 1, Subjective effects: 3, Other: 2"
+    },
+    {
+      "year": 2011,
+      "papers": 10,
+      "label": "2011: 10 unique papers; Conditions: 1, Safety: 3, Real-world use: 4, Subjective effects: 2"
+    },
+    {
+      "year": 2012,
+      "papers": 14,
+      "label": "2012: 14 unique papers; Real-world use: 6, Subjective effects: 6, Other: 2"
+    },
+    {
+      "year": 2013,
+      "papers": 14,
+      "label": "2013: 14 unique papers; Safety: 3, Real-world use: 4, Subjective effects: 2, Other: 5"
+    },
+    {
+      "year": 2014,
+      "papers": 16,
+      "label": "2014: 16 unique papers; Conditions: 2, Safety: 3, Real-world use: 3, Subjective effects: 4, Other: 4"
+    },
+    {
+      "year": 2015,
+      "papers": 13,
+      "label": "2015: 13 unique papers; Conditions: 3, Safety: 1, Real-world use: 3, Subjective effects: 5, Other: 1"
+    },
+    {
+      "year": 2016,
+      "papers": 21,
+      "label": "2016: 21 unique papers; Conditions: 7, Safety: 3, Real-world use: 4, Subjective effects: 5, Other: 2"
+    },
+    {
+      "year": 2017,
+      "papers": 35,
+      "label": "2017: 35 unique papers; Conditions: 6, Safety: 5, Real-world use: 10, Subjective effects: 8, Treatment context: 1, Other: 5"
+    },
+    {
+      "year": 2018,
+      "papers": 46,
+      "label": "2018: 46 unique papers; Conditions: 13, Safety: 6, Real-world use: 8, Subjective effects: 10, Treatment context: 1, Other: 8"
+    },
+    {
+      "year": 2019,
+      "papers": 51,
+      "label": "2019: 51 unique papers; Conditions: 5, Safety: 12, Real-world use: 12, Subjective effects: 9, Treatment context: 2, Other: 11"
+    },
+    {
+      "year": 2020,
+      "papers": 71,
+      "label": "2020: 71 unique papers; Conditions: 11, Safety: 18, Real-world use: 12, Subjective effects: 12, Treatment context: 1, Other: 17"
+    },
+    {
+      "year": 2021,
+      "papers": 110,
+      "label": "2021: 110 unique papers; Conditions: 28, Safety: 13, Real-world use: 27, Subjective effects: 19, Treatment context: 5, Other: 18"
+    },
+    {
+      "year": 2022,
+      "papers": 177,
+      "label": "2022: 177 unique papers; Conditions: 51, Safety: 33, Real-world use: 33, Subjective effects: 23, Treatment context: 11, Other: 26"
+    },
+    {
+      "year": 2023,
+      "papers": 242,
+      "label": "2023: 242 unique papers; Conditions: 77, Safety: 41, Real-world use: 38, Subjective effects: 33, Treatment context: 9, Other: 44"
+    },
+    {
+      "year": 2024,
+      "papers": 319,
+      "label": "2024: 319 unique papers; Conditions: 103, Safety: 49, Real-world use: 49, Subjective effects: 35, Treatment context: 18, Other: 65"
+    },
+    {
+      "year": 2025,
+      "papers": 425,
+      "label": "2025: 425 unique papers; Conditions: 126, Safety: 70, Real-world use: 72, Subjective effects: 46, Treatment context: 21, Other: 90"
+    },
+    {
+      "year": 2026,
+      "papers": 357,
+      "label": "2026: 357 unique papers; Conditions: 108, Safety: 70, Real-world use: 54, Subjective effects: 40, Treatment context: 20, Other: 65"
+    }
+  ],
+  "papers": [
+    {
+      "title": "Effects of Psilocybin-Assisted Therapy on Major Depressive Disorder: A Randomized Clinical Trial",
+      "year": 2020,
+      "journal": "JAMA Psychiatry",
+      "doi": "10.1001/jamapsychiatry.2020.3285"
+    },
+    {
+      "title": "Finding the self by losing the self: Neural correlates of ego-dissolution under psilocybin.",
+      "year": 2015,
+      "journal": "Human Brain Mapping",
+      "doi": "10.1002/hbm.22833"
+    },
+    {
+      "title": "Psilocybin in alcohol use disorder and comorbid depressive symptoms: Results from a feasibility randomized clinical trial",
+      "year": 2025,
+      "journal": "Addiction",
+      "doi": "10.1111/add.70152"
+    }
+  ],
+  "connections": {
+    "viewBox": "0 0 820 516",
+    "paths": [
+      {
+        "d": "M 98 258 C 184.70654274832646 258, 217.73760665245078 38, 304.44414940077723 38",
+        "stroke": "#82a9d8",
+        "width": "8.00"
+      },
+      {
+        "d": "M 98 258 C 185.1579384106332 258, 218.3609625670649 86.88888888888889, 305.5189009776981 86.88888888888889",
+        "stroke": "#d6a84f",
+        "width": "6.45"
+      },
+      {
+        "d": "M 98 258 C 186.44168632721525 258, 220.13375730901154 135.77777777777777, 308.5754436362268 135.77777777777777",
+        "stroke": "#a88bd1",
+        "width": "2.96"
+      },
+      {
+        "d": "M 98 258 C 186.7589677021037 258, 220.57190777909557 184.66666666666666, 309.33087548119926 184.66666666666666",
+        "stroke": "#d27694",
+        "width": "2.31"
+      },
+      {
+        "d": "M 98 258 C 185.45054053034218 258, 218.76503216094872 233.55555555555554, 306.2155726912909 233.55555555555554",
+        "stroke": "#55b7ab",
+        "width": "5.54"
+      },
+      {
+        "d": "M 98 258 C 186.0350502434119 258, 219.57221224090216 282.44444444444446, 307.60726248431405 282.44444444444446",
+        "stroke": "#d1846f",
+        "width": "3.92"
+      },
+      {
+        "d": "M 98 258 C 185.30520084070298 258, 218.56432497049462 331.3333333333333, 305.8695258111976 331.3333333333333",
+        "stroke": "#9bab62",
+        "width": "5.99"
+      },
+      {
+        "d": "M 98 258 C 187.0623240964672 258, 220.99082851416898 380.2222222222222, 310.0531526106362 380.2222222222222",
+        "stroke": "#5f9eb5",
+        "width": "1.76"
+      },
+      {
+        "d": "M 98 258 C 186.56167200950188 258, 220.29945182264544 429.1111111111111, 308.8611238321473 429.1111111111111",
+        "stroke": "#72a77c",
+        "width": "2.71"
+      },
+      {
+        "d": "M 98 258 C 186.8830662728067 258, 220.74328199578068 478, 309.6263482685874 478",
+        "stroke": "#b779ad",
+        "width": "2.07"
+      }
+    ],
+    "circles": [
+      {
+        "cx": 80,
+        "cy": 258,
+        "r": 18,
+        "fill": "color(srgb 0.127922 0.193529 0.186627)",
+        "stroke": "color(srgb 0.538039 0.708235 0.673882)"
+      },
+      {
+        "cx": 315,
+        "cy": 38,
+        "r": 10.56,
+        "fill": "color(srgb 0.150471 0.200745 0.246157)",
+        "stroke": "color(srgb 0.608627 0.730824 0.860235)"
+      },
+      {
+        "cx": 315,
+        "cy": 86.88888888888889,
+        "r": 9.48,
+        "fill": "color(srgb 0.226235 0.199843 0.122588)",
+        "stroke": "color(srgb 0.845804 0.728 0.473412)"
+      },
+      {
+        "cx": 315,
+        "cy": 135.77777777777777,
+        "r": 6.42,
+        "fill": "color(srgb 0.184745 0.173686 0.239843)",
+        "stroke": "color(srgb 0.715922 0.646118 0.840471)"
+      },
+      {
+        "cx": 315,
+        "cy": 184.66666666666666,
+        "r": 5.67,
+        "fill": "color(srgb 0.222627 0.154745 0.184824)",
+        "stroke": "color(srgb 0.83451 0.586824 0.668235)"
+      },
+      {
+        "cx": 315,
+        "cy": 233.55555555555554,
+        "r": 8.78,
+        "fill": "color(srgb 0.109882 0.213373 0.205569)",
+        "stroke": "color(srgb 0.481569 0.770353 0.733176)"
+      },
+      {
+        "cx": 315,
+        "cy": 282.44444444444446,
+        "r": 7.39,
+        "fill": "color(srgb 0.221726 0.167373 0.151451)",
+        "stroke": "color(srgb 0.831686 0.626353 0.563765)"
+      },
+      {
+        "cx": 315,
+        "cy": 331.3333333333333,
+        "r": 9.13,
+        "fill": "color(srgb 0.17302 0.202549 0.139725)",
+        "stroke": "color(srgb 0.679216 0.736471 0.527059)"
+      },
+      {
+        "cx": 315,
+        "cy": 380.2222222222222,
+        "r": 4.95,
+        "fill": "color(srgb 0.118902 0.190824 0.214588)",
+        "stroke": "color(srgb 0.509804 0.699765 0.761412)"
+      },
+      {
+        "cx": 315,
+        "cy": 429.1111111111111,
+        "r": 6.14,
+        "fill": "color(srgb 0.136039 0.198941 0.163176)",
+        "stroke": "color(srgb 0.563451 0.725177 0.600471)"
+      },
+      {
+        "cx": 315,
+        "cy": 478,
+        "r": 5.37,
+        "fill": "color(srgb 0.198275 0.157451 0.207373)",
+        "stroke": "color(srgb 0.758274 0.595294 0.738824)"
+      }
+    ],
+    "texts": [
+      {
+        "x": 80,
+        "y": 227,
+        "text": "Psilocybin",
+        "anchor": null
+      },
+      {
+        "x": 333.55585059922277,
+        "y": 38,
+        "text": "Conditions",
+        "anchor": null
+      },
+      {
+        "x": 332.4810990223019,
+        "y": 86.88888888888889,
+        "text": "Safety",
+        "anchor": null
+      },
+      {
+        "x": 329.4245563637732,
+        "y": 135.77777777777777,
+        "text": "Cognition",
+        "anchor": null
+      },
+      {
+        "x": 328.66912451880074,
+        "y": 184.66666666666666,
+        "text": "Behavior",
+        "anchor": null
+      },
+      {
+        "x": 331.7844273087091,
+        "y": 233.55555555555554,
+        "text": "Subjective effects",
+        "anchor": null
+      },
+      {
+        "x": 330.39273751568595,
+        "y": 282.44444444444446,
+        "text": "Treatment context",
+        "anchor": null
+      },
+      {
+        "x": 332.1304741888024,
+        "y": 331.3333333333333,
+        "text": "Real-world use",
+        "anchor": null
+      },
+      {
+        "x": 327.9468473893638,
+        "y": 380.2222222222222,
+        "text": "Brain regions",
+        "anchor": null
+      },
+      {
+        "x": 329.1388761678527,
+        "y": 429.1111111111111,
+        "text": "Molecular effects",
+        "anchor": null
+      },
+      {
+        "x": 328.3736517314126,
+        "y": 478,
+        "text": "Targets",
+        "anchor": null
+      }
+    ]
+  }
+}

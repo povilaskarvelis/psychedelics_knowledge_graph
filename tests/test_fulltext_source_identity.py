@@ -176,7 +176,7 @@ def test_persistent_identity_registry_has_all_curated_benign_classes() -> None:
     raw_registry = json.loads(DEFAULT_IDENTITY_REGISTRY.read_text(encoding="utf-8"))
     source_manifests = raw_registry["source_manifests"]
 
-    assert len(registry["records"]) == 110
+    assert len(registry["records"]) == raw_registry["record_count"] == 112
     assert registry["minimum_front_title_similarity"] == 0.9
     assert source_manifests == [
         "pipeline/fulltext/attestations/source_identity_repair_20260710.json"
@@ -192,16 +192,16 @@ def test_persistent_identity_registry_has_all_curated_benign_classes() -> None:
         "publisher_language_alias": 2,
         "publisher_doi_alias": 3,
         "correction_record_to_original_doi": 12,
-        "article_version": 1,
+        "article_version": 3,
     }
     assert Counter(row["identity_action"] for row in registry["records"].values()) == {
-        "accept_related_document_doi": 38,
+        "accept_related_document_doi": 40,
         "accept_correction_original_doi": 12,
         "ignore_incorrect_extracted_document_doi": 58,
         "no_override_required": 2,
     }
     assert Counter(row["record_group"] for row in registry["records"].values()) == {
-        "benign_conflict": 74,
+        "benign_conflict": 76,
         "correction_record": 12,
         "pmc_valid_exact": 23,
         "pmc_valid_known_alias": 1,
@@ -342,6 +342,23 @@ def test_curated_pdf_hash_attestation_rechecks_exact_file(tmp_path: Path) -> Non
     rejected = apply_pdf_hash_attestation(identity, artifact, record)
     assert rejected["verified"] is False
     assert rejected["pdf_hash_attestation_disposition"] == "pdf_hash_mismatch"
+
+
+def test_pdf_cover_title_cannot_override_conflicting_article_doi(tmp_path, monkeypatch) -> None:
+    from pipeline.fulltext.source_identity import apply_pdf_front_title_validation
+    from pipeline.fulltext import pdf_alternate_sources
+
+    pdf = tmp_path / "repository-cover-with-wrong-article.pdf"
+    pdf.write_bytes(b"%PDF-cover")
+    monkeypatch.setattr(pdf_alternate_sources, "title_validation_result",
+                        lambda *args: (_ for _ in ()).throw(AssertionError("must not use cover")))
+    for status in ("target_text_with_conflicting_doi", "identity_mismatch"):
+        result = apply_pdf_front_title_validation(
+            {"status": status, "verified": False, "document_doi": "10.1000/wrong"},
+            {"pdf_local_path": str(pdf)}, requested_title="Requested title on cover")
+        assert not result["verified"]
+        assert result["status"] == status
+        assert result["pdf_front_title_validation_disposition"] == "document_doi_conflict_requires_resolution"
 
 
 def test_correction_relationship_requires_requested_correction_title() -> None:

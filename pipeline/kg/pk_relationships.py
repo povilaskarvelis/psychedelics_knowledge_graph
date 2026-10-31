@@ -184,6 +184,8 @@ def label_key(value: object) -> str:
 
 def chemical_core_key(value: object) -> str:
     key = label_key(value)
+    if key in {"pcp", "phencyclidine pcp", "pcp hcl", "phencyclidine hydrochloride"}:
+        return "phencyclidine"
     key = re.sub(r"^(?:r|s|rs|racemic) ", "", key)
     key = re.sub(r"^(?:r|s) ketamine$", "ketamine", key)
     key = key.replace("esketamine", "ketamine")

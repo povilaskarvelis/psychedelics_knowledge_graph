@@ -136,8 +136,10 @@
           allow the workflow to operate at scale, while source links, evidence
           locations within source publications, and validation rules keep the
           results auditable. The current
-          workflow uses Gemini 3 Flash for LLM-based title-and-abstract
-          screening and evidence extraction. The pipeline is
+          pipeline uses GPT-6 Luna for new title-and-abstract screening and
+          the planned replacement evidence extraction. The published graph
+          continues to represent its last completed release while that
+          replacement is prepared. The pipeline is
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">open source</a>
           and available for inspection, reuse, and improvement. A detailed
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/README.md" target="_blank" rel="noopener noreferrer">workflow guide</a>
@@ -313,6 +315,35 @@
           the compound terms are joined with OR, as are the terms for that
           research area, and the two groups are combined with AND.
         </p>
+        <p>
+          Phencyclidine (PCP) was explicitly added to the compound scope on
+          19 October 2026. A targeted historical PubMed and OpenAlex search
+          covers publications from 1800 through that date. The full name is
+          searched directly; the acronym PCP requires drug-related context
+          to reduce unrelated primary-care and pneumonia matches. Records are
+          deduplicated against the existing corpus and processed through
+          title-and-abstract screening and source preparation. Search completion
+          and graph publication are recorded separately.
+        </p>
+        <details class="method-query-details" id="pcp-historical-search-20261019">
+          <summary>PCP historical search — 19 October 2026</summary>
+          <p>Publication-date range: 1 January 1800–19 October 2026. PubMed returned
+          6,182 records; OpenAlex returned 8,269 against a reported count of 8,270
+          after retries, within the pipeline's existing count-drift tolerance.
+          After cross-source matching, 5,474 DOI records were new to the corpus,
+          2,429 were rediscovered, and 1,289 no-DOI records remained pending identifier
+          resolution. These are record counts, not independent-study counts.</p>
+          <p>The screening cohort also reconsiders existing PCP records without an
+          inclusion and records with restored abstracts. Publication-format,
+          language and usable-abstract cleanup ran first; 4,637 records passed for
+          title-and-abstract screening with GPT-6 Luna at low reasoning, using V5
+          with PCP explicitly named. Inclusion and source-recovery results are
+          reported separately from publication of a new graph release.</p>
+          <p><strong>PubMed expression</strong></p>
+          <pre style="white-space:pre-wrap;overflow-wrap:anywhere"><code>(Phencyclidine[MeSH Terms] OR phencyclidine[Text Word] OR (PCP[Title/Abstract] AND (NMDA[Title/Abstract] OR NMDAR[Title/Abstract] OR ketamine[Title/Abstract] OR dissociat*[Title/Abstract] OR hallucinog*[Title/Abstract] OR psychotomimetic[Title/Abstract] OR schizophrenia[Title/Abstract] OR intoxica*[Title/Abstract] OR &quot;drug abuse&quot;[Title/Abstract] OR &quot;drug use&quot;[Title/Abstract])))</code></pre>
+          <p><strong>OpenAlex expression</strong> (title-and-abstract search)</p>
+          <pre style="white-space:pre-wrap;overflow-wrap:anywhere"><code>(phencyclidine OR (PCP AND (NMDA OR NMDAR OR ketamine OR dissociative OR dissociation OR hallucinogen OR hallucinogenic OR psychotomimetic OR schizophrenia OR intoxication OR &quot;drug abuse&quot; OR &quot;drug use&quot;)))</code></pre>
+        </details>
         <div class="method-query-details-grid">
           <details class="method-query-details">
             <summary>Compound search terms <span>Names, aliases, and compound classes</span></summary>
@@ -322,11 +353,11 @@
                 <dl>
                   <div>
                     <dt>Compounds in scope</dt>
-                    <dd>LSD; psilocybin; psilocin; mescaline; DMT; 5-MeO-DMT; bufotenin; 4-AcO-DMT; 4-HO-MET; 4-HO-MiPT; 5-MeO-MiPT; ayahuasca; ibogaine; noribogaine; MDMA; MDA; ketamine; S-ketamine; R-ketamine; DOI; DOB; DOM; DOC; DOET; 2C-B; 2C-C; 2C-D; 2C-E; 2C-I; 2C-P; 2C-T-2; 2C-T-7; 25CN-NBOH; 5-MeO-DiPT; DiPT; DPT; alpha-methyltryptamine; LSA; AL-LAD; ETH-LAD; PRO-LAD; 1P-LSD; salvinorin A; lisuride; Bromo-DragonFLY; 25I-NBOMe; 25B-NBOMe; 25C-NBOMe; 25I-NBOH; 25B-NBOH; 25C-NBOH; TMA; TMA-2</dd>
+                    <dd>LSD; psilocybin; psilocin; mescaline; DMT; 5-MeO-DMT; bufotenin; 4-AcO-DMT; 4-HO-MET; 4-HO-MiPT; 5-MeO-MiPT; ayahuasca; ibogaine; noribogaine; MDMA; MDA; ketamine; S-ketamine; R-ketamine; phencyclidine (PCP); DOI; DOB; DOM; DOC; DOET; 2C-B; 2C-C; 2C-D; 2C-E; 2C-I; 2C-P; 2C-T-2; 2C-T-7; 25CN-NBOH; 5-MeO-DiPT; DiPT; DPT; alpha-methyltryptamine; LSA; AL-LAD; ETH-LAD; PRO-LAD; 1P-LSD; salvinorin A; lisuride; Bromo-DragonFLY; 25I-NBOMe; 25B-NBOMe; 25C-NBOMe; 25I-NBOH; 25B-NBOH; 25C-NBOH; TMA; TMA-2</dd>
                   </div>
                   <div>
                     <dt>Alias examples</dt>
-                    <dd>lysergide and lysergic acid diethylamide for LSD; magic mushroom and 4-PO-DMT for psilocybin; midomafetamine and 3,4-methylenedioxymethamphetamine for MDMA; esketamine and arketamine for ketamine; hoasca and yage for ayahuasca</dd>
+                    <dd>lysergide and lysergic acid diethylamide for LSD; magic mushroom and 4-PO-DMT for psilocybin; midomafetamine and 3,4-methylenedioxymethamphetamine for MDMA; esketamine and arketamine for ketamine; PCP with drug context for phencyclidine; hoasca and yage for ayahuasca</dd>
                   </div>
                   <div>
                     <dt>Compound class terms</dt>
@@ -461,16 +492,14 @@
           bibliographic metadata and text availability. It excludes records
           with no abstract; books, book chapters, theses, conference abstracts,
           and preprints; protocols, corrections, peer-review records, and
-          citation-only records; and records with no recognized psychedelic
-          compound or intervention term in the title, abstract, author
-          keywords, or MeSH terms. The remaining records are screened with
-          Gemini 3 Flash. The decision is based primarily on the title
+          citation-only records; non-English publications; and unusable
+          abstracts. Topic relevance is assessed by GPT-6 Luna using the title
           and abstract, with publication labels, MeSH terms, and keywords used
           as supporting context. A publication is considered in scope when a
           psychedelic-related substance, intervention, exposure, or relevant
-          research area is a central subject of the study or a major topic of
-          the synthesis. Background examples, incidental mentions, comparison
-          points, and individual items in broad lists are excluded. When
+          research question has a substantive drug-specific finding or is a
+          major topic of the synthesis. Background examples, incidental mentions,
+          and individual items in broad lists are insufficient. When
           relevance is plausible but the abstract is limited or ambiguous, the
           publication is retained for the next stage to reduce the chance of
           excluding relevant evidence.
@@ -484,11 +513,10 @@
             <div class="method-screening-details-content">
               <p>Records are excluded before LLM screening when any of the following applies:</p>
               <ul>
-                <li>No abstract is available.</li>
+                <li>No usable abstract of at least 50 words is available.</li>
                 <li>The publication is a book, book chapter, thesis, preprint, or conference abstract.</li>
                 <li>The record is a protocol, correction, peer-review record, or citation-only record.</li>
-                <li>No recognized psychedelic compound or intervention term appears in the title, abstract, keywords, or MeSH terms.</li>
-                <li>The text matches a known false positive, such as LSD referring to lumpy skin disease.</li>
+                <li>The publication is non-English under the source-language rules.</li>
               </ul>
               <a class="method-screening-link method-screening-resource" href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/review/run_deterministic_prescreen.py" target="_blank" rel="noopener noreferrer">View screening code</a>
             </div>
@@ -496,11 +524,11 @@
           <details class="method-query-details method-screening-details">
             <summary>2. LLM-based screening and classification <span>Inclusion and classification</span></summary>
             <div class="method-screening-details-content">
-              <p>For the remaining records, Gemini uses the title and abstract to make three linked decisions:</p>
+              <p>For the remaining records, GPT-6 Luna uses the title and abstract to make three linked decisions:</p>
               <dl class="method-screening-decision-list">
                 <div>
                   <dt>Inclusion</dt>
-                  <dd>Whether psychedelic-related evidence is a central subject of the study or synthesis.</dd>
+                  <dd>Whether there is a substantive eligible drug-specific result or central synthesis.</dd>
                 </div>
                 <div>
                   <dt>Publication type</dt>
@@ -567,7 +595,7 @@
           the graph automatically.
         </p>
         <div class="method-extraction-panel">
-          <div class="method-extraction-visual" aria-label="Source text, prompt, and output schema supplied to Gemini 3 Flash">
+          <div class="method-extraction-visual" aria-label="Source text, prompt, and output schema supplied to GPT-6 Luna">
             <div class="method-extraction-inputs">
               <div>
                 <span>Source text</span>
@@ -583,7 +611,7 @@
               </div>
             </div>
             <div class="method-extraction-output">
-              <span>Gemini 3 Flash</span>
+              <span>GPT-6 Luna</span>
               <strong>Extracted findings checked against the output schema</strong>
             </div>
           </div>
@@ -807,10 +835,9 @@
           accuracy of article links and open-access metadata supplied by
           external providers. These records are not always complete or
           consistent, so the workflow may fail to retrieve some articles that
-          are in fact openly accessible. Gemini 3 Flash was selected to
-          balance model capability with the cost of processing literature at
-          scale; more capable models could improve screening or extraction
-          quality, but would also increase processing costs. The graph is
+          are in fact openly accessible. Model and instruction choices are
+          evaluated on saved examples, but those evaluations do not establish
+          error-free screening, extraction, or comprehensive coverage. The graph is
           intended for research exploration, not as a complete systematic
           review or as clinical guidance.
         </p>

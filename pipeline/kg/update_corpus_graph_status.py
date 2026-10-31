@@ -219,15 +219,27 @@ def decision_from_extraction_outcome(statuses: set[str]) -> dict:
         }
     if "wrong_source_type" in statuses:
         return {
-            "disposition": "not_results_report",
-            "reason": "The completed extraction identified the record as the wrong source type.",
-            "next_action": "Reconcile the upstream screening and routing decision.",
+            "disposition": "unsupported_finding_detail",
+            "reason": (
+                "The completed extraction reported a mismatch with its assigned source-type "
+                "profile. This is a routing exception, not proof that the report is ineligible."
+            ),
+            "next_action": "Review the source type and use the appropriate existing extractor; preserve screening provenance.",
+        }
+    if "human_review" in statuses:
+        return {
+            "disposition": "unsupported_finding_detail",
+            "reason": "The completed extraction explicitly deferred evidence admission for review.",
+            "next_action": "Review the saved extraction and source before graph admission.",
         }
     if "not_relevant" in statuses:
         return {
-            "disposition": "adjudicated_outside_scope",
-            "reason": "The completed extraction identified the record as outside the evidence scope.",
-            "next_action": "Reconcile the upstream screening decision.",
+            "disposition": "no_extractable_finding",
+            "reason": (
+                "The completed extraction returned no relevant evidence for its assigned "
+                "profile; the original screening decision is preserved."
+            ),
+            "next_action": "Retain the completed extraction outcome and assigned-profile provenance for audit.",
         }
     raise ValueError(f"No final graph disposition is defined for extraction outcomes: {sorted(statuses)}")
 

@@ -360,6 +360,13 @@ def convert_routed_local_pdfs(
     )
     metadata_df = pd.read_parquet(metadata_table) if metadata_table.exists() else pd.DataFrame()
     candidate_df = pd.read_parquet(candidate_table) if candidate_table.exists() else pd.DataFrame()
+    # Managed batches provide an explicit DOI scope. Avoid merging the entire
+    # corpus again for every small batch before selected_pdf_rows applies it.
+    if doi_filter is not None:
+        if "doi" in metadata_df:
+            metadata_df = metadata_df[metadata_df["doi"].map(normalize_doi).isin(doi_filter)].copy()
+        if "doi" in candidate_df:
+            candidate_df = candidate_df[candidate_df["doi"].map(normalize_doi).isin(doi_filter)].copy()
     metadata_df = merged_extraction_metadata(candidate_df, metadata_df)
     rows, skipped = selected_pdf_rows(
         routes_df=routes_df,

@@ -195,6 +195,12 @@ The decoded rows are flat and route-native. Important fields include:
 - domain-specific evidence fields such as `support`, `effect_size`,
   `outcome_measure`, `sample_size_total`, `mechanism_type`, `assay_type`, and
   `assessment_timepoint`
+- optional native Safety assertions: `safety_event_or_measure`, `safety_category`,
+  `severity`, `seriousness`, `frequency_or_rate`, and
+  `discontinuation_or_withdrawal`. These retain the reported exact event and
+  qualifications independently of a broader graph anchor. The browser renders
+  severity and seriousness separately; no event rate or diagnosis is inferred.
+  Older tables can omit these columns.
 - meta-analysis fields currently rendered by the interface, such as result
   role, population, comparator, follow-up window, included-study count,
   heterogeneity summary, subgroup or moderator, risk-of-bias summary, and

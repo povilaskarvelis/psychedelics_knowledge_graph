@@ -17,9 +17,11 @@ def test_secondary_named_objects_preserve_combination_and_qualification():
         result=dict(paper_frame={},relationships=[relationship]))]
     tasks=[dict(study_doi='10.example/review',paper_metadata=dict(study_title='Psilocybin and mindfulness'))]
     registry=dict(compounds=[dict(label='Psilocybin',aliases=[])],targets=[],disorders=[])
-    base,_=convert_bundles(bundles,tasks,registry,active_candidate_dois={'10.example/review'})
+    base,_=convert_bundles(bundles,tasks,registry,active_candidate_dois={'10.example/review'},project_secondary_named_anchors=False)
     repaired,_=convert_bundles(bundles,tasks,registry,active_candidate_dois={'10.example/review'},project_secondary_named_anchors=True)
+    current_default,_=convert_bundles(bundles,tasks,registry,active_candidate_dois={'10.example/review'})
     assert len(base)==1 and len(repaired)==2
+    assert current_default==repaired
     assert {r['graph_entity_label'] for r in repaired}=={'5-HT2A','BDNF'}
     assert all(r['support']==statement and r['notes']=='Preliminary evidence' for r in repaired)
     assert all(r['graph_subject_label']=='Psilocybin + Mindfulness' for r in repaired)

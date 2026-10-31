@@ -1,0 +1,786 @@
+{
+  "source": "Verbatim frozen saved output; selected source relationships, not source-paper truth labels.",
+  "bundles": [
+    {
+      "task_id": "reviewrel:11b43c511e282018bdba",
+      "study_doi": "10.1001/jamapsychiatry.2022.0665",
+      "study_title": "Toward Risk-Benefit Assessments in Psychedelic- and MDMA-Assisted Therapies",
+      "text_depth": "article_text",
+      "status": "ok",
+      "result": {
+        "schema_version": "review_relationship_bundle_v2",
+        "source_depth": "article_text",
+        "paper_frame": {
+          "review_contribution_type": "translational_or_practice_agenda",
+          "objective_and_scope": "This Viewpoint briefly reviews risks of supervised psychedelic- and MDMA-assisted therapies, identifies situations that complicate clinical risk-benefit assessment, and recommends research, monitoring, and care approaches for people at elevated risk of adverse outcomes.",
+          "review_design": "Brief narrative review and clinical-policy viewpoint; no systematic search or formal evidence-grading method is reported.",
+          "primary_subjects": [
+            "Supervised psychedelic-assisted therapies, particularly psilocybin therapy",
+            "MDMA-assisted therapy",
+            "Risk-benefit assessment and safety monitoring in higher-risk patients"
+          ],
+          "supporting_examples_or_background": [
+            "Potential U.S. risk evaluation and mitigation strategies (REMS)",
+            "State-level supported adult-use regulation, including Oregon",
+            "Registered trials of psilocybin for bipolar II depression"
+          ],
+          "major_aspects": [
+            {
+              "aspect_id": "A1",
+              "aspect_type": "safety",
+              "description": "Acute psychiatric effects are expected during supervised psychedelic or MDMA sessions, while a subset of patients may experience symptoms that persist beyond the acute drug effects.",
+              "importance": "paper_defining",
+              "basis": [
+                "repeated_synthesis",
+                "discussion_emphasis"
+              ]
+            },
+            {
+              "aspect_id": "A2",
+              "aspect_type": "population",
+              "description": "Evidence from carefully selected trial populations is insufficient to quantify risks and benefits for higher-risk patients, motivating study in more diverse and representative populations.",
+              "importance": "paper_defining",
+              "basis": [
+                "stated_objective",
+                "discussion_emphasis",
+                "review_conclusion"
+              ]
+            },
+            {
+              "aspect_id": "A3",
+              "aspect_type": "practice_or_policy",
+              "description": "Risk mitigation depends on therapeutic context, preparation, supervision, follow-up, and individualized safeguards.",
+              "importance": "paper_defining",
+              "basis": [
+                "discussion_emphasis",
+                "review_conclusion"
+              ]
+            },
+            {
+              "aspect_id": "A4",
+              "aspect_type": "practice_or_policy",
+              "description": "Broader clinical use requires safety-data infrastructure and access-conscious oversight, including standardized reporting and resources for patient concerns.",
+              "importance": "paper_defining",
+              "basis": [
+                "discussion_emphasis",
+                "review_conclusion"
+              ]
+            },
+            {
+              "aspect_id": "A5",
+              "aspect_type": "practice_or_policy",
+              "description": "Psychiatric expertise, workforce development, and informed guidance are needed to support risk-benefit decisions and care as use expands.",
+              "importance": "major_supporting",
+              "basis": [
+                "discussion_emphasis",
+                "review_conclusion"
+              ]
+            }
+          ],
+          "populations_or_systems": [
+            "Patients receiving supervised psychedelic- or MDMA-assisted therapy",
+            "Higher-risk patients, including people with personal or family histories of psychosis or bipolar disorder and patients at risk of suicide",
+            "Small, carefully selected populations enrolled in modern clinical trials"
+          ],
+          "source_completeness": "article_text"
+        },
+        "relationships": [
+          {
+            "item_id": "R1",
+            "covers_major_aspect_ids": [
+              "A1"
+            ],
+            "source_item_ids": [
+              "R1"
+            ],
+            "relationship_kind": "review_synthesis",
+            "relationship_statement": "Supervised psychedelic use commonly produces transient mood instability, sensory disturbances, and altered salience, while MDMA produces a distinct response with a strong affective component; these acute effects usually resolve within hours, but worsening mood or thought symptoms may sometimes outlast drug effects.",
+            "anchors": [
+              {
+                "role": "compound_class",
+                "label": "Psychedelics",
+                "anchor_type": "compound_class"
+              },
+              {
+                "role": "compound",
+                "label": "MDMA",
+                "anchor_type": "named_entity"
+              },
+              {
+                "role": "safety_event",
+                "label": "Acute and potentially persistent psychiatric effects",
+                "anchor_type": "other"
+              }
+            ],
+            "relation_phrase": "can produce",
+            "direction_or_tone": "mixed",
+            "paper_prominence": "paper_defining",
+            "centrality_basis": [
+              "repeated_synthesis",
+              "discussion_emphasis"
+            ],
+            "evidence_stratum": "human",
+            "domain_labels": [
+              "safety_tolerability",
+              "cognitive_behavioral",
+              "subjective_experience"
+            ],
+            "evidence_locators": [
+              {
+                "location": "text",
+                "locator": "C001, acute risks",
+                "supporting_text": "These acute risks usually resolve within hours of the dosing session. Nevertheless, in some patients, psychedelics or MDMA may provoke worsening symptoms of mood or thought disorder that outlast the acute drug effects."
+              }
+            ],
+            "limitations": [
+              "The article does not quantify the incidence of persistent symptoms.",
+              "The stated acute effects differ between psychedelics and MDMA."
+            ],
+            "graph_eligibility": "main_graph",
+            "graph_form": "class"
+          }
+        ],
+        "bundle_summary": "The Viewpoint argues that risk-benefit assessment for psychedelic- and MDMA-assisted therapies is limited by the exclusion of higher-risk patients from trials, and calls for broader research, contextual and individualized safeguards, standardized safety reporting, access-conscious oversight, and stronger psychiatric expertise. It notes that acute psychiatric effects are expected and usually transient, but that persistent worsening and other serious risks remain possible or uncertain.",
+        "full_text_priority": "low",
+        "warnings": []
+      },
+      "schema_errors": [],
+      "qa_flags": []
+    },
+    {
+      "task_id": "reviewrel:7c63151d1ab3e1ebf92f",
+      "study_doi": "10.1002/hup.70063",
+      "study_title": "Psilocybin, From Ancestral Use to Therapeutic Potential: A Multidimensional Review of Its Pharmacological Basis and Current Perspectives.",
+      "text_depth": "article_text",
+      "status": "ok",
+      "result": {
+        "schema_version": "review_relationship_bundle_v2",
+        "source_depth": "article_text",
+        "paper_frame": {
+          "review_contribution_type": "mixed",
+          "objective_and_scope": "Critically integrates historical and ethnographic context with pharmacokinetic, pharmacodynamic, preclinical, and clinical evidence on psilocybin/psilocin, emphasizing mechanisms, therapeutic potential, safety, microdosing, drug interactions, and ethical and regulatory considerations.",
+          "review_design": "Narrative review based on searches of PubMed and Google Scholar using psilocybin-related keywords, supplemented by manual cross-reference searches. The review included all study types, from randomized trials to case reports.",
+          "primary_subjects": [
+            "Psilocybin and its active metabolite psilocin",
+            "Serotonergic, neuroplastic, and anti-inflammatory mechanisms",
+            "Therapeutic applications and safety",
+            "Psilocybin microdosing",
+            "Pharmacokinetics and pharmacological interactions"
+          ],
+          "supporting_examples_or_background": [
+            "Ancestral Mesoamerican ceremonial and healing use of psilocybin-containing mushrooms",
+            "The history of modern psilocybin research and prohibition",
+            "Emerging legal and regulatory approaches"
+          ],
+          "major_aspects": [
+            {
+              "aspect_id": "a1",
+              "aspect_type": "mechanism",
+              "description": "Psilocybin is converted to psilocin, whose serotonergic activity is linked in the review to neuroplastic, brain-network, and immune effects.",
+              "importance": "paper_defining",
+              "basis": [
+                "stated_objective",
+                "abstract_result",
+                "repeated_synthesis",
+                "review_conclusion"
+              ]
+            },
+            {
+              "aspect_id": "a2",
+              "aspect_type": "pharmacokinetics_or_exposure",
+              "description": "Psilocybin's conversion, metabolism, and potential to inhibit drug-metabolizing enzymes are important to exposure and interaction risk.",
+              "importance": "major_supporting",
+              "basis": [
+                "stated_objective",
+                "dedicated_section",
+                "abstract_result"
+              ]
+            },
+            {
+              "aspect_id": "a3",
+              "aspect_type": "efficacy_or_effect",
+              "description": "The review presents psilocybin as therapeutically promising across psychiatric and other conditions, while drawing on evidence of differing maturity and study types.",
+              "importance": "paper_defining",
+              "basis": [
+                "abstract_result",
+                "repeated_synthesis",
+                "review_conclusion"
+              ]
+            },
+            {
+              "aspect_id": "a4",
+              "aspect_type": "efficacy_or_effect",
+              "description": "Microdosing is popular and has reported or preliminary effects, but its efficacy remains inconclusive and research is methodologically limited.",
+              "importance": "paper_defining",
+              "basis": [
+                "stated_objective",
+                "abstract_result",
+                "dedicated_section",
+                "review_conclusion"
+              ]
+            },
+            {
+              "aspect_id": "a5",
+              "aspect_type": "safety",
+              "description": "The review describes a generally favorable safety profile in controlled settings but emphasizes unresolved long-term, individual-response, cardiovascular, psychiatric, and interaction concerns.",
+              "importance": "major_supporting",
+              "basis": [
+                "abstract_result",
+                "dedicated_section",
+                "discussion_emphasis",
+                "review_conclusion"
+              ]
+            },
+            {
+              "aspect_id": "a6",
+              "aspect_type": "practice_or_policy",
+              "description": "Responsible clinical integration requires rigorous standardized research and attention to ethical, regulatory, cultural, and access considerations.",
+              "importance": "paper_defining",
+              "basis": [
+                "stated_objective",
+                "discussion_emphasis",
+                "review_conclusion"
+              ]
+            },
+            {
+              "aspect_id": "a7",
+              "aspect_type": "research_landscape",
+              "description": "The review situates current therapeutic research within a history of Indigenous ceremonial use, modern scientific rediscovery, prohibition, and renewed research interest.",
+              "importance": "major_supporting",
+              "basis": [
+                "title_scope",
+                "stated_objective",
+                "dedicated_section"
+              ]
+            }
+          ],
+          "populations_or_systems": [
+            "Human clinical and observational studies, including psychiatric and neurological patient groups",
+            "Preclinical animal models and cellular models",
+            "Healthy human participants in pharmacological and neuroimaging studies",
+            "Indigenous Mesoamerican ceremonial contexts, as historical and ethnographic background"
+          ],
+          "source_completeness": "article_text"
+        },
+        "relationships": [
+          {
+            "item_id": "r1",
+            "covers_major_aspect_ids": [
+              "a1"
+            ],
+            "source_item_ids": [
+              "r1"
+            ],
+            "relationship_kind": "review_synthesis",
+            "relationship_statement": "Psilocybin is rapidly converted to psilocin, which acts predominantly at serotonin receptors, especially 5-HT2A; the review links this activity to synaptic plasticity, reorganization of brain networks, and modulation of inflammatory responses.",
+            "anchors": [
+              {
+                "role": "compound",
+                "label": "Psilocybin",
+                "anchor_type": "named_entity"
+              },
+              {
+                "role": "compound",
+                "label": "Psilocin",
+                "anchor_type": "named_entity"
+              },
+              {
+                "role": "target",
+                "label": "Serotonin receptors, particularly 5-HT2A",
+                "anchor_type": "named_entity"
+              },
+              {
+                "role": "pathway_or_process",
+                "label": "Synaptic plasticity and brain-network reorganization",
+                "anchor_type": "context"
+              },
+              {
+                "role": "pathway_or_process",
+                "label": "Inflammatory response modulation",
+                "anchor_type": "context"
+              }
+            ],
+            "relation_phrase": "is converted to and acts through, with effects linked to",
+            "direction_or_tone": "supports",
+            "paper_prominence": "paper_defining",
+            "centrality_basis": [
+              "stated_objective",
+              "abstract_result",
+              "repeated_synthesis",
+              "review_conclusion"
+            ],
+            "evidence_stratum": "human_and_preclinical",
+            "domain_labels": [
+              "molecular_target",
+              "molecular_pathway_readout",
+              "brain_system"
+            ],
+            "evidence_locators": [
+              {
+                "location": "abstract",
+                "locator": "C001",
+                "supporting_text": "Psilocybin is metabolized into psilocin, which predominantly interacts with serotonin receptors."
+              },
+              {
+                "location": "conclusion",
+                "locator": "C015",
+                "supporting_text": "Its interaction with serotonergic receptors, particularly 5-HT2A, initiates complex neuroplastic, anti-inflammatory, and neuromodulatory cascades."
+              }
+            ],
+            "limitations": [
+              "Mechanistic conclusions draw on different evidence types; proposed pathways and clinical consequences are not uniformly established in humans."
+            ],
+            "graph_eligibility": "main_graph",
+            "graph_form": "context"
+          }
+        ],
+        "bundle_summary": "The review presents psilocybin as a therapeutically promising compound whose conversion to psilocin and serotonergic activity are linked to neuroplastic, network, and inflammatory effects. It emphasizes heterogeneous evidence across possible clinical applications, inconclusive microdosing findings, and safety and interaction uncertainties, and calls for standardized research and responsible clinical integration.",
+        "full_text_priority": "low",
+        "warnings": [
+          "The review is narrative and includes heterogeneous evidence, including preclinical studies, observational findings, pilot studies, and case reports; the strength of evidence varies substantially by claim and indication."
+        ]
+      },
+      "schema_errors": [],
+      "qa_flags": []
+    },
+    {
+      "task_id": "reviewrel:18d655ccf214cbaab686",
+      "study_doi": "10.1080/02791072.1985.10524331",
+      "study_title": "LSD and Psychotherapy",
+      "text_depth": "abstract_only",
+      "status": "ok",
+      "result": {
+        "schema_version": "review_relationship_bundle_v2",
+        "source_depth": "abstract_only",
+        "paper_frame": {
+          "review_contribution_type": "methodological_framework",
+          "objective_and_scope": "Review historical trends in LSD research and argue that LSD's distinctive psychological effects, the influence of researchers' expectations, and limitations of conventional study methods require approaches suited to the study of consciousness and responsible use.",
+          "review_design": "Historical review; the abstract does not describe search methods or formal criteria.",
+          "primary_subjects": [
+            "LSD research",
+            "LSD and psychotherapy",
+            "Methods for studying LSD's psychological effects"
+          ],
+          "supporting_examples_or_background": [
+            "LSD and similar drugs are contrasted with other psychotropic compounds.",
+            "Heisenberg's uncertainty principle is offered as an analogy for possible measurement effects in LSD research.",
+            "Societies that integrate similar substances into their social order are suggested as possible models."
+          ],
+          "major_aspects": [
+            {
+              "aspect_id": "a1",
+              "aspect_type": "research_landscape",
+              "description": "Historical trends in LSD research indicate that LSD and similar drugs should not be treated as merely another group of psychotropic compounds.",
+              "importance": "paper_defining",
+              "basis": [
+                "title_scope",
+                "abstract_result"
+              ]
+            },
+            {
+              "aspect_id": "a2",
+              "aspect_type": "other",
+              "description": "Researchers' theoretical understanding and expectations are described as determining subjective effects and results of LSD treatment.",
+              "importance": "paper_defining",
+              "basis": [
+                "abstract_result"
+              ]
+            },
+            {
+              "aspect_id": "a3",
+              "aspect_type": "methodological_contribution",
+              "description": "Double-blind controlled studies are judged inappropriate for studying LSD because an effective blind cannot feasibly be created with active or inactive placebo.",
+              "importance": "paper_defining",
+              "basis": [
+                "abstract_result"
+              ]
+            },
+            {
+              "aspect_id": "a4",
+              "aspect_type": "methodological_contribution",
+              "description": "The review raises the possibility that measurement methods influence LSD research processes and results substantially, while characterizing this as a possibility rather than a demonstrated general finding.",
+              "importance": "major_supporting",
+              "basis": [
+                "abstract_result"
+              ]
+            },
+            {
+              "aspect_id": "a5",
+              "aspect_type": "practice_or_policy",
+              "description": "The abstract argues that LSD and similar drugs should not simply be abandoned and that research should advance understanding of responsible and appropriate use.",
+              "importance": "paper_defining",
+              "basis": [
+                "abstract_result",
+                "review_conclusion"
+              ]
+            }
+          ],
+          "populations_or_systems": [
+            "Human consciousness and subjective effects",
+            "LSD treatment and its research methods",
+            "Historical LSD research"
+          ],
+          "source_completeness": "abstract_only"
+        },
+        "relationships": [
+          {
+            "item_id": "r2",
+            "covers_major_aspect_ids": [
+              "a2"
+            ],
+            "source_item_ids": [
+              "r2"
+            ],
+            "relationship_kind": "review_synthesis",
+            "relationship_statement": "The review states that researchers' theoretical understanding and expectations determine the subjective effects and results of LSD treatment.",
+            "anchors": [
+              {
+                "role": "compound",
+                "label": "LSD",
+                "anchor_type": "named_entity"
+              },
+              {
+                "role": "intervention",
+                "label": "LSD treatment",
+                "anchor_type": "context"
+              },
+              {
+                "role": "other",
+                "label": "Researchers' theoretical understanding and expectations",
+                "anchor_type": "context"
+              },
+              {
+                "role": "subjective_construct",
+                "label": "Subjective effects and treatment results",
+                "anchor_type": "other"
+              }
+            ],
+            "relation_phrase": "researchers' expectations determine",
+            "direction_or_tone": "supports",
+            "paper_prominence": "paper_defining",
+            "centrality_basis": [
+              "abstract_result"
+            ],
+            "evidence_stratum": "field_or_method",
+            "domain_labels": [
+              "subjective_experience",
+              "clinical_outcome",
+              "intervention_context"
+            ],
+            "evidence_locators": [
+              {
+                "location": "abstract",
+                "locator": "Second sentence",
+                "supporting_text": "The importance of the theoretical understanding and expectations of the researchers in determining the subjective effects and results of LSD treatment is undeniable."
+              }
+            ],
+            "limitations": [
+              "The abstract does not specify the treatment settings, outcomes, or evidence supporting this conclusion."
+            ],
+            "graph_eligibility": "main_graph",
+            "graph_form": "context"
+          }
+        ],
+        "bundle_summary": "The review argues that LSD and similar drugs have distinctive psychological effects requiring distinct consideration, that researcher expectations shape LSD treatment effects and results, and that double-blind studies are inappropriate because effective blinding is infeasible. It also raises the possibility that measurement methods substantially influence LSD research and calls for continued research into responsible and appropriate use.",
+        "full_text_priority": "medium",
+        "warnings": [
+          "The abstract provides no formal review-method details.",
+          "The proposed analogy between measurement in LSD research and the uncertainty principle is explicitly tentative."
+        ]
+      },
+      "schema_errors": [],
+      "qa_flags": [
+        "major_aspect_covered_by_noncentral_relationship:r6"
+      ]
+    },
+    {
+      "task_id": "reviewrel:0676d2494be6ad25e3d2",
+      "study_doi": "10.1523/jneurosci.1659-20.2020",
+      "study_title": "Hallucinogens in Mental Health: Preclinical and Clinical Studies on LSD, Psilocybin, MDMA, and Ketamine",
+      "text_depth": "article_text",
+      "status": "ok",
+      "result": {
+        "schema_version": "review_relationship_bundle_v2",
+        "source_depth": "article_text",
+        "paper_frame": {
+          "review_contribution_type": "mixed",
+          "objective_and_scope": "To summarize and compare the pharmacology and behavioral effects of classic psychedelics, the dissociative anesthetic ketamine, and the entactogen MDMA, drawing on preclinical and clinical research relevant to mental health. The review emphasizes psychedelic effects in animals and human brain connectivity, ketamine's antidepressant effects, and MDMA's prosocial effects and therapeutic applications.",
+          "review_design": "Narrative review of preclinical and clinical studies; no systematic search or formal evidence-grading method is described.",
+          "primary_subjects": [
+            "LSD and other classic serotonergic psychedelics, including psilocybin/psilocin and DMT",
+            "Ketamine as a dissociative anesthetic and antidepressant",
+            "MDMA as an entactogen and psychotherapy adjunct",
+            "Pharmacological mechanisms and behavioral effects relevant to psychiatric research"
+          ],
+          "supporting_examples_or_background": [
+            "Lisuride as an example of a nonhallucinogenic 5-HT2A agonist",
+            "Ketamine metabolite (2R,6R)-HNK in preclinical antidepressant studies",
+            "Other NMDAR antagonists as mechanistic comparisons",
+            "Potential applications of psilocybin and MDMA in alcohol use disorder and of MDMA in autism spectrum disorder"
+          ],
+          "major_aspects": [
+            {
+              "aspect_id": "A1",
+              "aspect_type": "mechanism",
+              "description": "The review distinguishes serotonergic classic psychedelics, glutamatergic dissociative anesthetics, and entactogens, and emphasizes that their pharmacology and behavioral effects differ and can involve complex mechanisms.",
+              "importance": "paper_defining",
+              "basis": [
+                "stated_objective",
+                "dedicated_section",
+                "review_conclusion"
+              ]
+            },
+            {
+              "aspect_id": "A2",
+              "aspect_type": "efficacy_or_effect",
+              "description": "Preclinical psychedelic behavioral findings and human brain-connectivity findings are promising but context-sensitive, methodologically heterogeneous, and insufficient to establish clinical mechanisms or efficacy.",
+              "importance": "paper_defining",
+              "basis": [
+                "stated_objective",
+                "repeated_synthesis",
+                "discussion_emphasis"
+              ]
+            },
+            {
+              "aspect_id": "A3",
+              "aspect_type": "efficacy_or_effect",
+              "description": "Ketamine has established rapid antidepressant effects in treatment-resistant depression, while its mechanisms, durability, and safety limitations remain important qualifications.",
+              "importance": "paper_defining",
+              "basis": [
+                "abstract_result",
+                "dedicated_section",
+                "review_conclusion"
+              ]
+            },
+            {
+              "aspect_id": "A4",
+              "aspect_type": "interaction_or_combination",
+              "description": "MDMA's prosocial and emotional-processing effects are relevant to its use with psychotherapy, with encouraging PTSD findings but unresolved therapeutic-context and mechanism questions.",
+              "importance": "paper_defining",
+              "basis": [
+                "abstract_result",
+                "stated_objective",
+                "dedicated_section",
+                "review_conclusion"
+              ]
+            },
+            {
+              "aspect_id": "A5",
+              "aspect_type": "research_landscape",
+              "description": "The reviewed compounds are useful both as potential mental-health treatments and as tools for studying neural circuitry, connectivity, pharmacological targets, and signaling relevant to psychiatric disorders.",
+              "importance": "major_supporting",
+              "basis": [
+                "discussion_emphasis",
+                "review_conclusion"
+              ]
+            }
+          ],
+          "populations_or_systems": [
+            "Rodent behavioral models",
+            "Healthy human participants in neuroimaging and pharmacology studies",
+            "Patients with major depressive disorder, including treatment-resistant depression",
+            "Patients with post-traumatic stress disorder receiving MDMA-assisted psychotherapy"
+          ],
+          "source_completeness": "article_text"
+        },
+        "relationships": [
+          {
+            "item_id": "R2",
+            "covers_major_aspect_ids": [
+              "A1"
+            ],
+            "source_item_ids": [
+              "R2"
+            ],
+            "relationship_kind": "review_synthesis",
+            "relationship_statement": "Classic psychedelics, including LSD, psilocybin, and DMT, act at multiple serotonergic receptors and may also engage dopaminergic and other targets; their mechanisms are therefore more complex than 5-HT2A agonism alone.",
+            "anchors": [
+              {
+                "role": "compound_class",
+                "label": "Classic psychedelics",
+                "anchor_type": "compound_class"
+              },
+              {
+                "role": "compound",
+                "label": "LSD",
+                "anchor_type": "named_entity"
+              },
+              {
+                "role": "compound",
+                "label": "Psilocybin",
+                "anchor_type": "named_entity"
+              },
+              {
+                "role": "compound",
+                "label": "DMT",
+                "anchor_type": "named_entity"
+              },
+              {
+                "role": "target",
+                "label": "5-HT2A and other serotonin receptors",
+                "anchor_type": "named_entity"
+              },
+              {
+                "role": "target",
+                "label": "Dopamine receptors",
+                "anchor_type": "named_entity"
+              }
+            ],
+            "relation_phrase": "engage multiple targets beyond 5-HT2A",
+            "direction_or_tone": "supports",
+            "paper_prominence": "major_supporting",
+            "centrality_basis": [
+              "dedicated_section",
+              "discussion_emphasis",
+              "review_conclusion"
+            ],
+            "evidence_stratum": "human_and_preclinical",
+            "domain_labels": [
+              "molecular_target",
+              "molecular_pathway_readout"
+            ],
+            "evidence_locators": [
+              {
+                "location": "text",
+                "locator": "Psychedelics: the 5HT2A receptor",
+                "supporting_text": "Psychedelics ... have been demonstrated to also interact with 5HT1A, 5HT2B, 5HT2C, 5HT6, and 5HT7 receptors."
+              },
+              {
+                "location": "text",
+                "locator": "Psychedelics: the 5HT2A receptor",
+                "supporting_text": "Overall, psychedelic compounds display a pharmacological activity that goes beyond their action as 5HT2A agonist."
+              }
+            ],
+            "limitations": [
+              "The potential role of TAAR1 and the contribution of the various targets require further investigation."
+            ],
+            "graph_eligibility": "main_graph",
+            "graph_form": "class"
+          }
+        ],
+        "bundle_summary": "The review distinguishes the mechanisms and behavioral profiles of classic psychedelics, ketamine, and MDMA. It describes context-sensitive preclinical psychedelic effects and altered human brain connectivity, while judging clinical efficacy for psilocybin and LSD as preliminary. Ketamine has rapid antidepressant effects in treatment-resistant depression, but its mechanism remains unresolved and long-term use carries safety risks. MDMA's prosocial effects may support psychotherapy, and MDMA-assisted psychotherapy has encouraging but not yet definitive evidence for PTSD.",
+        "full_text_priority": "low",
+        "warnings": []
+      },
+      "schema_errors": [],
+      "qa_flags": []
+    }
+  ],
+  "registry": {
+    "compounds": [
+      {
+        "label": "DMT",
+        "aliases": [
+          "N,N-dimethyltryptamine",
+          "dimethyltryptamine"
+        ],
+        "ids": {
+          "pubchem_cid": "",
+          "chembl_id": "",
+          "drugbank_id": "",
+          "inchi_key": ""
+        },
+        "status": "needs_external_id_lookup"
+      },
+      {
+        "label": "Ketamine",
+        "aliases": [
+          "racemic ketamine",
+          "(R,S)-ketamine",
+          "intravenous racemic ketamine",
+          "IV ketamine"
+        ],
+        "ids": {
+          "pubchem_cid": "",
+          "chembl_id": "",
+          "drugbank_id": "",
+          "inchi_key": ""
+        },
+        "status": "needs_external_id_lookup"
+      },
+      {
+        "label": "LSD",
+        "aliases": [
+          "lysergic acid diethylamide",
+          "d-Lysergic acid diethylamide",
+          "d-lysergic acid diethylamide",
+          "lysergide",
+          "MM120",
+          "MM120 (lysergide D-tartrate)",
+          "lysergide D-tartrate"
+        ],
+        "ids": {
+          "pubchem_cid": "",
+          "chembl_id": "",
+          "drugbank_id": "",
+          "inchi_key": ""
+        },
+        "status": "needs_external_id_lookup"
+      },
+      {
+        "label": "MDMA",
+        "aliases": [
+          "3,4-methylenedioxymethamphetamine",
+          "methylenedioxymethamphetamine",
+          "ecstasy",
+          "R(-)-MDMA",
+          "S(+)-MDMA",
+          "S,R(+-)-MDMA",
+          "MDMA-assisted therapy",
+          "MDMA-assisted psychotherapy"
+        ],
+        "ids": {
+          "pubchem_cid": "",
+          "chembl_id": "",
+          "drugbank_id": "",
+          "inchi_key": ""
+        },
+        "status": "needs_external_id_lookup"
+      },
+      {
+        "label": "Psilocin",
+        "aliases": [
+          "4-hydroxy-DMT",
+          "4-HO-DMT"
+        ],
+        "ids": {
+          "pubchem_cid": "",
+          "chembl_id": "",
+          "drugbank_id": "",
+          "inchi_key": ""
+        },
+        "status": "needs_external_id_lookup"
+      },
+      {
+        "label": "Psilocybin",
+        "aliases": [
+          "psilocybin mushroom",
+          "psilocybin mushrooms",
+          "psilocybin-assisted therapy",
+          "COMP360",
+          "COMP360 psilocybin",
+          "psilocibina",
+          "Psilocybe cubensis",
+          "Psilocybe cubensis mushroom",
+          "Psilocybe cubensis mushrooms",
+          "Psilocybe cubensis extract",
+          "Psilocybe cubensis aqueous extract",
+          "Psilocybe zapotecorum",
+          "Psilocybe azurescens",
+          "magic mushrooms",
+          "shrooms",
+          "magic truffles",
+          "psilocybin-containing mushrooms",
+          "psilocybin-containing truffles"
+        ],
+        "ids": {
+          "pubchem_cid": "",
+          "chembl_id": "",
+          "drugbank_id": "",
+          "inchi_key": ""
+        },
+        "status": "needs_external_id_lookup"
+      }
+    ]
+  }
+}

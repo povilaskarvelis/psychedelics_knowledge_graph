@@ -1,0 +1,461 @@
+{
+  "provenance": "Frozen Luna review outputs, normalization_20261026; original relationships retained verbatim, unrelated relationships omitted.",
+  "bundles": [
+    {
+      "task_id": "reviewrel:73aae5d1b350cb042287",
+      "study_doi": "10.1016/j.bcp.2021.114892",
+      "study_title": "Mechanisms of ketamine and its metabolites as antidepressants.",
+      "text_depth": "article_text",
+      "status": "ok",
+      "result": {
+        "schema_version": "review_relationship_bundle_v2",
+        "source_depth": "article_text",
+        "paper_frame": {
+          "review_contribution_type": "mechanistic_or_conceptual_review",
+          "objective_and_scope": "Review preclinical and clinical evidence on how ketamine and its metabolites produce antidepressant effects, focusing on glutamatergic signaling, BDNF-mediated synaptic changes, opioid-system interactions, and monoamine signaling, and identify mechanisms that may enable rapid-acting antidepressants with fewer undesirable effects.",
+          "review_design": "Narrative review synthesizing selected preclinical and clinical studies, including discussion of conflicting findings and mechanistic hypotheses.",
+          "primary_subjects": [
+            "(R,S)-ketamine and its enantiomers",
+            "(2R,6R)-hydroxynorketamine (HNK) and other ketamine metabolites",
+            "Mechanisms underlying rapid antidepressant effects"
+          ],
+          "supporting_examples_or_background": [
+            "(S)-ketamine (esketamine) clinical use in treatment-resistant depression",
+            "Other NMDAR antagonists and modulators, including memantine, lanicemine, and rapastinel",
+            "Traditional monoaminergic antidepressants"
+          ],
+          "major_aspects": [
+            {
+              "aspect_id": "A1",
+              "aspect_type": "mechanism",
+              "description": "Ketamine's antidepressant mechanism spans multiple neurotransmitter and signaling systems; NMDAR antagonism alone does not fully explain its effects.",
+              "importance": "paper_defining",
+              "basis": [
+                "stated_objective",
+                "repeated_synthesis",
+                "review_conclusion"
+              ]
+            },
+            {
+              "aspect_id": "A2",
+              "aspect_type": "mechanism",
+              "description": "AMPAR-mediated strengthening of excitatory transmission and BDNF/TrkB-associated synaptic plasticity are important shared mechanisms linked to antidepressant effects.",
+              "importance": "paper_defining",
+              "basis": [
+                "repeated_synthesis",
+                "discussion_emphasis",
+                "review_conclusion"
+              ]
+            },
+            {
+              "aspect_id": "A3",
+              "aspect_type": "comparison",
+              "description": "(2R,6R)-HNK has antidepressant-like potential and a pharmacodynamic profile distinct from ketamine, including weak NMDAR effects at therapeutically relevant concentrations.",
+              "importance": "paper_defining",
+              "basis": [
+                "abstract_result",
+                "repeated_synthesis",
+                "review_conclusion"
+              ]
+            },
+            {
+              "aspect_id": "A4",
+              "aspect_type": "interaction_or_combination",
+              "description": "The opioid system may contribute to ketamine's antidepressant effects, but the evidence is controversial and does not establish a settled mechanism.",
+              "importance": "major_supporting",
+              "basis": [
+                "repeated_synthesis",
+                "discussion_emphasis"
+              ]
+            },
+            {
+              "aspect_id": "A5",
+              "aspect_type": "mechanism",
+              "description": "Ketamine and its metabolites influence monoamine signaling, with differences across compounds and uncertainty about direct versus indirect actions.",
+              "importance": "major_supporting",
+              "basis": [
+                "dedicated_section",
+                "repeated_synthesis",
+                "review_conclusion"
+              ]
+            },
+            {
+              "aspect_id": "A6",
+              "aspect_type": "practice_or_policy",
+              "description": "Clarifying distinct mechanisms may support development of rapid-acting antidepressants with fewer undesirable effects than ketamine.",
+              "importance": "major_supporting",
+              "basis": [
+                "abstract_result",
+                "review_conclusion"
+              ]
+            }
+          ],
+          "populations_or_systems": [
+            "Adults with major depression, including treatment-resistant depression",
+            "Rodent models and neural preparations used in preclinical studies",
+            "Human clinical and pharmacological studies"
+          ],
+          "source_completeness": "article_text"
+        },
+        "relationships": [
+          {
+            "item_id": "R1",
+            "covers_major_aspect_ids": [
+              "A1"
+            ],
+            "source_item_ids": [
+              "R1"
+            ],
+            "relationship_kind": "review_synthesis",
+            "relationship_statement": "Ketamine's rapid antidepressant effects are associated with actions across multiple neurotransmitter systems, and NMDAR antagonism alone is unlikely to explain them.",
+            "anchors": [
+              {
+                "role": "compound",
+                "label": "(R,S)-ketamine",
+                "anchor_type": "named_entity"
+              },
+              {
+                "role": "target",
+                "label": "NMDAR",
+                "anchor_type": "named_entity"
+              },
+              {
+                "role": "pathway_or_process",
+                "label": "multiple neurotransmitter systems",
+                "anchor_type": "context"
+              },
+              {
+                "role": "outcome",
+                "label": "antidepressant effects",
+                "anchor_type": "context"
+              }
+            ],
+            "relation_phrase": "produces antidepressant effects through actions that extend beyond",
+            "direction_or_tone": "mixed",
+            "paper_prominence": "paper_defining",
+            "centrality_basis": [
+              "stated_objective",
+              "repeated_synthesis",
+              "review_conclusion"
+            ],
+            "evidence_stratum": "human_and_preclinical",
+            "domain_labels": [
+              "clinical_outcome",
+              "molecular_target",
+              "general_topic_coverage"
+            ],
+            "evidence_locators": [
+              {
+                "location": "text",
+                "locator": "C004, discussion of NMDAR antagonists",
+                "supporting_text": "NMDAR antagonism is unlikely to be the sole mechanism of action that produces antidepressant effects."
+              },
+              {
+                "location": "conclusion",
+                "locator": "C022",
+                "supporting_text": "the cellular and molecular effect profile of ketamine spans across multiple neurotransmitter systems"
+              }
+            ],
+            "limitations": [
+              "The review describes mechanisms as incompletely resolved.",
+              "The evidence includes mixed findings across compounds and experimental systems."
+            ],
+            "graph_eligibility": "main_graph",
+            "graph_form": "paper_topic"
+          },
+          {
+            "item_id": "R2",
+            "covers_major_aspect_ids": [
+              "A2"
+            ],
+            "source_item_ids": [
+              "R2"
+            ],
+            "relationship_kind": "review_synthesis",
+            "relationship_statement": "Ketamine enhances AMPAR-mediated excitatory signaling and synaptic strength, which the review identifies as a shared downstream feature associated with its antidepressant effects.",
+            "anchors": [
+              {
+                "role": "compound",
+                "label": "Ketamine",
+                "anchor_type": "named_entity"
+              },
+              {
+                "role": "target",
+                "label": "AMPAR",
+                "anchor_type": "named_entity"
+              },
+              {
+                "role": "pathway_or_process",
+                "label": "synaptic strengthening and excitatory transmission",
+                "anchor_type": "context"
+              },
+              {
+                "role": "outcome",
+                "label": "antidepressant effects",
+                "anchor_type": "context"
+              }
+            ],
+            "relation_phrase": "enhances",
+            "direction_or_tone": "supports",
+            "paper_prominence": "paper_defining",
+            "centrality_basis": [
+              "repeated_synthesis",
+              "discussion_emphasis",
+              "review_conclusion"
+            ],
+            "evidence_stratum": "human_and_preclinical",
+            "domain_labels": [
+              "molecular_pathway_readout",
+              "clinical_outcome"
+            ],
+            "evidence_locators": [
+              {
+                "location": "text",
+                "locator": "C006 and C010, glutamate signaling synthesis",
+                "supporting_text": "ketamine enhances synaptic strength and excitatory output through AMPARs"
+              },
+              {
+                "location": "conclusion",
+                "locator": "C022",
+                "supporting_text": "strengthening of AMPAR signaling"
+              }
+            ],
+            "limitations": [
+              "The review states that ketamine and its metabolites are not established to bind or act directly on AMPARs.",
+              "The cellular route linking NMDAR blockade to increased excitatory output remains under discussion."
+            ],
+            "graph_eligibility": "main_graph",
+            "graph_form": "context"
+          },
+          {
+            "item_id": "R6",
+            "covers_major_aspect_ids": [
+              "A4"
+            ],
+            "source_item_ids": [
+              "R6"
+            ],
+            "relationship_kind": "review_synthesis",
+            "relationship_statement": "An intact opioid system may be necessary for ketamine's antidepressant effects, but whether ketamine's antidepressant action depends on direct opioid-receptor engagement remains controversial and unresolved.",
+            "anchors": [
+              {
+                "role": "compound",
+                "label": "Ketamine",
+                "anchor_type": "named_entity"
+              },
+              {
+                "role": "pathway_or_process",
+                "label": "Endogenous opioid system",
+                "anchor_type": "context"
+              },
+              {
+                "role": "target",
+                "label": "μ- and κ-opioid receptors",
+                "anchor_type": "named_entity"
+              },
+              {
+                "role": "outcome",
+                "label": "Antidepressant effects",
+                "anchor_type": "context"
+              }
+            ],
+            "relation_phrase": "may require, while direct receptor engagement remains uncertain",
+            "direction_or_tone": "mixed",
+            "paper_prominence": "major_supporting",
+            "centrality_basis": [
+              "dedicated_section",
+              "discussion_emphasis",
+              "review_conclusion"
+            ],
+            "evidence_stratum": "human_and_preclinical",
+            "domain_labels": [
+              "clinical_outcome",
+              "molecular_target"
+            ],
+            "evidence_locators": [
+              {
+                "location": "text",
+                "locator": "C015-C018, opioid system",
+                "supporting_text": "the interaction between ketamine and the opioid system as it relates to antidepressant effects is complex and controversial"
+              },
+              {
+                "location": "conclusion",
+                "locator": "C022",
+                "supporting_text": "an interaction which may be necessary for their antidepressant effects"
+              }
+            ],
+            "limitations": [
+              "Human studies discussed are small and have methodological limitations; findings conflict.",
+              "The review notes inconsistent preclinical results and uncertainty about naltrexone dose and timing.",
+              "Reported receptor activity and its therapeutic relevance require further investigation."
+            ],
+            "graph_eligibility": "main_graph",
+            "graph_form": "interaction"
+          }
+        ],
+        "bundle_summary": "The review concludes that ketamine's rapid antidepressant effects likely involve multiple interacting mechanisms rather than NMDAR antagonism alone. AMPAR-associated excitatory strengthening and BDNF/TrkB-linked plasticity are prominent shared mechanisms. (2R,6R)-HNK shows preclinical antidepressant-like effects with weak NMDAR action at relevant concentrations and a reported lower adverse-effect profile, while opioid-system involvement remains controversial and monoamine effects vary across compounds. The review presents mechanism-targeted, better-tolerated rapid antidepressants as a research opportunity.",
+        "full_text_priority": "low",
+        "warnings": []
+      },
+      "schema_errors": [],
+      "qa_flags": [
+        "major_aspect_covered_by_noncentral_relationship:R9"
+      ]
+    },
+    {
+      "task_id": "reviewrel:4ccad0304456c8bd892f",
+      "study_doi": "10.3389/fnint.2014.00020",
+      "study_title": "The claustrum's proposed role in consciousness is supported by the effect and target localization of Salvia divinorum.",
+      "text_depth": "article_text",
+      "status": "ok",
+      "result": {
+        "schema_version": "review_relationship_bundle_v2",
+        "source_depth": "article_text",
+        "paper_frame": {
+          "review_contribution_type": "mechanistic_or_conceptual_review",
+          "objective_and_scope": "The article combines the claustrum-as-conductor hypothesis, κ-opioid receptor localization, and reports of Salvia divinorum experiences to assess the claustrum's possible role in human consciousness, extend the hypothesis, and propose tests.",
+          "review_design": "Narrative synthesis of prior anatomical and receptor-localization research, combined with an exploratory comparison of 63 Salvia and 63 LSD online trip reports. The authors use the synthesis to develop hypotheses and suggest neuroimaging and neural-recording studies.",
+          "primary_subjects": [
+            "Salvia divinorum and its active compound salvinorin A",
+            "The claustrum's proposed role in consciousness and higher-order integration",
+            "Subjective effects of Salvia compared with LSD"
+          ],
+          "supporting_examples_or_background": [
+            "Crick and Koch's claustrum-as-conductor hypothesis",
+            "κ-opioid receptor expression in deep cortical layers, especially prefrontal cortex",
+            "Parietal cortex and pulvinar as candidate contributors to perceptual binding"
+          ],
+          "major_aspects": [
+            {
+              "aspect_id": "A1",
+              "aspect_type": "mechanism",
+              "description": "The authors propose that salvinorin A's κ-opioid receptor action, together with high receptor density in the claustrum, makes claustral inhibition a plausible contributor to Salvia's consciousness-altering effects.",
+              "importance": "paper_defining",
+              "basis": [
+                "stated_objective",
+                "repeated_synthesis",
+                "discussion_emphasis"
+              ]
+            },
+            {
+              "aspect_id": "A2",
+              "aspect_type": "comparison",
+              "description": "The authors' exploratory trip-report comparison finds Salvia more disruptive than LSD on several reported facets of subjective experience.",
+              "importance": "paper_defining",
+              "basis": [
+                "abstract_result",
+                "dedicated_section",
+                "evidence_table_or_figure"
+              ]
+            },
+            {
+              "aspect_id": "A3",
+              "aspect_type": "mechanism",
+              "description": "The authors extend the claustrum hypothesis: it may coordinate some higher-order integration, but is not proposed as the sole or principal integrator for all perceptual binding.",
+              "importance": "paper_defining",
+              "basis": [
+                "abstract_result",
+                "discussion_emphasis",
+                "review_conclusion"
+              ]
+            },
+            {
+              "aspect_id": "A4",
+              "aspect_type": "methodological_contribution",
+              "description": "The proposed claustral-inhibition account and the roles of other brain areas remain hypotheses; the authors identify human imaging and neural recording as tests.",
+              "importance": "major_supporting",
+              "basis": [
+                "discussion_emphasis",
+                "review_conclusion"
+              ]
+            }
+          ],
+          "populations_or_systems": [
+            "Human subjective experience, including online self-reports from Salvia and LSD users",
+            "Human brain κ-opioid receptor mRNA localization",
+            "Macaque brain κ-opioid receptor activity",
+            "Prior animal anatomical and behavioral research cited by the review"
+          ],
+          "source_completeness": "article_text"
+        },
+        "relationships": [
+          {
+            "item_id": "R1",
+            "covers_major_aspect_ids": [
+              "A1"
+            ],
+            "source_item_ids": [
+              "R1"
+            ],
+            "relationship_kind": "review_synthesis",
+            "relationship_statement": "The authors propose that salvinorin A, a κ-opioid receptor agonist, alters consciousness partly by inhibiting the claustrum, where κ-opioid receptor density is especially high; they also identify deep cortical layers, particularly prefrontal areas, as possible targets.",
+            "anchors": [
+              {
+                "role": "compound",
+                "label": "salvinorin A",
+                "anchor_type": "named_entity"
+              },
+              {
+                "role": "target",
+                "label": "κ-opioid receptor",
+                "anchor_type": "named_entity"
+              },
+              {
+                "role": "brain_system",
+                "label": "claustrum",
+                "anchor_type": "named_entity"
+              },
+              {
+                "role": "brain_system",
+                "label": "deep cortical layers, especially prefrontal cortex",
+                "anchor_type": "context"
+              },
+              {
+                "role": "outcome",
+                "label": "consciousness-altering effects",
+                "anchor_type": "context"
+              }
+            ],
+            "relation_phrase": "is proposed to alter partly through inhibition of",
+            "direction_or_tone": "unclear",
+            "paper_prominence": "paper_defining",
+            "centrality_basis": [
+              "stated_objective",
+              "abstract_result",
+              "discussion_emphasis"
+            ],
+            "evidence_stratum": "human_and_preclinical",
+            "domain_labels": [
+              "molecular_target",
+              "brain_system",
+              "subjective_experience"
+            ],
+            "evidence_locators": [
+              {
+                "location": "abstract",
+                "locator": "C001",
+                "supporting_text": "high density of κ-opioid receptors in the claustrum ... suggests ... κ-opioid receptor mediated inhibition"
+              },
+              {
+                "location": "text",
+                "locator": "C003",
+                "supporting_text": "The claustrum showed the strongest signal ... unusually high κ-opioid receptor density"
+              }
+            ],
+            "limitations": [
+              "The proposed inhibition of the claustrum as the cause of subjective effects is an inference from receptor localization and reported experiences, not a directly demonstrated causal effect.",
+              "The article also identifies deep cortical layers, especially prefrontal areas, as possible targets."
+            ],
+            "graph_eligibility": "main_graph",
+            "graph_form": "context"
+          }
+        ],
+        "bundle_summary": "The review proposes that salvinorin A's κ-opioid receptor action may disrupt consciousness partly through the claustrum, and reports that Salvia trip reports show stronger effects than LSD reports in several subjective categories. It interprets the claustrum as a possible coordinator of some higher-order integration, not the sole perceptual integrator, and recommends imaging and recording studies to test the account.",
+        "full_text_priority": "low",
+        "warnings": []
+      },
+      "schema_errors": [],
+      "qa_flags": []
+    }
+  ]
+}

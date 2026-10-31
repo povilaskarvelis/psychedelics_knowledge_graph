@@ -87,11 +87,11 @@
       ],
       "object_labels": [
         "Anxiety-like behavior",
-        "Conditioned place preference",
         "Compulsivity",
+        "Conditioned place preference",
         "Craving",
-        "Drug discrimination",
         "Drug cue reactivity",
+        "Drug discrimination",
         "Drug motivation",
         "Drug reinstatement",
         "Drug seeking",
@@ -102,7 +102,9 @@
         "Psychomotor sensitization",
         "Relapse",
         "Sensorimotor gating",
+        "Sexual behavior",
         "Social interaction",
+        "Stereotyped behavior",
         "Stress-coping behavior",
         "Threat avoidance"
       ]

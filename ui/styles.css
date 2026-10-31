@@ -8484,16 +8484,89 @@ body[data-workspace-mode="analysis"] .bibliography-panel .search input[type="sea
 }
 
 @media (max-width: 640px) {
+  .content {
+    padding-right: 12px;
+    padding-bottom: 28px;
+    padding-left: 12px;
+    gap: 18px;
+  }
+
+  .graph-panel {
+    padding-left: 0;
+  }
+
+  .graph-grid {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .graph-toolbar {
+    margin-bottom: 10px;
+  }
+
+  .graph-header-controls {
+    gap: 8px;
+  }
+
+  .explorer-primary-row {
+    overflow: visible;
+  }
+
   .hero {
     padding: 38px 6vw 24px;
   }
 
   .filter-center-controls {
     display: flex;
-    width: auto;
-    flex-wrap: nowrap;
+    width: 100%;
+    flex-wrap: wrap;
     justify-content: center;
-    gap: 12px;
+    gap: 8px;
+  }
+
+  .evidence-view-toggle {
+    width: 100%;
+  }
+
+  .evidence-view-toggle button {
+    flex: 1 1 0;
+    min-width: 0;
+    padding-right: 6px;
+    padding-left: 6px;
+    font-size: 0.72rem;
+  }
+
+  .explorer-primary-row .year-range-inline {
+    width: min(100%, 238px);
+    justify-content: center;
+  }
+
+  .explorer-primary-row .year-field {
+    flex: 1 1 0;
+  }
+
+  .explorer-primary-row .year-range-inline input[type="number"] {
+    width: 100%;
+  }
+
+  .category-toggle {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
+    padding: 4px;
+    overflow: visible;
+    border-radius: 14px;
+  }
+
+  .category-toggle button {
+    width: 100%;
+    min-width: 0;
+    min-height: 32px;
+    padding: 6px 8px;
+    line-height: 1.15;
+    white-space: normal;
   }
 
   .about-hero {
@@ -8719,6 +8792,11 @@ body[data-workspace-mode="analysis"] .bibliography-panel .search input[type="sea
 
   .finding-search-options {
     width: 100%;
+  }
+
+  .graph svg[data-compact-layout="true"] .node-label {
+    font-size: 13px;
+    font-weight: 650;
   }
 }
 

@@ -1,0 +1,205 @@
+# Evidence domains. Format: protocols/SPEC.md section 5.5.
+# Definitions are copied verbatim from the "Evidence domain options" and
+# "Optional methodological validity modifiers" sections of
+# docs/screening/title_abstract_screening_v6_1.md (sha256 prefix 75960e47db06a131).
+# Labels follow the research-area headings on the Methods page. reuse marks whether
+# a domain is likely to recur in other neuropsychopharmacology protocols (discipline)
+# or is specific to this field (field); this is a judgment, not a measurement.
+
+paper_types:
+  extraction_families:
+    primary_study: one task per assigned domain; per-domain schema
+    meta_analysis: one paper-level task; schema/meta_analysis_evidence_v2.schema.json
+    review: one paper-level task; schema/review_relationships_v2.bundle.schema.json
+    guideline_or_consensus: one paper-level task; schema/recommendation_consensus.schema.json
+  paper_type_instructions: docs/extraction_profiles/paper_type/  # six base-profile candidates (primary, meta-analysis, review x article text, abstract) plus guideline_consensus.md
+  legacy_per_domain_secondary_schemas: >-
+    schema/extraction_profiles/review/ and schema/extraction_profiles/meta_analysis/ hold v1 per-domain
+    schemas that are registered only to read historical outputs (pipeline/extract/route_extraction_profiles.py).
+    New review and meta-analysis extraction uses the paper-level v2 schemas above, which carry domain labels per item.
+
+evidence_domains:
+  clinical_outcome:
+    label: Clinical outcomes
+    reuse: discipline
+    definition: Human clinical indications, symptoms, diagnoses, patient outcomes, functioning, quality of life, remission, response, relapse, or trial efficacy endpoints. Also use for systematic reviews/meta-analyses that synthesize human clinical outcome studies. Do not use for primary animal, cell, or other preclinical disease-model studies just because a human condition is named or translational relevance is discussed. Do not use for healthy-volunteer pharmacology unless clinical symptoms or patient outcomes are a substantive endpoint.
+    search_modules:
+    - clinical_indication
+    - clinical_symptom_function
+    - clinical_mechanism_bridge
+    extraction:
+      primary_prompt_profile: primary_clinical
+      domain_instructions: docs/extraction_domains/clinical_outcome.md
+      primary_schema: schema/extraction_profiles/primary/clinical_outcome.schema.json
+      entity_types:
+      - disorder
+      - symptom_or_outcome
+    graph:
+      default_node_kind: condition_indication
+      views:
+      - condition_indication
+  safety_tolerability:
+    label: Safety and tolerability
+    reuse: discipline
+    definition: Adverse events, tolerability, abuse liability, toxicity, medical risk, contraindications, physiological safety, discontinuation, or safety monitoring.
+    search_modules:
+    - clinical_safety
+    extraction:
+      primary_prompt_profile: primary_safety
+      domain_instructions: docs/extraction_domains/safety_tolerability.md
+      primary_schema: schema/extraction_profiles/primary/safety_tolerability.schema.json
+      entity_types:
+      - safety_event
+    graph:
+      default_node_kind: safety_adverse_event
+      views:
+      - safety_adverse_event
+  molecular_target:
+    label: Molecular targets
+    reuse: discipline
+    definition: Receptors, transporters, enzymes, ion channels, binding affinity, target engagement, agonism/antagonism, or molecular pharmacology.
+    search_modules:
+    - molecular_target
+    extraction:
+      primary_prompt_profile: primary_molecular_target
+      domain_instructions: docs/extraction_domains/molecular_target.md
+      primary_schema: schema/extraction_profiles/primary/molecular_target.schema.json
+      entity_types:
+      - target
+    graph:
+      default_node_kind: target
+      views:
+      - target_system
+  molecular_pathway_readout:
+    label: Molecular pathways and readouts
+    reuse: discipline
+    definition: Cellular or molecular pathways and readouts, including plasticity, signaling cascades, gene/protein expression, inflammation, neurochemistry, hormones, or other molecular readouts; biomarkers are a subset when the paper frames them that way.
+    search_modules:
+    - molecular_pathway
+    extraction:
+      primary_prompt_profile: primary_molecular_pathway
+      domain_instructions: docs/extraction_domains/molecular_pathway_readout.md
+      primary_schema: schema/extraction_profiles/primary/molecular_pathway_readout.schema.json
+      entity_types:
+      - pathway_process
+      - molecular_readout
+    graph:
+      default_node_kind: pathway_process
+      views:
+      - pathway_readout
+  brain_system:
+    label: Brain systems
+    reuse: discipline
+    definition: Brain regions, circuits, networks, connectivity, neuroimaging, EEG/MEG, PET, oscillations, neural dynamics, or regional brain physiology.
+    search_modules:
+    - systems_neuroscience
+    extraction:
+      primary_prompt_profile: primary_brain_system
+      domain_instructions: docs/extraction_domains/brain_system.md
+      primary_schema: schema/extraction_profiles/primary/brain_system.schema.json
+      entity_types:
+      - brain_region
+      - brain_network
+      - neural_circuit
+      - biomarker_readout
+    graph:
+      default_node_kind: brain_network
+      views:
+      - brain_system
+  cognitive_behavioral:
+    label: Cognitive and behavioral evidence
+    reuse: discipline
+    definition: 'Whole-organism cognitive tasks and behavioral measures or phenotypes: learning, memory, attention, emotion processing, social behavior, addiction behavior, or animal behavioral phenotypes. Cell migration, sperm motility, transporter trafficking, and generic cellular responses are not cognitive/behavioral evidence. For human clinical studies, do not use for ordinary symptom scales, abstinence, response, remission, or functioning unless cognition or behavior is explicitly measured as a distinct construct.'
+    search_modules:
+    - cognitive_behavioral
+    extraction:
+      primary_prompt_profile: primary_cognitive_behavioral
+      domain_instructions: docs/extraction_domains/cognitive_behavioral.md
+      primary_schema: schema/extraction_profiles/primary/cognitive_behavioral.schema.json
+      entity_types:
+      - cognitive_behavioral_construct
+    graph:
+      default_node_kind: cognitive_behavioral_construct
+      views:
+      - cognitive_behavioral_construct
+      - behavioral_effect
+  subjective_experience:
+    label: Subjective experience
+    reuse: field
+    definition: Acute subjective effects, altered states, mystical-type experience, ego dissolution, perceptual effects, phenomenology, experience questionnaires, or psychological insight during/after the drug experience. Do not use merely because consciousness, anesthesia, intoxication, or drug effects are mentioned unless subjective experience is measured or central.
+    search_modules:
+    - subjective_experience
+    extraction:
+      primary_prompt_profile: primary_subjective_experience
+      domain_instructions: docs/extraction_domains/subjective_experience.md
+      primary_schema: schema/extraction_profiles/primary/subjective_experience.schema.json
+      entity_types:
+      - subjective_experience_construct
+    graph:
+      default_node_kind: subjective_experience_construct
+      views:
+      - subjective_experience_construct
+  pharmacokinetics_exposure:
+    label: Pharmacokinetics and exposure
+    reuse: discipline
+    definition: Pharmacokinetics, exposure-response linked to measured exposure, plasma/serum/blood levels, concentration-time data, metabolism, metabolites, bioavailability, clearance, half-life, or PK/PD. Use for analytical exposure measurement only when exposure, metabolism, or dose/exposure interpretation is a main study question. Route EC50, IC50, ED50, receptor occupancy, and ordinary dose-response findings to molecular target or molecular pathway/readout unless measured concentration or exposure is part of the relationship. Do not use merely because a clinical dose, bolus, infusion, route, or toxicology screen is described as part of another study.
+    search_modules:
+    - pharmacokinetics_exposure
+    extraction:
+      primary_prompt_profile: primary_pharmacokinetics_exposure
+      domain_instructions: docs/extraction_domains/pharmacokinetics_exposure.md
+      primary_schema: schema/extraction_profiles/primary/pharmacokinetics_exposure.schema.json
+      entity_types:
+      - pharmacokinetic_parameter
+      - compound
+      - target
+      - pathway_process
+    graph:
+      default_node_kind: pharmacokinetic_parameter
+      views: []
+  intervention_context:
+    label: Intervention context
+    reuse: field
+    definition: Psychotherapy or treatment model, preparation, integration, set and setting, therapist/facilitator role, dosing-session structure, music, psychological support, manualized therapy such as CBT when it is central to the intervention, or implementation of assisted therapy. Do not use for ordinary trial methodology, blinding, comparator choice, washout, follow-up schedule, or the mere fact that a trial administered a drug.
+    search_modules:
+    - intervention_context
+    extraction:
+      primary_prompt_profile: primary_intervention_context
+      domain_instructions: docs/extraction_domains/intervention_context.md
+      primary_schema: schema/extraction_profiles/primary/intervention_context.schema.json
+      entity_types:
+      - intervention_component
+    graph:
+      default_node_kind: intervention_component
+      views:
+      - intervention_component
+  real_world_public_health:
+    label: Real-world use and public health
+    reuse: field
+    definition: Epidemiology, prevalence, population-level use patterns, nonmedical/recreational use as the study focus, naturalistic or retreat settings, emergency visits, poison-center data, harm reduction, policy, access, or public-health impact. Do not use merely because participants are described as drug users in a mechanistic or clinical study.
+    search_modules:
+    - real_world_public_health
+    extraction:
+      primary_prompt_profile: primary_real_world_public_health
+      domain_instructions: docs/extraction_domains/real_world_public_health.md
+      primary_schema: schema/extraction_profiles/primary/real_world_public_health.schema.json
+      entity_types:
+      - public_health_measure
+    graph:
+      default_node_kind: public_health_measure
+      views:
+      - public_health_measure
+unassigned_domain:
+  general_topic:
+    label: General topic
+    reuse: general
+    definition: Eligible cross-domain conceptual context with no specific evidence domain; never a rescue category for an unrelated paper.
+    extraction:
+      primary_prompt_profile: primary_general
+      domain_instructions: docs/extraction_domains/general_primary.md
+      primary_schema: schema/extraction_profiles/primary/general_primary.schema.json
+methodological_validity_modifiers:
+  blinding_expectancy_validity: The paper substantively evaluates blinding, masking, functional unblinding, expectancy effects, or how participant/rater expectations affect interpretation of psychedelic evidence.
+  comparator_control_validity: The paper substantively evaluates placebo, active-placebo, treatment-as-usual, open-label, antidepressant, psychotherapy, or other comparator/control choices and how they affect interpretation.
+  measurement_psychometric_validity: The paper substantively validates, critiques, or compares scales, questionnaires, outcome measures, factor structure, reliability, validity, or psychometric interpretation.
+  evidence_quality_bias: The paper substantively evaluates risk of bias, certainty/quality of evidence, heterogeneity, small-study effects, GRADE-style certainty, or other evidence-quality concerns.

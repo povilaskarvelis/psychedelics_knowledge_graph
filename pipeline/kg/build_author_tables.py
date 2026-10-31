@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import hashlib
+import html
 import json
 import os
 import re
@@ -20,6 +21,8 @@ import sys
 import time
 import urllib.parse
 import urllib.request
+import unicodedata
+from difflib import SequenceMatcher
 from collections import Counter
 from pathlib import Path
 from typing import Any, Iterable
@@ -386,12 +389,17 @@ def successful_cache_coverage(papers: pd.DataFrame, cache: dict[str, Any]) -> tu
 
     dois = paper_dois(papers)
     works_by_doi = cache.get("works_by_doi", {})
+    papers_by_doi = {
+        normalize_doi(row.get("doi")): row
+        for row in papers.fillna("").to_dict("records")
+    }
     successful = sum(
         1
         for doi in dois
         if isinstance(works_by_doi.get(doi), dict)
         and normalize(works_by_doi[doi].get("status", "")) == "ok"
         and bool(works_by_doi[doi].get("authorships"))
+        and cached_work_matches_paper(papers_by_doi[doi], works_by_doi[doi])
     )
     rate = successful / len(dois) if dois else 0.0
     return successful, len(dois), rate
@@ -558,12 +566,17 @@ def refresh_cache_for_papers(
 ) -> dict[str, Any]:
     works_by_doi = cache.setdefault("works_by_doi", {})
     dois = sorted({normalize_doi(value) for value in papers.get("doi", []) if normalize_doi(value)})
+    papers_by_doi = {
+        normalize_doi(row.get("doi")): row
+        for row in papers.fillna("").to_dict("records")
+    }
     missing = [
         doi
         for doi in dois
         if refresh
         or doi not in works_by_doi
         or normalize((works_by_doi.get(doi) or {}).get("status", "")) == "error"
+        or not cached_work_matches_paper(papers_by_doi[doi], works_by_doi.get(doi) or {})
     ]
     if not missing:
         return cache
@@ -664,14 +677,55 @@ def alias_confidence_for_target(value: object) -> str:
     return "name_alias_to_structured_author_id"
 
 
-def authorships_for_paper(paper: dict[str, Any], cache: dict[str, Any]) -> tuple[list[dict[str, str]], str, str]:
+def authorships_for_paper(
+    paper: dict[str, Any], cache: dict[str, Any], *, reviewed_source_fingerprint: str = "",
+) -> tuple[list[dict[str, str]], str, str]:
     doi = normalize_doi(paper.get("doi", ""))
     cached = cache.get("works_by_doi", {}).get(doi, {}) if doi else {}
     status = normalize(cached.get("status", ""))
+    source_review_matches = bool(
+        reviewed_source_fingerprint
+        and author_list_fingerprint(cached.get("authorships", [])) == reviewed_source_fingerprint
+        and normalize_doi(cached.get("doi", "")) == doi
+    )
+    if status == "ok" and not source_review_matches and not cached_work_matches_paper(paper, cached):
+        # A DOI key in a historical cache does not establish report identity.
+        # Keep the paper's supplied byline, without borrowing unrelated IDs.
+        return split_local_author_string(paper.get("authors", "")), "fallback_identity_mismatch", ""
     if status == "ok" and cached.get("authorships"):
         return cached["authorships"], "openalex", normalize(cached.get("work_openalex_id", ""))
     local = split_local_author_string(paper.get("authors", ""))
     return local, f"fallback_{status or 'missing'}", normalize(cached.get("work_openalex_id", ""))
+
+
+def cached_work_matches_paper(paper: dict[str, Any], cached: dict[str, Any]) -> bool:
+    """Reject clear work/DOI collisions, without requiring identical subtitles.
+
+    Similar titles are not proof of identity. This is an additional negative
+    guard for cached DOI lookups, not a title-search or author-merge rule.
+    Translations with no lexical agreement conservatively retain source names
+    through the fallback path until structured authorship can be verified.
+    """
+    expected_doi = normalize_doi(paper.get("doi", ""))
+    source_doi = normalize_doi(cached.get("doi", ""))
+    if expected_doi and source_doi and expected_doi != source_doi:
+        return False
+
+    def title_words(value: object) -> str:
+        text = html.unescape(normalize(value)).casefold()
+        text = unicodedata.normalize("NFKD", text)
+        text = "".join(c for c in text if not unicodedata.combining(c))
+        text = re.sub(r"</?[A-Za-z][^>]*>", " ", text)
+        return " ".join(re.findall(r"\w+", text))
+
+    expected = title_words(paper.get("title", ""))
+    source = title_words(cached.get("title", ""))
+    # Older compact caches can omit titles; preserve that legacy contract.
+    if not expected or not source or expected in source or source in expected:
+        return True
+    left, right = set(expected.split()), set(source.split())
+    overlap = len(left & right) / min(len(left), len(right))
+    return overlap >= 0.25 or SequenceMatcher(None, expected, source, autojunk=False).ratio() >= 0.45
 
 
 def apply_exact_name_aliases(paper_authors: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, int]]:
@@ -911,11 +965,13 @@ def best_author_source(values: Iterable[object]) -> str:
 
 
 def best_author_identity_confidence(author_id: str, values: Iterable[object]) -> str:
+    items = [normalize(value) for value in values if normalize(value)]
+    if "openalex_author_id_orcid_conflict" in items:
+        return "openalex_author_id_orcid_conflict"
     if author_id.startswith("orcid:"):
         return "orcid"
     if author_id.startswith("openalex:"):
         return "openalex_author_id"
-    items = [normalize(value) for value in values if normalize(value)]
     for candidate in ("orcid_from_author_string", "name_alias_to_orcid", "name_alias_to_openalex_author_id", "name_only"):
         if candidate in items:
             return candidate
@@ -973,12 +1029,18 @@ def build_tables(
 ) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
     authorship_rows: list[dict[str, Any]] = []
     paper_status_counts: Counter = Counter()
+    reviewed_lists = {
+        record["doi"]: record.get("expected_source_sha256", "")
+        for record in (identity_overrides or {}).get("author_list_reviews", [])
+    }
 
     for paper in papers.fillna("").to_dict(orient="records"):
         paper_id = normalize(paper.get("paper_id", ""))
         doi = normalize_doi(paper.get("doi", ""))
         paper_openalex_id = normalize_openalex_id(paper.get("openalex_id", ""))
-        rows, source_status, work_openalex_id = authorships_for_paper(paper, cache)
+        rows, source_status, work_openalex_id = authorships_for_paper(
+            paper, cache, reviewed_source_fingerprint=reviewed_lists.get(doi, ""),
+        )
         paper_status_counts[source_status] += 1
         if not rows:
             paper_status_counts["no_authors"] += 1

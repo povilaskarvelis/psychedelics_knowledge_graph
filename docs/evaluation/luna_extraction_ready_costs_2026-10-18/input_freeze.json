@@ -1,0 +1,369 @@
+{
+  "frozen_at": "2026-10-18T10:20:31.264897+00:00",
+  "source_commit": "c0794b30da5e5e459ec941ba8625c5de488141a8",
+  "screening_sha256": "3a6d34113108693fab8d6b18d87e59c7b42b9a35c7f09f27c8b50aa2b8749cbe",
+  "inputs": {
+    "meta_tasks_report.json": {
+      "sha256": "dee2c1c66d74f38481bb2f368988b01f969ed9fa1b7f4f43d516526583830e5c",
+      "bytes": 1431
+    },
+    "enrichment_metadata.parquet": {
+      "sha256": "eb12027e24e99c9623eca89502c96aa94c42c237db3cedcd530e68efc0491dec",
+      "bytes": 134699124
+    },
+    "review_tasks_report.json": {
+      "sha256": "efc4f8ef7183a8c2b3fad650acb43cbee3ae9d67aa950af8bfab6cf21d6a8cde",
+      "bytes": 1644
+    },
+    "candidate_metadata.parquet": {
+      "sha256": "a09f327685f8d82b951dc82beb834620daa8b475d9722d6f6b71f54dfcf30f14",
+      "bytes": 186606238
+    },
+    "review_tasks.jsonl": {
+      "sha256": "04bea7482624f42e7eacece3a2135146f6ad71333192b41b9d77bef89956f4e8",
+      "bytes": 9565156
+    },
+    "meta_tasks.jsonl": {
+      "sha256": "3758b30cc10b94bca124a7d7fccd12fbf3295b7a6387caec8d12df04da23b214",
+      "bytes": 1009067
+    },
+    "extraction_routes.parquet": {
+      "sha256": "c5e2b174801ab16c7f4694388b0416b6893b7728490f4f0041f16bb0d2706eae",
+      "bytes": 50973336
+    },
+    "fulltext_packets.jsonl": {
+      "sha256": "f5813e54ab3a72ecb2db4909ba0f212efcc27f7836f6c8c57592ce7c02da58e7",
+      "bytes": 491190494
+    },
+    "extraction_routes_summary.json": {
+      "sha256": "33a572b045898eeb380d17f6bfad7fbf8f1f37926ac027ea8c38b8b7de768640",
+      "bytes": 7450
+    },
+    "primary_tasks.jsonl": {
+      "sha256": "298f59c0d4bd3395acd3ff7aa638aacfea1095a0b799db62fd60c24afa11a87e",
+      "bytes": 297017382
+    },
+    "primary_tasks_report.json": {
+      "sha256": "a113431fcbcaa171ff38342da6f57f2071dbccb51ea7db4d8cb1a76fb28a1b5e",
+      "bytes": 3032
+    }
+  },
+  "contracts": [
+    {
+      "source": "docs/extraction_profiles/paper_type/meta_analysis_abstract_only.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_profiles/paper_type/meta_analysis_abstract_only.md",
+      "sha256": "1dc16f914a4a98c3864a7ff027a77c77a6f43ef0f125d733c37dceec4c9aa2ee"
+    },
+    {
+      "source": "docs/extraction_profiles/paper_type/meta_analysis_article_text.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_profiles/paper_type/meta_analysis_article_text.md",
+      "sha256": "467d2ecc90cb67527bb6dff0b5bff8252caadce831e52fa2ef108c40cdaca873"
+    },
+    {
+      "source": "docs/extraction_profiles/paper_type/review_article_text.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_profiles/paper_type/review_article_text.md",
+      "sha256": "db5602334642705e53d5073b20c6f084d4e505687fa9408d893bce389baa1b7a"
+    },
+    {
+      "source": "docs/extraction_profiles/paper_type/guideline_consensus.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_profiles/paper_type/guideline_consensus.md",
+      "sha256": "f2af9f22e072a7394ed0d94317a35a06ffec17b1b12c89098375fdedff5e7742"
+    },
+    {
+      "source": "docs/extraction_profiles/paper_type/primary_article_text.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_profiles/paper_type/primary_article_text.md",
+      "sha256": "5fe1d08ab7ada0a39a1b64166bffbd98d8a051e8b814e7f9c81cbc6e7e69073e"
+    },
+    {
+      "source": "docs/extraction_profiles/paper_type/review_abstract_only.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_profiles/paper_type/review_abstract_only.md",
+      "sha256": "2d7925ee7ff7c38c86b714c3c675841fbc02fe370e139607345894d8cb46ae71"
+    },
+    {
+      "source": "docs/extraction_profiles/paper_type/primary_abstract_only.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_profiles/paper_type/primary_abstract_only.md",
+      "sha256": "e80dd110d2a2eeebb1bc577e9301ae4a201714f6f2376bcfaefe07db7479523a"
+    },
+    {
+      "source": "docs/extraction_profiles/review_relationships_v2/full_text_extraction.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_profiles/review_relationships_v2/full_text_extraction.md",
+      "sha256": "47c2afab19880659dc2762f573925eda728878ab72f8b33ffa5397d91f1ae02f"
+    },
+    {
+      "source": "docs/extraction_profiles/review_relationships_v2/abstract_extraction.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_profiles/review_relationships_v2/abstract_extraction.md",
+      "sha256": "01c6fc3d4dac09f6b08e2cb459841d6e3ce9743da40d4aa25b06a107a8a8b882"
+    },
+    {
+      "source": "docs/extraction_profiles/meta_analysis_v2/full_text_extraction.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_profiles/meta_analysis_v2/full_text_extraction.md",
+      "sha256": "b0025e216c791d881b2a4bcb7314dd55fb240bfda7ff1ce2f72700926972d29d"
+    },
+    {
+      "source": "docs/extraction_profiles/meta_analysis_v2/abstract_extraction.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_profiles/meta_analysis_v2/abstract_extraction.md",
+      "sha256": "88e52fed660949200695d552a83e2ece8defa16d69d798d711cf5100e283d83b"
+    },
+    {
+      "source": "docs/extraction_domains/molecular_pathway_readout.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_domains/molecular_pathway_readout.md",
+      "sha256": "7666b55823f7a56f678f3397b651778d81cdf55032458c1e1d6775a6b0494841"
+    },
+    {
+      "source": "docs/extraction_domains/real_world_public_health.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_domains/real_world_public_health.md",
+      "sha256": "1b28e15c64805891d346a5a9d001618df6fbbaaf3dc45085cc17ab6c58c39ee6"
+    },
+    {
+      "source": "docs/extraction_domains/general_primary.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_domains/general_primary.md",
+      "sha256": "2ade5df815a72a4a7aa641f8abfe1669cc0dc9c920aa72208816140147dd9a6f"
+    },
+    {
+      "source": "docs/extraction_domains/molecular_target.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_domains/molecular_target.md",
+      "sha256": "c449c119e26b26ee86c435fc7e6a2f21dec857fab2f138a0b202f61b3295ac6c"
+    },
+    {
+      "source": "docs/extraction_domains/general_topic_coverage.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_domains/general_topic_coverage.md",
+      "sha256": "c64f254b2122df0a914f9733919e17ca87ea859bc27acd61bab387ce9c527166"
+    },
+    {
+      "source": "docs/extraction_domains/cognitive_behavioral.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_domains/cognitive_behavioral.md",
+      "sha256": "7ff2a2998770bf75d31399b70a73c44cfd8dcab5d1199fb636ea32ece4909b5e"
+    },
+    {
+      "source": "docs/extraction_domains/brain_system.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_domains/brain_system.md",
+      "sha256": "e67e71d8c52557225c15be5d842675ff4971f0f85976b8be72dc7aaa5f1f7977"
+    },
+    {
+      "source": "docs/extraction_domains/pharmacokinetics_exposure.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_domains/pharmacokinetics_exposure.md",
+      "sha256": "888de90e5fed96563c595f60d73b1dd420007f6c4a8a2078f83058bd47ac9a9d"
+    },
+    {
+      "source": "docs/extraction_domains/clinical_outcome.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_domains/clinical_outcome.md",
+      "sha256": "a7a009e32c137a8590377f08f714fdd192da8a8b1cbdb2d3c1085318f5f5eb5d"
+    },
+    {
+      "source": "docs/extraction_domains/subjective_experience.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_domains/subjective_experience.md",
+      "sha256": "ee6d6403d1901397220a2890843d06f0798bc8a1f591695f2e96441eae0470cf"
+    },
+    {
+      "source": "docs/extraction_domains/intervention_context.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_domains/intervention_context.md",
+      "sha256": "a4e436c2ab86770b085b99327e8f58ad2795bf8941ecf9005e18f385a50bdf27"
+    },
+    {
+      "source": "docs/extraction_domains/safety_tolerability.md",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/docs/extraction_domains/safety_tolerability.md",
+      "sha256": "83022128581e597bcdac28d226d7d2da3e05dff2abe663cb67831513de69ed54"
+    },
+    {
+      "source": "schema/extraction_profiles/meta_analysis/general_topic_coverage.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/meta_analysis/general_topic_coverage.schema.json",
+      "sha256": "f81a700a5b06501d8730d35b1c0634e2daa3d9c4c77fbf524a12b50f21503b7e"
+    },
+    {
+      "source": "schema/extraction_profiles/meta_analysis/safety_tolerability.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/meta_analysis/safety_tolerability.schema.json",
+      "sha256": "4215dd3af0940a04a219a33e2c96e295d843319c5303f25cd7562a47ed1e1463"
+    },
+    {
+      "source": "schema/extraction_profiles/meta_analysis/subjective_experience.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/meta_analysis/subjective_experience.schema.json",
+      "sha256": "23ae19fc950752fe0f639d630b1b90301d4b121f5a4e524b5c43a76b075caf66"
+    },
+    {
+      "source": "schema/extraction_profiles/meta_analysis/clinical_outcome.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/meta_analysis/clinical_outcome.schema.json",
+      "sha256": "3f4b20bd92a425ddda3a3d6bd357dfcaea9bec1dcc52455b9835165968c9077b"
+    },
+    {
+      "source": "schema/extraction_profiles/meta_analysis/cognitive_behavioral.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/meta_analysis/cognitive_behavioral.schema.json",
+      "sha256": "d6fb6db89b7f32ce2f873701631e8c9d23f8e61746d8912271c217f6c25dcf34"
+    },
+    {
+      "source": "schema/extraction_profiles/meta_analysis/intervention_context.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/meta_analysis/intervention_context.schema.json",
+      "sha256": "fbac41585a8efd39f8c009ecf0916dc61422181ef1ade01c0931cd46ffae2320"
+    },
+    {
+      "source": "schema/extraction_profiles/meta_analysis/molecular_target.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/meta_analysis/molecular_target.schema.json",
+      "sha256": "8d78757ecd7ea2186d62d6e50c2019407268ab7c8a07ee51181a09c1dfc54aff"
+    },
+    {
+      "source": "schema/extraction_profiles/meta_analysis/molecular_pathway_readout.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/meta_analysis/molecular_pathway_readout.schema.json",
+      "sha256": "989bf8b75e92c6b8859dbbc81ebaa5e1034383ec706e3a9390ced82bed4adc84"
+    },
+    {
+      "source": "schema/extraction_profiles/meta_analysis/brain_system.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/meta_analysis/brain_system.schema.json",
+      "sha256": "2a8262d57312a343c5025160d05357d32ecf2640e1952a399298ad565feaabd6"
+    },
+    {
+      "source": "schema/extraction_profiles/meta_analysis/general_topic.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/meta_analysis/general_topic.schema.json",
+      "sha256": "f97a479888864e643e8c5673b8e9e624c090b2a0462861a36d157de772b6188a"
+    },
+    {
+      "source": "schema/extraction_profiles/meta_analysis/real_world_public_health.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/meta_analysis/real_world_public_health.schema.json",
+      "sha256": "e0b1de1642645f811a2c0c26020defa5622f9c223e6783915ee4fafded216fd2"
+    },
+    {
+      "source": "schema/extraction_profiles/meta_analysis/pharmacokinetics_exposure.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/meta_analysis/pharmacokinetics_exposure.schema.json",
+      "sha256": "209c63c532010d2fc1691a9ccf67d604719e8426691ad84fee5a6c8811c5244e"
+    },
+    {
+      "source": "schema/extraction_profiles/review/general_topic_coverage.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/review/general_topic_coverage.schema.json",
+      "sha256": "5cbdd55056221401ca759e7ac57da27aba6ab2ffab00a51c67e19c9e4618172c"
+    },
+    {
+      "source": "schema/extraction_profiles/review/safety_tolerability.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/review/safety_tolerability.schema.json",
+      "sha256": "7cd53ac35ca88d5fbe1a8eb01dc551b2d146d5c2a9e4d1b666c9e6d890fec7e1"
+    },
+    {
+      "source": "schema/extraction_profiles/review/subjective_experience.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/review/subjective_experience.schema.json",
+      "sha256": "d854836a841542bae364baffbe936b7c72ac1ec834c4a32243a54272033f4111"
+    },
+    {
+      "source": "schema/extraction_profiles/review/clinical_outcome.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/review/clinical_outcome.schema.json",
+      "sha256": "7d4e44b9077780090900cf14b08f976c46bdd50d2577227c7e64c36bfd46c301"
+    },
+    {
+      "source": "schema/extraction_profiles/review/cognitive_behavioral.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/review/cognitive_behavioral.schema.json",
+      "sha256": "97ebfb143fff81bd87ba309f8d1289ee9f124dbadc6022eb4d2ed04cfc55e80b"
+    },
+    {
+      "source": "schema/extraction_profiles/review/intervention_context.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/review/intervention_context.schema.json",
+      "sha256": "04f1464a6a847ec0ace7d72db693e3a86ba5cf9579c65644011187fa490fd193"
+    },
+    {
+      "source": "schema/extraction_profiles/review/molecular_target.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/review/molecular_target.schema.json",
+      "sha256": "a5a4788315e1dad6648435af656d7977305361bf51229a884b88eb43f58a5f4a"
+    },
+    {
+      "source": "schema/extraction_profiles/review/molecular_pathway_readout.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/review/molecular_pathway_readout.schema.json",
+      "sha256": "5b196becf2c6e7fc05c928f28b59b84ba60b867c457907b9629835f2ae2b793f"
+    },
+    {
+      "source": "schema/extraction_profiles/review/brain_system.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/review/brain_system.schema.json",
+      "sha256": "6361f017b24e7362955c5eedf4fdbf37cb73cbf61e2cde99eb4c4c1a80e9bf50"
+    },
+    {
+      "source": "schema/extraction_profiles/review/general_topic.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/review/general_topic.schema.json",
+      "sha256": "923b148ff483e56ece8d6ed3f54298e4db6b34eec08fbad2933f718da47d885c"
+    },
+    {
+      "source": "schema/extraction_profiles/review/real_world_public_health.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/review/real_world_public_health.schema.json",
+      "sha256": "d99f19da635ad96da0819eddae3b6be55754527d8bbcfb0c9c3006d833cf953d"
+    },
+    {
+      "source": "schema/extraction_profiles/review/pharmacokinetics_exposure.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/review/pharmacokinetics_exposure.schema.json",
+      "sha256": "116936e621f8daeba460b99174beb15a7fa71c3cf9e32cb04585d1c0215289dd"
+    },
+    {
+      "source": "schema/extraction_profiles/primary/general_primary.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/primary/general_primary.schema.json",
+      "sha256": "f5607bd88b74b3b78348731fafaee75feaab099c6db3c323e40ba3a268794014"
+    },
+    {
+      "source": "schema/extraction_profiles/primary/safety_tolerability.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/primary/safety_tolerability.schema.json",
+      "sha256": "5801cad93082af2d61c3f192afd98896ff1fc7e8ce0ae68ea2a23fc0307a70d7"
+    },
+    {
+      "source": "schema/extraction_profiles/primary/subjective_experience.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/primary/subjective_experience.schema.json",
+      "sha256": "57556a57302bc45e5c11b832225b21f75c20911ecffe633c9200c4a87312f569"
+    },
+    {
+      "source": "schema/extraction_profiles/primary/clinical_outcome.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/primary/clinical_outcome.schema.json",
+      "sha256": "8e23d8e708dad84dc3930875e8e9a8758c61df7c54eafe67344015c993eb0c72"
+    },
+    {
+      "source": "schema/extraction_profiles/primary/cognitive_behavioral.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/primary/cognitive_behavioral.schema.json",
+      "sha256": "ca1288a19512c755434c9dae67c85ebbc3a3bdbef9481b95baa3d650e94dcab1"
+    },
+    {
+      "source": "schema/extraction_profiles/primary/intervention_context.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/primary/intervention_context.schema.json",
+      "sha256": "7a27821f2c9ba394c1ece61e38a62a4e23d357000eea8699a5973f8a0ef6169c"
+    },
+    {
+      "source": "schema/extraction_profiles/primary/molecular_target.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/primary/molecular_target.schema.json",
+      "sha256": "5e75890d0d29fa9cddcee68329705186bf5b169fcce57554c67a0d3d962e88d4"
+    },
+    {
+      "source": "schema/extraction_profiles/primary/molecular_pathway_readout.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/primary/molecular_pathway_readout.schema.json",
+      "sha256": "43c7002ec2ae367815be0ffc26055a6830daa60f193cbf5cd0f6fd40ec04cc63"
+    },
+    {
+      "source": "schema/extraction_profiles/primary/brain_system.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/primary/brain_system.schema.json",
+      "sha256": "ea0cf106409f42fd72729d54f9edca1260254ee0b3f3f9b73d2d6074425d1060"
+    },
+    {
+      "source": "schema/extraction_profiles/primary/real_world_public_health.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/primary/real_world_public_health.schema.json",
+      "sha256": "2b91734f01caa42d10ca2af8823ca212bff14929f6565082b4af57c5c1ee04e3"
+    },
+    {
+      "source": "schema/extraction_profiles/primary/pharmacokinetics_exposure.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_profiles/primary/pharmacokinetics_exposure.schema.json",
+      "sha256": "a5f516fa6d40fbf321a6a6fe6de491a60dba1bfa113d7e485d9db869d619c8b6"
+    },
+    {
+      "source": "schema/recommendation_consensus.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/recommendation_consensus.schema.json",
+      "sha256": "baa2f82047b31bc314f40170448af99903282dc4b43dcc6125495c09e91b300c"
+    },
+    {
+      "source": "schema/extraction_task.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/extraction_task.schema.json",
+      "sha256": "b3a9df01d87efeaac0d7457fa4f89ba420abb23d5237ca483d66c46754fad707"
+    },
+    {
+      "source": "schema/meta_analysis_evidence_v2.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/meta_analysis_evidence_v2.schema.json",
+      "sha256": "6b90f533baf836307f60384cdf7c271ae0e92468ae52f771040892e278af76a4"
+    },
+    {
+      "source": "schema/review_relationships_v2.bundle.schema.json",
+      "snapshot": "data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261018/inputs/contracts/schema/review_relationships_v2.bundle.schema.json",
+      "sha256": "4f1efe3e21a73811d7b46342c1aca08af62175291d19ef0af2fe96136e46278a"
+    }
+  ],
+  "builder_sha256": "99373982bbcc091204b174aacd0c9357bf81df7ff6411dbb324990ac5a473345",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "low",
+  "candidate_prompt_promoted": false,
+  "model_calls": 0,
+  "batch_submissions": 0
+}

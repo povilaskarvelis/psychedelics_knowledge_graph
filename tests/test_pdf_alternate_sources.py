@@ -9,7 +9,6 @@ from pipeline.fulltext.pdf_alternate_sources import (
     fetch_pdf_bytes_for_candidate,
     openalex_repository_candidates,
     semantic_scholar_candidates,
-    solve_pmc_pow_cookie,
     title_validation_result,
 )
 
@@ -48,36 +47,26 @@ def pow_html(challenge: str, difficulty: int = 2) -> str:
     """
 
 
-def test_solve_pmc_pow_cookie_finds_nonce_with_expected_prefix() -> None:
-    challenge = "abc"
-
-    cookie = solve_pmc_pow_cookie(pow_html(challenge, difficulty=2))
-
-    name, value = cookie.split("=", 1)
-    cookie_challenge, nonce = value.split(",", 1)
-    digest = hashlib.sha256(f"{cookie_challenge}{nonce}".encode()).hexdigest()
-    assert name == "cloudpmc-viewer-pow"
-    assert cookie_challenge == challenge
-    assert digest.startswith("00")
-
-
-def test_fetch_pdf_bytes_for_candidate_solves_pmc_viewer_pow_cookie() -> None:
-    url = "https://pmc.ncbi.nlm.nih.gov/articles/PMC123/pdf/article.pdf"
-
-    def response(headers):
-        if "Cookie" in headers:
-            return b"%PDF-1.7\nbody\n%%EOF\n"
-        return pow_html("pmc-test", difficulty=2).encode()
-
-    client = FakeClient(bytes_by_url={url: response})
-    candidate = AlternatePdfCandidate(url=url, source="pmc")
-
+def test_pmc_viewer_is_handed_to_xml_without_a_network_request() -> None:
+    client = FakeClient()
+    candidate = AlternatePdfCandidate(
+        url="https://pmc.ncbi.nlm.nih.gov/articles/PMC123/pdf/article.pdf", source="pmc")
     body, events, mode = fetch_pdf_bytes_for_candidate(client=client, candidate=candidate)
+    assert body == b""
+    assert mode == "request_error"
+    assert "pmc_xml_required" in events[-1]["error"]
+    assert client.calls == []
 
-    assert body.startswith(b"%PDF-")
-    assert mode == "pmc_pow"
-    assert any(event["event"] == "pmc_pow_success" for event in events)
-    assert any(call[3].get("Cookie", "").startswith("cloudpmc-viewer-pow=") for call in client.calls)
+
+def test_access_challenge_is_reported_without_retrying_with_a_cookie() -> None:
+    url = "https://repository.example/paper"
+    client = FakeClient(bytes_by_url={url: pow_html("test").encode()})
+    body, events, mode = fetch_pdf_bytes_for_candidate(
+        client=client, candidate=AlternatePdfCandidate(url=url, source="repository"))
+    assert body == b""
+    assert mode == "access_controlled"
+    assert len(client.calls) == 1
+    assert all("Cookie" not in call[3] for call in client.calls)
 
 
 def test_extract_pdf_links_finds_esploro_download_url() -> None:
@@ -139,7 +128,7 @@ def test_dspace_original_content_links_from_json_rewrites_internal_host() -> Non
     ]
 
 
-def test_collect_alternate_pdf_candidates_uses_pmc_id_converter_and_article_page() -> None:
+def test_collect_alternate_pdf_candidates_discovers_pmc_id_for_xml_handoff() -> None:
     article_url = "https://pmc.ncbi.nlm.nih.gov/articles/PMC123/"
     client = FakeClient(
         bytes_by_url={
@@ -153,8 +142,9 @@ def test_collect_alternate_pdf_candidates_uses_pmc_id_converter_and_article_page
         sources={"pmc"},
     )
 
-    assert discovery["candidate_urls"] == "https://pmc.ncbi.nlm.nih.gov/articles/PMC123/pdf/article.pdf"
-    assert discovery["candidates"][0].source == "pmc"
+    assert discovery["candidate_urls"] == ""
+    assert {"event": "pmc_xml_required", "pmcid": "PMC123", "reason": "use_approved_fulltext_api"} in discovery["events"]
+    assert not any(call[0] == "bytes" for call in client.calls)
 
 
 def test_openalex_repository_candidates_ignore_publisher_pdf_urls() -> None:

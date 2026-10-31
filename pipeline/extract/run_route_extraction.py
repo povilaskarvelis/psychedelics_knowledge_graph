@@ -405,6 +405,15 @@ def article_or_abstract_text_for_task(task: dict) -> tuple[str, str]:
         if packet:
             text = "\n\n".join(text_parts_from_packet(packet)).strip()
             if text:
+                # Packet metadata commonly omits the curated abstract. Keep it
+                # available to the extractor; do not silently replace it with
+                # a short selected section or supplemental table.
+                from pipeline.extract.source_text_quality import abstract_quality_flags
+                title = normalize(content.get("title", ""))
+                abstract = normalize(content.get("abstract", ""))
+                packet_abstract = normalize((packet.get("paper_metadata") or {}).get("abstract", ""))
+                if abstract and abstract != packet_abstract and not abstract_quality_flags(abstract):
+                    text = f"Title: {title}\n\nCURATED_ABSTRACT:\n{abstract}\n\nARTICLE_TEXT:\n{text}"
                 return "ARTICLE_TEXT", clean_text_for_model(text)
     title = normalize(content.get("title", ""))
     abstract = normalize(content.get("abstract", ""))

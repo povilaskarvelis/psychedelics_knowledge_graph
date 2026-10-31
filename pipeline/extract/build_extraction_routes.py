@@ -27,8 +27,13 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from pipeline.extract.review_source_types import (
+    SCHOLARLY_ANALYSIS_TYPES,
+    is_accepted_scholarly_analysis,
+)
+
 try:
-    from pipeline.fulltext.convert_pdfs import doi_to_slug, normalize_doi
+    from pipeline.fulltext.convert_pdfs import doi_to_slug, has_article_body, normalize_doi
     from pipeline.fulltext.source_identity_audit_gate import (
         DEFAULT_SOURCE_IDENTITY_AUDIT,
         SourceIdentityAuditGate,
@@ -48,7 +53,7 @@ try:
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(ROOT))
-    from pipeline.fulltext.convert_pdfs import doi_to_slug, normalize_doi
+    from pipeline.fulltext.convert_pdfs import doi_to_slug, has_article_body, normalize_doi
     from pipeline.fulltext.source_identity_audit_gate import (
         DEFAULT_SOURCE_IDENTITY_AUDIT,
         SourceIdentityAuditGate,
@@ -550,6 +555,17 @@ def artifact_ready(
         char_count = int(artifact.get("best_char_count", 0) or 0)
     except (TypeError, ValueError):
         char_count = 0
+    # Identity alone does not make an abstract-only XML response full text.
+    # Apply the same body check to historical artifacts as to new downloads.
+    best_backend = artifact.get("best_backend", "")
+    for extraction in artifact.get("extractions", []):
+        if extraction.get("backend") != best_backend:
+            continue
+        if extraction.get("metadata", {}).get("format") in {"jats_xml", "tei_xml"} or best_backend in {
+            "pmc_oai_xml", "europepmc_fulltext_xml", "grobid"
+        }:
+            if not has_article_body(extraction.get("text", "")):
+                return False, 0
     return char_count > 0 and source_identity_gate.is_verified(doi, path), char_count
 
 
@@ -748,19 +764,20 @@ def domain_plan_for(
         ]
     manual_action = clean(manual_override.get("manual_action", ""))
     manual_reason = clean(manual_override.get("manual_reason", "")) or "Manual extraction-route review."
-    if manual_action == "context_only":
+    if manual_action in {"context_only", "hold_source_review"}:
+        source_hold = manual_action == "hold_source_review"
         return [
             {
-                "domain_route": "context_only",
+                "domain_route": "source_review_hold" if source_hold else "context_only",
                 "domain_tags": join_values(fallback_tags),
                 "domain_route_confidence": "high",
                 "domain_route_basis": manual_reason,
-                "domain_routing_primary_domain": "context_only",
+                "domain_routing_primary_domain": "source_review_hold" if source_hold else "context_only",
                 "methodological_validity_tags": "",
-                "domain_screening_decision": "manual_context_only",
+                "domain_screening_decision": "source_review_hold" if source_hold else "manual_context_only",
                 "domain_screening_reason": manual_reason,
                 "domain_routing_model": "manual_extraction_route_review",
-                "domain_needs_human_review": False,
+                "domain_needs_human_review": source_hold,
                 "manual_action": manual_action,
             }
         ]
@@ -923,6 +940,8 @@ def source_type_for(literature_row: dict) -> str:
 
 
 def secondary_source_types_for(source_type: str) -> str:
+    if source_type in SCHOLARLY_ANALYSIS_TYPES:
+        return source_type
     if source_type in META_ANALYSIS_TYPES:
         return join_values([source_type, "review"])
     if source_type in STRUCTURED_REVIEW_TYPES | NARRATIVE_REVIEW_TYPES:
@@ -965,6 +984,13 @@ def source_status_from_domain_rows(
         source_type = "primary"
     if source_family in {"primary", "primary_or_unclear"} and not source_type:
         source_type = source_family
+    # source_family here selects an extraction path. Keep the actual genre in
+    # source_type and the original model family/decision in the immutable
+    # screening table. A positive scientific screen must not be vetoed solely
+    # because an eligible analysis is published as a commentary/perspective.
+    accepted_analysis = is_accepted_scholarly_analysis(model_row)
+    if accepted_analysis:
+        source_family = "secondary_literature"
     secondary_source_types = (
         clean(model_row.get("secondary_source_types", ""))
         or clean(literature_row.get("secondary_source_types", ""))
@@ -977,6 +1003,8 @@ def source_status_from_domain_rows(
     if source_family == "secondary_literature" and not primary_secondary_source_type:
         primary_secondary_source_type = source_type
     non_primary_flags = clean(model_row.get("non_primary_flags", "")) or clean(literature_row.get("non_primary_flags", ""))
+    if accepted_analysis:
+        non_primary_flags = ""
     if source_family == "non_primary_publication" and not non_primary_flags and source_type:
         non_primary_flags = source_type
     manual_source_family = clean(manual_override.get("manual_source_family", ""))
@@ -1269,7 +1297,9 @@ def build_route_rows(
             prompt_profile = prompt_profile_for(source_family, source_type, domain_route)
             schema_profile = schema_profile_for(prompt_profile)
             route_id = stable_id(doi, source_family, source_type, domain_route, access, prompt_profile)
-            if manual_action == "context_only":
+            if manual_action == "hold_source_review":
+                row_action = "hold_source_review"
+            elif manual_action == "context_only":
                 row_action = "skip_or_context_only"
             elif domain_screening_decision == "exclude_out_of_scope":
                 row_action = "exclude_after_model_screen"
@@ -1278,7 +1308,7 @@ def build_route_rows(
             route_retained = (
                 retained
                 and domain_screening_decision != "exclude_out_of_scope"
-                and row_action != "skip_or_context_only"
+                and row_action not in {"skip_or_context_only", "hold_source_review"}
             )
             rows.append(
                 {
@@ -1447,6 +1477,8 @@ def route_status_for_candidate(
             return "hold_until_text_available", "No usable abstract or article text is available yet.", True
         return "retained_for_extraction", reason, True
 
+    if "hold_source_review" in actions:
+        return "hold_source_review", "Source/report identity or publication eligibility remains unresolved; model screening is preserved.", False
     if "exclude_after_model_screen" in actions:
         return "excluded_after_domain_screen", reason, False
     if "skip_or_context_only" in actions:

@@ -1,0 +1,4 @@
+import React from 'react';
+import {CanvasImage,Interactive,staticFile,useCurrentFrame,interpolate} from 'remotion';
+import {Stage,ease} from './shared';
+export const Outro=()=>{const f=useCurrentFrame();return <Stage><Interactive.Div name="Product identity" style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',opacity:interpolate(f,[0,25],[0,1],ease),translate:interpolate(f,[0,35],['0px 30px','0px 0px'],ease)}}><CanvasImage src={staticFile('story/favicon.svg')} style={{width:130,height:130,marginBottom:50}}/><div style={{fontSize:126,lineHeight:1.02,letterSpacing:-5,textAlign:'center'}}>Psychedelics<br/>Knowledge Graph</div><div style={{fontSize:56,color:'#84bd9b',marginTop:58}}>psychedelicskg.com</div></Interactive.Div></Stage>;};

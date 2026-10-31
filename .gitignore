@@ -27,6 +27,7 @@ data/curated/*
 !data/curated/research_area_release_qa_overrides.json
 !data/curated/paper_metadata_overrides.json
 !data/curated/screening_decision_overrides.json
+!data/curated/post_retrieval_eligibility_decisions.json
 !data/curated/direct_graph_recovery_dois.txt
 !data/curated/central_guideline_consensus_dois.txt
 !data/processed/
@@ -119,3 +120,10 @@ data/processed/paper_library_*.checkpoint.json
 # Static-site deploy output and Netlify local state
 dist/
 .netlify/
+
+# Generated media and temporary paper-audit renders; retain authoring sources.
+/artifacts/launch-video/build/
+/artifacts/launch-video-v2/public/**/*soundtrack*.wav
+/artifacts/living-knowledge-film/public/audio/*.wav
+/artifacts/living-knowledge-film/public/audio/stems/*.wav
+/tmp/pdfs/luna_screening_audit/

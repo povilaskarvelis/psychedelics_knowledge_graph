@@ -1,9 +1,115 @@
 import json
+from pathlib import Path
 
 from pipeline.kg.convert_meta_analysis_v2_to_evidence_rows import (
     convert_outputs,
     primary_domain_for,
+    result_subject_scope,
 )
+
+
+def test_saved_source_result_scopes_do_not_individualize_pooled_effects():
+    fixtures = json.loads((Path(__file__).parent / 'fixtures/meta_source_subject_cases.json').read_text())
+    expected = {(441, 'R3'): 'intervention_class', (449, 'R1'): 'pooled_multiple_interventions',
+                (449, 'R2'): 'pooled_multiple_interventions', (449, 'R3'): None,
+                (451, 'R3'): None, (451, 'R5'): None, (451, 'R8'): 'pooled_multiple_interventions',
+                (451, 'R9'): 'comparison_between_interventions', (469, 'R6'): 'control_arm'}
+    for case in fixtures:
+        key = case['audit_index'], case['item']['result_id']
+        if key not in expected:
+            continue
+        subject = case['item']['intervention_or_exposure']
+        contract = result_subject_scope(subject, case['item'])
+        assert contract.get('meta_analysis_subject_scope') == expected[key], key
+        if key == (449, 'R1'):
+            assert json.loads(contract['meta_analysis_subject_components_json']) == ['DOI', 'N,N-DMT', 'psilocybin']
+        if key == (441, 'R3'):
+            assert json.loads(contract['meta_analysis_subject_components_json']) == ['ketamine', 'D-cycloserine', 'minocycline']
+
+
+def test_subject_scope_preserves_atomic_network_and_coadministered_regimen():
+    assert not result_subject_scope('Ketamine', {'relationship_statement': 'Pooled ketamine effect across studies.'})
+    assert not result_subject_scope('Ketamine plus propofol', {'relationship_statement': 'The pooled effect of the combination was null.'})
+    assert not result_subject_scope('Ketamine', {'result_role': 'network_comparison', 'network_meta_analysis': {'treatment_a': 'Ketamine', 'treatment_b': 'Psilocybin'}})
+
+
+def test_same_drug_descriptor_alternatives_are_not_multiple_interventions():
+    cases = [
+        'Moderate- or high-dose psilocybin',
+        'Ecstasy use before or during sex',
+        'Ecstasy/MDMA use; estimated lifetime use ranged between 30 and 668 tablets',
+        'Psilocybin-assisted therapy with psychological support or psychotherapy',
+        'Psilocybin-assisted therapy with manualized directive psychotherapy, non-manualized nondirective psychological support, or non-manualized supportive psychotherapy',
+        'Psilocybin administration; the broader review includes psilocybin-assisted therapy',
+        'Psilocybin or psilocybin-assisted therapy',
+        'Chronic/repetitive or continuous ketamine administration',
+        'Oral or intravenous ketamine',
+        'Ketamine with or without psychological support',
+    ]
+    for subject in cases:
+        item = base_item()
+        item.update(intervention_or_exposure=subject,
+                    relationship_statement='The pooled association across studies was null.')
+        assert not result_subject_scope(subject, item), subject
+        rows, _ = convert_outputs([output_with_result(item)], {'task-1': task()})
+        assert rows[0]['compound'] == subject
+        assert not rows[0].get('meta_analysis_subject_scope'), subject
+
+
+def test_subject_scope_does_not_discard_unknown_drugs_controls_or_true_comparisons():
+    pooled = [
+        'Ketamine or esketamine',
+        'Psilocybin or compound 37',
+        'Ketamine and novel analogue ZTX-71',
+        'Ketamine with or without psilocybin',
+        'Oral or intravenous ketamine or psilocybin',
+        'Psilocybin; other unidentified compounds',
+        'DMT/5-MeO-DMT interventions',
+        'Psychedelic treatment or psychedelic-assisted therapy',
+    ]
+    for subject in pooled:
+        contract = result_subject_scope(subject, {'relationship_statement': 'The pooled effect across interventions was null.'})
+        assert contract.get('meta_analysis_subject_scope') in {'pooled_multiple_interventions', 'intervention_class'}, subject
+    for subject in ['Psilocybin-trial control treatment', 'Inert placebo in trials of ketamine',
+                    'Inert placebo in trials of ketamine or esketamine', 'Active placebo in psilocybin trials']:
+        control = result_subject_scope(subject, {})
+        assert control['meta_analysis_subject_scope'] == 'control_arm', subject
+    contrast = result_subject_scope('Single-dose intranasal ketamine versus single-dose intravenous ketamine', {})
+    assert contrast['meta_analysis_subject_scope'] == 'comparison_between_interventions'
+
+
+def test_converter_emits_scope_contract_without_altering_raw_exposure():
+    item = base_item()
+    item['intervention_or_exposure'] = 'Ketamine or psilocybin'
+    item['relationship_statement'] = 'Pooling both interventions, the association was negative.'
+    rows, _ = convert_outputs([output_with_result(item)], {'task-1': task()})
+    assert rows[0]['compound'] == 'Ketamine or psilocybin'
+    assert rows[0]['graph_subject_kind'] == 'compound_class'
+    assert rows[0]['meta_analysis_subject_scope'] == 'pooled_multiple_interventions'
+
+
+def test_saved_outcome_roles_preserve_clinical_dependents_and_subjective_endpoints():
+    fixtures = json.loads((Path(__file__).parent / 'fixtures/meta_source_outcome_role_cases.json').read_text())
+    expected = {428: 'clinical_outcome', 431: 'subjective_experience',
+                438: 'safety_tolerability', 458: 'clinical_outcome', 462: 'subjective_experience'}
+    for case in fixtures:
+        item = case['item']
+        assert primary_domain_for(item)[0] == expected[case['audit_index']]
+        if case['audit_index'] == 458:
+            rows, _ = convert_outputs([output_with_result(item)], {'task-1': task()})
+            assert rows[0]['clinical_endpoint'] == 'Change in death anxiety'
+            assert rows[0]['meta_analysis_subgroup_or_moderator'] == 'Mystical-experience score, continuous moderator'
+            assert rows[0]['meta_analysis_regression_coefficient'] == 'B = 4.90'
+            assert item['primary_subject_area'] == 'subjective_experience'
+
+
+def test_meta_regression_domain_does_not_follow_a_background_clinical_mention():
+    item = base_item()
+    item.update(result_role='meta_regression', primary_subject_area='subjective_experience',
+                subject_areas=['subjective_experience', 'clinical_outcome'],
+                outcome_or_entity='Mystical experience score',
+                relationship_statement='Participants had depression; dose predicted mystical experience.')
+    assert primary_domain_for(item) == ('subjective_experience', 'explicit_primary_subject_area')
 
 
 def output_with_result(item: dict, primary_subjects: list[str] | None = None) -> dict:
@@ -317,6 +423,31 @@ def test_converter_holds_a_result_that_bundles_multiple_estimates() -> None:
     assert report["counts"]["held:multiple_estimates_in_one_result"] == 1
 
 
+def test_converter_keeps_one_pooled_or_with_its_arm_rates() -> None:
+    item = base_item()
+    item['relationship_statement'] = 'Ketamine increased response versus placebo: 52.2% versus 7.8%, pooled OR10.09 (95% CI4.96-20.52).'
+    item['effect_estimate'] = {'metric': 'Odds ratio', 'estimate': '10.09', 'interval_lower': '4.96', 'interval_upper': '20.52'}
+    output = output_with_result(item)
+    output['qa_flags'] = ['multiple_estimates_in_one_result:R1', 'nonverbatim_supporting_text:R1:1']
+    rows, report = convert_outputs([output], {'task-1': task()})
+    assert len(rows) == 1
+    assert report['counts'].get('held:multiple_estimates_in_one_result', 0) == 0
+    assert 'multiple_estimates_in_one_result' not in rows[0]['extraction_warnings']
+    assert 'nonverbatim_supporting_text:R1:1' in rows[0]['extraction_warnings']
+    assert json.loads(rows[0]['statistical_validation_recheck_json'])['superseded_source_validation_flags'] == ['multiple_estimates_in_one_result:R1']
+    assert output['qa_flags'] == ['multiple_estimates_in_one_result:R1', 'nonverbatim_supporting_text:R1:1']
+
+
+def test_converter_holds_explicit_rd_nnt_scale_conflict_without_rewriting() -> None:
+    item = base_item()
+    item['relationship_statement'] = 'Treatment increased response: RD=0.11% and NNT=9.'
+    item['effect_estimate'] = {'metric': 'Risk difference', 'estimate': '0.11%', 'interval_lower': '.05', 'interval_upper': '.16'}
+    rows, report = convert_outputs([output_with_result(item)], {'task-1': task()})
+    assert rows == []
+    assert report['counts']['held:effect_estimate_scale_conflict'] == 1
+    assert item['effect_estimate']['estimate'] == '0.11%'
+
+
 def test_converter_holds_network_role_without_network_structure() -> None:
     item = base_item()
     item["result_role"] = "network_comparison"
@@ -462,3 +593,14 @@ def test_converter_does_not_assign_ambiguous_overview_context_to_a_result() -> N
     assert report["counts"]["rows_written"] == 1
     assert "population" not in rows[0]
     assert "comparator" not in rows[0]
+
+
+def test_converter_preserves_explicit_multiplicity_adjustment_without_inferring_it():
+    baseline, _ = convert_outputs([output_with_result(base_item())], {'task-1': task()})
+    for adjustment in ('Uncorrected results', 'TFCE family-wise error corrected', ''):
+        item = base_item()
+        item['analysis_context'] = {'multiplicity_adjustment': adjustment}
+        rows, _ = convert_outputs([output_with_result(item)], {'task-1': task()})
+        assert rows[0].get('meta_analysis_multiplicity_adjustment', '') == adjustment
+        assert item['analysis_context']['multiplicity_adjustment'] == adjustment
+        assert rows[0].get('graph_admission_status') == baseline[0].get('graph_admission_status')

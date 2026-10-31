@@ -156,6 +156,24 @@ def joined_text(*values: object) -> str:
 def primary_domain_for(item: dict) -> tuple[str, str]:
     areas = [normalize(value) for value in item.get("subject_areas", []) if normalize(value)]
     explicit = normalize(item.get("primary_subject_area", ""))
+    outcome = normalize(item.get("outcome_or_entity", ""))
+    if (
+        normalize(item.get("result_role", "")) == "meta_regression"
+        and explicit == "subjective_experience"
+        and "clinical_outcome" in areas
+        and re.fullmatch(
+            r"(?:(?:change|reduction|improvement) in )?"
+            r"(?:death anxiety|anxiety|depressive|depression|PTSD|post-traumatic stress)"
+            r"(?: symptoms?| severity| scores?| symptom severity)?",
+            outcome,
+            re.IGNORECASE,
+        )
+    ):
+        # A subjective-experience moderator can predict a clinical endpoint.
+        # Classify the explicit dependent outcome, retaining the moderator and
+        # coefficient in their existing dedicated fields. A generic mention in
+        # the statement or a CADSS/anxiety association is not this narrow case.
+        return "clinical_outcome", "explicit_meta_regression_dependent_outcome"
     context = joined_text(
         item.get("outcome_or_entity", ""),
         item.get("relationship_statement", ""),
@@ -260,6 +278,97 @@ def subject_for_result(item: dict, overview: dict, domain: str = "") -> tuple[st
     if len(mentioned) > 1:
         return " and ".join(mentioned), "multiple_overview_subjects_mentioned"
     return "", "missing_result_subject"
+
+
+SINGLE_SUBJECT_DESCRIPTOR_WORDS = frozenset("""
+a an the and or with without of in to for by from at as use uses used using
+administration administered treatment treatments therapy therapies assisted
+dose doses dosing dosage low moderate high lower higher therapeutic subtherapeutic
+subanesthetic subanaesthetic acute chronic repetitive repeated single continuous
+oral intravenous intranasal systemic intrathecal infusion infusions injection injections
+before during after sex lifetime estimated exposure ranged ranging range between
+tablets tablet units unit mg g micrograms milligrams grams cigarettes cigarette
+psychological support supportive psychotherapy psychotherapies manualized manualised
+non manualized nonmanualized nonmanualised directive nondirective nondirective
+structured setting context protocol protocols broader review includes including
+""".split())
+
+
+def single_subject_descriptor_alternatives(subject: str) -> bool:
+    """Prove a syntactic alternative changes descriptors, not drug identity.
+
+    Registry identity alone is insufficient: an unregistered second drug must
+    not disappear. After removing repeated aliases of one registered compound,
+    every remaining word must describe administration, timing, dose, or therapy.
+    This intentionally does not resolve unknown compounds or general classes.
+    """
+    from pipeline.kg.real_world_subjects import _identities, _key, DEFAULT_REGISTRY
+
+    remaining = _key(subject)
+    identities = _identities(remaining, DEFAULT_REGISTRY)
+    if not identities or any(hit["kind"] != "atomic_compound" for hit in identities):
+        return False
+    labels = {hit["label"] for hit in identities}
+    if len(labels) != 1:
+        return False
+    # _identities reports one span per canonical identity. Repeating allows
+    # synonymous mentions such as Ecstasy/MDMA without assuming they are two drugs.
+    while True:
+        remaining = _key(remaining)
+        hits = _identities(remaining, DEFAULT_REGISTRY)
+        if not hits:
+            break
+        if any(hit["kind"] != "atomic_compound" or hit["label"] not in labels for hit in hits):
+            return False
+        for hit in sorted(hits, key=lambda h: h["start"], reverse=True):
+            remaining = remaining[:hit["start"]] + " " + remaining[hit["end"]:]
+    words = set(re.findall(r"[a-z]+", remaining))
+    return bool(words) and words <= SINGLE_SUBJECT_DESCRIPTOR_WORDS
+
+
+def result_subject_scope(subject: str, item: dict) -> dict:
+    """Preserve the statistical exposure unit before compound normalization.
+
+    A pooled alternative-drug class is not a coadministration, and a placebo
+    arm in a ketamine trial is not ketamine exposure. Only the selected result's
+    exposure and statement are used; overview examples cannot create members.
+    Component strings are literal provenance, never inferred compound IDs.
+    """
+    statement = normalize(item.get("relationship_statement", ""))
+    network = item.get("network_meta_analysis", {}) or {}
+    if item.get("result_role") in {"network_comparison", "network_ranking"} and normalize(network.get("treatment_a", "")):
+        return {}
+    scope = ""
+    kind = ""
+    source = ""
+    if re.match(r"^(?:(?:[\w-]+[- ]trial|inert|inactive|active|matched|corresponding)\s+)?(?:control|placebo)\b", subject, re.I) or re.search(r"\b(?:control|placebo)[- ](?:treatment|arm|group)\b", subject, re.I):
+        scope, kind, source = "control_arm", "exposure_context", "explicit_result_control_exposure"
+    elif re.search(r"\b(?:versus|vs\.?)\b", subject, re.I):
+        scope, kind, source = "comparison_between_interventions", "exposure_context", "explicit_result_between_intervention_comparison"
+    elif re.search(r"\b(?:drugs|agents|psychoplastogens|psychedelics|hallucinogens|treatments|interventions)\b", subject, re.I) and not re.match(r"^(?:single|repeated|intravenous|oral|intranasal)?\s*(?:ketamine|esketamine|psilocybin|MDMA)\b", subject, re.I):
+        scope, kind, source = "intervention_class", "compound_class", "explicit_result_intervention_class"
+    elif re.search(r"\bor\b", subject, re.I) and not single_subject_descriptor_alternatives(subject):
+        scope, kind, source = "pooled_multiple_interventions", "compound_class", "explicit_result_alternative_exposures"
+    elif re.search(r"\band\b|;", subject, re.I) and re.search(r"\b(?:pool(?:ed|ing)?|combined synthesis|across.*(?:drug|intervention|treatment))\b", statement, re.I):
+        # Coadministration is a different exposure unit. Keep the existing
+        # regimen path when the result explicitly administers both together.
+        if not re.search(r"\b(?:coadminister|co-administer|coadministration|combination|combined with|plus|adjunct)\b", subject, re.I) and not single_subject_descriptor_alternatives(subject):
+            scope, kind, source = "pooled_multiple_interventions", "compound_class", "result_statement_explicit_pooling"
+    if not scope:
+        return {}
+    components_text = re.split(r"\b(?:including|such as)\b", subject, maxsplit=1, flags=re.I)[-1]
+    # Preserve the comma in N,N-DMT and N,N-dimethyltryptamine.
+    components_text = re.sub(r"\bN,N(?=-)", "N\u0000N", components_text, flags=re.I)
+    components = [part.strip(" ()") .replace("\u0000", ",") for part in re.split(r",\s*|;\s*|\b(?:and|or|versus|vs\.?)\b", components_text, flags=re.I)]
+    components = [part for part in components if part]
+    if len(components) < 2:
+        components = []
+    return {
+        "meta_analysis_subject_scope": scope,
+        "meta_analysis_subject_components_json": json.dumps(components, ensure_ascii=False),
+        "meta_analysis_subject_scope_source": source,
+        "graph_subject_kind": kind,
+    }
 
 
 def entity_for_result(item: dict, domain: str, overview: dict) -> tuple[str, str, str]:
@@ -394,6 +503,34 @@ def effect_estimate_is_range(item: dict) -> bool:
     return bool(re.search(r"[-+]?\d+(?:\.\d+)?\s+(?:to|through)\s+[-+]?\d+(?:\.\d+)?", value, re.IGNORECASE))
 
 
+def descriptive_frequency_estimate(item: dict) -> bool:
+    """A single-arm incidence/prevalence interval is not a null contrast test.
+
+    The saved ``supports`` interpretation can mean that a frequency was
+    estimated, not that it differs significantly from zero. Only explicit
+    descriptive frequency metrics with no comparator, test p-value or stated
+    significance claim qualify. Ratios, differences and regressions retain
+    their original statistical QA checks; no numeric value is repaired here.
+    """
+
+    estimate = item.get("effect_estimate")
+    if not isinstance(estimate, dict):
+        return False
+    metric = normalize(estimate.get("metric", ""))
+    if not re.fullmatch(r"(?:pooled\s+)?(?:incidence|prevalence)(?:\s+(?:proportion|rate))?|proportion", metric, re.I):
+        return False
+    if normalize(item.get("comparator", "")) or normalize(estimate.get("p_value", "")):
+        return False
+    if normalize(item.get("result_role", "")) not in {"primary_synthesis", "secondary_synthesis", "subgroup_analysis"}:
+        return False
+    interpretation = item.get("interpretation", {})
+    interpretation = interpretation if isinstance(interpretation, dict) else {}
+    statement = joined_text(item.get("relationship_statement", ""), interpretation.get("statistical_interpretation", ""))
+    if re.search(r"\bsignifican\w*\b|\b(?:higher|lower|greater|less)\s+than\b|\b(?:versus|compared\s+with)\b", statement, re.I):
+        return False
+    return True
+
+
 def linked_assessment_summary(result: dict, array_name: str, result_id: str, field: str) -> str:
     values: list[str] = []
     for assessment in result.get(array_name, []):
@@ -444,6 +581,7 @@ def evidence_row(
         "task_id": normalize(output.get("task_id", "")),
         "study_doi": normalize(output.get("study_doi", "")),
         "result_id": result_id,
+        "source_item_index": item_index,
         "domain": domain,
         "domain_source": domain_source,
         "subject": subject,
@@ -467,11 +605,25 @@ def evidence_row(
     network = item.get("network_meta_analysis", {}) if isinstance(item.get("network_meta_analysis"), dict) else {}
     if role in {"network_comparison", "network_ranking"} and not network:
         missing.append("network_result_missing_structure")
-    if result_bundles_multiple_estimates(item):
+    multiple_estimates = result_bundles_multiple_estimates(item)
+    if multiple_estimates:
         missing.append("multiple_estimates_in_one_result")
+    from pipeline.extract.statistical_result_contract import result_has_effect_scale_conflict
+    if result_has_effect_scale_conflict(item):
+        missing.append("effect_estimate_scale_conflict")
     if effect_estimate_is_range(item):
         missing.append("non_atomic_effect_estimate_range")
     output_flags = [normalize(value) for value in output.get("qa_flags", []) if normalize(value)]
+    superseded_flags = [flag for flag in output_flags
+                        if flag == f"multiple_estimates_in_one_result:{result_id}" and not multiple_estimates]
+    direction_flag = f"supports_with_interval_including_null:{result_id}"
+    descriptive_frequency = direction_flag in output_flags and descriptive_frequency_estimate(item)
+    if descriptive_frequency:
+        superseded_flags.append(direction_flag)
+        decision["statistical_boundary_resolution"] = "descriptive_frequency_is_not_a_zero_contrast_test"
+    decision["statistical_contract_revision"] = "role_aware_percentages_v2"
+    if superseded_flags:
+        decision["superseded_validation_flags"] = superseded_flags
     unsupported_numeric_prefixes = {
         f"numeric_value_not_in_source:{result_id}:estimate",
         f"numeric_value_not_in_source:{result_id}:interval_lower",
@@ -480,7 +632,7 @@ def evidence_row(
     }
     if any(flag in unsupported_numeric_prefixes for flag in output_flags):
         missing.append("numeric_value_not_in_source")
-    if f"supports_with_interval_including_null:{result_id}" in output_flags:
+    if direction_flag in output_flags and direction_flag not in superseded_flags:
         missing.append("statistical_direction_conflict")
     if missing:
         decision["status"] = "held"
@@ -504,8 +656,18 @@ def evidence_row(
     result_qa_flags = [
         flag
         for flag in output_flags
-        if f":{result_id}:" in flag or flag.endswith(f":{result_id}")
+        if (f":{result_id}:" in flag or flag.endswith(f":{result_id}")) and flag not in superseded_flags
     ]
+
+    # An explicitly empty optional heterogeneity object is missing metadata,
+    # not uncertainty about the reported effect. Preserve the original flag;
+    # all other QA flags and every model uncertainty still require review.
+    nonblocking_optional_flags = [
+        flag for flag in result_qa_flags
+        if flag == f"empty_optional_object:{result_id}:heterogeneity"
+        and item.get("heterogeneity") == {}
+    ]
+    blocking_result_qa_flags = [flag for flag in result_qa_flags if flag not in nonblocking_optional_flags]
 
     row = {
         "route_output_schema_version": ROW_SCHEMA_VERSION,
@@ -582,6 +744,9 @@ def evidence_row(
         "heterogeneity_prediction_interval": normalize(heterogeneity.get("prediction_interval", "")),
         "heterogeneity_interpretation": normalize(heterogeneity.get("authors_interpretation", "")),
         "meta_analysis_analysis_type": normalize(analysis_context.get("analysis_type", "")),
+        "meta_analysis_multiplicity_adjustment": normalize(
+            analysis_context.get("multiplicity_adjustment", "")
+        ),
         "meta_analysis_subgroup_or_moderator": normalize(
             analysis_context.get("subgroup_or_moderator", "")
         ),
@@ -615,7 +780,13 @@ def evidence_row(
         ),
         "notes": " | ".join([*limitations, *uncertainty]),
         "extraction_warnings": " | ".join([*warnings, *result_qa_flags]),
-        "needs_human_review": bool(uncertainty or result_qa_flags),
+        "statistical_validation_recheck_json": json.dumps({
+            "contract_revision": "descriptive_frequency_v3" if descriptive_frequency else "role_aware_percentages_v2",
+            "superseded_source_validation_flags": superseded_flags,
+            "nonblocking_optional_metadata_flags": nonblocking_optional_flags,
+            **({"boundary_resolution": "descriptive_frequency_is_not_a_zero_contrast_test"} if descriptive_frequency else {}),
+        }, ensure_ascii=False) if superseded_flags or nonblocking_optional_flags else "",
+        "needs_human_review": bool(uncertainty or blocking_result_qa_flags),
         "coverage_focus": normalize(item.get("importance_in_paper", "")),
         "graph_admission_status": "paper_detail"
         if normalize(item.get("importance_in_paper", "")) == "additional"
@@ -634,6 +805,9 @@ def evidence_row(
         "normalization_population_source": population_source,
         "normalization_comparator_source": comparator_source,
     }
+    row.update(result_subject_scope(subject, item))
+    if row.get("meta_analysis_subject_scope"):
+        decision["meta_analysis_subject_scope"] = row["meta_analysis_subject_scope"]
     if domain == "clinical_outcome":
         raw_outcome = normalize(item.get("outcome_or_entity", ""))
         context_endpoint = clinical_context_endpoint(result.get("meta_analysis_overview", {}))
@@ -753,6 +927,10 @@ def convert_outputs(
         "subject_sources": dict(Counter(row.get("normalization_subject_source", "") for row in rows)),
         "entity_sources": dict(Counter(row.get("normalization_entity_source", "") for row in rows)),
         "held_samples": [decision for decision in decisions if decision.get("status") == "held"][:100],
+        # Keep the bounded human-readable preview, but also expose the complete
+        # machine-readable disposition ledger. Otherwise a cohort audit loses
+        # every held result after the first hundred despite counting them.
+        "item_exclusions": [decision for decision in decisions if decision.get("status") == "held"],
     }
     return rows, report
 

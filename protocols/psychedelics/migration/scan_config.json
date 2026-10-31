@@ -1,0 +1,39 @@
+{
+  "description": "Inputs for protocols/tools/scan_field_coupling.py when measuring the psychedelics protocol. These values are protocol content: the evidence-domain IDs, node kinds, anchor-entity name and field terms that should eventually appear only in protocol files.",
+  "python_roots": ["pipeline", "services", "scripts"],
+  "js_files": [
+    "ui/app.js",
+    "ui/compound.js",
+    "ui/methods.js",
+    "ui/view-state.js",
+    "ui/research-analysis.js",
+    "ui/research-model.js",
+    "ui/analysis-worker.js",
+    "ui/analysis-payload.js",
+    "ui/site-nav.js",
+    "ui/segmented-controls.js"
+  ],
+  "acorn_candidates": [
+    "artifacts/living-knowledge-film/node_modules/acorn",
+    "artifacts/launch-video-v2/node_modules/acorn"
+  ],
+  "domain_ids": [
+    "clinical_outcome", "safety_tolerability", "molecular_target", "molecular_pathway_readout",
+    "brain_system", "cognitive_behavioral", "subjective_experience", "pharmacokinetics_exposure",
+    "intervention_context", "real_world_public_health", "general_primary", "general_topic"
+  ],
+  "node_kinds": [
+    "condition_indication", "safety_adverse_event", "cognitive_behavioral_construct",
+    "subjective_experience_construct", "brain_region", "brain_network", "neural_circuit",
+    "brain_measure", "pharmacokinetic_parameter", "intervention_component", "public_health_measure",
+    "symptom_problem", "exposure_context", "compound_class", "compound_combination",
+    "biomarker_readout", "metabolite_or_analyte", "enzyme_or_transporter", "paper_topic",
+    "pathway_process", "pathway_or_process", "target"
+  ],
+  "anchor_terms": ["compound"],
+  "anchor_identifier_pattern": "\\b\\w*(compound|psychedel)\\w*\\b",
+  "field_term_pattern": "psychedel|psilocyb|psilocin|\\blsd\\b|lysergic|mdma|\\bmda\\b|ketamine|ayahuasca|\\bdmt\\b|mescaline|ibogaine|noribogaine|5-?meo|hallucinogen|entactogen|empathogen|entheogen|dissociative|salvinorin|phencyclidine|\\bpcp\\b|mystical|ego dissolution|oceanic|set and setting|microdos|ceremon|retreat|head[- ]twitch|tryptamine|phenethylamine|nbome|\\b2c-|psychotomimetic|cannab|\\bthc\\b|kratom|kambo|bufotenin|harmine|esketamine|arketamine",
+  "anchor_registry_files": ["data/curated/entity_registry.json"],
+  "anchor_registry_key": "compounds",
+  "search_strategy_file": "pipeline/discovery/search_strategy.v3.json"
+}

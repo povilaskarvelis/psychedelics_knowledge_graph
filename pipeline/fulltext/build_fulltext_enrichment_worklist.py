@@ -318,7 +318,12 @@ def build(args: argparse.Namespace) -> dict:
         queue.get("inputs", {}).get("previous_candidate_table", "")
     ).resolve()
     processed = previously_processed_dois(previous_path) | active_graph_dois(Path(args.active_graph_pointer).resolve())
-    selected_before_alias_dedup = new_included & eligible - processed
+    # A full extraction rerun must revisit access for previously processed
+    # abstract-only papers too. The ordinary discovery workflow stays incremental.
+    include_previously_processed = bool(getattr(args, "include_previously_processed", False))
+    selected_before_alias_dedup = new_included & eligible
+    if not include_previously_processed:
+        selected_before_alias_dedup -= processed
     alias_registry_path = Path(
         getattr(args, "doi_alias_registry", DEFAULT_DOI_ALIAS_REGISTRY)
     ).resolve()
@@ -389,13 +394,15 @@ def build(args: argparse.Namespace) -> dict:
         terminal_pdf_download_failure = (
             pdf_download_status == "download_failed" and not pdf_download_retry_recommended
         )
-        if fulltext.get("has_converted_full_text"):
-            action = "reuse_existing_fulltext"
-            action_basis = "verified_fulltext_available"
-            needed = False
-        elif manual_access_action == "abstract_only":
+        if manual_access_action == "abstract_only":
+            # Identity verification alone does not establish that a retained
+            # supplement is an adequate full-article evidence source.
             action = "use_abstract_only"
             action_basis = "manual_abstract_only"
+            needed = False
+        elif fulltext.get("has_converted_full_text"):
+            action = "reuse_existing_fulltext"
+            action_basis = "verified_fulltext_available"
             needed = False
         elif manual_access_action == "suppress_pdf_download":
             action = "no_accessible_fulltext"
@@ -439,6 +446,11 @@ def build(args: argparse.Namespace) -> dict:
             action = "resolve_oa_landing_page"
             action_basis = "oa_landing_page_resolution"
             needed = True
+        elif pmcid and pmc_outcome:
+            # Lack of reusable XML does not establish lack of browser access.
+            action = "resolve_oa_landing_page"
+            action_basis = "pmc_xml_unavailable_browser_recovery"
+            needed = True
         elif status_is_closed(open_access_status) or explicitly_false(open_access_is_oa):
             action = "no_accessible_fulltext"
             action_basis = "provider_reports_closed_access"
@@ -468,7 +480,10 @@ def build(args: argparse.Namespace) -> dict:
                 "pmc_fulltext_status": pmc_outcome,
                 "open_access_is_oa": open_access_is_oa,
                 "open_access_status": open_access_status,
-                "open_access_url": clean(access_metadata.get("open_access_url", "")),
+                "open_access_url": clean(access_metadata.get("open_access_url", "")) or (
+                    f"https://pmc.ncbi.nlm.nih.gov/articles/{pmcid}/"
+                    if action_basis == "pmc_xml_unavailable_browser_recovery" else ""
+                ),
                 "best_pdf_url": probable[0] if probable else pdf_candidates[0] if pdf_candidates else "",
                 "pdf_url_candidates": "|".join(pdf_candidates),
                 "probable_pdf_url_candidates": "|".join(probable),
@@ -541,6 +556,7 @@ def build(args: argparse.Namespace) -> dict:
             "candidate_table": str(candidate_path),
             "metadata_table": str(metadata_path),
             "previous_candidate_table": str(previous_path),
+            "include_previously_processed": include_previously_processed,
             "active_graph_pointer": str(Path(args.active_graph_pointer).resolve()),
             "manual_eligibility_overrides": str(Path(args.manual_eligibility_overrides).resolve()),
             "screening_decision_overrides": str(Path(args.screening_decision_overrides).resolve()),
@@ -560,8 +576,11 @@ def build(args: argparse.Namespace) -> dict:
             "newly_screened_included_dois": len(new_included),
             "newly_included_not_extraction_eligible": len(new_included - eligible),
             "newly_included_previously_processed": len(new_included & processed),
-            "newly_selected_unprocessed_dois": len(selected),
-            "newly_selected_duplicate_doi_aliases_suppressed": len(suppressed_aliases),
+            "newly_selected_unprocessed_dois": len(set(selected) - processed),
+            "selected_dois": len(selected),
+            "selected_previously_processed_dois": len(set(selected) & processed),
+            "newly_selected_duplicate_doi_aliases_suppressed": len(set(suppressed_aliases) - processed),
+            "selected_duplicate_doi_aliases_suppressed": len(suppressed_aliases),
             "fulltext_enrichment_needed_dois": len(enrichment_dois),
             "fulltext_access_metadata_refresh_dois": len(access_metadata_refresh_dois),
             "fulltext_no_accessible_fulltext_dois": len(no_accessible_fulltext_dois),
@@ -615,6 +634,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--candidate-table", default=str(DEFAULT_CANDIDATE_TABLE))
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
     parser.add_argument("--previous-candidate-table", default="")
+    parser.add_argument(
+        "--include-previously-processed",
+        action="store_true",
+        help="Audit all current eligible inclusions for a full extraction rerun, including previously processed papers.",
+    )
     parser.add_argument("--active-graph-pointer", default=str(DEFAULT_ACTIVE_GRAPH))
     parser.add_argument("--manual-eligibility-overrides", default=str(DEFAULT_MANUAL_ROUTE_OVERRIDES))
     parser.add_argument("--screening-decision-overrides", default=str(DEFAULT_SCREENING_DECISION_OVERRIDES))

@@ -1,6 +1,6 @@
 {
   "schema_version": "doi_alias_registry_v1",
-  "checked_at": "2026-07-22T00:00:00+00:00",
+  "checked_at": "2026-10-18T20:52:04.311848+00:00",
   "evidence_provider": "Crossref and DataCite DOI APIs, repository landing records, and published-version title/author matching",
   "notes": [
     "Most aliases repair punctuation that was incorrectly reconstructed from canonical PDF filename slugs; the canonical DOI resolved in Crossref while the malformed alias did not.",
@@ -8,38 +8,6 @@
     "DataCite concept/version mappings are accepted when the registry relation is explicit and the recovered document bytes are identical."
   ],
   "records": [
-    {
-      "alias_doi": "10.1097/00001648-200305000-00016",
-      "canonical_doi": "10.1097/01.ede.0000059226.36219.de",
-      "relationship_type": "alternate_publisher_doi",
-      "evidence_basis": "The legacy Ovid DOI and the modern LWW DOI identify the same Epidemiology article: exact title, authors, journal, volume, issue, pages, year, and abstract match.",
-      "source_artifact": "https://pubmed.ncbi.nlm.nih.gov/12859037/",
-      "reviewed_at_utc": "2026-07-22T20:00:00+00:00"
-    },
-    {
-      "alias_doi": "10.1097/00008571-200306000-00002",
-      "canonical_doi": "10.1097/01.fpc.0000054094.48725.b7",
-      "relationship_type": "alternate_publisher_doi",
-      "evidence_basis": "The legacy Ovid DOI and the modern LWW DOI identify the same Pharmacogenetics article: exact title, authors, journal, volume, issue, pages, year, and abstract match.",
-      "source_artifact": "https://pubmed.ncbi.nlm.nih.gov/12777961/",
-      "reviewed_at_utc": "2026-07-22T20:00:00+00:00"
-    },
-    {
-      "alias_doi": "10.17514/jnds-1997-16-1-p5-26",
-      "canonical_doi": "10.1023/a:1025055109480",
-      "relationship_type": "alternate_journal_doi",
-      "evidence_basis": "The later journal DOI and the original Kluwer DOI identify Karl Jansen's same article in Journal of Near-Death Studies 16(1), pages 5-26.",
-      "source_artifact": "https://doi.org/10.1023/A%3A1025055109480",
-      "reviewed_at_utc": "2026-07-22T20:00:00+00:00"
-    },
-    {
-      "alias_doi": "10.1023/a:1025059210388",
-      "canonical_doi": "10.17514/jnds-1997-16-1-p43-53",
-      "relationship_type": "alternate_journal_doi",
-      "evidence_basis": "The Kluwer DOI and later journal DOI identify Peter Fenwick's same article in Journal of Near-Death Studies 16(1), pages 43-53; title, author, year, volume, issue, pages, and abstract match.",
-      "source_artifact": "https://digital.library.unt.edu/ark:/67531/metadc799245/",
-      "reviewed_at_utc": "2026-07-22T20:00:00+00:00"
-    },
     {
       "alias_doi": "10.1002/ange.201910175",
       "canonical_doi": "10.1002/anie.201910175",
@@ -133,6 +101,38 @@
       "reviewed_at_utc": "2026-07-21T19:45:00+00:00"
     },
     {
+      "alias_doi": "10.1023/a:1025059210388",
+      "canonical_doi": "10.17514/jnds-1997-16-1-p43-53",
+      "relationship_type": "alternate_journal_doi",
+      "evidence_basis": "The Kluwer DOI and later journal DOI identify Peter Fenwick's same article in Journal of Near-Death Studies 16(1), pages 43-53; title, author, year, volume, issue, pages, and abstract match.",
+      "source_artifact": "https://digital.library.unt.edu/ark:/67531/metadc799245/",
+      "reviewed_at_utc": "2026-07-22T20:00:00+00:00"
+    },
+    {
+      "alias_doi": "10.1097/00001648-200305000-00016",
+      "canonical_doi": "10.1097/01.ede.0000059226.36219.de",
+      "relationship_type": "alternate_publisher_doi",
+      "evidence_basis": "The legacy Ovid DOI and the modern LWW DOI identify the same Epidemiology article: exact title, authors, journal, volume, issue, pages, year, and abstract match.",
+      "source_artifact": "https://pubmed.ncbi.nlm.nih.gov/12859037/",
+      "reviewed_at_utc": "2026-07-22T20:00:00+00:00"
+    },
+    {
+      "alias_doi": "10.1097/00008571-200306000-00002",
+      "canonical_doi": "10.1097/01.fpc.0000054094.48725.b7",
+      "relationship_type": "alternate_publisher_doi",
+      "evidence_basis": "The legacy Ovid DOI and the modern LWW DOI identify the same Pharmacogenetics article: exact title, authors, journal, volume, issue, pages, year, and abstract match.",
+      "source_artifact": "https://pubmed.ncbi.nlm.nih.gov/12777961/",
+      "reviewed_at_utc": "2026-07-22T20:00:00+00:00"
+    },
+    {
+      "alias_doi": "10.1097/01819236-201341020-00002",
+      "canonical_doi": "10.1016/j.rcae.2013.02.001",
+      "relationship_type": "publisher_duplicate_identifier",
+      "evidence_basis": "The English PDF reached through the Wolters Kluwer duplicate DOI has the exact title, six authors, Colombian Journal of Anesthesiology 41(2), pages 82–87. These agree with the published English DOI metadata returned by the Crossref work endpoint; the Spanish-language DOI is not substituted.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/fulltext_recovery_20261018/browser_full_pass_20261018/rcae_published_metadata.json",
+      "reviewed_at_utc": "2026-10-18T20:52:04.311848+00:00"
+    },
+    {
       "alias_doi": "10.1097/ftd.0b013e3182690127.",
       "canonical_doi": "10.1097/ftd.0b013e3182690127"
     },
@@ -173,6 +173,22 @@
       "reviewed_at_utc": "2026-07-21T19:30:00+00:00"
     },
     {
+      "alias_doi": "10.17063/bjfs7(3)y2018193_2",
+      "canonical_doi": "10.17063/bjfs7(3)y2018193",
+      "relationship_type": "malformed_duplicate_identifier",
+      "evidence_basis": "Both corpus records have the same article title and byte-identical PDF (SHA256 213a6911f84608b37a52c3da66b9c250e6832f7e281edede5e01ae04dd40b0e6). Direct front-page text and rendered page inspection establish published DOI 10.17063/bjfs7(3)y2018193; document path /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/pdfs/10.17063_bjfs7_3_y2018193_2__aae58b503c.pdf. The repository/malformed duplicate identifier is suppressed in favor of the published identifier.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/fulltext_recovery_20261018/confirmed_pdf_identifier_aliases.csv",
+      "reviewed_at_utc": "2026-10-18T16:00:45.879983+00:00"
+    },
+    {
+      "alias_doi": "10.17514/jnds-1997-16-1-p5-26",
+      "canonical_doi": "10.1023/a:1025055109480",
+      "relationship_type": "alternate_journal_doi",
+      "evidence_basis": "The later journal DOI and the original Kluwer DOI identify Karl Jansen's same article in Journal of Near-Death Studies 16(1), pages 5-26.",
+      "source_artifact": "https://doi.org/10.1023/A%3A1025055109480",
+      "reviewed_at_utc": "2026-07-22T20:00:00+00:00"
+    },
+    {
       "alias_doi": "10.17514/jnds-1997-16-1-p71-78.",
       "canonical_doi": "10.17514/jnds-1997-16-1-p71-78"
     },
@@ -187,6 +203,14 @@
     {
       "alias_doi": "10.17615/69pg-jt60",
       "canonical_doi": "10.1016/j.bmcl.2010.11.046"
+    },
+    {
+      "alias_doi": "10.17615/6vws-y535",
+      "canonical_doi": "10.1021/acschemneuro.1c00815",
+      "relationship_type": "repository_wrapper_doi",
+      "evidence_basis": "Carolina Digital Repository explicitly lists the ACS published DOI as Identifier for the same 2022 Article, with matching title, all four authors, journal volume 13(16), pages 2386–2398, and English language. The downloaded 13-page article matches that identity.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/fulltext_recovery_20261018/browser_full_pass_20261018/unc_published_doi_identity.json",
+      "reviewed_at_utc": "2026-10-18T20:52:04.311848+00:00"
     },
     {
       "alias_doi": "10.17615/6zw1-n365",
@@ -211,6 +235,14 @@
     {
       "alias_doi": "10.17615/et5z-st50",
       "canonical_doi": "10.1073/pnas.1518377113"
+    },
+    {
+      "alias_doi": "10.17615/g22r-ad35",
+      "canonical_doi": "10.1073/pnas.0707646105",
+      "relationship_type": "repository_wrapper_doi",
+      "evidence_basis": "Both corpus records have the same article title and byte-identical PDF (SHA256 77faad8f2bda81e15bd40aa5e8f4e5dfe44bb2984b9c3a1652a9da471d7e54b6). Direct front-page text and rendered page inspection establish published DOI 10.1073/pnas.0707646105; document path /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/pdfs/10.17615_g22r-ad35__3b206033f9.pdf. The repository/malformed duplicate identifier is suppressed in favor of the published identifier.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/fulltext_recovery_20261018/confirmed_pdf_identifier_aliases.csv",
+      "reviewed_at_utc": "2026-10-18T16:00:45.879983+00:00"
     },
     {
       "alias_doi": "10.17615/m6xp-kb38",
@@ -275,6 +307,14 @@
       "evidence_basis": "The alias repeats the DOI registrant prefix in its suffix; the corpus contains the corresponding single-prefix DOI for the same publication title.",
       "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/fulltext/source_identity_audit.csv",
       "reviewed_at_utc": "2026-07-21T19:45:00+00:00"
+    },
+    {
+      "alias_doi": "10.24406/publica-6924",
+      "canonical_doi": "10.1038/s41598-025-32525-6",
+      "relationship_type": "repository_wrapper_doi",
+      "evidence_basis": "Official repository lists both repository DOI and publisher DOI, identical title/authors, Journal Article Scientific Reports English CC BY. Publisher DOI already has verified PMC12712038 body. Official repository: https://publica.fraunhofer.de/entities/publication/2fc99adc-31cc-4c0a-8ca4-2ca77f69dc47",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/fulltext_recovery_20261018/browser_recovery/browser_observations.json",
+      "reviewed_at_utc": "2026-10-18T16:01:05.226852+00:00"
     },
     {
       "alias_doi": "10.26091/esrnz.31665202",
@@ -587,6 +627,139 @@
       "evidence_basis": "Repository DOI PDF identifies published DOI 10.1007/s12103-013-9233-3; title matches.",
       "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/corpus/audits/browser_recovery_document_audit_20260719_v2.csv",
       "reviewed_at_utc": "2026-07-19T18:37:30.066303+00:00"
+    },
+    {
+      "alias_doi": "10.1001/jama.1967.03120250160025",
+      "canonical_doi": "10.1001/jama.200.12.1126",
+      "relationship_type": "verified_same_report_identifier",
+      "evidence_basis": "Fresh paired primary Crossref requests return the same canonical DOI and byte-identical record for the historic and short JAMA identifiers. This is a verified alternate identifier for the same report, not a publication exclusion.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/reviewed_proposals.jsonl",
+      "reviewed_at_utc": "2026-10-22"
+    },
+    {
+      "alias_doi": "10.1001/jama.1980.03310040016010",
+      "canonical_doi": "10.1001/jama.244.4.332c",
+      "relationship_type": "verified_same_report_identifier",
+      "evidence_basis": "Fresh paired primary Crossref requests return the same canonical DOI and byte-identical record for the historic and short JAMA identifiers. This is a verified alternate identifier for the same report, not a publication exclusion.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/reviewed_proposals.jsonl",
+      "reviewed_at_utc": "2026-10-22"
+    },
+    {
+      "alias_doi": "10.1016/s0021-5198(19)37963-6",
+      "canonical_doi": "10.1254/jjp.43.341",
+      "relationship_type": "verified_same_report_legacy_pii",
+      "evidence_basis": "Original first pages title/authors/journal volume/pages match the already retained canonical J-STAGE report; individual visual review and complete OCR. No separate experiment.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/historical_pdf_visual_followup.json",
+      "reviewed_at_utc": "2026-10-22",
+      "prior_canonical_doi": "10.1016/s0021-5198(19)43465-3"
+    },
+    {
+      "alias_doi": "10.13016/m2sic3-v2sx",
+      "canonical_doi": "10.3389/fpsyg.2026.1843151",
+      "relationship_type": "verified_same_report_identifier",
+      "evidence_basis": "The saved repository record/source identifies the corresponding publisher report. Preserve the same report and provenance, associate the matching full main article, and suppress an additional independent-paper count after canonical owner reconciliation. This is a report relationship, not a second study or a new topical exclusion.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/reviewed_proposals.jsonl",
+      "reviewed_at_utc": "2026-10-22"
+    },
+    {
+      "alias_doi": "10.1345/1542-6270(2002)036<1598:ibrdaa>2.0.co;2",
+      "canonical_doi": "10.1345/aph.1a447",
+      "relationship_type": "verified_same_report_identifier",
+      "evidence_basis": "Paired registry records and the exact native report identify the same review under the long legacy and short current DOI, with matching title and pages. Preserve the review and record its legacy/current identifier relationship.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/reviewed_proposals.jsonl",
+      "reviewed_at_utc": "2026-10-22"
+    },
+    {
+      "alias_doi": "10.14749/32381937",
+      "canonical_doi": "10.4102/sajpsychiatry.v24i0.1139",
+      "relationship_type": "verified_same_report_identifier",
+      "evidence_basis": "The saved repository record/source identifies the corresponding publisher report. Preserve the same report and provenance, associate the matching full main article, and suppress an additional independent-paper count after canonical owner reconciliation. This is a report relationship, not a second study or a new topical exclusion.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/reviewed_proposals.jsonl",
+      "reviewed_at_utc": "2026-10-22"
+    },
+    {
+      "alias_doi": "10.17269/cjph.102.2268",
+      "canonical_doi": "10.1007/bf03404870",
+      "relationship_type": "verified_same_report_identifier",
+      "evidence_basis": "The original Canadian identifier is not currently returned by Crossref, while the native record and registered Springer DOI match the supplied title/report. Preserve the V5-retained report and stage an enumerated canonical identifier repair with provenance; do not treat failed resolution as an exclusion.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/reviewed_proposals.jsonl",
+      "reviewed_at_utc": "2026-10-22"
+    },
+    {
+      "alias_doi": "10.24406/publica-7881",
+      "canonical_doi": "10.1016/j.euroneuro.2026.112801",
+      "relationship_type": "verified_same_report_identifier",
+      "evidence_basis": "The saved repository record/source identifies the corresponding publisher report. Preserve the same report and provenance, associate the matching full main article, and suppress an additional independent-paper count after canonical owner reconciliation. This is a report relationship, not a second study or a new topical exclusion.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/reviewed_proposals.jsonl",
+      "reviewed_at_utc": "2026-10-22"
+    },
+    {
+      "alias_doi": "10.3389/fnbeh.2017.00139/full",
+      "canonical_doi": "10.3389/fnbeh.2017.00139",
+      "relationship_type": "verified_same_report_identifier",
+      "evidence_basis": "The matching original PDF/publisher page explicitly supplies the actual report DOI, while the frozen key has a URL suffix, galley number or wrong identifier. Stage this specific identifier repair through the existing owner. Preserve old key/source provenance; do not invent a global suffix, punctuation or alias rule.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/reviewed_proposals.jsonl",
+      "reviewed_at_utc": "2026-10-22"
+    },
+    {
+      "alias_doi": "10.3389/fpsyt.2025.1681795/abstract",
+      "canonical_doi": "10.3389/fpsyt.2025.1681795",
+      "relationship_type": "verified_same_report_identifier",
+      "evidence_basis": "The matching original PDF/publisher page explicitly supplies the actual report DOI, while the frozen key has a URL suffix, galley number or wrong identifier. Stage this specific identifier repair through the existing owner. Preserve old key/source provenance; do not invent a global suffix, punctuation or alias rule.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/reviewed_proposals.jsonl",
+      "reviewed_at_utc": "2026-10-22"
+    },
+    {
+      "alias_doi": "10.37275/oaijmr.v1i2.553",
+      "canonical_doi": "10.37275/oaijmr.v1i2.34",
+      "relationship_type": "verified_same_report_identifier",
+      "evidence_basis": "The matching original PDF/publisher page explicitly supplies the actual report DOI, while the frozen key has a URL suffix, galley number or wrong identifier. Stage this specific identifier repair through the existing owner. Preserve old key/source provenance; do not invent a global suffix, punctuation or alias rule.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/reviewed_proposals.jsonl",
+      "reviewed_at_utc": "2026-10-22"
+    },
+    {
+      "alias_doi": "10.5114/bta.2020.96412",
+      "canonical_doi": "10.5114/bta.2020.94770",
+      "relationship_type": "verified_same_report_identifier",
+      "evidence_basis": "The matching original PDF/publisher page explicitly supplies the actual report DOI, while the frozen key has a URL suffix, galley number or wrong identifier. Stage this specific identifier repair through the existing owner. Preserve old key/source provenance; do not invent a global suffix, punctuation or alias rule.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/reviewed_proposals.jsonl",
+      "reviewed_at_utc": "2026-10-22"
+    },
+    {
+      "alias_doi": "10.7892/boris.135271",
+      "canonical_doi": "10.1111/add.14767",
+      "relationship_type": "verified_same_report_identifier",
+      "evidence_basis": "The saved repository record/source identifies the corresponding publisher report. Preserve the same report and provenance, associate the matching full main article, and suppress an additional independent-paper count after canonical owner reconciliation. This is a report relationship, not a second study or a new topical exclusion.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/reviewed_proposals.jsonl",
+      "reviewed_at_utc": "2026-10-22"
+    },
+    {
+      "alias_doi": "10.1111/j.1600-0528.1999.tb02022.x",
+      "canonical_doi": "10.1111/j.1600-0528.1998.tb02022.x",
+      "relationship_type": "enumerated_identifier_repair",
+      "evidence_basis": "Both 1999 and 1998 forms are registered with the same report title and pages; the exact native report uses the 1998 form. Preserve the eligible report and stage a specific identifier relationship for the existing owner, rather than a global year rewrite or an additional report.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/reviewed_proposals.jsonl"
+    },
+    {
+      "alias_doi": "pii: 13030/qt9pj4r3kv",
+      "canonical_doi": "10.5070/d3239036477",
+      "relationship_type": "repository_report_identifier",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/raw/papers/manual_pdf_inbox/provider_browser_pass_20261020/identity_review/pii_13030_qt9pj4r3kv.pdf",
+      "evidence_basis": "Original repository cover exact title/authors/journal, peer-reviewed and printed DOI10.5070/D3239036477. No second independent report."
+    },
+    {
+      "alias_doi": "10.1016/s0021-5198(19)43465-3",
+      "canonical_doi": "10.1254/jjp.43.341",
+      "relationship_type": "verified_same_report_legacy_pii",
+      "evidence_basis": "Original first pages title/authors/journal volume/pages match the already retained canonical J-STAGE report; individual visual review and complete OCR. No separate experiment.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/historical_pdf_visual_followup.json"
+    },
+    {
+      "alias_doi": "10.1016/s0021-5198(19)40092-9",
+      "canonical_doi": "10.1254/jjp.51.321",
+      "relationship_type": "verified_same_report_legacy_pii",
+      "evidence_basis": "Original first pages title/authors/journal volume/pages match the already retained canonical J-STAGE report; individual visual review and complete OCR. No separate experiment.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/historical_pdf_visual_followup.json"
     }
   ]
 }

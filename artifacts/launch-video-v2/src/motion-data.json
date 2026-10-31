@@ -1,0 +1,106 @@
+{
+  "points": [
+    {
+      "name": "Conditions",
+      "primary": 2001,
+      "synthesis": 1877,
+      "color": "#82a9d8"
+    },
+    {
+      "name": "Safety",
+      "primary": 4072,
+      "synthesis": 1507,
+      "color": "#d6a84f"
+    },
+    {
+      "name": "Cognition",
+      "primary": 2046,
+      "synthesis": 166,
+      "color": "#a88bd1"
+    },
+    {
+      "name": "Behavior",
+      "primary": 2344,
+      "synthesis": 67,
+      "color": "#d27694"
+    },
+    {
+      "name": "Subjective effects",
+      "primary": 1564,
+      "synthesis": 220,
+      "color": "#55b7ab"
+    },
+    {
+      "name": "Treatment context",
+      "primary": 862,
+      "synthesis": 137,
+      "color": "#d1846f"
+    },
+    {
+      "name": "Real-world use",
+      "primary": 3707,
+      "synthesis": 193,
+      "color": "#9bab62"
+    },
+    {
+      "name": "Brain regions",
+      "primary": 1446,
+      "synthesis": 180,
+      "color": "#5f9eb5"
+    },
+    {
+      "name": "Molecular effects",
+      "primary": 3599,
+      "synthesis": 612,
+      "color": "#72a77c"
+    },
+    {
+      "name": "Targets",
+      "primary": 1928,
+      "synthesis": 881,
+      "color": "#b779ad"
+    }
+  ],
+  "areas": [
+    {
+      "name": "Conditions",
+      "count": 3878
+    },
+    {
+      "name": "Safety",
+      "count": 5579
+    },
+    {
+      "name": "Cognition",
+      "count": 2212
+    },
+    {
+      "name": "Behavior",
+      "count": 2411
+    },
+    {
+      "name": "Subjective effects",
+      "count": 1784
+    },
+    {
+      "name": "Treatment context",
+      "count": 999
+    },
+    {
+      "name": "Real-world use",
+      "count": 3900
+    },
+    {
+      "name": "Brain regions",
+      "count": 1626
+    },
+    {
+      "name": "Molecular effects",
+      "count": 4211
+    },
+    {
+      "name": "Targets",
+      "count": 2809
+    }
+  ]
+}

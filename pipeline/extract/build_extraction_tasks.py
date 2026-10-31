@@ -49,6 +49,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_ROUTE_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_extraction_routes.parquet"
 DEFAULT_METADATA_TABLE = ROOT / "data" / "processed" / "corpus" / "paper_metadata_enrichment.parquet"
+DEFAULT_CANDIDATE_TABLE = ROOT / "data" / "processed" / "corpus" / "candidate_papers.parquet"
 DEFAULT_OUT_JSONL = ROOT / "data" / "processed" / "extraction" / "route_extraction_tasks.jsonl"
 DEFAULT_REPORT_JSON = ROOT / "data" / "processed" / "extraction" / "route_extraction_tasks_report.json"
 DEFAULT_SCHEMA = ROOT / "schema" / "extraction_task.schema.json"
@@ -234,6 +235,10 @@ def source_fingerprint_for_task(
         )
     elif mode == "full_text_packet" and packet:
         payload["packet"] = stable_packet_payload(packet)
+        # Authoritative task metadata is supplied alongside article text even
+        # when the packet builder omitted its abstract. Fingerprint those bytes.
+        payload["task_title"] = normalize(metadata.get("study_title", ""))
+        payload["task_abstract"] = normalize(metadata.get("abstract", ""))
     elif mode == "full_text_artifact":
         payload["artifacts"] = artifact_file_fingerprints(
             text_source.get("fulltext_artifact_paths", [])
@@ -627,7 +632,12 @@ def task_from_route(
     route_id = normalize(route_row.get("route_id", ""))
     metadata = metadata_for_task(route_row, metadata_by_doi)
     packet, packet_basis = choose_packet(route_row, packets_by_doi)
+    from pipeline.extract.source_text_quality import abstract_quality_flags
+    source_quality = abstract_quality_flags(metadata.get("abstract", "")) if normalize(route_row.get("route_action", "")) == "extract_from_abstract_only" else []
     text_source = text_source_for_task(route_row, metadata, packet, packet_basis)
+    text_source["source_quality_flags"] = source_quality
+    if source_quality and normalize(route_row.get("route_action", "")) == "extract_from_abstract_only" and abstract_quality_flags(metadata.get("abstract", "")):
+        text_source["status"] = "needs_source_review"
     route_context = route_context_for_task(route_row)
     contract = extraction_contract_for_task(route_row)
     contract["contract_assets_fingerprint"] = contract_assets_fingerprint_for_task(contract)
@@ -703,6 +713,24 @@ def build_tasks(args: argparse.Namespace) -> tuple[list[dict], dict]:
 
     route_df = pd.read_parquet(route_table)
     metadata_df = pd.read_parquet(metadata_table)
+    candidate_arg = getattr(args, "candidate_table", "")
+    candidate_table = (
+        Path(candidate_arg).resolve()
+        if candidate_arg
+        else DEFAULT_CANDIDATE_TABLE.resolve()
+        if metadata_table == DEFAULT_METADATA_TABLE.resolve()
+        else None
+    )
+    if candidate_table is not None:
+        from pipeline.extract.build_extraction_routes import merged_extraction_metadata
+
+        candidate_df = pd.read_parquet(candidate_table)
+        # Use the same authoritative metadata as routing. The enrichment cache
+        # can lack an abstract that is already present in the candidate ledger.
+        # Selection and model judgments still come exclusively from the routes.
+        candidate_df = candidate_df[[field for field in PAPER_METADATA_FIELDS if field in candidate_df]]
+        metadata_df = metadata_df[[field for field in PAPER_METADATA_FIELDS if field in metadata_df]]
+        metadata_df = merged_extraction_metadata(candidate_df, metadata_df)
     metadata_by_doi = rows_by_doi(metadata_df)
     doi_filter = read_doi_file(Path(args.doi_file).resolve()) if args.doi_file else set()
     packet_paths = [Path(path).resolve() for path in args.fulltext_packets_jsonl]
@@ -744,6 +772,7 @@ def build_tasks(args: argparse.Namespace) -> tuple[list[dict], dict]:
         "inputs": {
             "route_table": str(route_table),
             "metadata_table": str(metadata_table),
+            "candidate_table": str(candidate_table) if candidate_table is not None else "",
             "fulltext_packets_jsonl": [str(path) for path in packet_paths if path.exists()],
             "doi_file": str(Path(args.doi_file).resolve()) if args.doi_file else "",
             "only_retained": bool(args.only_retained),
@@ -781,6 +810,10 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--route-table", default=str(DEFAULT_ROUTE_TABLE))
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA_TABLE))
+    parser.add_argument(
+        "--candidate-table", default="",
+        help="Authoritative candidate metadata. Defaults to the canonical candidate table with the canonical enrichment input; custom enrichment inputs remain isolated unless specified.",
+    )
     parser.add_argument("--out-jsonl", default=str(DEFAULT_OUT_JSONL))
     parser.add_argument("--report-json", default=str(DEFAULT_REPORT_JSON))
     parser.add_argument("--schema", default=str(DEFAULT_SCHEMA), help="Schema path to record in reports; not used for validation yet")

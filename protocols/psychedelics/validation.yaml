@@ -1,0 +1,73 @@
+# Validation: reference sets, review procedure, release checks and the graph card.
+# Format: protocols/SPEC.md section 5.9.
+# All current reference judgments were made by AI reviewers (Codex), not by independent
+# human experts; each set records this itself. The graph card must state the reviewer type.
+
+search:
+  completion_check: retrieval_completion_gate_passed (every query execution finished without provider errors or shortfalls)
+  seed_set: {status: retired, size: 50}
+  recall_estimate: none
+  required: >-
+    An independently assembled seed set (for example, the included studies of recent systematic
+    reviews in the field, or reports named by domain experts before the search is run), with the
+    proportion retrieved reported per release.
+
+screening:
+  reference_sets:
+    - path: data/processed/model_runs/luna_v5_20261017/screening_correction_20261019/inputs/pilot_gold.json
+      records: 221
+      reviewer: Codex source-based adjudication; not human expert gold
+      frozen_at_utc: '2026-10-19'
+    - path: docs/evaluation/screening_disagreements_adjudication_2026-10-16.md
+      records: 58 disputed papers (Gemini and Luna disagreements only)
+      reviewer: single AI assessor with model identities visible
+  not_measured: [exclusion error rate on a random sample of excluded records, language and no-abstract exclusions]
+
+extraction:
+  protocol: docs/evaluation/primary_refinement_2026-10-18/evaluation_protocol.md
+  reference_sets:
+    development:                                 # used during prompt development; not independent validation
+      existing96: 208 tasks
+      controlled_historical40: 40 tasks
+      previous_fresh48: 48 tasks
+    holdout:
+      fresh64: 64 papers disjoint from earlier evaluation papers; target composition 32 abstracts and 32 article packets, 32 ordinary and 32 challenging papers
+  reviewer: Codex agents under masked arm labels; not independent human experts
+  material_error_categories: [substance_or_outcome_identity, result_binding, number_or_unit, population_or_denominator,
+                              comparator, time, experimental_preparation, design, causal_claim, scientific_role]
+  coverage_measure: central source-reference groups scored fully covered, partial, missing or unscorable
+  last_decision: docs/evaluation/primary_refinement_2026-10-18/decision.json   # candidate not promoted; production prompt retained
+  reviews_and_meta_analyses:
+    - docs/evaluation/review_relationships_v2_context_first_onepass_100_results.md
+    - docs/evaluation/meta_analysis_v2_pilot_100_assessment.md
+
+normalization:
+  method: Replay saved extractions through the frozen normalizer before and after a change, with positive controls, and record every changed or dropped item.
+  replay_tool: pipeline/kg/replay_extraction_release.py
+  reports: [docs/evaluation/primary_refinement_2026-10-18/normalization_verification.json, docs/evaluation/pipeline_normalization_readiness_2026-10-25.md]
+
+release_checks:                                  # docs/public_data_policy.md, docs/releasing.md
+  - Public field allowlist; the release fails if forbidden internal fields appear.
+  - Graph, Methods flow, bibliography and inclusion audit name the same run and release.
+  - The public pointer switches only after all required files are present and checksum-verified.
+  - Bulk data releases need documented fields, stable identifiers and approval of the exact artifact by a person.
+  - Test suite passes (1,477 tests and 389 subtests at the 18 October checkpoint).
+
+open_issues:
+  - The unit counted in the graph is the report; independent studies are not identified (questions.yaml Q7).
+  - No reference set has been judged by independent human experts.
+  - Search recall and screening exclusion error are not estimated.
+
+graph_card:                                      # generated with each release; SPEC.md section 8
+  fields:
+    release: [release_id, protocol_version, literature_date, engine_version, model_ids]
+    corpus: [records_retrieved, records_screened, reports_included_by_type, reports_with_full_text_share]
+    search: [seed_set_size, seed_set_retrieved_share]
+    screening: [reference_set_size, reviewer_type, included_error_share, excluded_error_share]
+    extraction: [reference_set_size, reviewer_type, central_group_coverage, papers_with_material_error_share]
+    normalization: [mapped_share_by_node_kind, unresolved_mappings, external_id_coverage_by_node_kind]
+    graph: [findings, relationships, relationships_outside_views, unit_counted]
+    cost: [model_cost_by_stage_usd, expert_hours_by_stage]
+    limitations: free text
+  available_now: [release_id, literature_date, model_ids, reports_included_by_type, findings, relationships, model_cost_by_stage_usd]
+  missing_now: [seed_set_retrieved_share, excluded_error_share, expert_hours_by_stage, external_id_coverage_by_node_kind (not reported per release)]

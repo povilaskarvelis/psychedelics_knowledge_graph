@@ -1,0 +1,197 @@
+[
+  {
+    "label": "Primary studies",
+    "segments": [
+      {
+        "source": "primary",
+        "key": "condition_indication",
+        "label": "Primary studies, Conditions: 2001 papers, 8% of area assignments",
+        "color": "#708aa7"
+      },
+      {
+        "source": "primary",
+        "key": "safety_adverse_event",
+        "label": "Primary studies, Safety: 4072 papers, 17% of area assignments",
+        "color": "#b89a5b"
+      },
+      {
+        "source": "primary",
+        "key": "cognitive_behavioral_construct",
+        "label": "Primary studies, Cognition: 2046 papers, 9% of area assignments",
+        "color": "#a96f7e"
+      },
+      {
+        "source": "primary",
+        "key": "behavioral_effect",
+        "label": "Primary studies, Behavior: 2344 papers, 10% of area assignments",
+        "color": "#69a196"
+      },
+      {
+        "source": "primary",
+        "key": "subjective_experience_construct",
+        "label": "Primary studies, Subjective effects: 1564 papers, 7% of area assignments",
+        "color": "#b98278"
+      },
+      {
+        "source": "primary",
+        "key": "intervention_component",
+        "label": "Primary studies, Treatment context: 862 papers, 4% of area assignments",
+        "color": "#7e72a1"
+      },
+      {
+        "source": "primary",
+        "key": "public_health_measure",
+        "label": "Primary studies, Real-world use: 3707 papers, 16% of area assignments",
+        "color": "#9f9872"
+      },
+      {
+        "source": "primary",
+        "key": "brain_system",
+        "label": "Primary studies, Brain regions: 1446 papers, 6% of area assignments",
+        "color": "#719d96"
+      },
+      {
+        "source": "primary",
+        "key": "pathway_readout",
+        "label": "Primary studies, Molecular effects: 3599 papers, 15% of area assignments",
+        "color": "#9c8670"
+      },
+      {
+        "source": "primary",
+        "key": "target_system",
+        "label": "Primary studies, Targets: 1928 papers, 8% of area assignments",
+        "color": "#70819a"
+      }
+    ]
+  },
+  {
+    "label": "Meta-analyses",
+    "segments": [
+      {
+        "source": "meta_analyses",
+        "key": "condition_indication",
+        "label": "Meta-analyses, Conditions: 152 papers, 45% of area assignments",
+        "color": "#708aa7"
+      },
+      {
+        "source": "meta_analyses",
+        "key": "safety_adverse_event",
+        "label": "Meta-analyses, Safety: 114 papers, 34% of area assignments",
+        "color": "#b89a5b"
+      },
+      {
+        "source": "meta_analyses",
+        "key": "cognitive_behavioral_construct",
+        "label": "Meta-analyses, Cognition: 23 papers, 7% of area assignments",
+        "color": "#a96f7e"
+      },
+      {
+        "source": "meta_analyses",
+        "key": "behavioral_effect",
+        "label": "Meta-analyses, Behavior: 5 papers, 1% of area assignments",
+        "color": "#69a196"
+      },
+      {
+        "source": "meta_analyses",
+        "key": "subjective_experience_construct",
+        "label": "Meta-analyses, Subjective effects: 9 papers, 3% of area assignments",
+        "color": "#b98278"
+      },
+      {
+        "source": "meta_analyses",
+        "key": "intervention_component",
+        "label": "Meta-analyses, Treatment context: 5 papers, 1% of area assignments",
+        "color": "#7e72a1"
+      },
+      {
+        "source": "meta_analyses",
+        "key": "public_health_measure",
+        "label": "Meta-analyses, Real-world use: 9 papers, 3% of area assignments",
+        "color": "#9f9872"
+      },
+      {
+        "source": "meta_analyses",
+        "key": "brain_system",
+        "label": "Meta-analyses, Brain regions: 9 papers, 3% of area assignments",
+        "color": "#719d96"
+      },
+      {
+        "source": "meta_analyses",
+        "key": "pathway_readout",
+        "label": "Meta-analyses, Molecular effects: 8 papers, 2% of area assignments",
+        "color": "#9c8670"
+      },
+      {
+        "source": "meta_analyses",
+        "key": "target_system",
+        "label": "Meta-analyses, Targets: 2 papers, 1% of area assignments",
+        "color": "#70819a"
+      }
+    ]
+  },
+  {
+    "label": "Reviews",
+    "segments": [
+      {
+        "source": "reviews",
+        "key": "condition_indication",
+        "label": "Reviews, Conditions: 1725 papers, 31% of area assignments",
+        "color": "#708aa7"
+      },
+      {
+        "source": "reviews",
+        "key": "safety_adverse_event",
+        "label": "Reviews, Safety: 1393 papers, 25% of area assignments",
+        "color": "#b89a5b"
+      },
+      {
+        "source": "reviews",
+        "key": "cognitive_behavioral_construct",
+        "label": "Reviews, Cognition: 143 papers, 3% of area assignments",
+        "color": "#a96f7e"
+      },
+      {
+        "source": "reviews",
+        "key": "behavioral_effect",
+        "label": "Reviews, Behavior: 62 papers, 1% of area assignments",
+        "color": "#69a196"
+      },
+      {
+        "source": "reviews",
+        "key": "subjective_experience_construct",
+        "label": "Reviews, Subjective effects: 211 papers, 4% of area assignments",
+        "color": "#b98278"
+      },
+      {
+        "source": "reviews",
+        "key": "intervention_component",
+        "label": "Reviews, Treatment context: 132 papers, 2% of area assignments",
+        "color": "#7e72a1"
+      },
+      {
+        "source": "reviews",
+        "key": "public_health_measure",
+        "label": "Reviews, Real-world use: 184 papers, 3% of area assignments",
+        "color": "#9f9872"
+      },
+      {
+        "source": "reviews",
+        "key": "brain_system",
+        "label": "Reviews, Brain regions: 171 papers, 3% of area assignments",
+        "color": "#719d96"
+      },
+      {
+        "source": "reviews",
+        "key": "pathway_readout",
+        "label": "Reviews, Molecular effects: 604 papers, 11% of area assignments",
+        "color": "#9c8670"
+      },
+      {
+        "source": "reviews",
+        "key": "target_system",
+        "label": "Reviews, Targets: 879 papers, 16% of area assignments",
+        "color": "#70819a"
+      }
+    ]
+  }
+]

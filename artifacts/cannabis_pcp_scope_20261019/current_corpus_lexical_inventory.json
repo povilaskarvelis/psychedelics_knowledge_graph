@@ -1,0 +1,11 @@
+{
+  "unit": "Candidate-record title/abstract lexical hits, NOT relevance judgments or coverage estimates",
+  "candidate_records": 271620,
+  "counts": {
+    "phencyclidine_named": 1480,
+    "pcp_acronym": 910,
+    "cannabis_or_cannabinoid_named": 8184
+  },
+  "source": "data/processed/corpus/candidate_papers.parquet",
+  "pcp_or_full_name_union": 1820
+}

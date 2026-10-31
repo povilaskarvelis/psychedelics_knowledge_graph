@@ -1,0 +1,26 @@
+{
+  "query_name": "pcp_precise",
+  "endpoint": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+  "term": "((\"Phencyclidine\"[MeSH Terms] OR phencyclidine[Title/Abstract])) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+  "date_accessed_utc": "2026-10-19T14:49:31.979663+00:00",
+  "parameters": {
+    "db": "pubmed",
+    "term": "((\"Phencyclidine\"[MeSH Terms] OR phencyclidine[Title/Abstract])) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+    "retmax": 0,
+    "retmode": "json",
+    "tool": "psychedelics_kg_scope_audit"
+  },
+  "contact_email_provided": true,
+  "count": 5673,
+  "query_translation": "(\"Phencyclidine\"[MeSH Terms] OR \"Phencyclidine\"[Title/Abstract]) AND 1800/01/01:2026/10/19[Date - Publication]",
+  "warnings": null,
+  "errors": null,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status_code": 200
+    }
+  ],
+  "raw_sha256": "cb1f9d48028863d9b91756298c74f2156a861f25008845cab6840723a5750aac",
+  "interpretation": "Broad database hits, not eligible papers, independent studies, corpus additions, or a recall denominator."
+}

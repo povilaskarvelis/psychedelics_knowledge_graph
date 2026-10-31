@@ -21,7 +21,7 @@ from pipeline.validate.doi_aliases import DEFAULT_DOI_ALIAS_REGISTRY, load_doi_a
 
 
 DEFAULT_ACCESS_OVERRIDES = ROOT / "pipeline" / "fulltext" / "manual_fulltext_access_overrides.json"
-DEFAULT_FORMAT_EXCLUSIONS = ROOT / "data" / "curated" / "prescreen_publication_format_exclusions.json"
+DEFAULT_FORMAT_EXCLUSIONS = ROOT / "data" / "curated" / "post_retrieval_eligibility_decisions.json"
 DEFAULT_CANDIDATE_TABLE = ROOT / "data" / "processed" / "corpus" / "candidate_papers.parquet"
 
 
@@ -70,6 +70,7 @@ def reconcile(
         normalize_doi(row.get("doi", "")): row
         for row in format_payload.get("records", [])
         if normalize_doi(row.get("doi", ""))
+        and clean(row.get("decision", "exclude")).lower() == "exclude"
     }
     batch_dois = {normalize_doi(value) for value in batch["doi"] if normalize_doi(value)}
     rows: list[dict] = []
@@ -84,6 +85,12 @@ def reconcile(
         elif doi in exclusions:
             status = "excluded_publication_format"
             detail = clean(exclusions[doi].get("publication_format", ""))
+        elif clean(row.get("manual_status", "")).lower() == "reviewed_no_accessible_pdf":
+            status = "reviewed_no_accessible_pdf"
+            detail = clean(row.get("manual_notes", "")) or (
+                "User completed browser review without obtaining a usable article PDF. "
+                "This outcome does not establish that the article is closed access."
+            )
         elif clean(row.get("manual_status", "")).lower() == "closed_access":
             status = "confirmed_closed_access"
             detail = "Manual DOI-page review explicitly confirmed that the article is closed access."
@@ -145,11 +152,17 @@ def apply_access_overrides(path: Path, outcome: pd.DataFrame) -> int:
                 del records[doi]
                 changed += 1
             continue
-        if status not in {"confirmed_closed_access", "batch_closed_access"}:
+        if status not in {"confirmed_closed_access", "batch_closed_access", "reviewed_no_accessible_pdf"}:
             # Pending and technical outcomes do not overwrite or erase a
             # previously curated access decision.
             continue
-        if status == "batch_closed_access":
+        if status == "reviewed_no_accessible_pdf":
+            reason = (
+                clean(row.get("browser_recovery_detail", ""))
+                + " Suppress repeated PDF retrieval after completed manual review; "
+                "use abstract-level extraction when available. Closed access is not individually confirmed."
+            ).strip()
+        elif status == "batch_closed_access":
             reason = (
                 clean(row.get("browser_recovery_detail", ""))
                 + " Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -162,10 +175,17 @@ def apply_access_overrides(path: Path, outcome: pd.DataFrame) -> int:
         replacement = {
             "doi": doi,
             "manual_access_action": "suppress_pdf_download",
-            "open_access_status": "closed",
-            "open_access_is_oa": False,
             "manual_reason": reason,
         }
+        if status != "reviewed_no_accessible_pdf":
+            replacement.update(open_access_status="closed", open_access_is_oa=False)
+        else:
+            # An unspecified new access outcome cannot overturn an older
+            # explicit access decision.
+            previous = records.get(doi, {})
+            for field in ("open_access_status", "open_access_is_oa"):
+                if field in previous:
+                    replacement[field] = previous[field]
         if records.get(doi) != replacement:
             records[doi] = replacement
             changed += 1
@@ -199,6 +219,7 @@ def project_access_overrides_to_candidate(
             "duplicate_of_canonical",
             "confirmed_closed_access",
             "batch_closed_access",
+            "reviewed_no_accessible_pdf",
         }
         and normalize_doi(row.get("doi", ""))
     }
@@ -246,6 +267,7 @@ def apply_progress_updates(path: Path, outcome: pd.DataFrame) -> int:
         "excluded_publication_format": "excluded_publication_format",
         "confirmed_closed_access": "closed_access",
         "batch_closed_access": "closed_access",
+        "reviewed_no_accessible_pdf": "reviewed_no_accessible_pdf",
         "pending_manual_review": "partial_review_rate_limited",
         "technical_or_unresolved_retrieval": "technical_failure_retryable",
     }

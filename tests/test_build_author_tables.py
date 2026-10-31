@@ -560,3 +560,53 @@ def test_conflicting_orcids_do_not_canonicalize_an_openalex_profile() -> None:
 
     with pytest.raises(RuntimeError, match="Author table build refused"):
         require_structured_authorship_coverage(resolved)
+
+
+def test_unrelated_cached_work_never_supplies_author_identity():
+    paper = {'doi': '10.1/example', 'title': 'Serotonin receptor interactions of novel psychoactive drugs', 'authors': 'Actual Author'}
+    cache = {'works_by_doi': {'10.1/example': {
+        'status': 'ok', 'doi': '10.1/example', 'title': 'Hell as a translation in the Hebrew Bible',
+        'work_openalex_id': 'W1', 'authorships': [{'display_name': 'Unrelated Person', 'openalex_author_id': 'A1'}],
+    }}}
+    rows, status, work_id = author_tables.authorships_for_paper(paper, cache)
+    assert status == 'fallback_identity_mismatch'
+    assert work_id == ''
+    assert rows == [{'display_name': 'Actual Author', 'orcid': ''}]
+
+
+def test_cached_title_guard_accepts_subtitles_accents_and_markup():
+    assert author_tables.cached_work_matches_paper(
+        {'doi': '10.1/test', 'title': 'Monoamine transporter profiles: a controlled study'},
+        {'doi': 'https://doi.org/10.1/test', 'title': 'Monoamine transporter profiles'},
+    )
+    assert author_tables.cached_work_matches_paper(
+        {'title': 'Effets de la kétamine sur le récepteur 5HT2A'},
+        {'title': 'Effets de la ketamine sur le recepteur <i>5HT2A</i>'},
+    )
+    assert not author_tables.cached_work_matches_paper(
+        {'doi': '10.1/one', 'title': 'Exactly the same title'},
+        {'doi': '10.1/other', 'title': 'Exactly the same title'},
+    )
+
+
+def test_online_refresh_rechecks_unrelated_cache_despite_ok_status(tmp_path, monkeypatch):
+    papers = pd.DataFrame([{'doi':'10.1/test', 'title':'Serotonin receptor interactions of novel psychoactive drugs'}])
+    cache = {'works_by_doi': {'10.1/test': {'status':'ok', 'doi':'10.1/test', 'title':'Medieval theology and biblical translation'}}}
+    calls = []
+    def fetch(client, dois):
+        calls.append(dois)
+        return {'10.1/test': {'status':'ok', 'doi':'10.1/test', 'title':papers.iloc[0].title, 'authorships':[]}}
+    monkeypatch.setattr(author_tables, 'fetch_openalex_batch', fetch)
+    refresh_cache_for_papers(papers, cache, client=None, cache_path=tmp_path/'cache.json', batch_size=100, refresh=False, checkpoint_every=0)
+    assert calls == [['10.1/test']]
+    assert cache['works_by_doi']['10.1/test']['title'] == papers.iloc[0].title
+
+
+def test_fingerprinted_source_review_preserves_verified_translated_byline():
+    rows = [{'display_name':'Verified Author', 'openalex_author_id':'A123', 'orcid':''}]
+    cache = {'works_by_doi': {'10.1/test': {'status':'ok', 'doi':'10.1/test', 'title':'中文标题', 'authorships':rows}}}
+    paper = {'doi':'10.1/test', 'title':'English publisher translation', 'authors':'Verified Author'}
+    assert author_tables.authorships_for_paper(paper, cache)[1] == 'fallback_identity_mismatch'
+    fingerprint = author_tables.author_list_fingerprint(rows)
+    assert author_tables.authorships_for_paper(paper, cache, reviewed_source_fingerprint=fingerprint)[1] == 'openalex'
+    assert author_tables.authorships_for_paper(paper, cache, reviewed_source_fingerprint='changed')[1] == 'fallback_identity_mismatch'

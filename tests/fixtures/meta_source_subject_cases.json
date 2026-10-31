@@ -1,0 +1,856 @@
+[
+  {
+    "audit_index": 441,
+    "doi": "10.1192/bjp.2018.233",
+    "item": {
+      "result_id": "R3",
+      "addresses_question_ids": [
+        "Q1"
+      ],
+      "result_role": "subgroup_analysis",
+      "importance_in_paper": "main",
+      "relationship_statement": "Among pharmacological augmentation classes for adults with TRD, NMDA-targeting drugs showed a pooled pre–post improvement in depression severity (Hedges' g = 1.48) across three studies, with no observed statistical heterogeneity.",
+      "primary_subject_area": "clinical_outcome",
+      "subject_areas": [
+        "clinical_outcome",
+        "intervention_context"
+      ],
+      "evidence_source": "human",
+      "population_or_system": "Adults with treatment-resistant depression",
+      "intervention_or_exposure": "NMDA-targeting drugs, including ketamine, D-cycloserine and minocycline",
+      "comparator": "Pre-treatment status within the treatment arm",
+      "outcome_or_entity": "Depression severity improvement",
+      "molecular_target_entities": [
+        {
+          "entity_type": "target",
+          "label": "N-methyl-D-aspartate (NMDA)"
+        }
+      ],
+      "outcome_measure": "Pre–post standardised mean difference, Hedges' g",
+      "timepoint_or_window": "Pre-treatment to post-treatment; treatment duration varied across trials",
+      "effect_estimate": {
+        "metric": "Hedges' g",
+        "estimate": "1.48",
+        "interval_type": "confidence_interval",
+        "interval_level": "95%",
+        "interval_lower": "1.25",
+        "interval_upper": "1.71",
+        "interval_reported": "95% CI 1.25-1.71",
+        "standard_error": "0.12",
+        "model": "Random-effects model",
+        "analysis_scale": "Standardised mean difference (Hedges' g)",
+        "unit_of_analysis": "Treatment-arm pre–post effect"
+      },
+      "evidence_size": {
+        "study_count": "3",
+        "participant_count": "81"
+      },
+      "heterogeneity": {
+        "i_squared": "0",
+        "authors_interpretation": "The authors describe the class as showing the most consistent and large effect among pharmacological classes; individual agents have different mechanisms of action."
+      },
+      "analysis_context": {
+        "analysis_type": "Pre–post class-level meta-analysis",
+        "subgroup_or_moderator": "NMDA-targeting drug class"
+      },
+      "interpretation": {
+        "finding_direction": "supports",
+        "outcome_orientation": "beneficial",
+        "statistical_interpretation": "The positive pooled estimate has a 95% CI above zero; I² was reported as 0.",
+        "authors_interpretation": "The authors call this the largest and most consistent pharmacological class effect, but caution that it is based on only three studies and may reflect population or design differences."
+      },
+      "evidence_locators": [
+        {
+          "location": "table",
+          "locator": "Table 2, NMDA targets All row; C020",
+          "supporting_text": "NMDA targets All 3 81 1.48 0.12 1.25-1.71 0.0"
+        }
+      ],
+      "limitations": [
+        "The result is based on three studies and 81 participants; agents in the class have different mechanisms of action."
+      ],
+      "extraction_uncertainties": []
+    }
+  },
+  {
+    "audit_index": 449,
+    "doi": "10.1016/j.bbi.2026.107033",
+    "item": {
+      "result_id": "R1",
+      "addresses_question_ids": [
+        "Q1"
+      ],
+      "result_role": "primary_synthesis",
+      "importance_in_paper": "main",
+      "relationship_statement": "Across murine inflammatory models, pooled serotonergic psychedelic treatment was associated with a significant decrease in proinflammatory cytokines across tissues compared with control administration.",
+      "primary_subject_area": "molecular_pathway_readout",
+      "subject_areas": [
+        "molecular_pathway_readout"
+      ],
+      "evidence_source": "preclinical",
+      "population_or_system": "Murine in vivo models with induced inflammation",
+      "intervention_or_exposure": "DOI, N,N-DMT, or psilocybin",
+      "comparator": "Control administration in inflammatory models",
+      "outcome_or_entity": "Proinflammatory cytokine levels, pooled across eligible markers and tissues",
+      "outcome_measure": "Standardized mean difference in cytokine change",
+      "timepoint_or_window": "Post-exposure; measurement timing varied across studies",
+      "effect_estimate": {
+        "metric": "SMD",
+        "estimate": "-1.23",
+        "interval_type": "confidence_interval",
+        "interval_level": "95%",
+        "interval_lower": "-1.54",
+        "interval_upper": "-0.92",
+        "interval_reported": "95% CI [-1.54 to -0.92]",
+        "p_value": "p < 0.001",
+        "model": "Random-effects model; DerSimonian-Laird estimator; inverse-variance weighting; cluster-robust variance estimation with CR2 adjustment and Satterthwaite degrees-of-freedom approximation",
+        "analysis_scale": "Standardized mean difference",
+        "unit_of_analysis": "Individual cytokine effect sizes, with multiple effects nested within studies",
+        "adjustment_status": "Cluster-robust variance estimation with CR2 adjustment for within-study dependence"
+      },
+      "evidence_size": {
+        "study_count": "17",
+        "effect_or_experiment_count": "51 effect sizes"
+      },
+      "heterogeneity": {
+        "authors_interpretation": "The authors describe a large effect size; heterogeneity statistics are not provided in the supplied text."
+      },
+      "analysis_context": {
+        "analysis_type": "Primary random-effects meta-analysis",
+        "subgroup_or_moderator": "Inflammatory murine models; drugs, eligible proinflammatory cytokines, and tissues pooled",
+        "dependency_handling": "Cluster-robust variance estimation (RVE) with CR2 adjustment; Satterthwaite approximation; study-level outcome averaging was used for forest-plot presentation, while pooled analysis used individual effects."
+      },
+      "interpretation": {
+        "finding_direction": "supports",
+        "favors": "Serotonergic psychedelic treatment over control administration",
+        "outcome_orientation": "beneficial",
+        "statistical_interpretation": "The pooled estimate and 95% confidence interval indicate a statistically significant decrease in proinflammatory cytokines.",
+        "authors_interpretation": "The authors interpret this as evidence of anti-inflammatory effects in preclinical models with increased baseline inflammation, while cautioning that the result does not establish translation to humans."
+      },
+      "evidence_locators": [
+        {
+          "location": "results",
+          "locator": "C015",
+          "supporting_text": "Results indicated a significant decrease in proinflammatory cytokines after exposure to a serotonergic psychedelic compared to controls with a large effect size (SMD = -1.23, 95% CI [-1.54 to -0.92], p < 0.001, k = 17"
+        },
+        {
+          "location": "figure",
+          "locator": "F005",
+          "supporting_text": "The pooled effect size presented in the figure is from individual effect sizes (not averaged) and is the result of random effect models with cluster-robust variance estimation (RVE) with CR2 adjustment"
+        }
+      ],
+      "limitations": [
+        "The pooled analysis combines different psychedelic compounds, cytokines, tissues, and inflammatory models.",
+        "The murine literature showed evidence of small-study effects.",
+        "The findings are preclinical and do not establish human translational effects."
+      ]
+    }
+  },
+  {
+    "audit_index": 449,
+    "doi": "10.1016/j.bbi.2026.107033",
+    "item": {
+      "result_id": "R2",
+      "addresses_question_ids": [
+        "Q2"
+      ],
+      "result_role": "primary_synthesis",
+      "importance_in_paper": "main",
+      "relationship_statement": "In non-inflammatory murine models, pooled serotonergic psychedelic treatment did not produce a statistically significant change in cytokines compared with control administration.",
+      "primary_subject_area": "molecular_pathway_readout",
+      "subject_areas": [
+        "molecular_pathway_readout"
+      ],
+      "evidence_source": "preclinical",
+      "population_or_system": "Healthy murine in vivo models without induced inflammation",
+      "intervention_or_exposure": "DOI, N,N-DMT, or psilocybin",
+      "comparator": "Control administration in non-inflammatory models",
+      "outcome_or_entity": "Cytokine levels, pooled across eligible markers and tissues",
+      "outcome_measure": "Standardized mean difference in cytokine change",
+      "timepoint_or_window": "Post-exposure; measurement timing varied across studies",
+      "effect_estimate": {
+        "metric": "SMD",
+        "estimate": "-0.06",
+        "interval_type": "confidence_interval",
+        "interval_level": "95%",
+        "interval_lower": "-0.54",
+        "interval_upper": "0.43",
+        "interval_reported": "95% CI [-0.54 to 0.43]",
+        "p_value": "p = 0.78",
+        "model": "Random-effects model; DerSimonian-Laird estimator; inverse-variance weighting; cluster-robust variance estimation with CR2 adjustment and Satterthwaite degrees-of-freedom approximation",
+        "analysis_scale": "Standardized mean difference",
+        "unit_of_analysis": "Individual cytokine effect sizes, with multiple effects nested within studies",
+        "adjustment_status": "Cluster-robust variance estimation with CR2 adjustment for within-study dependence"
+      },
+      "evidence_size": {
+        "study_count": "7",
+        "effect_or_experiment_count": "19 effect sizes"
+      },
+      "heterogeneity": {
+        "authors_interpretation": "No significant change was detected; heterogeneity statistics are not provided in the supplied text."
+      },
+      "analysis_context": {
+        "analysis_type": "Primary random-effects meta-analysis",
+        "subgroup_or_moderator": "Non-inflammatory murine models; drugs, eligible cytokines, and tissues pooled",
+        "dependency_handling": "Cluster-robust variance estimation (RVE) with CR2 adjustment; Satterthwaite approximation; study-level outcome averaging was used for forest-plot presentation, while pooled analysis used individual effects."
+      },
+      "interpretation": {
+        "finding_direction": "no_detected_effect",
+        "outcome_orientation": "neutral",
+        "statistical_interpretation": "The confidence interval includes zero and p = 0.78; no statistically significant pooled cytokine change was detected.",
+        "authors_interpretation": "The authors report no significant cytokine change in non-inflammatory models and describe the broader preclinical evidence in these contexts as no effect or mixed effects."
+      },
+      "evidence_locators": [
+        {
+          "location": "results",
+          "locator": "C015",
+          "supporting_text": "Results indicated no significant change of cytokines in non-inflammatory models (SMD = -0.06, 95% CI [-0.54 to 0.43], p = 0.78, k = 7"
+        },
+        {
+          "location": "figure",
+          "locator": "F006",
+          "supporting_text": "The pooled effect size presented in the figure is from individual effect sizes (not averaged) and is the result of random effect models with cluster-robust variance estimation (RVE) with CR2 adjustment"
+        }
+      ],
+      "limitations": [
+        "The pooled estimate combines different compounds, cytokines, tissues, and non-inflammatory animal models.",
+        "The analysis is based on seven studies."
+      ]
+    }
+  },
+  {
+    "audit_index": 449,
+    "doi": "10.1016/j.bbi.2026.107033",
+    "item": {
+      "result_id": "R3",
+      "addresses_question_ids": [
+        "Q4"
+      ],
+      "result_role": "subgroup_analysis",
+      "importance_in_paper": "supporting",
+      "relationship_statement": "In inflammatory murine models, the DOI subgroup showed a significant decrease in proinflammatory cytokines compared with controls.",
+      "primary_subject_area": "molecular_pathway_readout",
+      "subject_areas": [
+        "molecular_pathway_readout"
+      ],
+      "evidence_source": "preclinical",
+      "population_or_system": "Murine in vivo inflammatory models",
+      "intervention_or_exposure": "DOI",
+      "comparator": "Control administration",
+      "outcome_or_entity": "Pooled proinflammatory cytokine levels",
+      "outcome_measure": "Standardized mean difference in cytokine change",
+      "timepoint_or_window": "Post-exposure; measurement timing varied across studies",
+      "effect_estimate": {
+        "metric": "SMD",
+        "estimate": "-1.26",
+        "interval_type": "confidence_interval",
+        "interval_level": "95%",
+        "interval_lower": "-1.62",
+        "interval_upper": "-0.90",
+        "interval_reported": "95% CI [-1.62, -0.90]",
+        "p_value": "p < 0.001",
+        "model": "Random-effects meta-analysis with cluster-robust variance estimation",
+        "analysis_scale": "Standardized mean difference",
+        "unit_of_analysis": "Effect sizes nested within studies",
+        "adjustment_status": "Cluster-robust variance estimation; Satterthwaite degrees-of-freedom approximation"
+      },
+      "evidence_size": {
+        "study_count": "8"
+      },
+      "analysis_context": {
+        "analysis_type": "Secondary subgroup analysis",
+        "subgroup_or_moderator": "Drug type: DOI; inflammatory models",
+        "dependency_handling": "Cluster-robust variance estimation; Satterthwaite approximation"
+      },
+      "interpretation": {
+        "finding_direction": "supports",
+        "favors": "DOI over control administration",
+        "outcome_orientation": "beneficial",
+        "statistical_interpretation": "The confidence interval excludes zero and p < 0.001.",
+        "authors_interpretation": "The authors state that DOI had significant anti-inflammatory effects in inflammatory models; there were insufficient data to interpret other drug-specific analyses."
+      },
+      "evidence_locators": [
+        {
+          "location": "results",
+          "locator": "C016",
+          "supporting_text": "DOI (SMD = -1.26, 95% CI [-1.62 to -0.90], p < 0.001, k = 8, DF Satterthwaite = 4.4)"
+        }
+      ],
+      "limitations": [
+        "The Satterthwaite degrees of freedom were 4.4, close to the authors' stated threshold below which analyses were considered uninterpretable.",
+        "Drug-specific analyses other than DOI did not have sufficient interpretable evidence."
+      ]
+    }
+  },
+  {
+    "audit_index": 451,
+    "doi": "10.1038/s44184-024-00091-w",
+    "item": {
+      "result_id": "R3",
+      "addresses_question_ids": [
+        "Q1"
+      ],
+      "result_role": "primary_synthesis",
+      "importance_in_paper": "main",
+      "relationship_statement": "Across eight studies of patients receiving psilocybin for depression or SUD, subjective effects were correlated with therapeutic outcome; the pooled effect size was -0.495.",
+      "primary_subject_area": "subjective_experience",
+      "subject_areas": [
+        "subjective_experience",
+        "clinical_outcome"
+      ],
+      "evidence_source": "human",
+      "population_or_system": "Patients treated for depression or SUD",
+      "intervention_or_exposure": "Psilocybin",
+      "comparator": null,
+      "outcome_or_entity": "Correlation between subjective effects and therapeutic improvement",
+      "outcome_measure": "Pearson or Spearman correlation coefficient (r)",
+      "timepoint_or_window": "Study-specific assessment windows; the coefficient closest to treatment was selected when multiple time points were reported.",
+      "effect_estimate": {
+        "metric": "Pooled effect size (correlation coefficient, r)",
+        "estimate": "-0.495",
+        "interval_type": "confidence_interval",
+        "interval_level": "95%",
+        "interval_lower": "-0.624",
+        "interval_upper": "-0.341",
+        "interval_reported": "95% confidence interval -0.624 to -0.341",
+        "p_value": "0.000",
+        "model": "Random-effects model",
+        "analysis_scale": "Correlation coefficient",
+        "unit_of_analysis": "Study correlation coefficients"
+      },
+      "evidence_size": {
+        "study_count": "8",
+        "participant_count": "183"
+      },
+      "heterogeneity": {
+        "i_squared": "28%"
+      },
+      "analysis_context": {
+        "analysis_type": "Primary pooled analysis",
+        "sensitivity_method": "Leave-one-out analysis did not reveal that one study dominated the outcome."
+      },
+      "interpretation": {
+        "finding_direction": "supports",
+        "outcome_orientation": "context_dependent",
+        "statistical_interpretation": "The pooled correlation differed from zero; the reported p value is 0.000.",
+        "authors_interpretation": "The authors described the correlation as moderate and estimated that subjective effects accounted for 24% of therapeutic effects in R-squared terms, while cautioning that this does not establish causality."
+      },
+      "evidence_locators": [
+        {
+          "location": "results",
+          "locator": "C005",
+          "supporting_text": "The overall effect size was -0.495 with 95% confidence interval -0.624 to -0.341, p = 0.000, I 2 = 28% (Fig. 3 )."
+        }
+      ],
+      "limitations": [
+        "The analysis pooled depression and SUD studies and combined different subjective-effect measures.",
+        "Correlation does not establish causality."
+      ],
+      "extraction_uncertainties": []
+    }
+  },
+  {
+    "audit_index": 451,
+    "doi": "10.1038/s44184-024-00091-w",
+    "item": {
+      "result_id": "R5",
+      "addresses_question_ids": [
+        "Q3"
+      ],
+      "result_role": "subgroup_analysis",
+      "importance_in_paper": "supporting",
+      "relationship_statement": "In two studies of patients with alcohol or cocaine use disorder, the pooled ketamine correlation between subjective effects and treatment efficacy was -0.738.",
+      "primary_subject_area": "subjective_experience",
+      "subject_areas": [
+        "subjective_experience",
+        "clinical_outcome"
+      ],
+      "evidence_source": "human",
+      "population_or_system": "Patients with alcohol or cocaine use disorder",
+      "intervention_or_exposure": "Ketamine",
+      "comparator": null,
+      "outcome_or_entity": "Correlation between subjective effects and treatment efficacy",
+      "outcome_measure": "Pooled correlation coefficient (r)",
+      "timepoint_or_window": "Study-specific assessment windows",
+      "effect_estimate": {
+        "metric": "Pooled effect size (correlation coefficient, r)",
+        "estimate": "-0.738",
+        "interval_type": "confidence_interval",
+        "interval_level": "95%",
+        "interval_lower": "-0.917",
+        "interval_upper": "-0.310",
+        "interval_reported": "95% confidence interval -0.917 to -0.310",
+        "p_value": "0.003",
+        "model": "Random-effects model",
+        "analysis_scale": "Correlation coefficient",
+        "unit_of_analysis": "Study correlation coefficients"
+      },
+      "evidence_size": {
+        "study_count": "2"
+      },
+      "heterogeneity": {
+        "i_squared": "39%"
+      },
+      "analysis_context": {
+        "analysis_type": "Subgroup analysis",
+        "subgroup_or_moderator": "SUD"
+      },
+      "interpretation": {
+        "finding_direction": "supports",
+        "outcome_orientation": "context_dependent",
+        "statistical_interpretation": "The 95% confidence interval excludes zero.",
+        "authors_interpretation": "The authors noted larger correlations in SUD than depression but emphasized the very small evidence base."
+      },
+      "evidence_locators": [
+        {
+          "location": "results",
+          "locator": "C004",
+          "supporting_text": "Two studies were conducted in patients with either alcohol or cocaine use disorder with a pooled effect size of -0.738 (-0.917 to -0.310, p = 0.003, I 2 = 39%)."
+        }
+      ],
+      "limitations": [
+        "Only two studies contributed; the authors did not statistically compare disease subgroups."
+      ],
+      "extraction_uncertainties": []
+    }
+  },
+  {
+    "audit_index": 451,
+    "doi": "10.1038/s44184-024-00091-w",
+    "item": {
+      "result_id": "R8",
+      "addresses_question_ids": [
+        "Q3"
+      ],
+      "result_role": "other",
+      "importance_in_paper": "supporting",
+      "relationship_statement": "Pooling the two ketamine and two psilocybin SUD studies, the correlation between subjective effects and treatment efficacy was -0.740.",
+      "primary_subject_area": "subjective_experience",
+      "subject_areas": [
+        "subjective_experience",
+        "clinical_outcome"
+      ],
+      "evidence_source": "human",
+      "population_or_system": "Patients treated for SUD",
+      "intervention_or_exposure": "Ketamine or psilocybin",
+      "comparator": null,
+      "outcome_or_entity": "Correlation between subjective effects and treatment efficacy",
+      "outcome_measure": "Pooled correlation coefficient (r)",
+      "timepoint_or_window": "Study-specific assessment windows",
+      "effect_estimate": {
+        "metric": "Pooled effect size (correlation coefficient, r)",
+        "estimate": "-0.740",
+        "interval_type": "confidence_interval",
+        "interval_level": "95%",
+        "interval_lower": "-0.862",
+        "interval_upper": "-0.539",
+        "interval_reported": "95% confidence interval -0.862 to -0.539",
+        "p_value": "0.000",
+        "model": "Random-effects model",
+        "analysis_scale": "Correlation coefficient",
+        "unit_of_analysis": "Study correlation coefficients"
+      },
+      "evidence_size": {
+        "study_count": "4",
+        "participant_count": "54"
+      },
+      "heterogeneity": {
+        "i_squared": "12%"
+      },
+      "analysis_context": {
+        "analysis_type": "Pooled SUD analysis across treatments",
+        "subgroup_or_moderator": "SUD, combining ketamine and psilocybin"
+      },
+      "interpretation": {
+        "finding_direction": "supports",
+        "outcome_orientation": "context_dependent",
+        "statistical_interpretation": "The 95% confidence interval excludes zero.",
+        "authors_interpretation": "The authors suggested that correlations may be more pronounced for SUD than depression but emphasized that the SUD evidence comprised only four studies."
+      },
+      "evidence_locators": [
+        {
+          "location": "results",
+          "locator": "C007",
+          "supporting_text": "The pooled effect size was -0.740 with 95% confidence interval -0.862 to -0.539 and I 2 = 12% (p = 0.000)."
+        }
+      ],
+      "limitations": [
+        "Only four studies and 54 patients contributed; the pooled estimate combines two different treatments."
+      ],
+      "extraction_uncertainties": []
+    }
+  },
+  {
+    "audit_index": 451,
+    "doi": "10.1038/s44184-024-00091-w",
+    "item": {
+      "result_id": "R9",
+      "addresses_question_ids": [
+        "Q2"
+      ],
+      "result_role": "other",
+      "importance_in_paper": "main",
+      "relationship_statement": "For the complete dataset excluding the two imputed-zero ketamine studies, the mixed-effects comparison did not detect a statistically significant difference between ketamine and psilocybin correlations.",
+      "primary_subject_area": "subjective_experience",
+      "subject_areas": [
+        "subjective_experience",
+        "clinical_outcome"
+      ],
+      "evidence_source": "human",
+      "population_or_system": "Patients treated for depression or SUD",
+      "intervention_or_exposure": "Ketamine versus psilocybin",
+      "comparator": "The other treatment's pooled correlation",
+      "outcome_or_entity": "Difference in pooled correlation between subjective effects and therapeutic outcome",
+      "outcome_measure": "Mixed-effects comparison of pooled correlation coefficients",
+      "timepoint_or_window": "Study-specific assessment windows",
+      "effect_estimate": {
+        "metric": "Between-treatment comparison p value",
+        "p_value": "0.108",
+        "model": "Mixed-effects analysis",
+        "analysis_scale": "Correlation coefficient",
+        "unit_of_analysis": "Study correlation coefficients"
+      },
+      "evidence_size": {
+        "study_count": "19",
+        "dataset_or_comparison_count": "Ketamine: 11 studies; psilocybin: 8 studies"
+      },
+      "analysis_context": {
+        "analysis_type": "Direct comparison between treatments",
+        "subgroup_or_moderator": "Depression and SUD combined; excludes imputed studies",
+        "sensitivity_method": "Comparison repeated with and without imputed-zero ketamine studies"
+      },
+      "interpretation": {
+        "finding_direction": "no_detected_effect",
+        "outcome_orientation": "unclear",
+        "statistical_interpretation": "The reported comparison p value was 0.108; a significant difference was not detected.",
+        "authors_interpretation": "The authors stated that a significant difference between treatment groups was not observed for the complete dataset when excluding the imputed studies."
+      },
+      "evidence_locators": [
+        {
+          "location": "results",
+          "locator": "C006",
+          "supporting_text": "A significant difference in correlation coefficients between the two treatments groups was not observed for the complete data set (depression versus SUD, n = 19) when excluding the imputated studies"
+        }
+      ],
+      "limitations": [
+        "The comparison pools depression and SUD studies and is sensitive to whether two ketamine studies with imputed zero coefficients are included."
+      ],
+      "extraction_uncertainties": []
+    }
+  },
+  {
+    "audit_index": 469,
+    "doi": "10.1001/jamanetworkopen.2025.24119",
+    "item": {
+      "result_id": "R1",
+      "addresses_question_ids": [
+        "Q1"
+      ],
+      "result_role": "primary_synthesis",
+      "importance_in_paper": "main",
+      "relationship_statement": "Across included depression trials, control-treatment arms in psilocybin trials had a lower pooled pretreatment-to-posttreatment MADRS standardized mean change than control arms in SSRI or esketamine trials: SMC 0.50 (SEM 0.15), compared with 1.00 (SEM 0.08) for SSRIs and 1.12 (SEM 0.17) for esketamine, through up to 6 weeks after randomization.",
+      "primary_subject_area": "clinical_outcome",
+      "subject_areas": [
+        "clinical_outcome"
+      ],
+      "evidence_source": "human",
+      "population_or_system": "Adults with MDD or TRD in the relevant trial populations: psilocybin trials included MDD and TRD; SSRI trials included MDD; esketamine trials included TRD",
+      "intervention_or_exposure": "Control treatment in trials of psilocybin, SSRIs, or esketamine; control arms included inert placebo, low-dose psilocybin, or niacin",
+      "comparator": "Control-treatment arms in the other trial-population groups",
+      "outcome_or_entity": "Within-group change in depression symptom severity measured by MADRS",
+      "outcome_measure": "Standardized mean change (SMC), raw-score standardization normalized to the end-point SD",
+      "timepoint_or_window": "Baseline to posttreatment, up to 6 weeks after randomization",
+      "effect_estimate": {
+        "metric": "SMC (SEM)",
+        "estimate": "Psilocybin control: 0.50; SSRI control: 1.00; esketamine control: 1.12",
+        "standard_error": "Psilocybin control: 0.15; SSRI control: 0.08; esketamine control: 0.17 (reported as SEM)",
+        "model": "Random-effects meta-analysis; meta-regressed on study population",
+        "analysis_scale": "Standardized mean change in MADRS",
+        "unit_of_analysis": "Trial-level treatment-arm effect sizes",
+        "adjustment_status": "Study population was the sole meta-regression variable"
+      },
+      "evidence_size": {
+        "study_count": "4 psilocybin, 11 SSRI, and 2 esketamine trials",
+        "participant_count": "Psilocybin n = 373; SSRI n = 4014; esketamine n = 573 across active and control arms"
+      },
+      "analysis_context": {
+        "analysis_type": "Random-effects meta-analysis and meta-regression",
+        "subgroup_or_moderator": "Study population: psilocybin, SSRI, or esketamine"
+      },
+      "interpretation": {
+        "finding_direction": "supports",
+        "favors": "Greater control-treatment MADRS improvement in SSRI and esketamine trial populations than in the psilocybin trial population",
+        "outcome_orientation": "beneficial",
+        "statistical_interpretation": "The pooled control-arm SMC was numerically lower in psilocybin trials than in SSRI and esketamine trials. The moderator test for control-arm SMCs was significant (QM = 10.4; df = 2; P = .005).",
+        "authors_interpretation": "The authors concluded that control-treatment outcomes in psilocybin trials were significantly worse than those in SSRI or esketamine trials, but the indirect analysis cannot determine why the trial populations differed."
+      },
+      "evidence_locators": [
+        {
+          "location": "results",
+          "locator": "C005",
+          "supporting_text": "Pretreatment to posttreatment effect sizes (SMC [SEM]) were 1.21 (0.15) for psilocybin, 1.43 (0.15) for esketamine, and 1.28 (0.06) for SSRIs and were 0.50 (0.15), 1.12 (0.17), and 1.00 (0.08), respectively, for their corresponding control treatments"
+        },
+        {
+          "location": "results",
+          "locator": "C005",
+          "supporting_text": "Study population (psilocybin, SSRIs, or esketamine) was a significant moderator of between-group effect sizes (QM, 10.7; df, 2; P = .005) and of pre-to post-control treatment effect sizes (QM, 10.4; df, 2; P = .005)"
+        }
+      ],
+      "limitations": [
+        "The comparison was indirect and cannot identify the factors responsible for differences between trial populations.",
+        "The psilocybin evidence base was small and heterogeneous, and the SSRI and esketamine reference groups were not exhaustive."
+      ]
+    }
+  },
+  {
+    "audit_index": 469,
+    "doi": "10.1001/jamanetworkopen.2025.24119",
+    "item": {
+      "result_id": "R2",
+      "addresses_question_ids": [
+        "Q2"
+      ],
+      "result_role": "primary_synthesis",
+      "importance_in_paper": "main",
+      "relationship_statement": "The pooled active-versus-control MADRS standardized mean difference was 0.70 (SEM 0.12) in psilocybin trials, 0.30 (SEM 0.12) in esketamine trials, and 0.27 (SEM 0.05) in SSRI trials; study population significantly moderated these between-group effect sizes.",
+      "primary_subject_area": "clinical_outcome",
+      "subject_areas": [
+        "clinical_outcome"
+      ],
+      "evidence_source": "human",
+      "population_or_system": "Adults with MDD or TRD in psilocybin trials, adults with TRD in esketamine trials, and adults with MDD in SSRI trials",
+      "intervention_or_exposure": "Psilocybin, esketamine, or SSRI active treatment",
+      "comparator": "Corresponding control treatment within each trial",
+      "outcome_or_entity": "Between-group difference in MADRS depression symptom severity",
+      "outcome_measure": "Standardized mean difference (SMD), normalized to pooled end-point SD",
+      "timepoint_or_window": "End point up to 6 weeks after randomization",
+      "effect_estimate": {
+        "metric": "SMD (SEM)",
+        "estimate": "Psilocybin: 0.70; esketamine: 0.30; SSRI: 0.27",
+        "standard_error": "Psilocybin: 0.12; esketamine: 0.12; SSRI: 0.05 (reported as SEM)",
+        "p_value": "QM test P = .005",
+        "model": "Random-effects meta-analysis; meta-regression",
+        "analysis_scale": "Standardized mean difference",
+        "unit_of_analysis": "Trial-level active-versus-control effect sizes",
+        "adjustment_status": "Study population was the sole meta-regression variable"
+      },
+      "evidence_size": {
+        "study_count": "4 psilocybin, 2 esketamine, and 11 SSRI trials",
+        "participant_count": "Psilocybin n = 373; esketamine n = 573; SSRI n = 4014"
+      },
+      "analysis_context": {
+        "analysis_type": "Random-effects meta-analysis and meta-regression",
+        "subgroup_or_moderator": "Study population"
+      },
+      "interpretation": {
+        "finding_direction": "supports",
+        "favors": "Larger active-versus-control effect in psilocybin trials than in SSRI or esketamine trials",
+        "outcome_orientation": "beneficial",
+        "statistical_interpretation": "The study-population moderator test was significant (QM = 10.7; df = 2; P = .005). The reported SMDs were largest in psilocybin trials; no pairwise moderator contrasts or confidence intervals were reported in the supplied text.",
+        "authors_interpretation": "The authors cautioned that poor control outcomes in psilocybin trials may cause psilocybin's antidepressant efficacy to be overestimated; the indirect comparison does not establish the cause."
+      },
+      "evidence_locators": [
+        {
+          "location": "results",
+          "locator": "C005",
+          "supporting_text": "which corresponded with the actual between-group effect sizes (SMD [SEM]): 0.70 (0.12), 0.30 (0.12), and 0.27 (0.05), respectively"
+        },
+        {
+          "location": "results",
+          "locator": "C005",
+          "supporting_text": "Study population (psilocybin, SSRIs, or esketamine) was a significant moderator of between-group effect sizes (QM, 10.7; df, 2; P = .005)"
+        }
+      ],
+      "limitations": [
+        "The indirect comparison cannot determine whether differences arose from patient characteristics, blinding, expectancy, or other methodological differences among trial populations."
+      ]
+    }
+  },
+  {
+    "audit_index": 469,
+    "doi": "10.1001/jamanetworkopen.2025.24119",
+    "item": {
+      "result_id": "R3",
+      "addresses_question_ids": [
+        "Q3"
+      ],
+      "result_role": "secondary_synthesis",
+      "importance_in_paper": "supporting",
+      "relationship_statement": "Active-treatment pretreatment-to-posttreatment MADRS SMCs were 1.21 (SEM 0.15) for psilocybin, 1.28 (SEM 0.06) for SSRIs, and 1.43 (SEM 0.15) for esketamine; study population did not significantly moderate active-treatment SMCs.",
+      "primary_subject_area": "clinical_outcome",
+      "subject_areas": [
+        "clinical_outcome"
+      ],
+      "evidence_source": "human",
+      "population_or_system": "Adults with MDD or TRD in the corresponding trial populations",
+      "intervention_or_exposure": "Psilocybin, SSRI, or esketamine",
+      "comparator": null,
+      "outcome_or_entity": "Within-group change in depression symptom severity measured by MADRS",
+      "outcome_measure": "Standardized mean change (SMC), raw-score standardization normalized to end-point SD",
+      "timepoint_or_window": "Baseline to posttreatment, up to 6 weeks after randomization",
+      "effect_estimate": {
+        "metric": "SMC (SEM)",
+        "estimate": "Psilocybin: 1.21; SSRI: 1.28; esketamine: 1.43",
+        "standard_error": "Psilocybin: 0.15; SSRI: 0.06; esketamine: 0.15 (reported as SEM)",
+        "p_value": "P = .55 for study-population moderator test",
+        "model": "Random-effects meta-analysis; meta-regression",
+        "analysis_scale": "Standardized mean change in MADRS",
+        "unit_of_analysis": "Trial-level treatment-arm effect sizes",
+        "adjustment_status": "Study population was the sole meta-regression variable"
+      },
+      "evidence_size": {
+        "study_count": "4 psilocybin, 11 SSRI, and 2 esketamine trials",
+        "participant_count": "Psilocybin n = 373; SSRI n = 4014; esketamine n = 573"
+      },
+      "analysis_context": {
+        "analysis_type": "Random-effects meta-analysis and meta-regression",
+        "subgroup_or_moderator": "Study population"
+      },
+      "interpretation": {
+        "finding_direction": "no_detected_effect",
+        "outcome_orientation": "beneficial",
+        "statistical_interpretation": "The study-population moderator test was not significant (QM = 1.21; df = 2; P = .55).",
+        "authors_interpretation": "The authors reported that active-treatment effect sizes did not differ significantly between study populations."
+      },
+      "evidence_locators": [
+        {
+          "location": "results",
+          "locator": "C005",
+          "supporting_text": "Pretreatment to posttreatment effect sizes (SMC [SEM]) were 1.21 (0.15) for psilocybin, 1.43 (0.15) for esketamine, and 1.28 (0.06) for SSRIs"
+        },
+        {
+          "location": "results",
+          "locator": "C005",
+          "supporting_text": "but not of active treatment effect sizes (QM, 1.21; df, 2; P = .55)"
+        }
+      ]
+    }
+  },
+  {
+    "audit_index": 469,
+    "doi": "10.1001/jamanetworkopen.2025.24119",
+    "item": {
+      "result_id": "R6",
+      "addresses_question_ids": [
+        "Q1"
+      ],
+      "result_role": "sensitivity_analysis",
+      "importance_in_paper": "supporting",
+      "relationship_statement": "In a post hoc meta-analysis of three esketamine trials in participants with depression and acute suicidality, control treatment was associated with a mean MADRS decrease of 22.9 points, corresponding to an SMC (SEM) of 1.87 (0.12).",
+      "primary_subject_area": "clinical_outcome",
+      "subject_areas": [
+        "clinical_outcome"
+      ],
+      "evidence_source": "human",
+      "population_or_system": "Participants with depression and acute suicidality",
+      "intervention_or_exposure": "Esketamine-trial control treatment",
+      "comparator": null,
+      "outcome_or_entity": "MADRS symptom decrease",
+      "outcome_measure": "Mean MADRS decrease and standardized mean change (SMC)",
+      "timepoint_or_window": "Trial assessment window not further specified in the post hoc result",
+      "effect_estimate": {
+        "metric": "Mean MADRS decrease; SMC (SEM)",
+        "estimate": "22.9 points; 1.87",
+        "standard_error": "0.12 (reported as SEM for SMC)",
+        "model": "Separate post hoc meta-analysis",
+        "analysis_scale": "MADRS points and standardized mean change",
+        "unit_of_analysis": "Control-treatment arms"
+      },
+      "evidence_size": {
+        "study_count": "3 esketamine trials"
+      },
+      "analysis_context": {
+        "analysis_type": "Post hoc meta-analysis",
+        "subgroup_or_moderator": "Depression with acute suicidality",
+        "sensitivity_method": "Separate analysis of ASPIRE 1, ASPIRE 2, and SUI2001"
+      },
+      "interpretation": {
+        "finding_direction": "descriptive_only",
+        "outcome_orientation": "beneficial",
+        "statistical_interpretation": "The post hoc analysis reported a large control-arm MADRS improvement; no comparative test was reported.",
+        "authors_interpretation": "The authors noted that this population was excluded from the primary comparison because there were no corresponding psilocybin or SSRI studies, and proposed that acute distress abating might contribute to improvement."
+      },
+      "evidence_locators": [
+        {
+          "location": "results",
+          "locator": "C006",
+          "supporting_text": "the mean MADRS decrease from baseline for esketamine control treatment in participants with depression and acute suicidality was 22.9 points, which corresponded to an SMC (SEM) of 1.87 (0.12)."
+        }
+      ],
+      "limitations": [
+        "The acute-suicidality trials were excluded from the main comparison because no corresponding psilocybin or SSRI trial population was available."
+      ]
+    }
+  },
+  {
+    "audit_index": 470,
+    "doi": "10.1017/s003329172000389x",
+    "item": {
+      "result_id": "R1",
+      "addresses_question_ids": [
+        "Q2"
+      ],
+      "result_role": "primary_synthesis",
+      "importance_in_paper": "main",
+      "relationship_statement": "In experimental studies of clinical psychiatric samples, classical psychedelics produced greater improvement in targeted symptoms than placebo controls at the last available post-treatment assessment.",
+      "primary_subject_area": "clinical_outcome",
+      "subject_areas": [
+        "clinical_outcome"
+      ],
+      "evidence_source": "human",
+      "population_or_system": "Clinical samples with psychiatric conditions",
+      "intervention_or_exposure": "Psilocybin, ayahuasca, or LSD",
+      "comparator": "Placebo control",
+      "outcome_or_entity": "Targeted symptoms within psychiatric samples",
+      "outcome_measure": "Targeted psychiatric symptom measures",
+      "timepoint_or_window": "Between-group pre-post; most conservative controlled estimate used last available follow-up where available, with cross-over studies assessed before cross-over",
+      "effect_estimate": {
+        "metric": "Hedges' g",
+        "estimate": "1.08",
+        "interval_type": "confidence_interval",
+        "interval_level": "95%",
+        "interval_lower": "0.74",
+        "interval_upper": "1.43",
+        "interval_reported": "1.08 [0.74, 1.43]",
+        "model": "Random-effects model, inverse-variance weighting",
+        "analysis_scale": "Standardized effect size; positive values indicate improvement",
+        "unit_of_analysis": "Study-level effects aggregated within measure and then within study",
+        "adjustment_status": "No studies imputed in trim-and-fill; estimate unchanged"
+      },
+      "evidence_size": {
+        "study_count": "5",
+        "participant_count": "67"
+      },
+      "heterogeneity": {
+        "i_squared": "0.00 [0.00, 93.15]",
+        "authors_interpretation": "Heterogeneity was generally high across outcome domains; this estimate's reported I² was 0.00."
+      },
+      "analysis_context": {
+        "analysis_type": "Between-group meta-analysis",
+        "dependency_handling": "Effects were aggregated within measure and then within study."
+      },
+      "interpretation": {
+        "finding_direction": "supports",
+        "favors": "Classical psychedelics",
+        "outcome_orientation": "beneficial",
+        "statistical_interpretation": "The 95% CI excludes zero.",
+        "authors_interpretation": "The authors describe large, statistically significant effects for targeted symptoms and state that this effect appeared robust to publication bias and outliers."
+      },
+      "evidence_locators": [
+        {
+          "location": "table",
+          "locator": "T002",
+          "supporting_text": "1.08 [0.74, 1.43]"
+        },
+        {
+          "location": "discussion",
+          "locator": "C025",
+          "supporting_text": "large and statistically significant effects were detected for targeted symptoms (g =1.08)"
+        }
+      ],
+      "limitations": [
+        "The study set was small, and difficulty blinding participants to psychedelic treatment makes the placebo comparison uncertain."
+      ]
+    }
+  }
+]

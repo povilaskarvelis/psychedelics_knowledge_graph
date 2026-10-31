@@ -409,6 +409,12 @@ def apply_pdf_front_title_validation(
     result["pdf_front_title_validation_applied"] = False
     if bool(identity.get("verified")):
         return result
+    # Repository cover sheets can name the requested report while the actual
+    # attached article has a different DOI. A cover/title match cannot resolve
+    # that conflict; only the existing reviewed relationship/hash mechanisms can.
+    if identity.get("status") in {"target_text_with_conflicting_doi", "identity_mismatch"}:
+        result["pdf_front_title_validation_disposition"] = "document_doi_conflict_requires_resolution"
+        return result
     pdf_raw = clean(artifact.get("pdf_local_path", ""))
     pdf_path = Path(pdf_raw).expanduser() if pdf_raw else None
     if pdf_path is None or not pdf_path.exists() or not pdf_path.is_file():

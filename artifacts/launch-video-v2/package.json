@@ -1,0 +1,19 @@
+{
+  "name": "psychedelics-knowledge-graph-launch-film",
+  "private": true,
+  "version": "2.0.0",
+  "scripts": {
+    "render": "remotion render src/index.jsx PKGLaunch dist/psychedelics-knowledge-graph-launch-v2.mp4 --codec=h264 --crf=16 --pixel-format=yuv420p",
+    "still": "remotion still src/index.jsx PKGLaunch dist/psychedelics-knowledge-graph-launch-v2-cover.png --frame=945"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.526",
+    "@remotion/fonts": "4.0.526",
+    "@remotion/media": "4.0.526",
+    "@remotion/transitions": "4.0.526",
+    "lucide-react": "^1.47.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "remotion": "4.0.526"
+  }
+}

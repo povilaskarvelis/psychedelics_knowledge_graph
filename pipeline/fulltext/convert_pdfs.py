@@ -139,6 +139,15 @@ def element_text(element: ET.Element) -> str:
     return compact_text(" ".join(text for text in element.itertext() if normalize(text)))
 
 
+def has_article_body(xml_text: str) -> bool:
+    """Require article content, rather than a matching abstract-only XML record."""
+    try:
+        root = ET.fromstring(xml_text)
+    except ET.ParseError:
+        return False
+    return any(local_name(e.tag) == "body" and element_text(e).strip() for e in root.iter())
+
+
 def sections_from_tei(tei_xml: str) -> List[dict]:
     try:
         root = ET.fromstring(tei_xml)

@@ -1,0 +1,30 @@
+{
+  "scope_delta": {
+    "allowed_targets": [],
+    "allowed_brain_regions_and_networks": [],
+    "allowed_disorders": [],
+    "allowed_compounds": [
+      "Phencyclidine"
+    ],
+    "allowed_cognitive_behavioral_tasks": []
+  },
+  "planned_historical_additions": [
+    {
+      "provider": "openalex",
+      "layer": "scope_delta",
+      "compound": "Phencyclidine",
+      "start_date": "1800-01-01",
+      "end_date": "2026-10-19",
+      "query": "(Phencyclidine OR pcp)"
+    },
+    {
+      "provider": "pubmed",
+      "layer": "scope_delta",
+      "compound": "Phencyclidine",
+      "start_date": "1800-01-01",
+      "end_date": "2026-10-19",
+      "query": "(pcp[Text Word] OR Phencyclidine[Text Word] OR Phencyclidine[Supplementary Concept])"
+    }
+  ],
+  "executed": false
+}

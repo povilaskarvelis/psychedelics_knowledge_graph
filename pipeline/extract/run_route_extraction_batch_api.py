@@ -120,6 +120,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
 DEFAULT_TASKS_JSONL = ROOT / "data" / "processed" / "extraction" / "route_extraction_tasks.jsonl"
 TERMINAL_STATES = {"completed", "failed", "cancelled", "expired"}
 REPORT_SCHEMA_VERSION = "route_extraction_batch_api_report_v1"
+PARSER_REVISION = "referenced_optional_fields_v2"
 
 
 def now_utc() -> str:
@@ -555,6 +556,32 @@ def materialize_run_projection_from_batch_files(run_dir: Path) -> dict:
     preserved_outputs = [row for row in existing_outputs if route_key(row) not in owned_routes]
     materialized_raw = [*preserved_raw, *async_raw_by_route.values()]
     materialized_outputs = [*preserved_outputs, *async_output_by_route.values()]
+    # A source conflict applies to every route for that report, including a
+    # sibling route whose response happened to pass schema validation. Preserve
+    # original batch answers but keep them out of the current usable projection.
+    owner = ROOT / "pipeline/extract/manual_extraction_route_overrides.json"
+    held_dois = set()
+    if owner.exists():
+        held_dois = {r.get("doi") for r in json.loads(owner.read_text()).get("records", [])
+                     if r.get("manual_action") == "hold_source_review"}
+    for row in materialized_raw:
+        if row.get("study_doi") in held_dois:
+            row["pre_source_hold_status"] = row["status"]
+            row["status"] = "source_hold"
+    materialized_outputs = [row for row in materialized_outputs if row.get("study_doi") not in held_dois]
+    replacements_path = run_dir / "input_replacements.json"
+    replacements = {}
+    if replacements_path.exists():
+        replacements = {r["route_id"]: r["replacement_fingerprint"]
+                        for r in json.loads(replacements_path.read_text()).get("routes", [])}
+    for row in materialized_raw:
+        expected = replacements.get(route_key(row))
+        if expected and row.get("input_fingerprint") != expected and row["status"] != "source_hold":
+            row["pre_source_repair_status"] = row["status"]
+            row["status"] = "source_repair_pending"
+    materialized_outputs = [row for row in materialized_outputs
+                            if not replacements.get(route_key(row))
+                            or row.get("input_fingerprint") == replacements[route_key(row)]]
     write_jsonl(run_paths["raw_jsonl"], materialized_raw)
     write_jsonl(run_paths["outputs_jsonl"], materialized_outputs)
     return {
@@ -682,7 +709,11 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
             model_schema = schema_for_assigned_domain(schema, domain_route_for_task(task))
             validator = Draft7Validator(model_schema)
             parsed, parse_method = parse_json_response(text)
-            parsed = llm.restore(parsed, model_schema)
+            # The wire contract inlines $refs before making optional fields
+            # nullable. Restore against that same resolved schema, then validate
+            # against the unchanged scientific schema. Unresolved item refs hide
+            # their optional/required declarations and leave absent nulls behind.
+            parsed = llm.restore(parsed, schema_for_native(model_schema))
             result = inject_route_identity_fields(parsed, task, profile)
             reject_corrupt_output_text(result)
             reject_source_identity_mismatch_warnings(result)
@@ -730,6 +761,7 @@ def parse_batch_results(args: argparse.Namespace) -> dict:
     commands = [] if args.skip_rebuild else rebuild_run_tables(args)
     report = {
         "schema_version": REPORT_SCHEMA_VERSION,
+        "parser_revision": PARSER_REVISION,
         "generated_at_utc": now_utc(),
         "status": (
             "ok"

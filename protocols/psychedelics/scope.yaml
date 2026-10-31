@@ -1,0 +1,113 @@
+# Scope: which reports belong to the corpus. Format: protocols/SPEC.md section 5.2.
+# The structured fields below summarize the current screening instructions so
+# that a reviewer can read the decisions without the full prompt. Until the
+# engine composes screening instructions from this file (SPEC.md section 6),
+# the instruction files listed under `instructions` remain the source of truth.
+
+research_area: >-
+  Psychedelic, entactogen and dissociative substances: their effects, mechanisms,
+  pharmacokinetics, toxicity, modification or prevention of their adverse effects,
+  and real-world exposure or use.
+
+anchor_eligibility:
+  anchor_type: compound                     # defined in entities.yaml
+  in_scope_classes:                         # pipeline/review/screening_contract.py SCOPE_CLASSES
+    - classic_psychedelic                   # serotonergic tryptamines and phenethylamines/amphetamines
+    - entactogen                            # MDMA and established relatives (MDA, MDEA, MMDA)
+    - dissociative_hallucinogen             # ketamine/esketamine/arketamine, PCP and hallucinogenic analogues
+    - iboga_alkaloid                        # ibogaine, noribogaine and related alkaloids
+    - psychedelic_kappa_agonist             # salvinorin A and related compounds
+    - other_documented_psychedelic
+  decision_classes: [out_of_scope, unresolved]
+  identity_rule: >-
+    An unfamiliar compound qualifies through an established psychedelic, entactogen or
+    dissociative identity. Receptor binding or chemical resemblance alone does not establish it.
+    Unresolved identity is sent to needs_review.
+  conditional_inclusions:
+    - Nitrous oxide and dextromethorphan within the broad dissociative scope.
+  out_of_scope_on_their_own:
+    - cannabis, THC (including delta-8 and delta-9), CBD, synthetic and endogenous cannabinoids
+    - ordinary amphetamine and methamphetamine; generic stimulants; cocaine
+    - morphine and other ordinary opioids
+    - routine antidepressants (e.g. fluoxetine), VMAT2 inhibitors, unrelated psychiatric drugs
+    - MK-801/dizocilpine and memantine (not automatically eligible)
+  shared_target_rule: Sharing a serotonin, sigma, opioid or NMDA target does not make a drug eligible.
+  mixed_drug_rule: A mixed-drug paper qualifies through a genuine result for a separately eligible drug or class.
+  ambiguous_abbreviations:                  # meanings that are not psychedelic exposures
+    PCP: [primary care, Pneumocystis pneumonia]
+    MDA: [malondialdehyde]
+    LSD: [lumpy skin disease]
+    DMT: [disease-modifying treatment]
+  anchor_lists: see entities.yaml anchor.identity_sources (five lists, not yet merged)
+
+qualifying_contribution:
+  include_bases:                            # screening_contract.py INCLUDE_BASES
+    drug_effect_or_mechanism: Effects, mechanisms, pharmacokinetics, toxicity, or modification/prevention of adverse effects.
+    drug_exposure_or_use: Detection percentage, count, concentration or use estimate in actual people.
+    central_synthesis_or_analysis: The substance or class is a central question or major synthesis topic.
+    plausible_eligible_thin_record: Thin but consistent record indicating a plausible eligible question.
+  not_qualifying:
+    - background paragraph, recruitment list, assay panel, treatment list, future proposal, or comparison to another paper
+    - a measured receptor, pathway or symptom without an eligible drug contribution
+    - a tracer or reagent alone; incidental unmeasured use
+  preclinical_rule: >-
+    Direct drug experiments in healthy volunteers, animals, cells, plants, microbes or tissues qualify
+    without psychiatric or hallucinogenic benefit, including PCP/ketamine schizophrenia models and
+    experiments testing modification, reversal or prevention of eligible-drug effects.
+
+purpose_exclusions:                         # screening_contract.py EXCLUDE_BASES and prompt section 3
+  analytical_detection_only: >-
+    Detection, sensor or assay engineering whose findings are detection limits, classification
+    accuracy, separation or assay performance. Pharmacology, measured PK, real-world exposure,
+    clinical toxicology and drug-checking findings are preserved.
+  environmental_processing_only: >-
+    Pollution processing, removal or degradation engineering, ecotoxicity, agricultural water reuse.
+    Wastewater estimates of actual population consumption are preserved.
+  anesthesia_analgesia_or_perioperative_complications: >-
+    For ketamine-class drugs only: anesthesia, procedural or general sedation, pain treatment,
+    veterinary anesthesia, perioperative delirium or cognitive complications. Separately substantive
+    psychiatric questions (e.g. postpartum depression around surgery), direct mechanistic pharmacology
+    and nonmedical ketamine toxicity are preserved. Does not apply to classic psychedelics studied for pain.
+  other_exclude_bases: [unrelated_substance, peripheral_mention, ineligible_publication, non_english_source]
+
+reviews:
+  coverage_rule: >-
+    The eligible substance or class must be a central question or major synthesis topic, shown by an
+    explicitly analyzed drug/class section, multiple eligible studies or a drug-specific synthesis result.
+    If the abstract cannot distinguish major coverage from a passing example, use needs_review.
+  scholarly_analysis: >-
+    Conceptual, cultural-practice, policy, legal, implementation, professional-standards or
+    therapy-delivery analysis qualifies when centrally about eligible psychedelic evidence or practice.
+
+publication_and_language:                   # candidate base-profile content (generic across fields)
+  languages: [en]
+  excluded_formats: base profile default   # preprints, conference abstracts, theses, books, protocols without results, corrections, peer-review artifacts, news
+  minimum_abstract_words: 50               # pipeline/review/run_deterministic_prescreen.py MINIMUM_ABSTRACT_WORD_COUNT
+
+decision_values: [include_in_scope, exclude_out_of_scope, needs_review]
+
+instructions:
+  production:
+    path: docs/screening/title_abstract_screening.md
+    contract: v5_class_scope
+    used_for: full Luna screening of 137,256 records (data/processed/corpus/model_pipeline_state.json)
+    sha256_prefix: d4255c6e0263d3c4
+  correction:
+    path: docs/screening/title_abstract_screening_v6_1.md
+    contract: v6_scope_checked
+    used_for: correction pass over previously retained and PCP-excluded records
+    sha256_prefix: 75960e47db06a131
+    composition:                            # characters per part of the v6.1 text; see MIGRATION.md section 4
+      field_eligibility_sections_1_to_4: 8434
+      evidence_domain_definitions_and_modifiers: 6246
+      generic_rules_publication_language_decision_paper_type: 8213
+
+deterministic_prescreen:
+  status: in_code
+  locations:
+    - pipeline/review/deterministic_prescreen_rules.py   # COMPOUND_SYNONYMS (266 items), IN_SCOPE_INTERVENTION_CLASS_TERMS (144), acronym disambiguation, ketamine acute-care rules
+    - pipeline/review/run_deterministic_prescreen.py     # publication-format rules (base profile)
+  note: >-
+    The prescreen applies field rules (substance synonyms, acronym disambiguation, ketamine acute-care
+    rules) and generic rules (publication formats, placeholder abstracts, word count) in one pass.
+    Only the field rules belong in this file.

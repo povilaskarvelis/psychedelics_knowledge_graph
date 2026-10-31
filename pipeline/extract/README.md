@@ -18,6 +18,12 @@ Default outputs:
 - `data/processed/corpus/paper_extraction_routes_summary.json`
 - `data/processed/corpus/paper_extraction_routes_counts.csv`
 
+Task construction uses populated canonical candidate metadata before the
+enrichment cache, matching routing. This preserves abstracts and corrections
+that are already in the corpus but absent from enrichment. With a custom
+`--metadata-table`, pass `--candidate-table` explicitly to use that same merge;
+otherwise custom metadata inputs remain isolated.
+
 The route table joins deterministic pre-screen decisions, metadata, Luna
 paper-type and domain routing, converted full-text artifacts, valid PDFs in
 `data/raw/papers/pdfs/`, and PDF URL availability.
@@ -493,15 +499,20 @@ explicit:
   per-domain `secondary_*review*` v1 contracts. They are in-scope coverage
   sources rather than primary KG evidence.
 - `guideline_consensus` is an in-scope recommendation/context route when the
-  paper is relevant, but it is not extracted into the KG for now.
+  paper is relevant. Registered profiles extract typed recommendation items,
+  which pass through the routed converter and normal graph-admission checks.
+  Recommendations retain their source type rather than becoming primary trial
+  effect estimates.
 - `context_only_or_skip` is for papers that may be useful for provenance,
-  background, protocol tracking, commentary, or manual audit, but should not
-  create KG evidence.
+  background, protocol tracking, or manual audit, but should not create KG
+  evidence. Accepted scholarly commentary/editorial and other analyses route
+  through Reviews under the approved routing policy; their exact genres remain
+  in the metadata.
 - `no_extraction` is a terminal audit route for records excluded before
   extraction, usually after domain screening. It means the paper was seen and
   intentionally did not enter evidence extraction.
 
-In short: some documents are in scope for corpus accounting or evidence-map
+Some documents are in scope for corpus accounting or evidence-map
 context without being part of the main KG. Do not treat a route-table row as a
 KG contribution unless its profile family is intended to produce evidence rows.
 
@@ -571,3 +582,99 @@ instead.
 The older path that promoted curated-ready rows from
 `data/processed/*_claim_stubs.json` into curated JSON/CSV datasets has been
 removed. Build route-native evidence rows and parquet KG tables instead.
+
+## Accepted scholarly analyses in Reviews
+
+Already-screened `commentary_editorial` and `other_non_primary` records with an
+explicit `include_in_scope` decision share the existing paper-centered review
+relationship extractor. Routing derives `secondary_literature` for that purpose
+while preserving the actual publication genre and the original screening
+decision/reason. The graph toggle remains **Reviews**; paper-type labels and
+existing review-design tags retain the more specific distinctions.
+
+This routing change does not reopen screened exclusions or admit chapters, news,
+theses, protocols, or conference abstracts. Existing publication/language,
+source-identity, duplicate-identifier and curated source-review checks remain
+authoritative. Only an already-accepted analysis is protected from a downstream
+rejection based solely on the words commentary, editorial, letter, or theoretical
+article. No model call or full-text eligibility reassessment is required.
+
+These records receive one review task per paper, rather than primary-study
+domain tasks. Normalization preserves their genre and the relationship's
+conceptual/evidence strata; their discussion is not recast as original patient
+data. Preparing tasks and estimating Batch cost never submits extraction.
+
+## Repairing failed extraction inputs
+
+`pipeline.extract.repair_extraction_inputs` makes an offline repair proposal from
+saved validation failures, tasks, native PubMed XML-derived records and saved
+Crossref responses. It never rewrites screening decisions. A replacement
+abstract requires exact native DOI agreement and corroborating publisher title
+agreement; an exact DOI alone cannot resolve conflicting report identities.
+Missing abstracts and unresolved conflicts become source-review holds through
+`manual_extraction_route_overrides.json`, rather than model retries using foreign
+text. Verified bibliographic corrections use `paper_metadata_overrides.json` and
+the existing scoped candidate-metadata materializer.
+
+The `evidence` subcommand collects exact-identifier PubMed/Crossref responses for
+the bounded failed-paper task set, saves native XML/JSON and hashes, and reuses
+supplied caches. Use `--offline` to replay saved responses without any network
+or paid model calls. PMIDs remain hints until returned DOI/title checks pass;
+missing identifiers are not replaced by a guessed search hit.
+
+Prepare a proposal with `python -m pipeline.extract.repair_extraction_inputs
+--tasks TASKS --failures FAILURES --native-records NATIVE_JSON
+--crossref-records CROSSREF_JSON --at-utc TIMESTAMP --out NEW_PLAN_JSON`.
+An optional `--repository-abstract HTML` reads a dedicated institutional abstract
+only when its citation DOI/title corroborate the native report. Venue metadata
+from that page is not substituted. Raw responses and source hashes are retained.
+
+The reusable `apply_source_plan`, `prepare_retry` and `record_input_replacements`
+functions implement application/preparation. Source changes invalidate **all**
+routes for that paper, including passing sibling routes. Category-only failures
+reuse their original scientific inputs and schemas with explicit validation
+feedback. Corrected sources get fresh task/input fingerprints from the normal
+task builder; verified abstract fallback selects the existing abstract prompt.
+Original paid requests and answers remain immutable. Run-level
+`input_replacements.json` withholds obsolete answers until replacements arrive;
+source-held reports cannot appear in the current usable output projection.
+
+After explicit submission through the existing Batch transport, run
+`python -m pipeline.extract.repair_extraction_inputs collect --receipt RECEIPT
+--wait` for continuous receipt-aware collection. It retrieves only that known
+job, downloads successes/errors, settles actual usage and runs strict validation
+with `skip_rebuild`; it never uploads, submits another job, normalizes evidence
+or replaces the graph. Replaying a completed parse needs no network access.
+# Reviewed source-design recovery
+
+`repair_extraction_routing.py` handles wholly empty `wrong_source_type` outcomes
+without changing scientific screening. A reviewed plan identifies each report,
+source/design evidence, correct extraction family/profile, or source hold. It
+does not automatically relabel every exception as a review. Existing metadata
+and manual route owners retain the decisions and their history.
+
+The reusable preparation path rebuilds appropriately selected packets from the
+same identity-accepted article artifacts, generates standard tasks and preserves
+unrelated task JSONL records. Source corrections use the existing metadata owner;
+original tasks, answers and submitted Batch receipts remain immutable. Submission
+and collection use the existing Luna Batch runners, separately from planning.
+
+Run `python -m pipeline.extract.repair_extraction_routing --help` for the scoped
+`prepare` and `apply` interfaces. Reviewable plans must be validated against the
+frozen included cohort and its empty source-type exceptions. A retry still has to
+pass the unchanged extraction contract, and may legitimately return no scoped
+evidence.
+
+## Archived diagnostic experiment
+
+The October 2026 Luna self-review experiment is withdrawn from the production
+workflow. Its model requests, raw answers and implementation snapshots remain
+under `data/processed/model_runs/luna_v5_20261017/routing_contract_repair_20261029/`.
+The experimental executables and audit-driven rerun helpers have been removed
+from `pipeline/extract`; their snapshots are in `withdrawn_additions/`.
+No experimental audit plans were used to select or run production extractions.
+
+The existing route/task builders, extraction contracts and normalization remain
+the production path. Ordinary source handling and task-cache fixes do not imply
+that historical extractions were rerun. Current primary prompts and schemas
+match their pre-experiment versions.

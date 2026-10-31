@@ -135,6 +135,13 @@ python pipeline/discovery/promote_search_run.py \
 See [`pipeline/discovery/README.md`](discovery/README.md) for full reruns,
 request budgets, scope-delta recovery, artifacts, and downstream handoff.
 
+The user-authorized **19 October 2026 PCP addition** is the targeted run
+`pcp_scope_addition_20261019`: two historical PubMed/OpenAlex identity searches,
+corpus deduplication, initial cleanup, Luna V5 screening with PCP explicitly
+named, and source recovery/preparation. Exact plans and stage receipts live
+under `data/processed/discovery/runs/pcp_scope_addition_20261019/`. This does not
+rerun the full search, adopt staged V6.1 exclusions, or replace the active graph.
+
 ### Metadata enrichment
 
 For a large completed search run, recover abstracts through resumable batch
@@ -172,6 +179,16 @@ candidates. The default source selection is controlled in
 PubMed/PMC/OpenAlex/Crossref/Semantic Scholar fallbacks, publication types come
 from PubMed, and open-access/PDF links use Unpaywall/OpenAlex/PMC.
 
+The standalone `refresh_pubmed_publication_types.py` checks the native DOI
+(including registered aliases), report title and available abstract/year before
+refreshing a cached PMID's labels. Source-language and publication-version
+conflicts are reported for review, preserving existing values. Both metadata
+writes and candidate materialization stay within the requested DOI/PMID scope.
+Use `--dry-run --report-json <path>` to inspect the identity report; skipped rows
+are not paper exclusions. Real runs save a report beside the output table,
+including evidence retained if candidate materialization fails. Shared metadata
+markup cleanup preserves scientific comparisons and their intervening text.
+
 Use `--doi-file <doi_list>` to limit enrichment to a specified DOI set.
 See [`pipeline/ingest/README.md`](ingest/README.md) for batch run artifacts,
 dry-run and retrieval-only modes, and resume behavior.
@@ -187,8 +204,8 @@ This writes `paper_prescreen_decisions.parquet` and
 `paper_prescreen_summary.parquet`. It reads title, abstract, and publication
 metadata only from the already
 materialized candidate ledger; it does not apply a second enrichment-table
-overlay. It excludes clear non-evidence artifacts and records that are clearly
-outside scope. Missing or unusable abstracts receive a
+overlay. Current production applies publication-format and English-language
+cleanup; topic-based exclusions are left to Luna. Missing or unusable abstracts receive a
 uniform `exclude_no_usable_abstract` decision. An abstract must contain at
 least 50 words to be usable; shorter fields are excluded under the same action
 with their measured word count recorded for auditability. Records with usable abstracts
@@ -201,6 +218,42 @@ Publication-format rules use dedicated DOI namespaces, explicit publication
 types, or corroborated DOI-plus-venue signals for repository deposits, book
 entries, proceedings, meeting abstracts, posters, and supplementary objects.
 They do not blanket-exclude a publisher or rely on a venue name alone.
+
+Publication eligibility has two evidence levels, using the same language and
+format policy:
+
+- **Reusable prescreen gates** use explicit publication types, canonical
+  source-language metadata, and verified identifier/collection families. Named
+  educational series (PI-VL video lectures, PI-QT and PI-CAPST summaries), meeting
+  abstract namespaces, datasets and thesis collections can be rejected before
+  Luna. Do not infer non-English language from the journal's country/name,
+  reject every item from a repository/publisher, or reject an article just
+  because its pages/DOI mention a supplement. Empirical case-report letters and
+  substantive synthesis remain protected; explicit conference types still veto.
+- **Verified record decisions** belong in
+  `data/curated/post_retrieval_eligibility_decisions.json`, with the exact DOI,
+  source evidence, reviewer and decision method. This includes language/format
+  established from a landing page or original document, and exceptions where
+  supplied metadata is wrong. Do not turn individual decisions into hardcoded
+  DOI lists in the prescreen module. A bad or supplementary PDF alone is a
+  source-replacement problem, not an exclusion of its intended main article.
+
+Register and materialize reviewed decisions with
+`register_retrieved_pdf_exclusions.py` and
+`apply_post_retrieval_publication_format_screen.py` (see the full-text README).
+The latter filters primary, review and meta-analysis input queues and disables
+candidate extraction eligibility. Model screening outputs and their prompts
+remain historical evidence. The screening selector also skips candidates with
+an already materialized confirmed exclusion, so future runs do not pay to
+rescreen those known records. After rebuilding a candidate table, reapply the
+eligibility ledger before queue construction and extraction routing.
+
+Newly retrieved documents may supply later format/language evidence; run the
+same checkpoint again then. Access failures, unclear identities, journal
+credibility warnings and review flags are not automatic exclusions. A reviewed
+decision can be revisited through the ledger with its previous source/audit
+receipt preserved. Historical prescreen and completed Luna runs do not need a
+retroactive rerun to apply a later verified publication decision.
 
 ### LLM-based title and abstract screening
 
@@ -432,6 +485,30 @@ resolver. With `--include-weak-pdf-urls`,
 the downloader also resolves the record's open-access landing URL and DOI URL,
 then accepts only a PDF whose document-front DOI/title evidence matches.
 
+Alternate-source resolution can discover new PMC identifiers. Rebuild the
+worklist after PDF retrieval and complete any newly available `fetch_pmc_xml`
+or `refresh_access_metadata` actions before handing off the final manual queue.
+Rebuild once more with all completed PMC reports, then export with
+`export_manual_pdf_queue.py --selection-table <worklist> --require-automated-retrieval-complete`.
+This guard leaves an existing queue untouched when automated work remains.
+
+Before importing manual downloads for a newly screened update, run
+`build_extraction_routes.py --doi-file <selected-dois> --output-table <run-specific-routes>`
+with run-specific summary/count paths. This projects current selection into
+`candidate_papers.parquet`; the route-independent full-text worklist does not
+perform that projection. Without it, the importer correctly refuses records
+whose candidate selection is still false. Keep the previous graph release active
+while collecting sources.
+
+Reconcile completed browser batches with `reconcile_browser_recovery_batch.py`
+and the canonical `post_retrieval_eligibility_decisions.json` ledger for format
+exclusions. Record `reviewed_no_accessible_pdf` only after the user explicitly
+finishes the batch and all inbox PDFs have been reconciled. This outcome stops
+repeated retrieval but preserves provider OA metadata: a mix of failed links and
+paywalls does not confirm closed access for every paper. Pending or interrupted
+reviews remain pending, and later PDF recovery removes the retrieval suppression.
+Preserve assigned batch files and numbering when updating progress.
+
 For publisher landing pages known to expose downloadable PDFs on the same host,
 use a named recovery preset:
 
@@ -571,8 +648,9 @@ a complete report. Detailed commands and current data structures are documented 
 
 Primary studies, meta-analyses, and other reviews can produce candidate
 findings, which proceed through validation and terminology standardization
-before graph inclusion. Guidelines and contextual records remain in the record
-audit but are excluded from evidence extraction.
+before graph inclusion. Registered guideline/consensus profiles produce typed
+recommendation items. Context-only/skipped records remain in the audit without
+evidence extraction; accepted scholarly analyses use the Reviews route.
 
 Inspect registered primary-study tasks without model calls:
 

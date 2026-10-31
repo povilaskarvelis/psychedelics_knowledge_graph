@@ -1,0 +1,26 @@
+{
+  "query_name": "cannabis_plant",
+  "endpoint": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+  "term": "((\"Cannabis\"[MeSH Terms] OR cannabis[Title/Abstract] OR marijuana[Title/Abstract])) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+  "date_accessed_utc": "2026-10-19T14:49:36.475038+00:00",
+  "parameters": {
+    "db": "pubmed",
+    "term": "((\"Cannabis\"[MeSH Terms] OR cannabis[Title/Abstract] OR marijuana[Title/Abstract])) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+    "retmax": 0,
+    "retmode": "json",
+    "tool": "psychedelics_kg_scope_audit"
+  },
+  "contact_email_provided": true,
+  "count": 53852,
+  "query_translation": "(\"Cannabis\"[MeSH Terms] OR \"Cannabis\"[Title/Abstract] OR \"marijuana\"[Title/Abstract]) AND 1800/01/01:2026/10/19[Date - Publication]",
+  "warnings": null,
+  "errors": null,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status_code": 200
+    }
+  ],
+  "raw_sha256": "719ec669868b58716b87798ad20ae42620935f460eca3ce3b9783eb9718d29d3",
+  "interpretation": "Broad database hits, not eligible papers, independent studies, corpus additions, or a recall denominator."
+}

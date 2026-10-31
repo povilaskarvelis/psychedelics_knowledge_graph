@@ -1,0 +1,90 @@
+{
+  "compound": "MDMA",
+  "topic": "Post-traumatic stress disorder",
+  "authors": [
+    {
+      "name": "Rick Doblin",
+      "papers": 11
+    },
+    {
+      "name": "Jennifer Mitchell",
+      "papers": 4
+    },
+    {
+      "name": "Elliot Marseille",
+      "papers": 4
+    },
+    {
+      "name": "Michael C. Mithoefer",
+      "papers": 3
+    },
+    {
+      "name": "Eduardo Ekman Schenberg",
+      "papers": 2
+    },
+    {
+      "name": "Allison A. Feduccia",
+      "papers": 2
+    },
+    {
+      "name": "Candice M. Monson",
+      "papers": 2
+    },
+    {
+      "name": "Anne Catherine Wagner",
+      "papers": 2
+    },
+    {
+      "name": "Peter Oehen",
+      "papers": 2
+    },
+    {
+      "name": "Peter Gasser",
+      "papers": 2
+    }
+  ],
+  "sourceText": "MDMA → Post-traumatic stress disorder\nAll studies\n57\nOpen access\n47\n82% of studies\nPublications per year\n2010\n2026\nSample sizes\n>500\n251-500\n101-250\n51-100\n26-50\n11-25\n2-10\n1\n2010\n2026\nAdministration route\nOral or sublingual\n36\nDosing schedule\nRepeated dosing\n40\nSingle-dose session\n3\nDose-ranging\n2\nMicrodosing\n1\nSession context\nTherapy-assisted session\n41\nNaturalistic use\n4\nCeremony & retreat\n2\nComparators\nPlacebo\n14\nBaseline\n11\nActive placebo\n4\nStandard care\n4\nNo comparator\n3\nActive treatment\n2\nDose or route comparison\n1\nFollow-up windows\nLong follow-up (4-12 months)\n12\nMedium follow-up (1-3 months)\n10\nExtended follow-up (>12 months)\n8\nTreatment endpoint\n8\nBaseline / pre-treatment\n7\nShort follow-up (1-4 weeks)\n5\nRetrospective / lifetime\n3\nDuring treatment\n2\nAcute / same day\n1\nOther\n8\nStudy designs\nRCT\n15\nFollow-up study\n7\nOpen-label trial\n6\nObservational study\n6\nQualitative\n5\nClinical trial\n4\nCase report\n4\nComputational\n3\nSingle-arm trial\n2\nOther study designs\n2\nCase series\n2\nOther\n3\nOpen science\nRegistered trial\n12\nOpen data\n1\nPreregistered\n2\nAuthors\nRick Doblin\n11 studies\nFirst author\n0\nLast author\n11\nJennifer Mitchell\n4 studies\nFirst author\n3\nLast author\n1\nElliot Marseille\n4 studies\nFirst author\n3\nLast author\n1\nMichael C. Mithoefer\n3 studies\nFirst author\n2\nLast author\n1\nEduardo Ekman Schenberg\n2 studies\nFirst author\n1\nLast author\n2\nAllison A. Feduccia\n2 studies\nFirst author\n0\nLast author\n2\nCandice M. Monson\n2 studies\nFirst author\n1\nLast author\n1\nAnne Catherine Wagner\n2 studies\nFirst author\n1\nLast author\n1\nPeter Oehen\n2 studies\nFirst author\n2\nLast author\n0\nPeter Gasser\n2 studies\nFirst author\n1\nLast author\n1\nShow 10 more\nJournals\nFrontiers in Psychiatry\n8\nJournal of psychopharmacology (Oxford, England)\n4\nPLoS ONE\n4\nEuropean Journal of Psychotraumatology\n4\nJournal of Psychopharmacology\n3\nJournal of Traumatic Stress\n3\nNature Medicine\n2\nJournal of Psychedelic Studies\n1\nFOCUS The Journal of Lifelong Learning in Psychiatry\n1\nFrontiers in Neuroscience\n1\nShow 10 more\nFunders\nMultidisciplinary Association for Psychedelic Studies\n5\nNational Institute on Drug Abuse\n5\nNIDA NIH HHS\n5\nNational Institutes of Health\n4\nSteven and Alexandra Cohen Foundation\n2\nCanadian Institutes of Health Research\n2\nBritish Association for Psychopharmacology\n1\nFunded by MAPS and Steven and Alexandra Cohen Foundation, Inc. and organized by MAPS PBC.\n1\nHeffter Research Institute\n1\nMultidisciplinary Association for Psychedlic Studies\n1\nShow 10 more",
+  "researcherConnections": {
+    "labels": [
+      "Rick Doblin",
+      "Conditions",
+      "Safety",
+      "Cognition",
+      "Subjective effects",
+      "Treatment context",
+      "Real-world use"
+    ],
+    "edges": [
+      {
+        "width": 8,
+        "color": "#82a9d8",
+        "d": "M 98 250 C 181.7621954485091 250, 213.67160323841733 38, 297.4337986869264 38"
+      },
+      {
+        "width": 4,
+        "color": "#d6a84f",
+        "d": "M 98 250 C 183.9231043713718 250, 216.65571556046584 122.8, 302.57881993183764 122.8"
+      },
+      {
+        "width": 0.8,
+        "color": "#a88bd1",
+        "d": "M 98 250 C 186.80693334857318 250, 220.6381460527915 207.6, 309.4450794013647 207.6"
+      },
+      {
+        "width": 0.8,
+        "color": "#55b7ab",
+        "d": "M 98 250 C 186.80693334857318 250, 220.6381460527915 292.4, 309.4450794013647 292.4"
+      },
+      {
+        "width": 4.8,
+        "color": "#d1846f",
+        "d": "M 98 250 C 183.4251771681005 250, 215.96810180356732 377.2, 301.3932789716678 377.2"
+      },
+      {
+        "width": 0.45,
+        "color": "#9bab62",
+        "d": "M 98 250 C 187.49027274981592 250, 221.58180522593625 462, 311.07207797575217 462"
+      }
+    ]
+  }
+}

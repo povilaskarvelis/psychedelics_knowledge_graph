@@ -1,0 +1,10 @@
+{
+  "status": "user_authorized_targeted_pcp_search_executed",
+  "run_id": "pcp_scope_addition_20261019",
+  "search_complete": true,
+  "new_doi_records": 5474,
+  "luna_inputs_after_cleanup": 4637,
+  "screening_and_source_preparation_status": "running_async",
+  "current_report": "data/processed/discovery/runs/pcp_scope_addition_20261019/downstream/report.html",
+  "original_assessment_preserved": true
+}

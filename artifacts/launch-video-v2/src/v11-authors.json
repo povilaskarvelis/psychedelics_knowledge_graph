@@ -1,0 +1,1561 @@
+{
+  "selection": "First four in overall author view, ordered by indexed study activity; not citation influence",
+  "authors": [
+    {
+      "key": "orcid:0000-0003-4442-7412",
+      "name": "Carlos A. Zarate",
+      "studyCount": 123,
+      "compounds": [
+        {
+          "key": "ketamine",
+          "name": "Ketamine",
+          "count": 120,
+          "areas": [
+            {
+              "key": "condition_indication",
+              "name": "Conditions",
+              "count": 102,
+              "color": "#82a9d8"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 23,
+              "color": "#d6a84f"
+            },
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 20,
+              "color": "#b779ad"
+            },
+            {
+              "key": "brain_system",
+              "name": "Brain regions",
+              "count": 23,
+              "color": "#5f9eb5"
+            },
+            {
+              "key": "cognitive_behavioral_construct",
+              "name": "Cognition",
+              "count": 9,
+              "color": "#a88bd1"
+            },
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 32,
+              "color": "#72a77c"
+            },
+            {
+              "key": "subjective_experience_construct",
+              "name": "Subjective effects",
+              "count": 9,
+              "color": "#55b7ab"
+            }
+          ]
+        },
+        {
+          "key": "s-ketamine",
+          "name": "S-ketamine",
+          "count": 7,
+          "areas": [
+            {
+              "key": "condition_indication",
+              "name": "Conditions",
+              "count": 7,
+              "color": "#82a9d8"
+            },
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 1,
+              "color": "#72a77c"
+            }
+          ]
+        },
+        {
+          "key": "psilocybin",
+          "name": "Psilocybin",
+          "count": 4,
+          "areas": [
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 2,
+              "color": "#72a77c"
+            },
+            {
+              "key": "brain_system",
+              "name": "Brain regions",
+              "count": 1,
+              "color": "#5f9eb5"
+            },
+            {
+              "key": "condition_indication",
+              "name": "Conditions",
+              "count": 1,
+              "color": "#82a9d8"
+            }
+          ]
+        },
+        {
+          "key": "(2r,6r)-hydroxynorketamine",
+          "name": "(2R,6R)-hydroxynorketamine",
+          "count": 3,
+          "areas": [
+            {
+              "key": "condition_indication",
+              "name": "Conditions",
+              "count": 1,
+              "color": "#82a9d8"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 2,
+              "color": "#d6a84f"
+            },
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 1,
+              "color": "#72a77c"
+            }
+          ]
+        },
+        {
+          "key": "lsd",
+          "name": "LSD",
+          "count": 2,
+          "areas": [
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 2,
+              "color": "#72a77c"
+            }
+          ]
+        },
+        {
+          "key": "r-ketamine",
+          "name": "R-ketamine",
+          "count": 2,
+          "areas": [
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 1,
+              "color": "#d6a84f"
+            }
+          ]
+        },
+        {
+          "key": "dehydronorketamine",
+          "name": "Dehydronorketamine",
+          "count": 1,
+          "areas": [
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 1,
+              "color": "#d6a84f"
+            }
+          ]
+        },
+        {
+          "key": "dextromethorphan",
+          "name": "Dextromethorphan",
+          "count": 1,
+          "areas": [
+            {
+              "key": "condition_indication",
+              "name": "Conditions",
+              "count": 1,
+              "color": "#82a9d8"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 1,
+              "color": "#d6a84f"
+            }
+          ]
+        },
+        {
+          "key": "norketamine",
+          "name": "Norketamine",
+          "count": 1,
+          "areas": [
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 1,
+              "color": "#d6a84f"
+            }
+          ]
+        },
+        {
+          "key": "riluzole",
+          "name": "Riluzole",
+          "count": 1,
+          "areas": [
+            {
+              "key": "condition_indication",
+              "name": "Conditions",
+              "count": 1,
+              "color": "#82a9d8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "orcid:0000-0002-6062-7150",
+      "name": "Robin Carhart-Harris",
+      "studyCount": 96,
+      "compounds": [
+        {
+          "key": "psilocybin",
+          "name": "Psilocybin",
+          "count": 58,
+          "areas": [
+            {
+              "key": "brain_system",
+              "name": "Brain regions",
+              "count": 11,
+              "color": "#5f9eb5"
+            },
+            {
+              "key": "subjective_experience_construct",
+              "name": "Subjective effects",
+              "count": 33,
+              "color": "#55b7ab"
+            },
+            {
+              "key": "condition_indication",
+              "name": "Conditions",
+              "count": 31,
+              "color": "#82a9d8"
+            },
+            {
+              "key": "cognitive_behavioral_construct",
+              "name": "Cognition",
+              "count": 13,
+              "color": "#a88bd1"
+            },
+            {
+              "key": "intervention_component",
+              "name": "Treatment context",
+              "count": 17,
+              "color": "#d1846f"
+            },
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 1,
+              "color": "#72a77c"
+            },
+            {
+              "key": "public_health_measure",
+              "name": "Real-world use",
+              "count": 9,
+              "color": "#9bab62"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 11,
+              "color": "#d6a84f"
+            },
+            {
+              "key": "behavioral_effect",
+              "name": "Behavior",
+              "count": 1,
+              "color": "#d27694"
+            },
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "lsd",
+          "name": "LSD",
+          "count": 24,
+          "areas": [
+            {
+              "key": "brain_system",
+              "name": "Brain regions",
+              "count": 7,
+              "color": "#5f9eb5"
+            },
+            {
+              "key": "intervention_component",
+              "name": "Treatment context",
+              "count": 3,
+              "color": "#d1846f"
+            },
+            {
+              "key": "subjective_experience_construct",
+              "name": "Subjective effects",
+              "count": 16,
+              "color": "#55b7ab"
+            },
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            },
+            {
+              "key": "cognitive_behavioral_construct",
+              "name": "Cognition",
+              "count": 4,
+              "color": "#a88bd1"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 4,
+              "color": "#d6a84f"
+            },
+            {
+              "key": "public_health_measure",
+              "name": "Real-world use",
+              "count": 6,
+              "color": "#9bab62"
+            }
+          ]
+        },
+        {
+          "key": "dmt",
+          "name": "DMT",
+          "count": 12,
+          "areas": [
+            {
+              "key": "brain_system",
+              "name": "Brain regions",
+              "count": 1,
+              "color": "#5f9eb5"
+            },
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 1,
+              "color": "#72a77c"
+            },
+            {
+              "key": "subjective_experience_construct",
+              "name": "Subjective effects",
+              "count": 10,
+              "color": "#55b7ab"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 1,
+              "color": "#d6a84f"
+            },
+            {
+              "key": "public_health_measure",
+              "name": "Real-world use",
+              "count": 3,
+              "color": "#9bab62"
+            }
+          ]
+        },
+        {
+          "key": "mdma",
+          "name": "MDMA",
+          "count": 10,
+          "areas": [
+            {
+              "key": "brain_system",
+              "name": "Brain regions",
+              "count": 4,
+              "color": "#5f9eb5"
+            },
+            {
+              "key": "subjective_experience_construct",
+              "name": "Subjective effects",
+              "count": 7,
+              "color": "#55b7ab"
+            },
+            {
+              "key": "cognitive_behavioral_construct",
+              "name": "Cognition",
+              "count": 2,
+              "color": "#a88bd1"
+            },
+            {
+              "key": "intervention_component",
+              "name": "Treatment context",
+              "count": 1,
+              "color": "#d1846f"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 3,
+              "color": "#d6a84f"
+            },
+            {
+              "key": "public_health_measure",
+              "name": "Real-world use",
+              "count": 3,
+              "color": "#9bab62"
+            }
+          ]
+        },
+        {
+          "key": "ayahuasca",
+          "name": "Ayahuasca",
+          "count": 9,
+          "areas": [
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 1,
+              "color": "#d6a84f"
+            },
+            {
+              "key": "intervention_component",
+              "name": "Treatment context",
+              "count": 3,
+              "color": "#d1846f"
+            },
+            {
+              "key": "public_health_measure",
+              "name": "Real-world use",
+              "count": 4,
+              "color": "#9bab62"
+            },
+            {
+              "key": "subjective_experience_construct",
+              "name": "Subjective effects",
+              "count": 6,
+              "color": "#55b7ab"
+            }
+          ]
+        },
+        {
+          "key": "mescaline",
+          "name": "Mescaline",
+          "count": 5,
+          "areas": [
+            {
+              "key": "public_health_measure",
+              "name": "Real-world use",
+              "count": 2,
+              "color": "#9bab62"
+            },
+            {
+              "key": "subjective_experience_construct",
+              "name": "Subjective effects",
+              "count": 4,
+              "color": "#55b7ab"
+            }
+          ]
+        },
+        {
+          "key": "ketamine",
+          "name": "Ketamine",
+          "count": 3,
+          "areas": [
+            {
+              "key": "subjective_experience_construct",
+              "name": "Subjective effects",
+              "count": 3,
+              "color": "#55b7ab"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 1,
+              "color": "#d6a84f"
+            }
+          ]
+        },
+        {
+          "key": "5-meo-dmt",
+          "name": "5-MeO-DMT",
+          "count": 2,
+          "areas": [
+            {
+              "key": "subjective_experience_construct",
+              "name": "Subjective effects",
+              "count": 2,
+              "color": "#55b7ab"
+            }
+          ]
+        },
+        {
+          "key": "ibogaine",
+          "name": "Ibogaine",
+          "count": 1,
+          "areas": [
+            {
+              "key": "subjective_experience_construct",
+              "name": "Subjective effects",
+              "count": 1,
+              "color": "#55b7ab"
+            }
+          ]
+        },
+        {
+          "key": "salvinorin a",
+          "name": "Salvinorin A",
+          "count": 1,
+          "areas": [
+            {
+              "key": "subjective_experience_construct",
+              "name": "Subjective effects",
+              "count": 1,
+              "color": "#55b7ab"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "orcid:0000-0002-1765-9659",
+      "name": "Matthias E. Liechti",
+      "studyCount": 89,
+      "compounds": [
+        {
+          "key": "mdma",
+          "name": "MDMA",
+          "count": 43,
+          "areas": [
+            {
+              "key": "condition_indication",
+              "name": "Conditions",
+              "count": 1,
+              "color": "#82a9d8"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 33,
+              "color": "#d6a84f"
+            },
+            {
+              "key": "cognitive_behavioral_construct",
+              "name": "Cognition",
+              "count": 9,
+              "color": "#a88bd1"
+            },
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 17,
+              "color": "#72a77c"
+            },
+            {
+              "key": "subjective_experience_construct",
+              "name": "Subjective effects",
+              "count": 26,
+              "color": "#55b7ab"
+            },
+            {
+              "key": "behavioral_effect",
+              "name": "Behavior",
+              "count": 3,
+              "color": "#d27694"
+            },
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 11,
+              "color": "#b779ad"
+            },
+            {
+              "key": "intervention_component",
+              "name": "Treatment context",
+              "count": 1,
+              "color": "#d1846f"
+            },
+            {
+              "key": "public_health_measure",
+              "name": "Real-world use",
+              "count": 3,
+              "color": "#9bab62"
+            }
+          ]
+        },
+        {
+          "key": "lsd",
+          "name": "LSD",
+          "count": 31,
+          "areas": [
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 17,
+              "color": "#d6a84f"
+            },
+            {
+              "key": "subjective_experience_construct",
+              "name": "Subjective effects",
+              "count": 24,
+              "color": "#55b7ab"
+            },
+            {
+              "key": "behavioral_effect",
+              "name": "Behavior",
+              "count": 4,
+              "color": "#d27694"
+            },
+            {
+              "key": "condition_indication",
+              "name": "Conditions",
+              "count": 4,
+              "color": "#82a9d8"
+            },
+            {
+              "key": "intervention_component",
+              "name": "Treatment context",
+              "count": 2,
+              "color": "#d1846f"
+            },
+            {
+              "key": "cognitive_behavioral_construct",
+              "name": "Cognition",
+              "count": 5,
+              "color": "#a88bd1"
+            },
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 10,
+              "color": "#72a77c"
+            },
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 4,
+              "color": "#b779ad"
+            },
+            {
+              "key": "brain_system",
+              "name": "Brain regions",
+              "count": 1,
+              "color": "#5f9eb5"
+            }
+          ]
+        },
+        {
+          "key": "psilocybin",
+          "name": "Psilocybin",
+          "count": 9,
+          "areas": [
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 3,
+              "color": "#72a77c"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 4,
+              "color": "#d6a84f"
+            },
+            {
+              "key": "subjective_experience_construct",
+              "name": "Subjective effects",
+              "count": 7,
+              "color": "#55b7ab"
+            },
+            {
+              "key": "public_health_measure",
+              "name": "Real-world use",
+              "count": 1,
+              "color": "#9bab62"
+            }
+          ]
+        },
+        {
+          "key": "mescaline",
+          "name": "Mescaline",
+          "count": 6,
+          "areas": [
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 1,
+              "color": "#72a77c"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 3,
+              "color": "#d6a84f"
+            },
+            {
+              "key": "subjective_experience_construct",
+              "name": "Subjective effects",
+              "count": 5,
+              "color": "#55b7ab"
+            },
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 2,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "dmt",
+          "name": "DMT",
+          "count": 5,
+          "areas": [
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 2,
+              "color": "#72a77c"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 2,
+              "color": "#d6a84f"
+            },
+            {
+              "key": "subjective_experience_construct",
+              "name": "Subjective effects",
+              "count": 4,
+              "color": "#55b7ab"
+            },
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "mda",
+          "name": "MDA",
+          "count": 2,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 1,
+              "color": "#d6a84f"
+            },
+            {
+              "key": "subjective_experience_construct",
+              "name": "Subjective effects",
+              "count": 1,
+              "color": "#55b7ab"
+            }
+          ]
+        },
+        {
+          "key": "methylphenidate",
+          "name": "Methylphenidate",
+          "count": 2,
+          "areas": [
+            {
+              "key": "cognitive_behavioral_construct",
+              "name": "Cognition",
+              "count": 1,
+              "color": "#a88bd1"
+            },
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "2c-b",
+          "name": "2C-B",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 1,
+              "color": "#d6a84f"
+            }
+          ]
+        },
+        {
+          "key": "2c-p (2,5-dimethoxy-4-propylphenethylamine)",
+          "name": "2C-P (2,5-dimethoxy-4-propylphenethylamine)",
+          "count": 1,
+          "areas": [
+            {
+              "key": "public_health_measure",
+              "name": "Real-world use",
+              "count": 1,
+              "color": "#9bab62"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 1,
+              "color": "#d6a84f"
+            }
+          ]
+        },
+        {
+          "key": "2c-t (2,5-dimethoxy-4-methylthiophenethylamine)",
+          "name": "2C-T (2,5-dimethoxy-4-methylthiophenethylamine)",
+          "count": 1,
+          "areas": [
+            {
+              "key": "behavioral_effect",
+              "name": "Behavior",
+              "count": 1,
+              "color": "#d27694"
+            }
+          ]
+        },
+        {
+          "key": "2c-t-19 (4-n-butylthio-2,5-dimethoxyphenethylamine)",
+          "name": "2C-T-19 (4-n-butylthio-2,5-dimethoxyphenethylamine)",
+          "count": 1,
+          "areas": [
+            {
+              "key": "behavioral_effect",
+              "name": "Behavior",
+              "count": 1,
+              "color": "#d27694"
+            }
+          ]
+        },
+        {
+          "key": "2c-t-2 (2,5-dimethoxy-4-ethylthiophenethylamine)",
+          "name": "2C-T-2 (2,5-dimethoxy-4-ethylthiophenethylamine)",
+          "count": 1,
+          "areas": [
+            {
+              "key": "behavioral_effect",
+              "name": "Behavior",
+              "count": 1,
+              "color": "#d27694"
+            }
+          ]
+        },
+        {
+          "key": "2c-t-21",
+          "name": "2C-T-21",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "3c-dfm",
+          "name": "3C-DFM",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "3c-e (4-ethoxy-3,5-dimethoxyamphetamine)",
+          "name": "3C-E (4-ethoxy-3,5-dimethoxyamphetamine)",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "4-oh-dipt",
+          "name": "4-OH-DiPT",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "5-apb",
+          "name": "5-APB",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "5-iodoaminoindane (5-iai)",
+          "name": "5-iodoaminoindane (5-IAI)",
+          "count": 1,
+          "areas": [
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 1,
+              "color": "#72a77c"
+            },
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "5-meo-amt",
+          "name": "5-MeO-AMT",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "5-meo-mipt",
+          "name": "5-MeO-MiPT",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "6-apb",
+          "name": "6-APB",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "aleph (2,5-dimethoxy-4-methylthioamphetamine)",
+          "name": "ALEPH (2,5-dimethoxy-4-methylthioamphetamine)",
+          "count": 1,
+          "areas": [
+            {
+              "key": "behavioral_effect",
+              "name": "Behavior",
+              "count": 1,
+              "color": "#d27694"
+            }
+          ]
+        },
+        {
+          "key": "aleph-1",
+          "name": "ALEPH-1",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "aminoindanes",
+          "name": "aminoindanes",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "bz",
+          "name": "BZ",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "dipt",
+          "name": "DiPT",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "hhma",
+          "name": "HHMA",
+          "count": 1,
+          "areas": [
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 1,
+              "color": "#72a77c"
+            }
+          ]
+        },
+        {
+          "key": "hma",
+          "name": "HMA",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "ketamine",
+          "name": "Ketamine",
+          "count": 1,
+          "areas": [
+            {
+              "key": "subjective_experience_construct",
+              "name": "Subjective effects",
+              "count": 1,
+              "color": "#55b7ab"
+            }
+          ]
+        },
+        {
+          "key": "lsd + mdma (candyflipping)",
+          "name": "LSD + MDMA (candyflipping)",
+          "count": 1,
+          "areas": [
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 1,
+              "color": "#72a77c"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 1,
+              "color": "#d6a84f"
+            },
+            {
+              "key": "subjective_experience_construct",
+              "name": "Subjective effects",
+              "count": 1,
+              "color": "#55b7ab"
+            }
+          ]
+        },
+        {
+          "key": "mal (4-methallyloxy-3,5-dimethoxyphenethylamine)",
+          "name": "MAL (4-methallyloxy-3,5-dimethoxyphenethylamine)",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "mdai",
+          "name": "MDAI",
+          "count": 1,
+          "areas": [
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 1,
+              "color": "#72a77c"
+            },
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "methylone",
+          "name": "Methylone",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "pmma (paramethoxymethamphetamine)",
+          "name": "PMMA (paramethoxymethamphetamine)",
+          "count": 1,
+          "areas": [
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 1,
+              "color": "#d6a84f"
+            }
+          ]
+        },
+        {
+          "key": "psilocin",
+          "name": "Psilocin",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "tfm",
+          "name": "TFM",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "tfm (4-trifluoromethoxy-3,5-dimethoxyphenethylamine)",
+          "name": "TFM (4-trifluoromethoxy-3,5-dimethoxyphenethylamine)",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "trifluoromethylphenylpiperazine (tfmpp)",
+          "name": "trifluoromethylphenylpiperazine (TFMPP)",
+          "count": 1,
+          "areas": [
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "orcid:0000-0002-8892-0439",
+      "name": "Kenji Hashimoto",
+      "studyCount": 86,
+      "compounds": [
+        {
+          "key": "r-ketamine",
+          "name": "R-ketamine",
+          "count": 64,
+          "areas": [
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 42,
+              "color": "#72a77c"
+            },
+            {
+              "key": "brain_system",
+              "name": "Brain regions",
+              "count": 7,
+              "color": "#5f9eb5"
+            },
+            {
+              "key": "cognitive_behavioral_construct",
+              "name": "Cognition",
+              "count": 24,
+              "color": "#a88bd1"
+            },
+            {
+              "key": "behavioral_effect",
+              "name": "Behavior",
+              "count": 33,
+              "color": "#d27694"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 17,
+              "color": "#d6a84f"
+            },
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 6,
+              "color": "#b779ad"
+            },
+            {
+              "key": "condition_indication",
+              "name": "Conditions",
+              "count": 5,
+              "color": "#82a9d8"
+            }
+          ]
+        },
+        {
+          "key": "ketamine",
+          "name": "Ketamine",
+          "count": 19,
+          "areas": [
+            {
+              "key": "brain_system",
+              "name": "Brain regions",
+              "count": 1,
+              "color": "#5f9eb5"
+            },
+            {
+              "key": "cognitive_behavioral_construct",
+              "name": "Cognition",
+              "count": 5,
+              "color": "#a88bd1"
+            },
+            {
+              "key": "behavioral_effect",
+              "name": "Behavior",
+              "count": 4,
+              "color": "#d27694"
+            },
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 5,
+              "color": "#72a77c"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 3,
+              "color": "#d6a84f"
+            },
+            {
+              "key": "condition_indication",
+              "name": "Conditions",
+              "count": 10,
+              "color": "#82a9d8"
+            },
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 2,
+              "color": "#b779ad"
+            }
+          ]
+        },
+        {
+          "key": "s-ketamine",
+          "name": "S-ketamine",
+          "count": 13,
+          "areas": [
+            {
+              "key": "brain_system",
+              "name": "Brain regions",
+              "count": 2,
+              "color": "#5f9eb5"
+            },
+            {
+              "key": "behavioral_effect",
+              "name": "Behavior",
+              "count": 7,
+              "color": "#d27694"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 6,
+              "color": "#d6a84f"
+            },
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 6,
+              "color": "#72a77c"
+            },
+            {
+              "key": "target_system",
+              "name": "Targets",
+              "count": 1,
+              "color": "#b779ad"
+            },
+            {
+              "key": "cognitive_behavioral_construct",
+              "name": "Cognition",
+              "count": 2,
+              "color": "#a88bd1"
+            },
+            {
+              "key": "condition_indication",
+              "name": "Conditions",
+              "count": 1,
+              "color": "#82a9d8"
+            }
+          ]
+        },
+        {
+          "key": "mdma",
+          "name": "MDMA",
+          "count": 7,
+          "areas": [
+            {
+              "key": "brain_system",
+              "name": "Brain regions",
+              "count": 1,
+              "color": "#5f9eb5"
+            },
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 7,
+              "color": "#72a77c"
+            },
+            {
+              "key": "cognitive_behavioral_construct",
+              "name": "Cognition",
+              "count": 2,
+              "color": "#a88bd1"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 1,
+              "color": "#d6a84f"
+            }
+          ]
+        },
+        {
+          "key": "(2r,6r)-hydroxynorketamine",
+          "name": "(2R,6R)-hydroxynorketamine",
+          "count": 2,
+          "areas": [
+            {
+              "key": "behavioral_effect",
+              "name": "Behavior",
+              "count": 2,
+              "color": "#d27694"
+            }
+          ]
+        },
+        {
+          "key": "doi",
+          "name": "DOI",
+          "count": 2,
+          "areas": [
+            {
+              "key": "cognitive_behavioral_construct",
+              "name": "Cognition",
+              "count": 1,
+              "color": "#a88bd1"
+            },
+            {
+              "key": "behavioral_effect",
+              "name": "Behavior",
+              "count": 2,
+              "color": "#d27694"
+            },
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 2,
+              "color": "#72a77c"
+            }
+          ]
+        },
+        {
+          "key": "noresketamine",
+          "name": "Noresketamine",
+          "count": 2,
+          "areas": [
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 1,
+              "color": "#72a77c"
+            },
+            {
+              "key": "brain_system",
+              "name": "Brain regions",
+              "count": 1,
+              "color": "#5f9eb5"
+            },
+            {
+              "key": "cognitive_behavioral_construct",
+              "name": "Cognition",
+              "count": 1,
+              "color": "#a88bd1"
+            },
+            {
+              "key": "behavioral_effect",
+              "name": "Behavior",
+              "count": 1,
+              "color": "#d27694"
+            },
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 2,
+              "color": "#d6a84f"
+            }
+          ]
+        },
+        {
+          "key": "hepatic ischemia/reperfusion (hi/r) injury",
+          "name": "hepatic ischemia/reperfusion (HI/R) injury",
+          "count": 1,
+          "areas": [
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 1,
+              "color": "#72a77c"
+            }
+          ]
+        },
+        {
+          "key": "minocycline",
+          "name": "minocycline",
+          "count": 1,
+          "areas": [
+            {
+              "key": "safety_adverse_event",
+              "name": "Safety",
+              "count": 1,
+              "color": "#d6a84f"
+            }
+          ]
+        },
+        {
+          "key": "norketamine",
+          "name": "Norketamine",
+          "count": 1,
+          "areas": [
+            {
+              "key": "behavioral_effect",
+              "name": "Behavior",
+              "count": 1,
+              "color": "#d27694"
+            }
+          ]
+        },
+        {
+          "key": "para-chlorophenylalanine methyl ester hydrochloride (pcpa)",
+          "name": "para-chlorophenylalanine methyl ester hydrochloride (PCPA)",
+          "count": 1,
+          "areas": [
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 1,
+              "color": "#72a77c"
+            }
+          ]
+        },
+        {
+          "key": "plx3397",
+          "name": "PLX3397",
+          "count": 1,
+          "areas": [
+            {
+              "key": "pathway_readout",
+              "name": "Molecular effects",
+              "count": 1,
+              "color": "#72a77c"
+            }
+          ]
+        },
+        {
+          "key": "psilocybin",
+          "name": "Psilocybin",
+          "count": 1,
+          "areas": []
+        }
+      ]
+    }
+  ]
+}

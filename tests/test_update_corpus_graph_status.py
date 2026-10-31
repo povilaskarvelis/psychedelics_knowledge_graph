@@ -92,6 +92,26 @@ class UpdateCorpusGraphStatusTest(unittest.TestCase):
         self.assertEqual(row["graph_inclusion_disposition"], "no_extractable_finding")
         self.assertEqual(row["graph_inclusion_decision_source"], "completed_extraction_outcome")
 
+    def test_wrong_source_type_is_a_routing_exception_not_publication_exclusion(self) -> None:
+        out = self.build([candidate("10.1000/review")],
+                         extraction_outcomes={"10.1000/review": {"wrong_source_type"}})
+        row = out.iloc[0]
+        self.assertEqual(row["graph_inclusion_disposition"], "unsupported_finding_detail")
+        self.assertIn("routing exception", row["graph_inclusion_reason"])
+        self.assertTrue(row["retained_for_extraction_candidate"])
+
+    def test_explicit_review_outcome_is_auditable_without_inventing_failure(self) -> None:
+        out = self.build([candidate("10.1000/review-needed")],
+                         extraction_outcomes={"10.1000/review-needed": {"human_review"}})
+        self.assertEqual(out.iloc[0]["graph_inclusion_disposition"], "unsupported_finding_detail")
+
+    def test_no_relevant_profile_output_does_not_rewrite_screening_scope(self) -> None:
+        out = self.build([candidate("10.1000/no-relevant-result")],
+                         extraction_outcomes={"10.1000/no-relevant-result": {"not_relevant"}})
+        row = out.iloc[0]
+        self.assertEqual(row["graph_inclusion_disposition"], "no_extractable_finding")
+        self.assertTrue(row["retained_for_extraction_candidate"])
+
     def test_meta_analysis_v2_zero_finding_output_is_loaded_as_completed(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             outputs = Path(tmpdir) / "meta_analysis_extractions.jsonl"

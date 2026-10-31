@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from pipeline.fulltext.build_fulltext_enrichment_worklist import build, load_pmc_outcomes
 
@@ -43,7 +44,10 @@ def test_load_pmc_outcomes_later_written_report_clears_prior_failure(tmp_path: P
     assert load_pmc_outcomes([first, second]) == {}
 
 
-def test_build_selects_new_eligible_unprocessed_dois_without_routes(tmp_path: Path) -> None:
+@pytest.mark.parametrize("include_previously_processed", [False, True])
+def test_build_selects_new_eligible_unprocessed_dois_without_routes(
+    tmp_path: Path, include_previously_processed: bool, monkeypatch
+) -> None:
     raw = tmp_path / "screening.jsonl"
     raw.write_text(
         "\n".join(
@@ -257,13 +261,13 @@ def test_build_selects_new_eligible_unprocessed_dois_without_routes(tmp_path: Pa
     table_output = tmp_path / "worklist.parquet"
     report_output = tmp_path / "report.json"
 
-    report = build(
-        argparse.Namespace(
+    args = argparse.Namespace(
             queue_json=str(queue),
             screening_table=str(screening),
             candidate_table=str(candidate),
             metadata_table=str(metadata),
             previous_candidate_table="",
+            include_previously_processed=include_previously_processed,
             active_graph_pointer=str(graph_pointer),
             manual_eligibility_overrides=str(manual),
             screening_decision_overrides=str(screening_overrides),
@@ -279,25 +283,31 @@ def test_build_selects_new_eligible_unprocessed_dois_without_routes(tmp_path: Pa
             output_oa_landing_dois=str(oa_landing_output),
             output_table=str(table_output),
             report_json=str(report_output),
-        )
     )
+    report = build(args)
 
-    assert selected_output.read_text(encoding="utf-8") == (
-        "10.1000/closed\n10.1000/new\n10.1000/oa-landing\n10.1000/opaque\n"
+    expected_selected = (
+        "10.1000/closed\n10.1000/context\n10.1000/new\n10.1000/oa-landing\n10.1000/opaque\n"
         "10.1000/retry\n10.1000/terminal\n10.1000/unknown-access\n"
     )
-    assert enrichment_output.read_text(encoding="utf-8") == (
-        "10.1000/closed\n10.1000/new\n10.1000/oa-landing\n10.1000/opaque\n"
-        "10.1000/retry\n10.1000/terminal\n10.1000/unknown-access\n"
+    if include_previously_processed:
+        expected_selected = expected_selected.replace("10.1000/retry\n", "10.1000/processed\n10.1000/retry\n")
+    assert selected_output.read_text(encoding="utf-8") == expected_selected
+    assert enrichment_output.read_text(encoding="utf-8") == expected_selected
+    assert access_metadata_refresh_output.read_text(encoding="utf-8") == (
+        "10.1000/context\n10.1000/processed\n10.1000/unknown-access\n"
+        if include_previously_processed else "10.1000/context\n10.1000/unknown-access\n"
     )
-    assert access_metadata_refresh_output.read_text(encoding="utf-8") == "10.1000/unknown-access\n"
     assert no_accessible_fulltext_output.read_text(encoding="utf-8") == "10.1000/closed\n"
     assert oa_landing_output.read_text(encoding="utf-8") == (
         "10.1000/oa-landing\n10.1000/terminal\n"
     )
     worklist = pd.read_parquet(table_output)
-    assert worklist[["doi", "fulltext_enrichment_action"]].to_dict("records") == [
+    assert worklist.loc[~worklist["doi"].eq("10.1000/processed"), ["doi", "fulltext_enrichment_action"]].to_dict("records") == [
         {"doi": "10.1000/closed", "fulltext_enrichment_action": "no_accessible_fulltext"},
+        # Explicitly accepted scholarly analyses use the Reviews path, so they
+        # need source recovery even when the original genre is a commentary.
+        {"doi": "10.1000/context", "fulltext_enrichment_action": "refresh_access_metadata"},
         {"doi": "10.1000/new", "fulltext_enrichment_action": "fetch_pmc_xml"},
         {"doi": "10.1000/oa-landing", "fulltext_enrichment_action": "resolve_oa_landing_page"},
         {"doi": "10.1000/opaque", "fulltext_enrichment_action": "download_known_pdf"},
@@ -311,12 +321,42 @@ def test_build_selects_new_eligible_unprocessed_dois_without_routes(tmp_path: Pa
     assert bool(terminal["pdf_download_terminal_failure"])
     assert terminal["fulltext_enrichment_basis"] == "browser_recovery_after_terminal_direct_download_failure"
     assert report["schema_version"] == "fulltext_enrichment_worklist_report_v5"
-    assert report["counts"]["newly_selected_unprocessed_dois"] == 7
-    assert report["counts"]["fulltext_enrichment_needed_dois"] == 7
-    assert report["counts"]["fulltext_access_metadata_refresh_dois"] == 1
+    assert report["counts"]["newly_selected_unprocessed_dois"] == 8
+    assert report["counts"]["selected_dois"] == 8 + int(include_previously_processed)
+    assert report["counts"]["selected_previously_processed_dois"] == int(include_previously_processed)
+    assert report["counts"]["fulltext_enrichment_needed_dois"] == 8 + int(include_previously_processed)
+    assert report["counts"]["fulltext_access_metadata_refresh_dois"] == 2 + int(include_previously_processed)
     assert report["counts"]["fulltext_no_accessible_fulltext_dois"] == 1
     assert report["counts"]["fulltext_oa_landing_dois"] == 2
     assert report["counts"]["fulltext_terminal_pdf_failure_dois"] == 1
     assert report["counts"]["fulltext_browser_recovery_after_terminal_direct_download_failure_dois"] == 1
     assert report["counts"]["fulltext_terminal_pdf_failure_without_location_dois"] == 0
     assert report["counts"]["candidate_terminal_pdf_failure_status_dois"] == 1
+
+    # A curator-reviewed supplement is insufficient even if its identity passes.
+    access_overrides.write_text(json.dumps({"records": [{
+        "doi": "10.1000/new", "manual_access_action": "abstract_only",
+        "manual_reason": "Only a supplement is retained",
+    }]}), encoding="utf-8")
+    monkeypatch.setattr(
+        "pipeline.fulltext.build_fulltext_enrichment_worklist.fulltext_status_for_doi",
+        lambda *a, **kw: {"has_converted_full_text": True},
+    )
+    build(args)
+    rebuilt = pd.read_parquet(table_output).set_index("doi")
+    assert rebuilt.loc["10.1000/new", "fulltext_enrichment_action"] == "use_abstract_only"
+
+    # A failed XML endpoint is not proof that the public article is inaccessible.
+    access_overrides.write_text(json.dumps({"records": []}), encoding="utf-8")
+    monkeypatch.setattr(
+        "pipeline.fulltext.build_fulltext_enrichment_worklist.fulltext_status_for_doi",
+        lambda *a, **kw: {"has_converted_full_text": False},
+    )
+    pmc_report = tmp_path / "pmc_completed.json"
+    pmc_report.write_text(json.dumps({"records": [{"doi": "10.1000/new", "status": "not_available"}]}))
+    args.pmc_report = [str(pmc_report)]
+    build(args)
+    rebuilt = pd.read_parquet(table_output).set_index("doi")
+    assert rebuilt.loc["10.1000/new", "fulltext_enrichment_action"] == "resolve_oa_landing_page"
+    assert rebuilt.loc["10.1000/new", "fulltext_enrichment_basis"] == "pmc_xml_unavailable_browser_recovery"
+    assert "pmc.ncbi.nlm.nih.gov/articles/" in rebuilt.loc["10.1000/new", "open_access_url"]

@@ -179,10 +179,13 @@ def build_task(cohort: dict, candidate: dict, packet: dict | None, packets_path:
     else:
         raise ValueError(f"Unsupported text depth `{text_depth}` for {doi}")
 
-    task_id = "metav2:" + fingerprint(TASK_SCHEMA_VERSION, doi, text_depth, source_fingerprint)[:20]
+    from pipeline.extract.task_contract_identity import secondary_contract_fingerprint
+    contract_fingerprint = secondary_contract_fingerprint("meta")
+    task_id = "metav2:" + fingerprint(TASK_SCHEMA_VERSION, doi, text_depth, source_fingerprint, contract_fingerprint)[:20]
     return {
         "schema_version": TASK_SCHEMA_VERSION,
         "task_id": task_id,
+        "contract_assets_fingerprint": contract_fingerprint,
         "study_doi": doi,
         "text_depth": text_depth,
         "paper_metadata": metadata,

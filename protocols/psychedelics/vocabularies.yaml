@@ -1,0 +1,298 @@
+# Vocabulary index. Format: protocols/SPEC.md section 5.6.
+# Generated on 2026-10-30 from migration/code_tables.csv and the data files named below.
+# code_tables lists module-level rule and label tables only; another 477 vocabulary
+# regexes are written inline in functions (migration/logic_coupling.csv).
+
+format: One file per concept scheme under vocabularies/ (SPEC.md section 5.6). This index lists where each scheme is defined today.
+external_id_summary:
+  compounds: '0 of 84 registry entries (policy: PubChem CID + ChEMBL)'
+  disorders: '0 of 74 registry entries (policy: MONDO or EFO + MeSH)'
+  targets: gene symbol for 111 of 163; no UniProt accessions
+  node_vocabularies: 0 of 325 entries across 8 kinds
+anchor_identity_tables:
+  see: entities.yaml anchor and scope.yaml anchor_eligibility
+  code_tables: 59
+  code_table_lines: 935
+presentation_tables:
+  see: views.yaml
+  code_tables:
+  - scripts/build_compound_pages.py:23 CATEGORY_DEFINITIONS (70 items)
+  - ui/app.js:94 ANALYSIS_COMPARISON_COLORS (5 items)
+  - ui/app.js:105 EXPLORER_AREA_COLORS (10 items)
+  - ui/app.js:131 CATEGORY_COLORS (25 items)
+  - ui/compound.js:36 CATEGORY_COLORS (10 items)
+  code_table_lines: 111
+schemes:
+  subjective_experience_construct:
+    node_kinds:
+    - subjective_experience_construct
+    reuse: field
+    data_files:
+    - path: schema/kg_node_vocabularies.json
+      key: node_kinds.subjective_experience_construct
+      entries: 19
+    external_ids:
+      scheme: none_assigned
+      coverage: 0 of 19
+    worked_example: vocabularies/subjective_experience_construct.yaml
+    code_tables:
+    - pipeline/kg/build_evidence_tables.py:1669 SUBJECTIVE_EXPERIENCE_RULES (19 items)
+    - pipeline/kg/build_evidence_tables.py:1805 SUBJECTIVE_EXPERIENCE_LABEL_FALLBACKS (60 items)
+    - pipeline/kg/build_evidence_tables.py:1849 SUBJECTIVE_EXPERIENCE_SAFETY_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:1856 SUBJECTIVE_EXPERIENCE_NONADVERSE_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:1867 PERSISTENT_POST_ACUTE_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:1873 ADVERSE_PERSISTENT_PSYCHIATRIC_OR_PERCEPTUAL_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:4846 SUBJECTIVE_EFFECT_CONTEXT_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:9837 PSYCHOSIS_FAMILY_ENTITY_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:9841 PSYCHOTOMIMETIC_STATEMENT_RE (1 items)
+    code_table_lines: 214
+    status: worked_example_available
+  real_world_use_context:
+    attaches_to: finding
+    reuse: field
+    data_files: []
+    external_ids:
+      scheme: not_applicable
+    worked_example: vocabularies/real_world_use_context.yaml
+    code_tables:
+    - see public_health_measure
+    code_table_lines: 0
+    status: worked_example_available
+  cognitive_behavioral_construct:
+    node_kinds:
+    - cognitive_behavioral_construct
+    reuse: discipline
+    data_files:
+    - path: schema/kg_node_vocabularies.json
+      key: node_kinds.cognitive_behavioral_construct
+      entries: 95
+    - path: pipeline/config.example.yaml
+      key: validation.allowed_cognitive_behavioral_tasks
+      entries: 44
+    external_ids:
+      scheme: none_assigned
+      coverage: 0 of 95
+    code_tables:
+    - pipeline/kg/build_evidence_tables.py:1006 WITHDRAWAL_ENDPOINT_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:1014 OPIOID_WITHDRAWAL_CONTEXT_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:1032 GENERIC_LOCOMOTOR_CONTEXT_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:1037 GENERIC_BEHAVIOR_NOT_GRAPHABLE_KEYS (19 items)
+    - pipeline/kg/build_evidence_tables.py:1058 CONTROLLED_BEHAVIORAL_DETAIL_LABELS (40 items)
+    - pipeline/kg/build_evidence_tables.py:1169 COGNITIVE_BEHAVIORAL_RULES (60 items)
+    - pipeline/kg/build_evidence_tables.py:1536 COGNITIVE_BEHAVIORAL_LABEL_FALLBACKS (40 items)
+    - pipeline/kg/build_evidence_tables.py:1558 COGNITIVE_BEHAVIORAL_BROAD_LABEL_KEYS (8 items)
+    - pipeline/kg/build_evidence_tables.py:1568 COGNITIVE_BEHAVIORAL_ALLOWED_REFINEMENTS (51 items)
+    - pipeline/kg/build_evidence_tables.py:9994 PRECLINICAL_STRESS_COPING_EVIDENCE_RE (1 items)
+    code_table_lines: 523
+    status: in_code_and_data_files
+  safety_adverse_event:
+    node_kinds:
+    - safety_adverse_event
+    reuse: discipline
+    data_files: []
+    external_ids:
+      scheme: none_assigned
+      coverage: no data file; labels exist only in code
+    code_tables:
+    - pipeline/kg/build_evidence_tables.py:7553 SAFETY_ENDPOINT_PATTERNS (46 items)
+    - pipeline/kg/build_evidence_tables.py:7810 SAFETY_SUMMARY_LABELS (5 items)
+    - pipeline/kg/build_evidence_tables.py:7817 SAFETY_SPECIFIC_ENDPOINT_PATTERNS (29 items)
+    - pipeline/kg/build_evidence_tables.py:7855 SAFETY_SPECIFIC_PARENT_LABELS (61 items)
+    code_table_lines: 335
+    status: in_code_and_data_files
+  condition_indication_and_symptom_problem:
+    node_kinds:
+    - condition_indication
+    - symptom_problem
+    reuse: discipline
+    data_files:
+    - path: data/curated/entity_registry.json
+      key: disorders
+      entries: 74
+    - path: schema/disorder_canonicalization.json
+    - path: pipeline/config.example.yaml
+      key: validation.allowed_disorders
+      entries: 31
+    external_ids:
+      policy: Prefer MONDO or EFO identifiers, plus MeSH terms when literature search depends on PubMed indexing.
+      coverage: 0 of 74
+    code_tables:
+    - pipeline/kg/build_evidence_tables.py:139 OUTCOME_MEASURE_PATTERNS (129 items)
+    - pipeline/kg/build_evidence_tables.py:4793 CONDITION_LABEL_SUPERSEDES (61 items)
+    - pipeline/kg/build_evidence_tables.py:4834 CONDITION_ANALOG_CONTEXT_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:7888 SYMPTOM_ENDPOINT_PATTERNS (23 items)
+    - pipeline/kg/build_evidence_tables.py:8268 SYMPTOM_DISPLAY_LABEL_OVERRIDES (12 items)
+    - pipeline/kg/build_evidence_tables.py:9943 REVIEW_OUTCOME_NORMALIZATION_RULES (14 items)
+    - pipeline/kg/build_evidence_tables.py:10725 NONTHERAPEUTIC_OBSERVATIONAL_DESIGN_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:10729 NONTHERAPEUTIC_EXPOSURE_STATUS_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:10737 NONTHERAPEUTIC_EXPOSURE_GROUP_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:10743 NONTHERAPEUTIC_ASSOCIATION_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:10749 NONTHERAPEUTIC_PLAIN_USE_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:10754 THERAPEUTIC_OBSERVATIONAL_INTENT_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:10760 THERAPEUTIC_OBSERVATIONAL_TEMPORAL_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:10768 THERAPEUTIC_OBSERVATIONAL_OUTCOME_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:10775 THERAPEUTIC_OBSERVATIONAL_REGIMEN_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:10793 NONTHERAPEUTIC_DISEASE_MODEL_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:10808 NONTHERAPEUTIC_HPPD_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:10813 SUBSTANCE_USE_DISORDER_SUFFIXES (4 items)
+    - pipeline/kg/build_evidence_tables.py:10828 SUBSTANCE_USE_LIABILITY_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:10838 SUBSTANCE_USE_EXPOSURE_COHORT_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:10844 SUBSTANCE_USE_THERAPEUTIC_TEMPORAL_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:10850 SUBSTANCE_USE_NONINTERVENTION_EXPOSURE_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:10855 SUBSTANCE_USE_POPULATION_ONLY_OUTCOME_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:10863 SUBSTANCE_USE_CONDITION_ALIASES (34 items)
+    - scripts/build_analysis_index.py:20 CONDITION_LABELS (8 items)
+    - ui/app.js:246 CONDITION_GRAPH_LABEL_OVERRIDES (8 items)
+    - ui/app.js:252 CONDITION_GRAPH_CLARIFIERS (18 items)
+    code_table_lines: 414
+    status: in_code_and_data_files
+  target:
+    node_kinds:
+    - target
+    - system_family
+    reuse: discipline
+    data_files:
+    - path: data/curated/entity_registry.json
+      key: targets
+      entries: 163
+    - path: pipeline/config.example.yaml
+      key: validation.allowed_targets
+      entries: 46
+    external_ids:
+      policy: Prefer human gene symbol and UniProt accession for protein targets; use ChEMBL target IDs for binding-assay reconciliation.
+      coverage: gene symbol for 111 of 163; no UniProt accessions
+    code_tables:
+    - pipeline/kg/build_evidence_tables.py:5483 DIRECT_TARGET_EVIDENCE_RE (1 items)
+    - scripts/build_analysis_index.py:26 TARGET_LABELS (12 items)
+    - ui/app.js:263 TARGET_GRAPH_LABEL_OVERRIDES (12 items)
+    code_table_lines: 28
+    status: in_code_and_data_files
+  pathway_process_and_biomarker_readout:
+    node_kinds:
+    - pathway_process
+    - biomarker_readout
+    reuse: discipline
+    data_files:
+    - path: data/curated/entity_registry.json
+      key: targets (entries with pathway or biomarker status)
+    external_ids:
+      scheme: none_assigned
+    code_tables:
+    - pipeline/kg/build_evidence_tables.py:2477 CANONICAL_ENTITY_FORMAT_GROUPS (147 items)
+    - pipeline/kg/build_evidence_tables.py:5495 READOUT_EVIDENCE_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:5507 READOUT_EXPRESSION_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:5510 READOUT_UPTAKE_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:5511 READOUT_AVAILABILITY_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:5515 READOUT_PHOSPHORYLATION_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:5519 READOUT_ACTIVATION_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:5520 READOUT_ELECTROPHYSIOLOGY_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:5525 READOUT_TRAFFICKING_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:5530 PATHWAY_NODE_LABELS (7 items)
+    - pipeline/kg/build_evidence_tables.py:5576 MOLECULAR_EFFECT_RULES (15 items)
+    - pipeline/kg/build_evidence_tables.py:5697 MOLECULAR_EFFECT_CATEGORY_ALIASES (48 items)
+    - pipeline/kg/build_evidence_tables.py:5727 GENERIC_MOLECULAR_EFFECT_PLACEHOLDER_KEYS (9 items)
+    - pipeline/kg/build_evidence_tables.py:5741 MOLECULAR_SUBTOPIC_RULES_BY_PARENT (218 items)
+    - pipeline/kg/build_evidence_tables.py:6074 MOLECULAR_SPECIFIC_PARENT_RULES (15 items)
+    - ui/app.js:1003 PATHWAY_READOUT_FAMILY_RULES (30 items)
+    - ui/app.js:1109 NEUROPLASTICITY_FINDING_THEME_RULES (30 items)
+    code_table_lines: 731
+    status: in_code_and_data_files
+  brain_region_network_measure:
+    node_kinds:
+    - brain_region
+    - brain_network
+    - neural_circuit
+    - brain_measure
+    reuse: discipline
+    data_files:
+    - path: schema/kg_node_vocabularies.json
+      key: node_kinds.brain_region
+      entries: 120
+    - path: schema/kg_node_vocabularies.json
+      key: node_kinds.brain_network
+      entries: 10
+    - path: schema/kg_node_vocabularies.json
+      key: node_kinds.neural_circuit
+      entries: 12
+    - path: pipeline/config.example.yaml
+      key: validation.allowed_brain_regions_and_networks
+      entries: 46
+    external_ids:
+      scheme: none_assigned
+      coverage: 0 of 142
+    code_tables:
+    - pipeline/kg/build_evidence_tables.py:1081 BRAIN_MEASURE_NOT_GRAPHABLE_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:1091 BRAIN_MEASURE_GRAPH_RULES (28 items)
+    - pipeline/kg/build_evidence_tables.py:1163 BROAD_BRAIN_SYSTEM_NOT_GRAPHABLE_KEYS (4 items)
+    - ui/app.js:2859 BRAIN_MEASURE_ORDER (14 items)
+    code_table_lines: 93
+    status: in_code_and_data_files
+  intervention_component:
+    node_kinds:
+    - intervention_component
+    reuse: field
+    data_files:
+    - path: schema/kg_node_vocabularies.json
+      key: node_kinds.intervention_component
+      entries: 24
+    external_ids:
+      scheme: none_assigned
+    code_tables:
+    - pipeline/kg/build_evidence_tables.py:6567 INTERVENTION_NON_NODE_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:6583 INTERVENTION_TOPIC_RULES (48 items)
+    - ui/app.js:2422 DOSING_SCHEDULE_ORDER (4 items)
+    - ui/app.js:2428 SESSION_CONTEXT_ORDER (5 items)
+    - ui/app.js:2520 DOSING_SCHEDULE_LABELS (5 items)
+    - ui/app.js:2527 SESSION_CONTEXT_LABELS (5 items)
+    code_table_lines: 343
+    status: in_code_and_data_files
+  public_health_measure:
+    node_kinds:
+    - public_health_measure
+    - exposure_context
+    reuse: field
+    data_files:
+    - path: schema/kg_node_vocabularies.json
+      key: node_kinds.public_health_measure
+      entries: 21
+    external_ids:
+      scheme: none_assigned
+    code_tables:
+    - pipeline/kg/build_evidence_tables.py:601 PUBLIC_HEALTH_STRICT_PROBLEMATIC_USE_RE (1 items)
+    - pipeline/kg/build_evidence_tables.py:608 PUBLIC_HEALTH_TOPIC_RULES (21 items)
+    - pipeline/kg/build_evidence_tables.py:841 PUBLIC_HEALTH_LEGACY_TOPIC_FALLBACKS (28 items)
+    - pipeline/kg/build_evidence_tables.py:857 PUBLIC_HEALTH_RAW_TOPIC_FALLBACKS (92 items)
+    - pipeline/kg/build_evidence_tables.py:905 PUBLIC_HEALTH_USE_CONTEXT_RULES (6 items)
+    - pipeline/kg/build_evidence_tables.py:941 PUBLIC_HEALTH_LEGACY_USE_CONTEXT_BY_KEY (12 items)
+    - pipeline/kg/build_evidence_tables.py:949 PUBLIC_HEALTH_DATA_SOURCE_TYPES (9 items)
+    - pipeline/kg/build_evidence_tables.py:3181 COMPOUND_CONTEXT_TEXT_RE (1 items)
+    - pipeline/kg/convert_routed_extractions_to_evidence_rows.py:139 GRAPH_SUBJECT_CONTEXT_RE (1 items)
+    - pipeline/kg/real_world_subjects.py:36 MEASUREMENT_RE (1 items)
+    - pipeline/kg/real_world_subjects.py:43 MIXED_RE (1 items)
+    - pipeline/kg/real_world_subjects.py:51 IDENTITY_MODIFIER_RE (1 items)
+    - pipeline/kg/real_world_subjects.py:52 PREDICTOR_RE (1 items)
+    - pipeline/kg/use_contexts.py:37 SEXUALIZED_DRUG_USE_RE (1 items)
+    - ui/app.js:2741 PUBLIC_HEALTH_TOPIC_ORDER (21 items)
+    - ui/app.js:2764 PUBLIC_HEALTH_CONTEXT_ORDER (6 items)
+    - ui/app.js:2772 PUBLIC_HEALTH_DATA_SOURCE_ORDER (8 items)
+    - ui/app.js:2782 PUBLIC_HEALTH_DATA_SOURCE_LABELS (8 items)
+    code_table_lines: 441
+    status: in_code_and_data_files
+    note: Shares its code tables with real_world_use_context; the tables are listed once, under public_health_measure.
+  pharmacokinetic_parameter:
+    node_kinds:
+    - pharmacokinetic_parameter
+    - metabolite_or_analyte
+    - enzyme_or_transporter
+    reuse: discipline
+    data_files:
+    - path: schema/kg_node_vocabularies.json
+      key: node_kinds.pharmacokinetic_parameter
+      entries: 24
+    external_ids:
+      scheme: none_assigned
+    note: PK relation labels, routes and matrices in pipeline/kg/pk_relationships.py are base-profile candidates (class E in migration/code_tables.csv).
+    code_tables:
+    - pipeline/kg/build_evidence_tables.py:6467 PK_PARAMETER_DISPLAY_OVERRIDES (62 items)
+    code_table_lines: 33
+    status: in_code_and_data_files

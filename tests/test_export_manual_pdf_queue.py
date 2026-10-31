@@ -2,9 +2,28 @@ from pathlib import Path
 import tempfile
 
 import pandas as pd
+import pytest
 
 from pipeline.fulltext.export_manual_pdf_queue import export_manual_pdf_queue
 from pipeline.ingest.metadata_utils import pdf_filename_for_doi
+
+
+@pytest.mark.parametrize("action", ["fetch_pmc_xml", "refresh_access_metadata", "download_known_pdf"])
+def test_final_manual_handoff_refuses_pending_automated_work_without_overwriting_queue(tmp_path, action):
+    worklist = tmp_path / "worklist.parquet"
+    output = tmp_path / "manual.csv"
+    output.write_text("previous reviewed queue\n")
+    pd.DataFrame([{
+        "doi": "10.1000/newly-resolved-pmc", "selected_for_downstream": True,
+        "fulltext_enrichment_action": action,
+    }]).to_parquet(worklist, index=False)
+
+    with pytest.raises(ValueError, match="automated full-text actions remain"):
+        export_manual_pdf_queue(
+            selection_table=worklist, output_csv=output,
+            require_automated_retrieval_complete=True,
+        )
+    assert output.read_text() == "previous reviewed queue\n"
 
 
 def test_export_manual_pdf_queue_deduplicates_routed_download_dois() -> None:
@@ -200,7 +219,7 @@ def test_export_manual_pdf_queue_applies_manual_progress_ledger() -> None:
         candidate_table = root / "candidate_papers.parquet"
         progress_csv = root / "progress.csv"
         rows = []
-        for doi in ("10.1000/closed", "10.1000/invalid", "10.1000/partial"):
+        for doi in ("10.1000/closed", "10.1000/invalid", "10.1000/reviewed", "10.1000/partial"):
             rows.append(
                 {
                     "doi": doi,
@@ -219,6 +238,8 @@ def test_export_manual_pdf_queue_applies_manual_progress_ledger() -> None:
         pd.DataFrame(
             [
                 {"doi": "10.1000/closed", "manual_status": "closed_access", "manual_notes": "Paywalled"},
+                {"doi": "10.1000/reviewed", "manual_status": "reviewed_no_accessible_pdf",
+                 "manual_notes": "Completed review; access cause unspecified"},
                 {
                     "doi": "10.1000/invalid",
                     "manual_status": "invalid_nonresolving_doi",
@@ -244,7 +265,7 @@ def test_export_manual_pdf_queue_applies_manual_progress_ledger() -> None:
 
         exported = pd.read_csv(root / "manual.csv").fillna("")
         assert summary["rows"] == 1
-        assert summary["skipped_terminal_manual_status"] == 2
+        assert summary["skipped_terminal_manual_status"] == 3
         assert exported.loc[0, "doi"] == "10.1000/partial"
         assert exported.loc[0, "manual_status"] == "partial_review_rate_limited"
         assert exported.loc[0, "manual_notes"] == "Retry after cooldown"

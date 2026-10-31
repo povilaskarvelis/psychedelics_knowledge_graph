@@ -332,7 +332,7 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                 )
                 self.assertIsNone(decision)
 
-    def test_single_page_supplement_contribution_is_excluded_but_multi_page_article_is_not(self) -> None:
+    def test_supplement_pagination_alone_does_not_exclude_an_article(self) -> None:
         supplement = before_model_exclusion_decision(
             {
                 "study_doi": "10.1016/j.urols.2016.05.278",
@@ -346,8 +346,7 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                 "journal_pages": "S74",
             }
         )
-        self.assertIsNotNone(supplement)
-        self.assertIn("supplement_issue_contribution", supplement["matched_terms"])
+        self.assertIsNone(supplement)
 
         full_article = before_model_exclusion_decision(
             {
@@ -395,7 +394,7 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         self.assertIsNotNone(decision)
         self.assertIn("conference_paper", decision["matched_terms"])
 
-    def test_explicit_supplement_doi_tokens_are_excluded(self) -> None:
+    def test_meeting_namespace_is_excluded_but_generic_supplement_tokens_are_not(self) -> None:
         cases = (
             "10.1096/fasebj.2019.33.1_supplement.666.1",
             "10.1200/jco.2022.40.16_suppl.12097",
@@ -413,8 +412,11 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                         "publication_type": "article",
                     }
                 )
-                self.assertIsNotNone(decision)
-                self.assertIn("supplement_issue_contribution", decision["matched_terms"])
+                if doi.startswith("10.1096/fasebj."):
+                    self.assertIsNotNone(decision)
+                    self.assertIn("conference_abstract", decision["matched_terms"])
+                else:
+                    self.assertIsNone(decision)
 
     def test_literal_supplementary_objects_are_excluded(self) -> None:
         cases = (
@@ -965,7 +967,7 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
                 {
                     "doi": "10.example/case-letter",
                     "study_title": "MDMA intoxication: Acute psychosis caused by a designer drug",
-                    "abstract": "This case report describes acute psychosis after MDMA exposure.",
+                    "abstract": qualifying_abstract("This case report describes acute psychosis after MDMA exposure."),
                     "publication_type": "Case Reports | Letter",
                 },
             ]
@@ -1002,9 +1004,8 @@ class TableDeterministicPrescreenTest(unittest.TestCase):
         self.assertFalse(by_doi["10.31219/osf.io/dy5cu_v1"]["retained_for_extraction_candidate"])
         self.assertFalse(by_doi["10.3389/fnins.2025.1554049.s002"]["retained_for_extraction_candidate"])
         self.assertFalse(by_doi["10.64898/2026.04.16.718915"]["retained_for_extraction_candidate"])
-        self.assertEqual(by_doi["10.example/case-letter"]["prescreen_decision"], "exclude")
-        self.assertEqual(by_doi["10.example/case-letter"]["prescreen_action"], "exclude_non_evidence_artifact")
-        self.assertFalse(by_doi["10.example/case-letter"]["retained_for_extraction_candidate"])
+        self.assertEqual(by_doi["10.example/case-letter"]["prescreen_decision"], "retain")
+        self.assertTrue(by_doi["10.example/case-letter"]["retained_for_extraction_candidate"])
 
     def test_lumpy_skin_disease_lsd_acronym_is_excluded(self) -> None:
         papers = pd.DataFrame(

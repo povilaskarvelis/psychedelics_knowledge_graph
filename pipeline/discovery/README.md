@@ -80,6 +80,34 @@ datasets (`mechanistic`, `disorder`, and cross-domain `general`), the `core` and
 `scope` layers, and scope-delta compound recovery can advance the shared update
 watermark.
 
+## Targeted compound addition: PCP, 19 October 2026
+
+Phencyclidine (PCP) is now an explicit compound in the canonical scope. Its
+historical addition uses the existing scope-delta workflow:
+
+```bash
+python pipeline/discovery/run_literature_search.py \
+  --mode update --run-id pcp_scope_addition_20261019 \
+  --layers scope_delta --from-date 1800-01-01 --to-date 2026-10-19 \
+  --no-index-updates --config pipeline/config.local.yaml \
+  --scope-config pipeline/config.example.yaml
+```
+
+The two executions search PubMed and OpenAlex. Explicit identity expressions
+in `search_strategy.v3.json` preserve unrestricted phencyclidine names and
+PubMed MeSH coverage; the ambiguous `PCP` acronym requires drug context.
+OpenAlex still searches titles and abstracts. No negative terms remove genuine
+mixed-topic records. Exact expressions, counts, checkpoints, deduplication and
+handoffs are preserved in the named run under `data/processed/discovery/runs/`.
+
+This targeted run does not advance the standard update watermark or establish
+a new whole-corpus baseline. The original V5 prompt remains frozen. The PCP
+cohort uses V5 with only phencyclidine explicitly named in substance scope,
+saved as `docs/screening/title_abstract_screening_v5_pcp.md`, with Luna low
+reasoning. Full-text recovery follows inclusion and does not determine
+screening decisions. Work stops at the current source-recovery and extraction
+preparation checkpoint without publishing graph evidence.
+
 ## Full strategy rerun
 
 Use a full run after materially changing the concepts, aliases, source role, or

@@ -1,0 +1,69 @@
+# Graph projection and views. Format: protocols/SPEC.md section 5.7.
+
+projection:
+  statuses:                                   # three distinct decisions; see docs/api_mcp_assessment_2026-09-18.md
+    graph_admission: A finding or edge passed the admission rules (graph_admission_status main_graph).
+    website_presentation: Views apply category restrictions, subject projections, parent grouping and report thresholds.
+    public_api_eligibility: Whether a statement can be used without the qualifications shown in an evidence card (not yet defined as a policy).
+  overview_thresholds:
+    min_reports_per_node: 2                   # pipeline/publish/export_evidence_payload.py MIN_OVERVIEW_NODE_STUDIES
+    applies_to: [primary_study, review]
+    meta_analyses: shown separately; each already synthesizes several studies (docs/evidence_policy.md)
+    unit_counted: report                       # not independent study; see validation.yaml open issues
+  subject_grouping:
+    class_rules: pipeline/kg/build_evidence_tables.py:3200 OVERVIEW_SUBJECT_CLASS_RULES   # classic psychedelics, hallucinogens, NMDA receptor antagonists, dissociatives, tryptamines, phenethylamines, entheogens
+    unresolved_subject_label: Psychedelics (unspecified compounds)
+  parent_grouping:
+    description: Detailed molecular and intervention concepts are grouped under parent concepts in the overview; the API keeps the detailed concepts.
+    rules: [MOLECULAR_SUBTOPIC_RULES_BY_PARENT, MOLECULAR_SPECIFIC_PARENT_RULES, SAFETY_SPECIFIC_PARENT_LABELS]   # pipeline/kg/build_evidence_tables.py
+
+graph_views:
+  file: schema/graph_view_contract.json        # already declarative; sha256 prefix d8a257d2dec59336
+  default_view: condition_indication
+  views:                                       # id: [label, object kinds, explicit label list size]
+    condition_indication: [Conditions, [condition_indication], 0]
+    safety_adverse_event: [Safety, [safety_adverse_event], 0]
+    cognitive_behavioral_construct: [Cognition, [cognitive_behavioral_construct], 41]
+    behavioral_effect: [Behavior, [cognitive_behavioral_construct], 21]
+    subjective_experience_construct: [Subjective effects, [subjective_experience_construct], 0]
+    intervention_component: [Treatment context, [intervention_component], 0]
+    public_health_measure: [Real-world use, [public_health_measure, exposure_context], 0]   # also restricted to domain real_world_public_health
+    brain_system: [Brain regions, [brain_region, brain_network, neural_circuit], 0]
+    pathway_readout: [Molecular effects, [pathway_process, biomarker_readout], 0]
+    target_system: [Targets, [target, system_family], 0]
+  coverage_note: >-
+    In the September catalogue 9,001 of 66,147 public relationships matched none of these views
+    (symptoms, pharmacokinetic parameters, brain measures and others). This counts view coverage,
+    not errors (docs/api_mcp_assessment_2026-09-18.md).
+
+compound_page_categories:                      # second definition of similar groupings, with different labels
+  location: scripts/build_compound_pages.py:23 CATEGORY_DEFINITIONS
+  categories:
+    conditions: [Conditions & symptoms, [condition_indication, symptom_problem]]
+    safety: [Safety & tolerability, [safety_adverse_event]]
+    cognition_behavior: [Cognition & behavior, [cognitive_behavioral_construct]]
+    subjective_effects: [Subjective effects, [subjective_experience_construct]]
+    treatment_context: [Treatment context, [intervention_component]]
+    real_world: [Real-world evidence, [public_health_measure, exposure_context]]
+    brain: [Brain systems & measures, [brain_region, brain_network, neural_circuit, brain_measure]]
+    molecular_effects: [Molecular effects, [pathway_process, biomarker_readout]]
+    targets: [Targets, [target, system_family]]
+    pharmacokinetics: [Pharmacokinetics, [pharmacokinetic_parameter, compound]]   # restricted to domain pharmacokinetics_exposure
+  reconcile_with: graph_views                  # one grouping definition should serve the graph, compound pages and Analyze
+
+facets:                                        # bounded categories used by Explore detail charts and Analyze coverage
+  implemented_in: ui/app.js facet functions (docs/evidence_category_grouping.md)
+  base_profile_candidates: [study_design, population_or_model, experimental_system, assay_family, comparator, follow_up_window,
+                            administration_route, review_approach, meta_analysis_design, open_science_indicators]
+  field_specific: [dosing_schedule, session_context, public_health_topic, public_health_use_context, public_health_data_source]
+  named_outcome_instruments: pipeline/kg/build_evidence_tables.py:139 OUTCOME_MEASURE_PATTERNS   # MADRS, HAM-D, PHQ-9 and others
+  analyze_coverage_axes: [populations_or_models, study_design, outcomes_or_measures, comparators, follow_up,
+                          experimental_systems, assays_or_methods, topics, research_areas, compounds]
+
+presentation:
+  category_colors:
+    - ui/app.js:131 CATEGORY_COLORS
+    - ui/compound.js:36 CATEGORY_COLORS
+    - ui/app.js:105 EXPLORER_AREA_COLORS
+    - ui/app.js:94 ANALYSIS_COMPARISON_COLORS
+  site_tokens: site.yaml presentation

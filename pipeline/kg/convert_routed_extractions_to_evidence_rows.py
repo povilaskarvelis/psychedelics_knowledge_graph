@@ -21,12 +21,18 @@ import pandas as pd
 
 try:
     from pipeline.extract.io_utils import normalize, read_jsonl, write_json
+    from pipeline.extract.source_text_quality import abstract_quality_flags
     from pipeline.kg.compound_combinations import is_named_combination_text
+    from pipeline.kg.real_world_subjects import apply_real_world_measure_subject
+    from pipeline.kg.subject_role_guards import apply_structured_subject_roles
     from pipeline.kg.pk_relationships import add_pk_relationship_fields, pk_graph_entity_kind, pk_graph_entity_label, pk_pharmacodynamic_target
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.extract.io_utils import normalize, read_jsonl, write_json
+    from pipeline.extract.source_text_quality import abstract_quality_flags
     from pipeline.kg.compound_combinations import is_named_combination_text
+    from pipeline.kg.real_world_subjects import apply_real_world_measure_subject
+    from pipeline.kg.subject_role_guards import apply_structured_subject_roles
     from pipeline.kg.pk_relationships import add_pk_relationship_fields, pk_graph_entity_kind, pk_graph_entity_label, pk_pharmacodynamic_target
 
 
@@ -347,9 +353,18 @@ def apply_graph_subject(row: dict) -> None:
     # The builder deliberately reapplies this function to saved rows, so using
     # an already-expanded `compound` value here would otherwise erase the
     # provenance needed to show that a chemsex exposure was not just ketamine.
+    if apply_structured_subject_roles(row):
+        return
     if normalize(row.get("graph_overview_subject_label", "")):
         # This is already a normalized KG table row. Preserve the controlled
         # overview subject while leaving the exact exposure fields untouched.
+        return
+
+    if apply_real_world_measure_subject(row):
+        # The real-world schema's exposure field can be a demographic/policy
+        # predictor. Keep it intact while selecting the explicitly measured
+        # drug as the graph subject; never let generic conjunction heuristics
+        # replace this role-checked choice on a later builder pass.
         return
 
     atomic_candidate = normalize(row.get("atomic_compound_candidate", "")) or normalize(row.get("compound", ""))
@@ -623,6 +638,7 @@ def task_lookup(tasks_jsonl: Path) -> dict[str, dict]:
             or normalize(route_context.get("domain_route", "")),
             "input_fingerprint": normalize(task.get("input_fingerprint", "")),
             "expected_text_depth": expected_text_depth,
+            "source_quality_flags": abstract_quality_flags(metadata.get('abstract','')) if mode=='abstract' else [],
         }
     return lookup
 
@@ -807,6 +823,11 @@ def review_coverage_exclusion_reason(item: dict) -> str:
 
 
 def infer_entity_kind(row: dict, domain: str) -> str:
+    from pipeline.kg.recommendation_identity import explicit_recommendation, ENTITY_KIND
+    if explicit_recommendation(row):
+        return ENTITY_KIND
+    if domain == "general_primary":
+        return "reported_measurement"
     if domain == "pharmacokinetics_exposure":
         return pk_graph_entity_kind(row)
     for field in ("kg_entity_kind_override", "primary_graph_anchor_kind", "graph_candidate_type", "graph_entity_type"):
@@ -833,6 +854,9 @@ def infer_entity_kind(row: dict, domain: str) -> str:
 
 
 def infer_entity_label(row: dict, entity_kind: str) -> str:
+    if entity_kind == "reported_measurement":
+        from pipeline.kg.generic_findings import reported_measurement_label
+        return reported_measurement_label(row)
     if normalize(row.get("domain", row.get("domain_route", ""))) == "pharmacokinetics_exposure":
         return pk_graph_entity_label(row)
     label = first_meaningful(row, ("graph_entity_label", "entity_label"))
@@ -842,6 +866,37 @@ def infer_entity_label(row: dict, entity_kind: str) -> str:
     if label:
         return label
     return first_meaningful(row, ("entity", "target", "disorder", "entity_or_endpoint", "outcome_or_endpoint"))
+
+
+def explicit_alternative_brain_anchor(row: dict, entity_kind: str) -> tuple[str, str]:
+    """Retain a named saved anchor when the preferred Brain field is empty.
+
+    A model may select ``brain_network`` but report a named connectivity pair
+    only in ``neural_circuit``. The enum does not make that explicit evidence
+    disappear. Prefer the complete circuit over its component regions, and
+    preserve the original enum and all source fields. This does not infer an
+    anatomical location from a task, drug, modality, or free-text rationale.
+    Explicitly inapplicable neural items remain inapplicable.
+    """
+
+    anchor_fields = {
+        "brain_region": "brain_region",
+        "brain_network": "brain_network",
+        "neural_circuit": "neural_circuit",
+    }
+    declared = normalized_entity_kind(row.get("primary_graph_anchor_kind", ""))
+    if declared not in anchor_fields or entity_kind != declared:
+        return entity_kind, ""
+    if meaningful(row.get(anchor_fields[declared], "")):
+        return entity_kind, ""
+    for alternative in ("neural_circuit", "brain_network", "brain_region"):
+        label = first_meaningful(row, (anchor_fields[alternative],))
+        if label:
+            row["normalization_original_brain_anchor_kind"] = declared
+            row["normalization_brain_anchor_source_field"] = anchor_fields[alternative]
+            row["normalization_boundary_reason"] = "explicit_alternative_brain_anchor"
+            return alternative, label
+    return entity_kind, ""
 
 
 def add_common_field_aliases(row: dict, domain: str) -> None:
@@ -1017,6 +1072,8 @@ def evidence_row_for_item(
     domain_result = item.get("domain_result", {}) if isinstance(item.get("domain_result"), dict) else {}
     merge_prefer_meaningful(row, domain_result)
     if item_kind == "recommendation_item":
+        if meaningful(row.get("recommendation_statement", "")):
+            row["support"] = normalize(row["recommendation_statement"])
         recommendation_entity = first_meaningful(
             item,
             ("graph_entity_label", "entity_label", "entity"),
@@ -1053,6 +1110,8 @@ def evidence_row_for_item(
         row["dataset"] = domain
         row["normalization_boundary_reason"] = "molecular_target_readout_routed_to_molecular_effects"
     entity_label = infer_entity_label(row, entity_kind)
+    if domain == "brain_system" and not meaningful(entity_label):
+        entity_kind, entity_label = explicit_alternative_brain_anchor(row, entity_kind)
     if not meaningful(row.get("compound", "")) or not meaningful(entity_label):
         if exclusion_reasons is not None:
             if not meaningful(row.get("compound", "")):
@@ -1062,6 +1121,10 @@ def evidence_row_for_item(
         return None
     row["kg_entity_kind_override"] = entity_kind
     row["graph_entity_label"] = entity_label
+    source_task=tasks.get(normalize(output_row.get('task_id','')), {})
+    if source_task.get('source_quality_flags'):
+        row.update(graph_admission_status='paper_detail',graph_admission_reason='unusable_abstract_extraction_source',
+                   extraction_source_quality_flags=' | '.join(source_task['source_quality_flags']))
     return {key: cleaned_value(value) for key, value in row.items()}
 
 

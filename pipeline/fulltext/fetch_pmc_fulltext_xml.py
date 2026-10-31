@@ -5,10 +5,15 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 import json
+import os
 from pathlib import Path
 import sys
+import tempfile
+import threading
 from typing import Iterable
+from urllib.error import HTTPError
 import xml.etree.ElementTree as ET
 
 import pandas as pd
@@ -36,6 +41,7 @@ from pipeline.fulltext.convert_pdfs import (  # noqa: E402
     doi_to_slug,
     element_text,
     extraction_result,
+    has_article_body,
     local_name,
     normalize,
     normalize_doi,
@@ -68,6 +74,7 @@ DEFAULT_FULLTEXT_DIR = ROOT / "data" / "processed" / "fulltext"
 DEFAULT_OUT_DIR = DEFAULT_FULLTEXT_DIR / "articles"
 DEFAULT_REPORT = DEFAULT_FULLTEXT_DIR / "pmc_xml_report.json"
 DEFAULT_USER_AGENT = "kg-pipeline/pmc-fulltext-xml"
+PMC_OAI_LOCK = threading.Lock()
 
 
 class FullTextXmlNotAvailable(RuntimeError):
@@ -275,6 +282,8 @@ def build_xml_artifact(
     # present.  This also prevents adjacent conference abstracts from leaking
     # into a DOI-specific artifact.
     selected_xml, document_identity = select_jats_article(xml_text, row.get("doi", ""))
+    if not has_article_body(selected_xml):
+        raise ValueError("XML has no article body; metadata/abstract-only XML is not full text")
     sections = sections_from_jats(selected_xml)
     extraction = extraction_result(
         retrieval_source,
@@ -337,11 +346,24 @@ def fetch_pmc_oai_xml(client: RateLimitedHttpClient, pmcid: str) -> tuple[str, s
         "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/"
         f"?verb=GetRecord&identifier=oai:pubmedcentral.nih.gov:{number}&metadataPrefix=pmc"
     )
-    body = client.get_bytes(endpoint, headers={"Accept": "application/xml"})
+    # PMC explicitly prohibits concurrent OAI requests, including off-peak runs.
+    with PMC_OAI_LOCK:
+        try:
+            body = client.get_bytes(endpoint, headers={"Accept": "application/xml"})
+        except HTTPError as err:
+            # OAI protocol errors arrive as HTTP 400 with a structured body.
+            # Preserve the distinction from transport or repository failures.
+            if err.code == 400:
+                error = oai_error(err.read(65536).decode("utf-8", errors="replace"))
+                if error.startswith(("cannotDisseminateFormat:", "idDoesNotExist:")):
+                    raise FullTextXmlNotAvailable(f"PMC OAI error: {error}") from err
+            raise
     xml_text = body.decode("utf-8", errors="replace")
     error = oai_error(xml_text)
     if error:
-        raise FullTextXmlNotAvailable(f"PMC OAI error: {error}")
+        if error.startswith(("cannotDisseminateFormat:", "idDoesNotExist:")):
+            raise FullTextXmlNotAvailable(f"PMC OAI error: {error}")
+        raise RuntimeError(f"PMC OAI protocol error: {error}")
     return endpoint, xml_text
 
 
@@ -376,8 +398,8 @@ def fetch_fulltext_xml(client: RateLimitedHttpClient, pmcid: str) -> tuple[str, 
     ):
         try:
             endpoint, xml_text = fetcher(client, pmcid)
-            if not sections_from_jats(xml_text):
-                raise FullTextXmlNotAvailable("no_parseable_sections")
+            if not has_article_body(xml_text) or not sections_from_jats(xml_text):
+                raise FullTextXmlNotAvailable("no_parseable_article_body")
             attempts.append({"source": source, "endpoint": endpoint, "status": "ok", "error": ""})
             return source, endpoint, xml_text, attempts
         except Exception as err:
@@ -401,7 +423,7 @@ def selected_rows(
     source_identity_audit: Path = DEFAULT_SOURCE_IDENTITY_AUDIT,
 ) -> tuple[list[dict], Counter[str]]:
     metadata_map = metadata_by_doi(metadata_df)
-    local_pdf_index = build_local_pdf_index(paper_root)
+    local_pdf_index = {} if include_local_pdf else build_local_pdf_index(paper_root)
     grouped: dict[str, list[dict]] = {}
     for row in routes_df.to_dict("records"):
         doi = normalize_doi(row.get("doi", "")).lower()
@@ -441,7 +463,14 @@ def selected_rows(
 
 def write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    descriptor, name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    temporary = Path(name)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            handle.write(json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
+        os.replace(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -478,6 +507,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--doi-file", default="")
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--rps", type=float, default=2.0)
+    parser.add_argument("--workers", type=int, default=1, help="Concurrent retrievals sharing the global RPS limit.")
     parser.add_argument("--timeout-sec", type=int, default=30)
     parser.add_argument("--max-retries", type=int, default=1)
     parser.add_argument("--max-retry-after-sec", type=int, default=60)
@@ -549,7 +579,18 @@ def main() -> int:
         f"targets={len(rows):,} skipped={dict(skipped)} out_dir={out_dir} dry_run={bool(args.dry_run)}",
         flush=True,
     )
-    for position, row in enumerate(rows, start=1):
+    def retrieve(row: dict) -> tuple | Exception | None:
+        if args.dry_run:
+            return None
+        try:
+            return fetch_fulltext_xml(client, clean(row.get("pmcid", "")).upper())
+        except Exception as err:
+            return err
+
+    # Network waits overlap; validation and canonical writes remain ordered.
+    executor = ThreadPoolExecutor(max_workers=max(1, args.workers))
+    results = executor.map(retrieve, rows)
+    for position, (row, result) in enumerate(zip(rows, results), start=1):
         doi = normalize_doi(row.get("doi", "")).lower()
         pmcid = clean(row.get("pmcid", "")).upper()
         artifact_path = out_dir / f"{doi_to_slug(doi)}.json"
@@ -567,7 +608,9 @@ def main() -> int:
             counts["dry_run"] += 1
         else:
             try:
-                source, endpoint, xml_text, retrieval_trace = fetch_fulltext_xml(client, pmcid)
+                if isinstance(result, Exception):
+                    raise result
+                source, endpoint, xml_text, retrieval_trace = result
                 artifact = build_xml_artifact(
                     row,
                     pmcid=pmcid,
@@ -603,6 +646,11 @@ def main() -> int:
                     counts["failed"] += 1
         records.append(record)
         if args.progress_every > 0 and (position % args.progress_every == 0 or position == len(rows)):
+            if not args.dry_run:
+                write_json(report_path.with_suffix(".inprogress.json"), {
+                    "complete": False, "targets": len(rows),
+                    "processed": position, "counts": dict(counts), "records": records,
+                })
             print(
                 "PROGRESS: PMC full-text XML "
                 f"{position:,}/{len(rows):,} written={counts['written']:,} "
@@ -610,6 +658,7 @@ def main() -> int:
                 flush=True,
             )
 
+    executor.shutdown(wait=True)
     source_identity_audit_refresh = {}
     if not args.dry_run and counts["written"] > 0:
         print("SOURCE_IDENTITY_AUDIT: refreshing before route rebuild", flush=True)
@@ -655,6 +704,7 @@ def main() -> int:
         )
 
     report = {
+        "complete": True,
         "generated_at_utc": now_utc(),
         "inputs": {
             "routes_table": str(routes_table),

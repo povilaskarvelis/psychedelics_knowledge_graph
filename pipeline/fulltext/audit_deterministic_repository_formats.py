@@ -9,11 +9,16 @@ import datetime as dt
 import json
 from pathlib import Path
 import re
+import sys
 
 import pandas as pd
 
 
 ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from pipeline.review.run_deterministic_prescreen import has_substantive_evidence_signal
+from pipeline.extract.review_source_types import is_accepted_scholarly_analysis
 CORPUS = ROOT / "data" / "processed" / "corpus"
 AUDITS = CORPUS / "audits"
 DEFAULT_CANDIDATE = CORPUS / "candidate_papers.parquet"
@@ -134,14 +139,15 @@ def classify_record(row: dict) -> dict | None:
             ),
         }
 
-    if publication_types.intersection({"letter", "correspondence"}):
+    substantive = has_substantive_evidence_signal(row) or is_accepted_scholarly_analysis(row)
+    if publication_types.intersection({"letter", "correspondence"}) and not substantive:
         return {
             "publication_format": "correspondence_or_letter",
             "rule_id": "letter_or_correspondence_publication_type",
             "format_evidence": f"Bibliographic publication_type={clean(row.get('publication_type', ''))}",
         }
 
-    if publication_types.intersection({"comment", "commentary", "editorial", "response"}):
+    if publication_types.intersection({"comment", "commentary", "editorial", "response"}) and not substantive:
         return {
             "publication_format": "commentary_or_editorial",
             "rule_id": "commentary_or_editorial_publication_type",
@@ -268,6 +274,8 @@ def main() -> int:
         "publication_type",
         "retained_for_extraction_candidate",
         "post_retrieval_decision",
+        "primary_secondary_source_type",
+        "extraction_domain_screening_decisions",
         *URL_COLUMNS,
     ]
     candidate = pd.read_parquet(candidate_path, columns=columns).fillna("")

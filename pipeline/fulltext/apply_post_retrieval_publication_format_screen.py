@@ -36,15 +36,17 @@ DEFAULT_CANDIDATE_TABLE = ROOT / "data" / "processed" / "corpus" / "candidate_pa
 DEFAULT_DECISIONS_TABLE = (
     ROOT / "data" / "processed" / "corpus" / "paper_post_retrieval_eligibility_decisions.parquet"
 )
-DEFAULT_DOMAIN_ROUTING_TABLE = (
-    ROOT / "data" / "processed" / "corpus" / "paper_domain_routing.parquet"
-)
+# Model screening is immutable evidence at this later stage; filter extraction
+# views instead. An explicit caller may still nominate a derived model view.
+DEFAULT_DOMAIN_ROUTING_TABLE = ""
 DEFAULT_EXTRACTION_ROUTES_TABLE = (
     ROOT / "data" / "processed" / "corpus" / "paper_extraction_routes.parquet"
 )
 DEFAULT_EXTRACTION_TASKS_JSONL = (
     ROOT / "data" / "processed" / "extraction" / "route_extraction_tasks.jsonl"
 )
+DEFAULT_REVIEW_TASKS_JSONL = ROOT / "data/processed/extraction/review_relationship_tasks/review_relationship_tasks.jsonl"
+DEFAULT_META_TASKS_JSONL = ROOT / "data/processed/extraction/meta_analysis_v2_tasks/meta_analysis_v2_tasks.jsonl"
 DEFAULT_REPORT = (
     ROOT
     / "data"
@@ -71,6 +73,7 @@ CANDIDATE_DEFAULTS = {
     "pipeline_exclusion_stage": "",
     "pipeline_exclusion_reason": "",
     "pipeline_exclusion_decision_source": "",
+    "retained_for_extraction_candidate": False,
 }
 
 
@@ -202,15 +205,26 @@ def candidate_updates(frame: pd.DataFrame) -> pd.DataFrame:
                 "pipeline_exclusion_stage": STAGE_NAME if excluded else "",
                 "pipeline_exclusion_reason": clean(row.get("reason", "")) if excluded else "",
                 "pipeline_exclusion_decision_source": "post_retrieval_decision_ledger" if excluded else "",
+                # A later retain decision alone must not resurrect model-
+                # excluded papers. A confirmed exclude must disable selection
+                # immediately, before a separate route rebuild is run.
+                "retained_for_extraction_candidate": False if excluded else pd.NA,
             }
         )
     return pd.DataFrame(rows)
 
 
-def downstream_eligible_dois(candidate_df: pd.DataFrame, decisions: dict[str, dict]) -> set[str]:
+def downstream_eligible_dois(
+    candidate_df: pd.DataFrame, decisions: dict[str, dict], *, decision_scope: set[str] | None = None
+) -> set[str]:
     if "doi" not in candidate_df.columns:
         return set()
-    if "retained_for_extraction_candidate" in candidate_df.columns:
+    # A route table may also contain inactive rows for historical accounting.
+    # Scoped publication cleanup removes only its confirmed exclusions, rather
+    # than dropping unrelated inactive rows or changing their existing flags.
+    if decision_scope is not None:
+        base_mask = pd.Series(True, index=candidate_df.index)
+    elif "retained_for_extraction_candidate" in candidate_df.columns:
         base_mask = candidate_df["retained_for_extraction_candidate"].map(truthy)
     else:
         base_mask = pd.Series(True, index=candidate_df.index)
@@ -220,7 +234,9 @@ def downstream_eligible_dois(candidate_df: pd.DataFrame, decisions: dict[str, di
         if normalize_doi(value)
     }
     excluded = {
-        doi for doi, row in decisions.items() if clean(row.get("decision", "")).lower() == "exclude"
+        doi for doi, row in decisions.items()
+        if clean(row.get("decision", "")).lower() == "exclude"
+        and (decision_scope is None or doi in decision_scope)
     }
     return allowed - excluded
 
@@ -231,7 +247,17 @@ def run(args: argparse.Namespace) -> dict[str, object]:
     ledger_path = Path(args.ledger).resolve()
     candidate_df = pd.read_parquet(candidate_path)
     decisions = load_decision_ledger(ledger_path)
-    requested = {normalize_doi(value) for value in args.doi if normalize_doi(value)} or None
+    requested = {normalize_doi(value) for value in args.doi if normalize_doi(value)}
+    doi_file = clean(getattr(args, "doi_file", ""))
+    if doi_file:
+        file_dois = {normalize_doi(line) for line in Path(doi_file).read_text().splitlines()
+                     if line.strip() and not line.lstrip().startswith("#")}
+        file_dois.discard("")
+        if not file_dois:
+            raise ValueError("The requested DOI file is empty; refusing to widen it to the whole ledger.")
+        requested.update(file_dois)
+    requested.discard("")
+    requested = requested or None
     scope = select_format_screen_scope(candidate_df, decisions, requested_dois=requested)
     if scope["unconfirmed_dois"]:
         raise SystemExit(
@@ -295,6 +321,8 @@ def run(args: argparse.Namespace) -> dict[str, object]:
         (args.domain_routing_table, "parquet"),
         (args.extraction_routes_table, "parquet"),
         (args.extraction_tasks_jsonl, "jsonl"),
+        (getattr(args, "review_tasks_jsonl", ""), "jsonl"),
+        (getattr(args, "meta_tasks_jsonl", ""), "jsonl"),
     ):
         if clean(raw_path):
             active_artifacts.append(ActiveArtifact(Path(raw_path), kind=kind))
@@ -307,7 +335,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
         previous_included_dois=previous_included,
         current_included_dois=current_included,
         active_artifacts=active_artifacts,
-        active_artifact_allowed_dois=downstream_eligible_dois(candidate_df, decisions),
+        active_artifact_allowed_dois=downstream_eligible_dois(candidate_df, decisions, decision_scope=set(present)),
         pending_status="post_retrieval_retained_pending_extraction",
         excluded_status="post_retrieval_excluded",
         report_path=Path(args.report).resolve(),
@@ -331,9 +359,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--domain-routing-table", default=str(DEFAULT_DOMAIN_ROUTING_TABLE))
     parser.add_argument("--extraction-routes-table", default=str(DEFAULT_EXTRACTION_ROUTES_TABLE))
     parser.add_argument("--extraction-tasks-jsonl", default=str(DEFAULT_EXTRACTION_TASKS_JSONL))
+    parser.add_argument("--review-tasks-jsonl", default=str(DEFAULT_REVIEW_TASKS_JSONL))
+    parser.add_argument("--meta-tasks-jsonl", default=str(DEFAULT_META_TASKS_JSONL))
     parser.add_argument("--report", default=str(DEFAULT_REPORT))
     parser.add_argument("--run-id", default="")
     parser.add_argument("--doi", action="append", default=[])
+    parser.add_argument("--doi-file", default="", help="Optional newline-delimited confirmed decision scope.")
     parser.add_argument("--apply", action="store_true")
     return parser
 

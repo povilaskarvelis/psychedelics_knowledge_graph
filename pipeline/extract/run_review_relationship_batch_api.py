@@ -143,17 +143,19 @@ def previously_attempted_dois(args: argparse.Namespace) -> set[str]:
 
 
 def selected_tasks(args: argparse.Namespace) -> list[tuple[int, dict]]:
+    from pipeline.extract.task_contract_identity import completed_task_ids, attempted_task_ids
     tasks = read_jsonl(Path(args.tasks_jsonl).resolve())
-    excluded = successful_dois(batch_paths(args)["run_bundles_jsonl"])
+    paths = batch_paths(args)
+    excluded = completed_task_ids(paths["run_bundles_jsonl"])
     if not args.retry_attempted:
-        excluded.update(previously_attempted_dois(args))
+        excluded.update(attempted_task_ids(paths["batch_dir"], paths["selected_tasks_jsonl"]))
     for path in args.exclude_output_jsonl:
-        excluded.update(successful_dois(Path(path).resolve()))
+        excluded.update(completed_task_ids(Path(path).resolve()))
     candidates = [
         (index, task)
         for index, task in enumerate(tasks, start=1)
         if normalize(task.get("task_status", "")) == "ready_for_model"
-        and normalize(task.get("study_doi", "")).lower() not in excluded
+        and normalize(task.get("task_id", "")) not in excluded
     ]
     if args.shuffle:
         random.Random(args.seed).shuffle(candidates)

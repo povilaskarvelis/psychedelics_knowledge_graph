@@ -1,0 +1,63 @@
+# Search: how candidate records are found and kept up to date.
+# Format: protocols/SPEC.md section 5.3.
+
+providers: [pubmed, openalex]              # provider limits (page size, partitions) are engine settings
+start_date: 1800-01-01                     # full_search_start_date
+update:
+  mode: elapsed_period
+  overlap_days: 14
+  planning_limits: {max_query_executions: 1000, max_targeted_pairs: 100}
+
+strategy:
+  file: pipeline/discovery/search_strategy.v3.json
+  sha256_prefix: d8873f9a34701b1d
+  design: >-
+    Two-block queries: an anchor block (compound names and class terms) combined with one
+    topic module. Each module belongs to a dataset (mechanistic or disorder).
+  anchor_block:
+    class_terms: [psychedelic, psychedelics, classical psychedelic, serotonergic psychedelic, hallucinogen,
+                  entheogen, entactogen, empathogen, psychoplastogen, dissociative anesthetic,
+                  psychedelic-assisted therapy]
+    controlled_terms: [Hallucinogens, Psychotropic Drugs]       # MeSH
+    compound_names: pipeline/config.example.yaml validation.allowed_compounds (54 names)
+    compound_specific_queries:
+      Phencyclidine: provider-specific queries with drug context required for the acronym PCP
+    ambiguous_name_contexts: 20 compound names searched in OpenAlex only together with context terms
+  modules:                                   # module_id: [dataset, free-text terms, controlled terms]
+    molecular_target: [mechanistic, 15, 3]
+    molecular_pathway: [mechanistic, 21, 0]
+    systems_neuroscience: [mechanistic, 23, 0]
+    cognitive_behavioral: [mechanistic, 16, 0]
+    subjective_experience: [mechanistic, 14, 0]
+    pharmacokinetics_exposure: [mechanistic, 14, 0]
+    clinical_mechanism_bridge: [mechanistic, 11, 0]
+    clinical_indication: [disorder, 11, 4]   # also uses validation.allowed_disorders (31)
+    clinical_symptom_function: [disorder, 17, 0]
+    clinical_safety: [disorder, 17, 0]
+    intervention_context: [disorder, 11, 0]
+    real_world_public_health: [disorder, 14, 0]
+  targeted_pair_lists:                       # pipeline/config.example.yaml validation.*; also used for pair queries
+    allowed_targets: 46
+    allowed_brain_regions_and_networks: 46
+    allowed_cognitive_behavioral_tasks: 44
+    allowed_disorders: 31
+  configured_targeted_pairs: 0
+  citation_expansion: pipeline/discovery/run_citation_expansion.py (available; not part of the routine update)
+
+calibration:
+  completion_gate: >-
+    Mechanical retrieval completeness: every selected query execution finishes with no
+    unresolved provider error or result-count shortfall (retrieval_completion_gate_passed).
+  seed_set:
+    status: retired
+    description: >-
+      The 50-paper known-record pilot (flag_in_known_study_set in candidate_papers.parquet)
+      is retired and not used by new runs (pipeline/discovery/README.md). The strategy file
+      still carries calibration.required_for_promotion: true for compatibility.
+  recall_estimate: none
+  note: SPEC.md section 5.9 asks each protocol for an independently assembled seed set.
+
+relocation_needed:
+  - The allowlists under validation.* in pipeline/config.example.yaml are protocol content
+    stored next to API keys and rate limits (engine settings). They should move here or to
+    entities.yaml and vocabularies.yaml.

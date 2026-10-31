@@ -259,6 +259,10 @@ def merged_routing_metadata(candidate_df: pd.DataFrame, metadata_df: pd.DataFram
                 value = clean(row.get(field, ""))
                 if value:
                     merged[field] = value
+            if frame is candidate_df:
+                # Workflow eligibility belongs to the materialized candidate,
+                # never to the provider metadata cache or model prompt.
+                merged["post_retrieval_decision"] = clean(row.get("post_retrieval_decision", ""))
     return pd.DataFrame(by_doi.values())
 
 
@@ -330,6 +334,8 @@ def selected_records(
         doi = normalize_doi(row.get("doi", ""))
         if not doi or doi not in retained or doi in completed:
             continue
+        if clean(row.get("post_retrieval_decision", "")).lower() == "exclude":
+            continue
         context = prescreen_context.get(doi, {})
         rows.append(
             {
@@ -338,6 +344,11 @@ def selected_records(
                 "study_year": clean(row.get("study_year", "")),
                 "abstract": clean(row.get("abstract", "")),
                 "publication_type": clean(row.get("publication_type", "")),
+                "language": clean(row.get("language", "")),
+                "study_journal": clean(row.get("study_journal", "")),
+                "journal_volume": clean(row.get("journal_volume", "")),
+                "journal_issue": clean(row.get("journal_issue", "")),
+                "journal_pages": clean(row.get("journal_pages", "")),
                 "mesh_terms": clean(row.get("mesh_terms", "")),
                 "keywords": clean(row.get("keywords", "")),
                 "prescreen_run_ids": join_values(context.get("prescreen_run_ids", [])),
@@ -349,7 +360,7 @@ def selected_records(
     return rows
 
 
-def completed_dois(raw_jsonl: Path) -> set[str]:
+def completed_dois(raw_jsonl: Path, profile: str | None = None) -> set[str]:
     out = set()
     if not raw_jsonl.exists():
         return out
@@ -361,14 +372,26 @@ def completed_dois(raw_jsonl: Path) -> set[str]:
                 row = json.loads(line)
             except json.JSONDecodeError:
                 continue
-            if clean(row.get("status", "")) == "ok" and row.get("model") == llm.DEFAULT_MODEL:
+            if profile and row.get("screening_profile", "v5_class_scope") != profile:
+                continue
+            if row.get("model") == llm.DEFAULT_MODEL:
                 doi = normalize_doi(row.get("doi", ""))
-                if doi:
+                if doi and clean(row.get("status", "")) == "ok":
                     out.add(doi)
+                elif doi:
+                    out.discard(doi)
     return out
 
 
-def prompt_for_record(record: dict) -> str:
+def screening_profile(args=None) -> str:
+    from pipeline.review import screening_contract as contract
+    return getattr(args, "screening_profile", "") or contract.active_profile()
+
+
+def prompt_for_record(record: dict, profile: str = "v5_class_scope") -> str:
+    if profile != "v5_class_scope":
+        from pipeline.review import screening_contract as contract
+        return contract.prompt_for_record(record)
     abstract = clean(record.get("abstract", ""))
     return f"""Paper record:
 DOI: {record['doi']}
@@ -383,12 +406,40 @@ Keywords: {record['keywords']}
 """
 
 
+def screening_instruction_path(args):
+    explicit = getattr(args, "screening_instruction_file", "")
+    if explicit:
+        return Path(explicit).resolve()
+    if llm.PIPELINE_STATE.exists():
+        state = json.loads(llm.PIPELINE_STATE.read_text())
+        path = state.get("screening_instruction_file")
+        if path and state.get("screening_prompt_version") == screening_profile(args):
+            path = Path(path)
+            path = path if path.is_absolute() else ROOT / path
+            expected = state.get("screening_instruction_sha256")
+            if not expected or llm.hashlib.sha256(path.read_bytes()).hexdigest() != expected:
+                raise ValueError("Active screening instruction differs from its approved scope amendment")
+            return path.resolve()
+    return None
+
+
+def screening_instruction(args):
+    from pipeline.review import screening_contract as contract
+    path = screening_instruction_path(args)
+    if path:
+        return path.read_text(encoding="utf-8").strip()
+    return contract.instruction(screening_profile(args))
+
+
 def generation_config(args):
-    return llm.generation_config(system_instruction=SYSTEM_INSTRUCTION, schema=DOMAIN_RESPONSE_SCHEMA,
-        max_output_tokens=args.max_output_tokens, reasoning_effort=getattr(args, "reasoning_effort", "low"))
+    from pipeline.review import screening_contract as contract
+    profile = screening_profile(args)
+    effort = getattr(args, "reasoning_effort", None) or contract.active_reasoning_effort(profile)
+    return llm.generation_config(system_instruction=screening_instruction(args), schema=contract.response_schema(profile),
+        max_output_tokens=getattr(args, "max_output_tokens", None) or (6144 if effort == "high" else 3072 if profile == contract.V6 else 2048), reasoning_effort=effort)
 
 
-def parse_response_text(text: str) -> dict:
+def parse_response_text(text: str, *, profile: str = "v5_class_scope", record: dict | None = None) -> dict:
     stripped = clean(text)
     if stripped.startswith("```"):
         stripped = re.sub(r"^```(?:json)?\s*", "", stripped)
@@ -396,7 +447,14 @@ def parse_response_text(text: str) -> dict:
     payload = json.loads(stripped)
     if not isinstance(payload, dict):
         raise ValueError("Luna domain routing response was not a JSON object")
-    validate_response_payload(payload)
+    if profile == "v5_class_scope":
+        validate_response_payload(payload)
+    else:
+        from pipeline.review import screening_contract as contract
+        contract.validate_schema(payload, profile)
+        issues = contract.validate_record(payload, record or {})
+        if issues:
+            raise ValueError("Screening review hold: " + ", ".join(issues))
     return payload
 
 
@@ -431,6 +489,12 @@ def validate_response_payload(payload: dict) -> None:
                     raise ValueError(f"Luna domain routing field `{field}` must contain only strings")
                 if allowed is not None and item not in allowed:
                     raise ValueError(f"Luna domain routing field `{field}` has an invalid value: {item}")
+    # A valid JSON enum is insufficient when the model explicitly contradicts
+    # it in its explanation. Reject for review, never silently flip the label.
+    from pipeline.review.screening_contract import validate_record
+    issues = validate_record(payload, {}, require_evidence=False)
+    if issues:
+        raise ValueError("Screening semantic validation: " + ", ".join(issues))
 
 
 def paper_type_group_for(paper_type: str) -> str:
@@ -491,7 +555,7 @@ def normalize_payload(payload: dict) -> dict:
     if paper_type_group not in PAPER_TYPE_GROUPS or paper_type_group != expected_group:
         paper_type_group = expected_group
     paper_type_labels = normalize_paper_type_labels(paper_type, payload.get("paper_type_labels", []))
-    return {
+    result = {
         "domain_tags": tags,
         "primary_domain": primary,
         "screening_decision": screening_decision,
@@ -503,6 +567,9 @@ def normalize_payload(payload: dict) -> dict:
         "methodological_validity_tags": validity_tags,
         "rationale": clean(payload.get("rationale", "")),
     }
+    if "eligibility" in payload:
+        result["eligibility"] = payload["eligibility"]
+    return result
 
 
 def usage_dict(response):
@@ -525,7 +592,7 @@ def run_luna(args: argparse.Namespace) -> list[dict]:
         raise SystemExit("OPENAI_API_KEY is missing. Add it to project .env or the environment.")
 
     scoped_dois = read_doi_file(Path(args.doi_file).resolve()) if clean(args.doi_file) else set()
-    completed = completed_dois(Path(args.raw_jsonl).resolve()) if args.resume else set()
+    completed = completed_dois(Path(args.raw_jsonl).resolve(), screening_profile(args)) if args.resume else set()
     candidate_table = clean(getattr(args, "candidate_table", ""))
     routing_metadata = merged_routing_metadata(
         read_table(Path(candidate_table).resolve()) if candidate_table else pd.DataFrame(),
@@ -541,6 +608,8 @@ def run_luna(args: argparse.Namespace) -> list[dict]:
     model = llm.require_luna(model)
     client = llm.client(api_key)
     config = generation_config(args)
+    profile = screening_profile(args)
+    from pipeline.review import screening_contract as contract
     raw_jsonl = Path(args.raw_jsonl).resolve()
     raw_jsonl.parent.mkdir(parents=True, exist_ok=True)
     mode = "a" if args.resume else "w"
@@ -556,7 +625,9 @@ def run_luna(args: argparse.Namespace) -> list[dict]:
                 "response_text": "",
                 "parsed": {},
                 "usage": {},
-                "prompt_sha256": llm.hashlib.sha256(SYSTEM_INSTRUCTION.encode()).hexdigest(),
+                "screening_profile": profile,
+                "source_record": record,
+                "prompt_sha256": llm.hashlib.sha256(screening_instruction(args).encode()).hexdigest(),
                 "error": "",
             }
             attempts = max(1, args.max_retries + 1)
@@ -564,12 +635,12 @@ def run_luna(args: argparse.Namespace) -> list[dict]:
                 try:
                     response = llm.generate_structured(client,
                         model=model,
-                        contents=prompt_for_record(record),
+                        contents=prompt_for_record(record, profile),
                         config=config,
                         raw_path=raw_jsonl.parent / "screening_responses" / (llm.hashlib.sha256(record["doi"].encode()).hexdigest()+".json"),
                     )
                     text = response.text or ""
-                    parsed = normalize_payload(parse_response_text(text))
+                    parsed = normalize_payload(parse_response_text(text, profile=profile, record=record))
                     raw_row.update(
                         {
                             "status": "ok",
@@ -606,46 +677,59 @@ def parsed_rows_from_raw(raw_jsonl: Path, metadata_df: pd.DataFrame, prescreen_d
     rows = []
     if not raw_jsonl.exists():
         return rows
+    # A later review hold must retire an older successful answer for that DOI.
+    # Otherwise appending a V6 hold would silently resurrect its V5 inclusion.
+    latest = {}
     with raw_jsonl.open("r", encoding="utf-8") as handle:
         for line in handle:
             if not line.strip():
                 continue
             raw = json.loads(line)
-            if clean(raw.get("status", "")) != "ok" or raw.get("model") != llm.DEFAULT_MODEL:
+            if raw.get("model") == llm.DEFAULT_MODEL:
+                latest[normalize_doi(raw.get("doi", ""))] = raw
+    for raw in latest.values():
+        if clean(raw.get("status", "")) != "ok":
+            continue
+        doi = normalize_doi(raw.get("doi", ""))
+        parsed = raw.get("parsed", {})
+        if not doi or not isinstance(parsed, dict):
+            continue
+        # The raw JSONL is an immutable audit of every model decision ever
+        # obtained.  The materialized routing table, however, is a current
+        # workflow view and must not resurrect records excluded by a later
+        # prescreen revision.  Keep the raw result for provenance while
+        # applying the current prescreen gate when rebuilding the table.
+        if prescreen_gate_active and doi not in current_prescreen_dois:
+            continue
+        meta = metadata_by_doi.get(doi, {})
+        context = prescreen_context.get(doi, {})
+        from pipeline.review import screening_contract as contract
+        if raw.get("screening_profile") == contract.V6:
+            contract.validate_schema(parsed, contract.V6)
+            if contract.validate_record(parsed, raw.get("source_record") or meta):
                 continue
-            doi = normalize_doi(raw.get("doi", ""))
-            parsed = raw.get("parsed", {})
-            if not doi or not isinstance(parsed, dict):
-                continue
-            # The raw JSONL is an immutable audit of every model decision ever
-            # obtained.  The materialized routing table, however, is a current
-            # workflow view and must not resurrect records excluded by a later
-            # prescreen revision.  Keep the raw result for provenance while
-            # applying the current prescreen gate when rebuilding the table.
-            if prescreen_gate_active and doi not in current_prescreen_dois:
-                continue
-            meta = metadata_by_doi.get(doi, {})
-            context = prescreen_context.get(doi, {})
-            parsed = normalize_payload(parsed)
-            rows.append(
-                {
-                    "doi": doi,
-                    "study_title": clean(meta.get("study_title", "")),
-                    "study_year": clean(meta.get("study_year", "")),
-                    "prescreen_run_ids": join_values(context.get("prescreen_run_ids", [])),
-                    "domain_tags": parsed.get("domain_tags", []),
-                    "primary_domain": clean(parsed.get("primary_domain", "")),
-                    "screening_decision": clean(parsed.get("screening_decision", "")),
-                    "screening_reason": clean(parsed.get("screening_reason", "")),
-                    "paper_type_group": clean(parsed.get("paper_type_group", "")),
-                    "paper_type": clean(parsed.get("paper_type", "")),
-                    "paper_type_labels": parsed.get("paper_type_labels", []),
-                    "paper_type_reason": clean(parsed.get("paper_type_reason", "")),
-                    "methodological_validity_tags": parsed.get("methodological_validity_tags", []),
-                    "rationale": clean(parsed.get("rationale", "")),
-                    "model": clean(raw.get("model", "")),
-                }
-            )
+        elif contract.validate_record(parsed, {}, require_evidence=False):
+            continue
+        parsed = normalize_payload(parsed)
+        rows.append(
+            {
+                "doi": doi,
+                "study_title": clean(meta.get("study_title", "")),
+                "study_year": clean(meta.get("study_year", "")),
+                "prescreen_run_ids": join_values(context.get("prescreen_run_ids", [])),
+                "domain_tags": parsed.get("domain_tags", []),
+                "primary_domain": clean(parsed.get("primary_domain", "")),
+                "screening_decision": clean(parsed.get("screening_decision", "")),
+                "screening_reason": clean(parsed.get("screening_reason", "")),
+                "paper_type_group": clean(parsed.get("paper_type_group", "")),
+                "paper_type": clean(parsed.get("paper_type", "")),
+                "paper_type_labels": parsed.get("paper_type_labels", []),
+                "paper_type_reason": clean(parsed.get("paper_type_reason", "")),
+                "methodological_validity_tags": parsed.get("methodological_validity_tags", []),
+                "rationale": clean(parsed.get("rationale", "")),
+                "model": clean(raw.get("model", "")),
+            }
+        )
     return rows
 
 
@@ -813,13 +897,15 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--doi-file", default="", help="Optional DOI list for a scoped Luna routing run.")
     parser.add_argument("--env-file", default=str(DEFAULT_ENV))
     parser.add_argument("--model", default="", help="Override OPENAI_SCREENING_MODEL from .env")
+    parser.add_argument("--screening-profile", choices=["v5_class_scope", "v6_scope_checked"], default="", help="Defaults to the validated active contract; old manifests retain V5.")
+    parser.add_argument("--screening-instruction-file", default="", help="Explicit frozen instruction for a documented scope amendment.")
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--parse-only", action="store_true", help="Rebuild the Parquet table from an existing raw JSONL without calling Luna.")
     parser.add_argument("--temperature", type=float, default=0.0)
-    parser.add_argument("--max-output-tokens", type=int, default=2048)
+    parser.add_argument("--max-output-tokens", type=int, default=None)
     parser.add_argument("--thinking-budget", type=int, default=0, help=argparse.SUPPRESS)
-    parser.add_argument("--reasoning-effort", choices=["low"], default="low")
+    parser.add_argument("--reasoning-effort", choices=["low", "medium", "high"], default=None)
     parser.add_argument("--max-retries", type=int, default=0)
     parser.add_argument("--retry-sleep-sec", type=float, default=5.0)
     parser.add_argument("--sleep-sec", type=float, default=0.0)

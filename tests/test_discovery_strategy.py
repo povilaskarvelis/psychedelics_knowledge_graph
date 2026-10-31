@@ -37,6 +37,7 @@ def test_first_update_uses_overlap_and_recovers_exact_post_baseline_compound_del
         "4-HO-MET",
         "4-HO-MiPT",
         "5-MeO-MiPT",
+        "Phencyclidine",
         "DOC",
         "2C-C",
         "2C-D",
@@ -49,7 +50,7 @@ def test_first_update_uses_overlap_and_recovers_exact_post_baseline_compound_del
     ]
     delta_rows = [row for row in plan if row.layer == "scope_delta"]
     assert delta_rows
-    assert len(delta_rows) == 26
+    assert len(delta_rows) == 28
     assert {row.search_type for row in delta_rows} == {"historical_compound_identity"}
     assert {row.dataset for row in delta_rows} == {"general"}
     assert {row.start_date for row in delta_rows} == {"1800-01-01"}
@@ -133,6 +134,64 @@ def test_partial_promoted_run_does_not_advance_standard_update_window(tmp_path: 
     assert not metadata["advances_standard_update_coverage"]
 
 
+def test_pcp_identity_queries_keep_full_name_and_disambiguate_acronym() -> None:
+    strategy = load_strategy(DEFAULT_STRATEGY_PATH)
+    scope = {"allowed_compounds": ["Phencyclidine"]}
+    definitions, _ = build_definitions(
+        strategy, scope, providers=["pubmed", "openalex"], layers=["scope"],
+        include_scope_delta=False,
+    )
+    by_provider = {row.provider: row for row in definitions}
+    pubmed = by_provider["pubmed"].query
+    assert "Phencyclidine[MeSH Terms] OR phencyclidine[Text Word]" in pubmed
+    assert "PCP[Title/Abstract] AND (" in pubmed
+    assert "NMDA[Title/Abstract]" in pubmed
+    assert " NOT " not in pubmed
+    openalex = by_provider["openalex"].query
+    assert openalex.startswith("(phencyclidine OR (PCP AND (")
+    assert "NMDA" in openalex
+    assert by_provider["openalex"].search_surface == "title_and_abstract"
+
+
+def test_scope_delta_only_targets_new_compound_without_advancing_watermark(tmp_path: Path) -> None:
+    scope = parse_validation_allowlists(DEFAULT_CONFIG_PATH)
+    old_scope = deepcopy(scope)
+    old_scope["allowed_compounds"].remove("Phencyclidine")
+    history = tmp_path / "history.json"
+    history.write_text(json.dumps({"runs": [{
+        "run_id": "prior", "status": "promoted",
+        "protocol_id": "psychedelics_kg_living_search_v3",
+        "establishes_scope_baseline": True, "advances_standard_update_coverage": True,
+        "coverage_end_date": "2026-10-15", "scope_snapshot": old_scope,
+    }]}))
+    plan, metadata = build_search_plan(
+        history_path=history, mode="update", layers=["scope_delta"],
+        start_date="1800-01-01", end_date="2026-10-19",
+    )
+    assert len(plan) == 2
+    assert {row.compound for row in plan} == {"Phencyclidine"}
+    assert {row.layer for row in plan} == {"scope_delta"}
+    assert {row.start_date for row in plan} == {"1800-01-01"}
+    assert not metadata["advances_standard_update_coverage"]
+    assert not metadata["establishes_scope_baseline"]
+    payload = json.loads(history.read_text())
+    payload["runs"].append({
+        "run_id": "pcp_addition", "status": "promoted",
+        "protocol_id": "psychedelics_kg_living_search_v3",
+        "coverage_end_date": "2026-10-19", "scope_snapshot": scope,
+        "establishes_scope_baseline": False, "advances_standard_update_coverage": False,
+        "completed_historical_compound_additions": ["Phencyclidine"],
+    })
+    history.write_text(json.dumps(payload))
+    later_plan, later = build_search_plan(
+        history_path=history, mode="update", layers=["core", "scope"],
+        end_date="2026-11-15",
+    )
+    assert not later["scope_delta"]["allowed_compounds"]
+    assert later["coverage_start_date"] == "2026-10-01"
+    assert not any(row.layer == "scope_delta" for row in later_plan)
+
+
 def test_provider_queries_use_provider_specific_surfaces_and_explicit_targeted_pairs() -> None:
     strategy = deepcopy(load_strategy(DEFAULT_STRATEGY_PATH))
     strategy["targeted_pairs"] = [
@@ -210,8 +269,8 @@ def test_standard_plans_do_not_generate_a_cartesian_pair_grid(tmp_path: Path) ->
         end_date="2026-07-15",
     )
 
-    assert len(update) == 371
-    assert len(full) == 232
+    assert len(update) == 376
+    assert len(full) == 234
     assert not any(row.layer == "targeted_pairs" for row in update + full)
     assert not update_metadata["query_generation_policy"]["automatic_pair_grid"]
     assert not full_metadata["query_generation_policy"]["automatic_pair_grid"]

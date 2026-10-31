@@ -200,6 +200,17 @@ class MetadataUtilsTest(unittest.TestCase):
         )
         self.assertEqual(strip_markup("Response in <i>DSM-5</i> drug use"), "Response in DSM-5 drug use")
 
+    def test_strip_markup_preserves_scientific_comparisons_and_intervening_results(self) -> None:
+        text = "<jats:p>n &lt; 50; ketamine reduced memory (P&lt;0.05). Methods and results remain. Controls had P&gt;0.05.</jats:p>"
+        self.assertEqual(strip_markup(text), "n < 50; ketamine reduced memory (P<0.05). Methods and results remain. Controls had P>0.05.")
+        self.assertEqual(strip_markup("a<b and c>d; neurons remained viable."), "a<b and c>d; neurons remained viable.")
+        self.assertEqual(strip_markup("a<Ki and dose>6.8; real text"), "a<Ki and dose>6.8; real text")
+
+    def test_strip_markup_handles_namespaced_markup_and_mathml_without_losing_content(self) -> None:
+        text = '<ns3:p class="abstract"><mml:math><mml:msub><mml:mi>T</mml:mi><mml:mi>H</mml:mi></mml:msub><mml:mn>17</mml:mn></mml:math> cells increased (P&lt;0.05).</ns3:p>'
+        self.assertEqual(strip_markup(text), "T H 17 cells increased (P<0.05).")
+        self.assertEqual(strip_markup('<![CDATA[<p id="x">GFAP<sub>1</sub> and CD11b were measured.</p>]]>'), "GFAP 1 and CD11b were measured.")
+
     def test_existing_row_without_unpaywall_or_pdf_gets_oa_refresh(self) -> None:
         row = {
             "study_doi": "10.1000/example",

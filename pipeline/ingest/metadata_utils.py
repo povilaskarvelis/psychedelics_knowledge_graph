@@ -319,9 +319,22 @@ def strip_markup(value: object) -> str:
     if not text:
         return ""
     text = html.unescape(text)
-    text = re.sub(r"\s*<\s*subtitle\b[^>]*>\s*", ": ", text, flags=re.IGNORECASE)
-    text = re.sub(r"\s*</\s*subtitle\s*>\s*", " ", text, flags=re.IGNORECASE)
-    text = re.sub(r"<[^>]+>", " ", text)
+    # Abstracts contain literal scientific comparisons. A generic <...> regex
+    # can delete whole Methods/Results passages between e.g. P<0.05 and P>0.05.
+    # Recognize publisher/JATS/MathML tags, with actual attribute assignments;
+    # a<b and c>d is text, not an HTML element with boolean attributes.
+    tags = (
+        r"h[1-6]|p|br|hr|div|span|i|b|em|strong|sup|sub|scp|table|thead|tbody|tr|th|td|ul|ol|li|a|"
+        r"section|abstract|sec|title|subtitle|label|italic|bold|underline|xref|ext-link|"
+        r"inline-formula|disp-formula|tex-math|math|mi|mn|mo|mrow|msub|msup|msubsup|mtext|"
+        r"mfrac|msqrt|mroot|mstyle|mspace|mtable|mtr|mtd|semantics|annotation"
+    )
+    attribute = r'''\s+[A-Za-z_:][\w:.-]*\s*=\s*(?:"[^"]*"|'[^']*'|[^\s<>]+)'''
+    namespace = r"(?:[A-Za-z_][\w.-]*:)?"
+    text = re.sub(r"<!\[CDATA\[(.*?)\]\]>", r"\1", text, flags=re.DOTALL)
+    text = re.sub(r"<!--.*?-->", " ", text, flags=re.DOTALL)
+    text = re.sub(rf"\s*<{namespace}subtitle\b(?:{attribute})*\s*>\s*", ": ", text, flags=re.I)
+    text = re.sub(rf"</?{namespace}(?:{tags})\b(?:{attribute})*\s*/?>", " ", text, flags=re.I)
     return re.sub(r"\s+", " ", text).strip()
 
 

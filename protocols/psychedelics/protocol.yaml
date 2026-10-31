@@ -1,0 +1,37 @@
+# Field protocol manifest (draft). Format: protocols/SPEC.md.
+# The pipeline does not read this directory yet. Values were read from the
+# working tree on 2026-10-30; where a decision still lives in code, the file
+# names its current location instead of copying it.
+
+spec_version: field-protocol/0.1-draft
+
+protocol:
+  id: psychedelics
+  title: Psychedelics Knowledge Graph
+  version: 0.1.0-draft          # protocol version; independent of the site release (2.0.0)
+  status: draft_not_read_by_pipeline
+  description: >-
+    Published research on psychedelic, entactogen and dissociative substances:
+    their effects, mechanisms, pharmacokinetics, toxicity and real-world use,
+    from primary studies, reviews and meta-analyses.
+  maintainers:
+    - name: Povilas Karvelis
+      role: domain lead
+  inherits: []                  # candidate base profile: base/biomedical (not defined yet; see base/README.md)
+
+sections:
+  scope: scope.yaml             # eligibility rules and screening instructions
+  search: search.yaml           # providers, queries, update cadence, search calibration
+  entities: entities.yaml       # anchor entity type, node kinds, finding shapes
+  domains: domains.yaml         # evidence domains, extraction instructions and schemas
+  vocabularies: vocabularies.yaml   # concept schemes and their sources
+  views: views.yaml             # graph projection, overview views, facets
+  questions: questions.yaml     # questions the graph is designed to answer
+  validation: validation.yaml   # reference sets, review procedure, release checks, graph card
+  site: site.yaml               # names, URLs, citation, licences
+
+snapshot:
+  read_on: 2026-10-30
+  repository_head: 6284a57
+  working_tree: 154 modified or untracked files at the time of reading
+  measurement: migration/summary.json (protocols/tools/scan_field_coupling.py)

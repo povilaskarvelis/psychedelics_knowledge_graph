@@ -160,7 +160,8 @@ def audit_file(
     product_monograph = "product monograph" in first_5000
     reviewer_list = bool(re.search(r"\breviewers\s+20\d{2}\b", first_5000))
     language = clean(metadata.get("language", "")).lower()
-    metadata_non_english = bool(language and language not in {"en", "eng", "english"})
+    language_codes = {part.strip() for part in re.split(r"[|;,]", language) if part.strip()}
+    metadata_non_english = bool(language_codes and not language_codes.intersection({"en", "eng", "english"}))
     letters = re.findall(r"[^\W\d_]", compact[:12000], flags=re.UNICODE)
     non_latin_letters = re.findall(r"[\u0400-\u052f\u0600-\u06ff\u4e00-\u9fff]", compact[:12000])
     non_latin_document = bool(letters and len(non_latin_letters) / len(letters) >= 0.20)
@@ -188,6 +189,11 @@ def audit_file(
     if product_monograph or reviewer_list:
         action = "quarantine_wrong_document"
         publication_format = "wrong_document"
+    elif identity_status != "matched":
+        # A thesis, abstract or foreign-language file for a different report
+        # is a source-identity problem, not evidence against the intended DOI.
+        action = "quarantine_identity_review"
+        publication_format = ""
     elif thesis_title_page:
         action = "exclude_publication_format"
         publication_format = "dissertation_or_thesis"
@@ -198,12 +204,14 @@ def audit_file(
     elif explicit_meeting_abstract or (meeting_language and (multiple_dois or abstract_header)):
         action = "exclude_publication_format"
         publication_format = "conference_abstract"
-    elif identity_status != "matched":
-        action = "quarantine_identity_review"
-        publication_format = ""
-    elif metadata_non_english or non_latin_document:
+    elif metadata_non_english:
         action = "exclude_publication_format"
         publication_format = "non_english_article"
+    elif non_latin_document:
+        # Script proportions in a front-text sample can reflect bilingual
+        # content, OCR damage or a translated abstract; require source review.
+        action = "review_publication_format"
+        publication_format = "possible_non_english_article"
     elif meeting_language:
         action = "review_publication_format"
         publication_format = "possible_conference_abstract"

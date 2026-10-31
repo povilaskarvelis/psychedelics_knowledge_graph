@@ -20,7 +20,9 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "enum": ["route_extraction_task_v2"]
+      "enum": [
+        "route_extraction_task_v2"
+      ]
     },
     "generated_at_utc": {
       "type": "string"
@@ -48,7 +50,8 @@
         "needs_fulltext_packet",
         "needs_expected_fulltext_packet",
         "missing_abstract",
-        "not_model_ready"
+        "not_model_ready",
+        "needs_source_review"
       ]
     },
     "paper_metadata": {
@@ -160,7 +163,9 @@
       "properties": {
         "contract_version": {
           "type": "string",
-          "enum": ["route_extraction_task_v2"]
+          "enum": [
+            "route_extraction_task_v2"
+          ]
         },
         "route_id": {
           "type": "string"
@@ -225,18 +230,18 @@
         "packet_profile_status",
         "fulltext_artifact_paths",
         "local_pdf_paths",
-        "abstract_available"
-        ,"source_fingerprint"
+        "abstract_available",
+        "source_fingerprint"
       ],
       "properties": {
         "mode": {
           "type": "string",
           "enum": [
-        "full_text_packet",
-        "full_text_artifact",
-        "abstract",
-        "not_applicable",
-        "not_ready"
+            "full_text_packet",
+            "full_text_artifact",
+            "abstract",
+            "not_applicable",
+            "not_ready"
           ]
         },
         "status": {
@@ -300,6 +305,12 @@
         "source_fingerprint": {
           "type": "string",
           "pattern": "^[0-9a-f]{64}$"
+        },
+        "source_quality_flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },

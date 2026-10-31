@@ -1,0 +1,265 @@
+{
+ "generated_at_utc": "2026-10-30T17:18:22+00:00",
+ "repository": {
+  "head": "6284a57",
+  "changed_files": 155
+ },
+ "javascript": "scanned with artifacts/living-knowledge-film/node_modules/acorn",
+ "table_lines_by_class_and_reuse": {
+  "B/n/a": {
+   "tables": 83,
+   "lines": 1028,
+   "items": 1111
+  },
+  "E/discipline": {
+   "tables": 71,
+   "lines": 922,
+   "items": 890
+  },
+  "E/general": {
+   "tables": 18,
+   "lines": 396,
+   "items": 279
+  },
+  "G/n/a": {
+   "tables": 610,
+   "lines": 7834,
+   "items": 7492
+  },
+  "S/discipline": {
+   "tables": 8,
+   "lines": 43,
+   "items": 8
+  },
+  "S/field": {
+   "tables": 52,
+   "lines": 897,
+   "items": 981
+  },
+  "V/discipline": {
+   "tables": 68,
+   "lines": 2170,
+   "items": 1354
+  },
+  "V/field": {
+   "tables": 35,
+   "lines": 1091,
+   "items": 490
+  }
+ },
+ "table_lines_by_language": {
+  "python": {
+   "G": 7635,
+   "S": 940,
+   "B": 1006,
+   "E": 851,
+   "V": 2951
+  },
+  "javascript": {
+   "G": 199,
+   "V": 310,
+   "E": 467,
+   "B": 22
+  }
+ },
+ "table_lines_by_area": {
+  "pipeline": {
+   "G": 25
+  },
+  "pipeline/discovery": {
+   "G": 460,
+   "S": 14,
+   "B": 18
+  },
+  "pipeline/extract": {
+   "G": 1194,
+   "E": 44,
+   "B": 80
+  },
+  "pipeline/fulltext": {
+   "G": 2091,
+   "E": 158
+  },
+  "pipeline/ingest": {
+   "G": 1111,
+   "E": 40
+  },
+  "pipeline/kg": {
+   "G": 1087,
+   "V": 2884,
+   "B": 871,
+   "E": 324,
+   "S": 390
+  },
+  "pipeline/publish": {
+   "G": 644,
+   "B": 24
+  },
+  "pipeline/review": {
+   "S": 536,
+   "G": 380,
+   "E": 285,
+   "B": 12
+  },
+  "pipeline/update": {
+   "G": 135
+  },
+  "pipeline/validate": {
+   "G": 301,
+   "B": 1
+  },
+  "pipeline/workflow": {
+   "G": 85
+  },
+  "scripts": {
+   "V": 67,
+   "G": 59
+  },
+  "services": {
+   "G": 63
+  },
+  "ui": {
+   "G": 199,
+   "V": 310,
+   "E": 467,
+   "B": 22
+  }
+ },
+ "logic_coupling_by_area": {
+  "pipeline": {
+   "total_lines": 703,
+   "domain_or_kind_lines": 0,
+   "field_term_lines": 0,
+   "anchor_literal_lines": 0,
+   "anchor_identifier_lines": 0,
+   "any_protocol_literal_lines": 0,
+   "inline_vocabulary_regexes": 0
+  },
+  "pipeline/discovery": {
+   "total_lines": 5140,
+   "domain_or_kind_lines": 0,
+   "field_term_lines": 4,
+   "anchor_literal_lines": 39,
+   "anchor_identifier_lines": 88,
+   "any_protocol_literal_lines": 43,
+   "inline_vocabulary_regexes": 1
+  },
+  "pipeline/extract": {
+   "total_lines": 12125,
+   "domain_or_kind_lines": 19,
+   "field_term_lines": 9,
+   "anchor_literal_lines": 5,
+   "anchor_identifier_lines": 6,
+   "any_protocol_literal_lines": 33,
+   "inline_vocabulary_regexes": 18
+  },
+  "pipeline/fulltext": {
+   "total_lines": 18987,
+   "domain_or_kind_lines": 5,
+   "field_term_lines": 2,
+   "anchor_literal_lines": 0,
+   "anchor_identifier_lines": 2,
+   "any_protocol_literal_lines": 7,
+   "inline_vocabulary_regexes": 19
+  },
+  "pipeline/ingest": {
+   "total_lines": 14684,
+   "domain_or_kind_lines": 0,
+   "field_term_lines": 8,
+   "anchor_literal_lines": 0,
+   "anchor_identifier_lines": 8,
+   "any_protocol_literal_lines": 8,
+   "inline_vocabulary_regexes": 23
+  },
+  "pipeline/kg": {
+   "total_lines": 22855,
+   "domain_or_kind_lines": 458,
+   "field_term_lines": 133,
+   "anchor_literal_lines": 323,
+   "anchor_identifier_lines": 621,
+   "any_protocol_literal_lines": 847,
+   "inline_vocabulary_regexes": 328
+  },
+  "pipeline/publish": {
+   "total_lines": 5330,
+   "domain_or_kind_lines": 11,
+   "field_term_lines": 7,
+   "anchor_literal_lines": 32,
+   "anchor_identifier_lines": 44,
+   "any_protocol_literal_lines": 50,
+   "inline_vocabulary_regexes": 0
+  },
+  "pipeline/review": {
+   "total_lines": 6620,
+   "domain_or_kind_lines": 5,
+   "field_term_lines": 37,
+   "anchor_literal_lines": 12,
+   "anchor_identifier_lines": 39,
+   "any_protocol_literal_lines": 51,
+   "inline_vocabulary_regexes": 86
+  },
+  "pipeline/update": {
+   "total_lines": 1577,
+   "domain_or_kind_lines": 0,
+   "field_term_lines": 0,
+   "anchor_literal_lines": 0,
+   "anchor_identifier_lines": 0,
+   "any_protocol_literal_lines": 0,
+   "inline_vocabulary_regexes": 0
+  },
+  "pipeline/validate": {
+   "total_lines": 3686,
+   "domain_or_kind_lines": 0,
+   "field_term_lines": 7,
+   "anchor_literal_lines": 13,
+   "anchor_identifier_lines": 16,
+   "any_protocol_literal_lines": 17,
+   "inline_vocabulary_regexes": 0
+  },
+  "pipeline/workflow": {
+   "total_lines": 438,
+   "domain_or_kind_lines": 0,
+   "field_term_lines": 0,
+   "anchor_literal_lines": 0,
+   "anchor_identifier_lines": 0,
+   "any_protocol_literal_lines": 0,
+   "inline_vocabulary_regexes": 0
+  },
+  "scripts": {
+   "total_lines": 2233,
+   "domain_or_kind_lines": 5,
+   "field_term_lines": 15,
+   "anchor_literal_lines": 39,
+   "anchor_identifier_lines": 137,
+   "any_protocol_literal_lines": 55,
+   "inline_vocabulary_regexes": 2
+  },
+  "services": {
+   "total_lines": 2332,
+   "domain_or_kind_lines": 0,
+   "field_term_lines": 16,
+   "anchor_literal_lines": 2,
+   "anchor_identifier_lines": 18,
+   "any_protocol_literal_lines": 17,
+   "inline_vocabulary_regexes": 0
+  },
+  "ui": {
+   "total_lines": 17642,
+   "domain_or_kind_lines": 51,
+   "field_term_lines": 21,
+   "anchor_literal_lines": 174,
+   "anchor_identifier_lines": 536,
+   "any_protocol_literal_lines": 243,
+   "inline_vocabulary_regexes": 0
+  }
+ },
+ "logic_coupling_totals": {
+  "total_lines": 114352,
+  "anchor_literal_lines": 639,
+  "anchor_identifier_lines": 1515,
+  "any_protocol_literal_lines": 1371,
+  "field_term_lines": 259,
+  "inline_vocabulary_regexes": 477,
+  "domain_or_kind_lines": 554
+ }
+}

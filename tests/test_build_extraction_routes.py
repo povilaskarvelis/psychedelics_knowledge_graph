@@ -41,6 +41,35 @@ def write_source_identity_audit(
 
 
 class BuildExtractionRoutesTests(unittest.TestCase):
+    def test_source_hold_never_inherits_an_included_model_route(self) -> None:
+        from pipeline.extract.build_extraction_routes import route_status_for_candidate
+
+        doi = "10.1000/unresolved-report"
+        for family in ("primary", "secondary_literature"):
+            with self.subTest(family=family):
+                metadata = pd.DataFrame([{"doi": doi, "study_title": "Conflicting report",
+                                          "abstract": "An available abstract.", "publication_type": "Journal Article"}])
+                prescreen = pd.DataFrame([{"doi": doi, "prescreen_decision": "retain",
+                                           "retained_for_extraction_candidate": True}])
+                literature = pd.DataFrame([{"doi": doi, "source_family": family,
+                                            "primary_secondary_source_type": "review" if family == "secondary_literature" else "primary",
+                                            "retained_for_extraction_candidate": True}])
+                domain = pd.DataFrame([{"doi": doi, "domain_route": "clinical_outcome",
+                                        "screening_decision": "include_in_scope", "model": "gpt-6-luna"}])
+                original = domain.copy(deep=True)
+                rows = build_route_rows(metadata, prescreen, literature, domain,
+                    fulltext_dir=Path("/tmp/nonexistent-source-hold"), generated_at_utc="2026-10-22",
+                    manual_overrides={doi: {"manual_action": "hold_source_review",
+                                            "manual_reason": "Report identity is not established."}})
+                self.assertEqual(len(rows), 1)
+                self.assertEqual(rows[0]["route_action"], "hold_source_review")
+                self.assertFalse(rows[0]["retained_for_extraction_candidate"])
+                self.assertTrue(rows[0]["domain_needs_human_review"])
+                status, _, retained = route_status_for_candidate(route_rows=rows, prescreen_retained=True)
+                self.assertEqual(status, "hold_source_review")
+                self.assertFalse(retained)
+                pd.testing.assert_frame_equal(domain, original)
+
     def test_scoped_full_rebuild_preserves_out_of_scope_selection_state(self) -> None:
         candidates = pd.DataFrame(
             [
@@ -212,6 +241,39 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertFalse(status["has_converted_full_text"])
         self.assertEqual(status["fulltext_artifact_paths"], "")
         self.assertEqual(status["fulltext_char_count"], 0)
+
+    def test_verified_xml_requires_nonempty_article_body(self) -> None:
+        cases = [
+            ("europepmc_fulltext_xml", "jats_xml", "<article><front><abstract>Abstract only</abstract></front></article>", False),
+            ("europepmc_fulltext_xml", "jats_xml", "<article><body> </body></article>", False),
+            ("europepmc_fulltext_xml", "jats_xml", "<article><body><p>Article results</p></body></article>", True),
+            ("grobid", "tei_xml", '<TEI xmlns="http://www.tei-c.org/ns/1.0"><teiHeader><abstract>Catalog abstract</abstract></teiHeader><text><body/></text></TEI>', False),
+            ("grobid", "tei_xml", '<TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body><div><p>Short original clinical letter results.</p></div></body></text></TEI>', True),
+            ("grobid", "tei_xml", "<TEI><text><body>Broken XML", False),
+        ]
+        for backend, source_format, xml, expected in cases:
+            with self.subTest(backend=backend, xml=xml), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                doi = "10.1000/verified-jats"
+                canonical = root / "articles" / f"{doi_to_slug(doi)}.json"
+                canonical.parent.mkdir()
+                canonical.write_text(json.dumps({
+                    "best_char_count": 2000,
+                    "best_backend": backend,
+                    "extractions": [{
+                        "backend": backend,
+                        "metadata": {"format": source_format},
+                        "text": xml,
+                    }],
+                }))
+                audit = write_source_identity_audit(root, [{
+                    "requested_doi": doi,
+                    "artifact_path": str(canonical.resolve()),
+                    "identity_verified": True,
+                }])
+                status = fulltext_status_for_doi(doi, root, source_identity_audit=audit)
+                self.assertEqual(status["has_converted_full_text"], expected)
+                self.assertEqual(status["fulltext_char_count"], 2000 if expected else 0)
 
     def test_primary_paper_uses_general_route_without_domain_table(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

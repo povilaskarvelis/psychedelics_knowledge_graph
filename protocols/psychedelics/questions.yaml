@@ -1,0 +1,65 @@
+# Questions the graph is designed to answer. Format: protocols/SPEC.md section 5.8.
+# The repository has no explicit list of target questions. This draft was assembled from
+# the Analyze workflows (docs/analyze_workflows.md), the agent guide (api/agent-guide.md)
+# and the assessments of 19 August and 5 September 2026. The domain lead should edit,
+# remove or add questions; each kept question should get a test in validation.yaml.
+
+status: draft_for_domain_lead
+
+questions:
+  - id: Q1
+    question: Which reports study compound X in relation to condition or outcome Y, and of which evidence type?
+    needs: {finding_shapes: [primary_observation, pooled_result, review_relationship], domains: [clinical_outcome]}
+    answered_by: [graph view condition_indication, API search_papers with subject_ids and object_ids]
+    status: supported
+  - id: Q2
+    question: For compound X and outcome Y, what did each report find (direction, design, population, comparator, dose, time point)?
+    needs: {finding_shapes: [primary_observation, pooled_result], fields: [result_pattern, comparison_basis, population_or_model, dose_or_regimen, timepoint]}
+    answered_by: [evidence cards in the site]
+    status: partial
+    gap: Finding-level fields are not in the public API (docs/public_data_policy.md).
+  - id: Q3
+    question: Which adverse events have been reported for compound X, in which populations and at what doses?
+    needs: {domains: [safety_tolerability], fields: [severity, seriousness, dose_or_regimen, population_or_model]}
+    answered_by: [graph view safety_adverse_event, evidence cards]
+    status: partial
+    gap: >-
+      "Not reported", "assessed and absent" and "not extracted" are not yet distinct states
+      (docs/project_critical_assessment_2026-09-05.md).
+  - id: Q4
+    question: Which molecular targets does compound X act on, by which assay, and with what affinity or potency?
+    needs: {domains: [molecular_target], fields: [target, assay_type, metric, value, unit]}
+    answered_by: [graph view target_system, evidence cards]
+    status: partial
+  - id: Q5
+    question: Which outcome instruments, comparators and follow-up windows have trials of compound X used?
+    needs: {facets: [named_outcome_instruments, comparator, follow_up_window]}
+    answered_by: [Analyze evidence coverage heat map]
+    status: supported
+  - id: Q6
+    question: Which combinations of compound, outcome, population and design have few or no reports?
+    needs: {facets: [population_or_model, study_design, outcomes_or_measures]}
+    answered_by: [Analyze evidence coverage heat map]
+    status: partial
+    gap: >-
+      An empty cell can mean not retrieved, not extracted, not normalized, suppressed for display
+      or not studied; these states are not yet reported separately.
+  - id: Q7
+    question: How many independent studies (not reports) support a relationship?
+    needs: {identities: [study, cohort, trial_registration], relations: [reports_primary_results, reports_follow_up, secondary_analysis_of]}
+    status: not_supported
+    gap: The unit of evidence is the report; repeated reports of one trial are counted separately.
+  - id: Q8
+    question: What changed in the evidence for compound X and outcome Y since release R?
+    needs: {release_history: true, finding_identity_across_releases: true}
+    status: not_supported
+  - id: Q9
+    question: Which reviews and meta-analyses cover compound X, and which primary reports were published after their search end date?
+    needs: {finding_shapes: [pooled_result, review_relationship], fields: [search_end_date]}
+    status: partial
+    gap: Links from syntheses to their included studies are not represented.
+  - id: Q10
+    question: Which research groups, journals and funders publish on compound X, and how has this changed over time?
+    needs: {metadata: [authors, journals, funders, publication_year]}
+    answered_by: [Analyze authors and journals lenses, API search_authors]
+    status: supported

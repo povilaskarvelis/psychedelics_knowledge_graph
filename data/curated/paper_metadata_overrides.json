@@ -90,7 +90,7 @@
     },
     {
       "doi": "10.2427/6151",
-      "evidence_basis": "The authors' publication record identifies this DOI as the December 2003 Italian Journal of Public Health article. OpenAlex W20984771 is a corrupted merge with an unrelated 1946 PubMed record for penicillin.",
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
       "fields": {
         "study_title": "I diversi comportamenti dei consumatori di sostanze stupefacenti: indagine campionaria nella provincia di Teramo",
         "study_year": "2003",
@@ -100,8 +100,16 @@
         "language": "it"
       },
       "clear_fields": [
-        "pmid",
-        "openalex_id"
+        "openalex_id",
+        "pmcid",
+        "pmid"
+      ],
+      "prior_evidence_basis": "The authors' publication record identifies this DOI as the December 2003 Italian Journal of Public Health article. OpenAlex W20984771 is a corrupted merge with an unrelated 1946 PubMed record for penicillin.",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Cached PMID20984771 retrieves a different penicillin report; no replacement is established.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
       ]
     },
     {
@@ -289,6 +297,1198 @@
       "fields": {
         "publication_type": "news"
       }
+    },
+    {
+      "doi": "10.32782/3083-7324/2026.3.3",
+      "evidence_basis": "Publisher article metadata states citation_language=uk; source snapshot: data/processed/corpus/living_update_20261015/source_review/10.32782__3083-7324__2026.3.3.landing.json; URL: https://lsmu.in.ua/index.php/med/uk/article/view/38",
+      "fields": {
+        "language": "uk"
+      }
+    },
+    {
+      "doi": "10.35699/2317-2096.2026.63640",
+      "evidence_basis": "Publisher article metadata states citation_language=pt; source snapshot: data/processed/corpus/living_update_20261015/source_review/10.35699__2317-2096.2026.63640.landing.json; URL: https://periodicos.ufmg.br/index.php/aletria/article/view/63640",
+      "fields": {
+        "language": "pt"
+      }
+    },
+    {
+      "doi": "10.51891/rease.v12i9.30661",
+      "evidence_basis": "Publisher article metadata states citation_language=pt-BR; source snapshot: data/processed/corpus/living_update_20261015/source_review/10.51891__rease.v12i9.30661.landing.json; URL: https://periodicorease.pro.br/rease/pt_BR/article/view/30661",
+      "fields": {
+        "language": "pt-BR"
+      }
+    },
+    {
+      "doi": "10.55892/jrg.v9i21.3741",
+      "evidence_basis": "Publisher article metadata states citation_language=pt; source snapshot: data/processed/corpus/living_update_20261015/source_review/10.55892__jrg.v9i21.3741.landing.json; URL: https://revistajrg.com/index.php/jrg/article/view/3741",
+      "fields": {
+        "language": "pt"
+      }
+    },
+    {
+      "doi": "10.56238/arev8n9-174",
+      "evidence_basis": "Publisher article metadata states citation_language=pt-BR; source snapshot: data/processed/corpus/living_update_20261015/source_review/10.56238__arev8n9-174.landing.json; URL: https://periodicos.newsciencepubl.com/arace/pt_BR/article/view/14715",
+      "fields": {
+        "language": "pt-BR"
+      }
+    },
+    {
+      "doi": "10.62574/2jrayyr4",
+      "evidence_basis": "Publisher article metadata states citation_language=es; source snapshot: data/processed/corpus/living_update_20261015/source_review/10.62574__2jrayyr4.landing.json; URL: https://www.revistasinstitutoperspectivasglobales.org/index.php/verdadyderecho/article/view/1563",
+      "fields": {
+        "language": "es"
+      }
+    },
+    {
+      "doi": "10.62574/g9gn9z5t",
+      "evidence_basis": "Publisher article metadata states citation_language=es; source snapshot: data/processed/corpus/living_update_20261015/source_review/10.62574__g9gn9z5t.landing.json; URL: https://www.revistasinstitutoperspectivasglobales.org/index.php/verdadyderecho/article/view/1562",
+      "fields": {
+        "language": "es"
+      }
+    },
+    {
+      "doi": "10.62574/n08gyqka",
+      "evidence_basis": "Publisher article metadata states citation_language=es; source snapshot: data/processed/corpus/living_update_20261015/source_review/10.62574__n08gyqka.landing.json; URL: https://www.revistasinstitutoperspectivasglobales.org/index.php/verdadyderecho/article/view/1581",
+      "fields": {
+        "language": "es"
+      }
+    },
+    {
+      "doi": "10.1016/s2666-1683(26)01490-4",
+      "evidence_basis": "Crossref identifies an S23 conference-supplement item in European Urology Open Science volume 91, while the supplied abstract discusses unrelated penile prosthesis biomechanics. Hold as a conference abstract and clear the mismatched abstract. Source snapshots: data/processed/corpus/living_update_20261015/source_review",
+      "fields": {
+        "publication_type": "conference-abstract"
+      },
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.37899/journallamedihealtico.v7i4.5948",
+      "evidence_basis": "Both Crossref and publisher identify a maternal-anemia/postpartum-hemorrhage article, but its deposited abstract discusses a different ketamine perioperative systematic review. Clear the mismatched abstract rather than treating it as evidence for this DOI. Source snapshots: data/processed/corpus/living_update_20261015/source_review",
+      "fields": {},
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.64239/pi-pt-br-vl11210",
+      "evidence_basis": "Crossref resolves to a Portuguese Psychopharmacology Institute educational section; it is a video lecture summary, not a published guideline or consensus evidence report. Source snapshots: data/processed/corpus/living_update_20261015/source_review",
+      "fields": {
+        "publication_type": "educational video lecture",
+        "language": "pt"
+      },
+      "clear_fields": []
+    },
+    {
+      "doi": "10.13023/2020.ruhrc/15",
+      "evidence_basis": "University of Kentucky repository landing page https://uknowledge.uky.edu/ruhrc_reports/15/ identifies Publication Date 11-2020 and repository citation year 2020. Verified on 2026-10-16; discovery year 2026 was incorrect.",
+      "fields": {
+        "study_year": "2020",
+        "publication_date": "2020-11"
+      }
+    },
+    {
+      "doi": "10.1007/s13659-018-0166-x",
+      "fields": {
+        "abstract": "Three new monoterpene indole alkaloids, 3α-hydroxymethyl-ibogamine (1), 3α-acetatemethoxyl-ibogamine (2), 16α-hydroxyl-ibogamine (3) together with six known alkaloids were isolated from the branches and leaves of Tabernaemontana divaricata (Apocynaceae). The structures of these alkaloids were determined by spectroscopic analyses. All isolated compounds showed no significant cytotoxicity against SGC-7901 gastric cancer, HeLa, and A-549 lung cancer cell lines (IC50 > 20 µM)."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "The candidate is an introductory alkaloid paragraph, not the full abstract of its own three-new-alkaloids report. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1007/s40211-018-0259-0",
+      "fields": {
+        "abstract": "Amphetamine type substances are the second most commonly consumed illicit drug type and their use is an important contributor to the global burden of disease. This investigation set out to determine whether, similar to alcohol or nicotine addiction, subgroups of consumers can also be found in amphetamine addicts. 204 consumers of methamphetamine only (n = 50) or both methamphetamine and heroin (n = 154) have been investigated in Mashhad, Iran by means of \"Lesch Alcoholism Typology\". No significant differences in consumption pattern or age of onset have been found between the different types. Many subjects, however, reported symptoms of anxiety (n=78) or depression (n = 129) prior to drug use. These findings highlight the need for high quality epidemiological studies further addressing this issue."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "The candidate is an introductory ATS paragraph; native exact-report abstract supplies the omitted own-study summary. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1016/j.celrep.2021.109413",
+      "fields": {
+        "abstract": "Metabolic regulation strategies have been developed to redirect metabolic fluxes to production pathways. However, it is difficult to screen out target genes that, when repressed, improve yield without affecting cell growth. Here, we report a strategy using a quorum-sensing system to control small RNA transcription, allowing cell-density-dependent repression of target genes. This strategy is shown with convenient operation, dynamic repression, and availability for simultaneous regulation of multiple genes. The parameters Ai, Am, and RA (3-oxohexanoyl-homoserine lactone [AHL] concentrations at which half of the maximum repression and the maximum repression were reached and value of the maximum repression when AHL was added manually, respectively) are defined and introduced to characterize repression curves, and the variant LuxRI58N is identified as the most suitable tuning factor for shake flask culture. Moreover, it is shown that dynamic overexpression of the Hfq chaperone is the key to combinatorial repression without disruptions on cell growth. To show a broad applicability, the production titers of pinene, pentalenene, and psilocybin are improved by 365.3%, 79.5%, and 302.9%, respectively, by applying combinatorial dynamic repression."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate contains only the tail of its own abstract. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1016/j.chempr.2022.11.019",
+      "fields": {
+        "abstract": "Pillar[6]MaxQ (P6AS) functions as an in vivo sequestration agent for methamphetamine and fentanyl. We use 1H NMR, isothermal titration calorimetry, and molecular modelling to deduce the geometry and strength of the P6AS•drug complexes. P6AS forms tight complexes with fentanyl (Kd=9.8 nM), PCP (17.1 nM), MDMA (25.5 nM), mephedrone (52.4 nM), and methamphetamine (101 nM). P6AS has good in vitro biocompatibility according to MTS metabolic, Adenylate Kinase cell death, and hERG ion channel inhibition assays, and the Ames fluctuation test. The no observed adverse effect level for P6AS is 45 mg/kg. The hyperlocomotion of mice treated with methamphetamine (0.5 mg/kg) can be ameliorated by treatment with P6AS (35.7 mg/kg) 5-minutes later, whereas the hyperlocomotion of mice treated with fentanyl (0.1 mg/kg) can be controlled by treatment with P6AS (5 mg/kg) up to 15-minutes later. P6AS has significant potential for development as a broad spectrum in vivo sequestration agent."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate contains graphical-abstract/short-summary text instead of the full main abstract. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1016/j.dadr.2026.100482",
+      "fields": {},
+      "clear_fields": [
+        "pmid"
+      ],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "The candidate identifies a published journal report, while the cached PMID/native DOI link points to its earlier preprint. Preserve the journal report and final publication status; quarantine/repair the stale PMID association and record the preprint-to-publication relationship. Do not overwrite the journal record with preprint types.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1037/pha0000617",
+      "fields": {
+        "abstract": "Similarities between meditative and psychedelic states have long been recognized. Recently, parallels in the psychological mechanisms mediating the beneficial effects of mindfulness and psychedelic treatments-as well as their potential therapeutic complementarity-have been noted. However, empirical research in this area remains limited. Here, we explore the naturalistic use of meditation practices among psychedelic users recruited outside of treatment/retreat or research settings. Participants with ≥ 1 psychedelic drug experience(s) were included in an online survey. The majority (n = 875; 66.5%) indicated that they engaged in meditation, 39.4% (n = 345) of whom had combined psychedelic use with meditation practices on ≥ 1 occasion. The majority (74.2%; n = 256) provided written accounts describing their experiences of \"psychedelic-meditation,\" which were the basis for the present thematic analytic study. Six overarching themes were identified: (1) Compatibility Between Psychedelic and Meditative States; (2) Enhancement of the Meditative and Psychedelic Experience; (3) Beneficial Changes in Relating to the Internal and External World (encompassing acceptance, connection, peacefulness, and transformation); (4) Negative Effects of Combined Use; (5) Meditation as a Preparatory and Navigational Tool; and (6) Contextual Considerations (including reflections upon, and practical advice about, combining meditation and psychedelics). Participants' experiences appear to support recent empirical and theoretical work on the parallels and complementarity between psychedelic drug effects and meditation. The findings identify facilitating conditions for combining psychedelics with meditation, which may have implications for their combined therapeutic use. For example, the use of meditation techniques might represent a \"psychedelic-sparing\" strategy, potentially enabling therapeutically important psychedelic effects to emerge at lower doses. (PsycInfo Database Record (c) 2023 APA, all rights reserved)."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate contains only the tail of its own meditation/psychedelic report abstract. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1037/pha0000658",
+      "fields": {
+        "abstract": "Whether current suicide risk or a history of attempted suicide is related to the antidepressant effect of a low-dose ketamine infusion remains unclear. In total, 47 patients with treatment-resistant depression (TRD), including 32 with low current suicide risk and 15 with moderate or high current suicide risk, were randomized to groups receiving a low-dose ketamine infusion of either 0.2 or 0.5 mg/kg. Among the patients, 21 had a lifetime history of attempted suicide. Suicide risk was assessed based on the Suicidal scale of the Mini-International Neuropsychiatric Interview. The 17-item Hamilton Depression Rating Scale (HDRS) was used to measure depressive symptoms at baseline, at 40 and 240 min after infusion, and sequentially on Days 2-7 and 14 after ketamine infusion. Generalized estimating equation models indicated that the time effects of both 0.5 and 0.2 mg/kg ketamine infusions were significant during the study period. The models also indicated that current suicide risk (p = .037) but not lifetime history of attempted suicide (p = .184) was related to the trajectory of total HDRS scores. Patients with moderate-to-high current suicide risk benefited more from the low-dose ketamine infusion compared with those with the low current suicide risk. Patients with TRD having moderate or high current suicide risk may be prioritized to receive a low-dose ketamine infusion, which may aid suicide prevention. (PsycInfo Database Record (c) 2024 APA, all rights reserved)."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate contains only the tail of its own ketamine/suicide-risk abstract. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1038/s41398-026-04196-y",
+      "fields": {},
+      "clear_fields": [
+        "pmid"
+      ],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "The candidate identifies a published journal report, while the cached PMID/native DOI link points to its earlier preprint. Preserve the journal report and final publication status; quarantine/repair the stale PMID association and record the preprint-to-publication relationship. Do not overwrite the journal record with preprint types.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1038/s41586-026-10910-z",
+      "fields": {
+        "abstract": "Psychedelics can profoundly alter consciousness by reorganizing brain connectivity1,2, producing acute experiences that shape lasting psychological change3,4. Psychedelic dynamics are commonly described as desynchronized or entropically disordered5,6, yet the brain organization underlying self-dissolving and boundary-dissolving experiences that participants often report7, and how context shapes that organization8, remain unresolved. To address this, we acquired the largest single-site psychedelic neuroimaging dataset to date. Sixty-two adults underwent functional magnetic resonance imaging (fMRI) and electroencephalography (EEG) during rest and naturalistic stimuli (meditation, music and movie), before and on the day of psilocybin administration (fMRI ~ 80 min post-dose; EEG ~ 150 min post-dose). Half ranked the experience among the most meaningful of their lives7. Here, using machine learning to represent the brain dynamics of each individual as low-dimensional trajectories, we show that psilocybin reorganizes brain activity into structured, context-sensitive patterns that co-vary with the quality of subjective experience, revealing a latent order missed by time-averaged measures. Networks that ordinarily segregate internal and external processing integrated, producing cohesive context-aligned trajectories in participants reporting the felt experience of being continuous with, rather than separate from, the environment, a state we refer to as embeddedness. The strength of this context alignment scaled with both the depth of self-dissolving and boundary-dissolving experience and the next-day mindset change. Our findings recast apparent disorder as latent organization aligned with context, linking neurobiology to subjective experience and behavioural change."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "The source abstract is the same published report with final-version wording; preserve variant provenance. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1038/s41593-026-02375-0",
+      "fields": {
+        "pmid": "42563032"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Verified report/source fixes20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "The candidate identifies a published journal report, while the cached PMID/native DOI link points to its earlier preprint. Preserve the journal report and final publication status; quarantine/repair the stale PMID association and record the preprint-to-publication relationship. Do not overwrite the journal record with preprint types.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ],
+      "source_repair_followups": [
+        "Exact final-published native DOI/title/PMID; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/screening_correction_20261019/high_reasoning_validation/source_audit/main_changes/native_pubmed_scope_audit_20261019/published_identifier_followups_001.json"
+      ]
+    },
+    {
+      "doi": "10.1038/s42003-026-10804-w",
+      "fields": {},
+      "clear_fields": [
+        "pmid"
+      ],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "The candidate identifies a published journal report, while the cached PMID/native DOI link points to its earlier preprint. Preserve the journal report and final publication status; quarantine/repair the stale PMID association and record the preprint-to-publication relationship. Do not overwrite the journal record with preprint types.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1039/d3ay01385e",
+      "fields": {
+        "abstract": "Lysergic acid diethylamide (LSD) is a prevalent psychoactive substance recognized for its hallucinogenic properties, often encountered in blotter papers for illicit consumption. Given that LSD ranks among the most widely abused illicit drugs globally, its prompt identification in seized samples is vital for forensic investigations. This study presents, for the first time, an electrochemical screening method for detecting LSD in forensic samples, utilizing a multi-wall carbon nanotube screen-printed electrode (SPE-MWCNT). The LSD detection process was optimized on SPE-MWCNT in a phosphate buffer solution (0.1 mol L-1, pH 12.0) using square wave voltammetry (SWV). The combined use of SPE-MWCNT with SWV displayed robust stability in electrochemical responses for both qualitative (peak potential) and quantitative (peak current) LSD assessment, with a relative standard deviation (RSD) of less than 5% across the same or different electrodes (N = 3). A linear detection range was established between 0.16 and 40.0 μmol L-1 (R2 = 0.998), featuring a low limit of detection (LOD) of 0.05 μmol L-1. Interference studies with twenty-three other substances, including groups of phenethylamines typically found in blotting papers (e.g., NBOHs and NBOMes) and traditional illicit drugs, were performed, revealing a highly selective response for LSD using the proposed method. Consequently, the integration of SPE-MWCNT with SWV offers a robust tool for qualitative and quantitative LSD analysis in forensic applications, providing rapid, sensitive, selective, reproducible, and straightforward preliminary identification in seized samples."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate contains only a tail fragment of its own LSD analytical abstract. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1073/pnas.2014529117",
+      "fields": {
+        "abstract": "While debates have raged over the relationship between trance and rock art, unambiguous evidence of the consumption of hallucinogens has not been reported from any rock art site in the world. A painting possibly representing the flowers of Datura on the ceiling of a Californian rock art site called Pinwheel Cave was discovered alongside fibrous quids in the same ceiling. Even though Native Californians are historically documented to have used Datura to enter trance states, little evidence exists to associate it with rock art. A multianalytical approach to the rock art, the quids, and the archaeological context of this site was undertaken. Liquid chromatography-mass spectrometry (LC-MS) results found hallucinogenic alkaloids scopolamine and atropine in the quids, while scanning electron microscope analysis confirms most to be Datura wrightii Three-dimensional (3D) analyses of the quids indicate the quids were likely masticated and thus consumed in the cave under the paintings. Archaeological evidence and chronological dating shows the site was well utilized as a temporary residence for a range of activities from Late Prehistory through Colonial Periods. This indicates that Datura was ingested in the cave and that the rock painting represents the plant itself, serving to codify communal rituals involving this powerful entheogen. These results confirm the use of hallucinogens at a rock art site while calling into question previous assumptions concerning trance and rock art imagery."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate is the article Significance statement rather than the main abstract. Journal Proceedings title is legitimate. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1080/02791072.2025.2454474",
+      "fields": {
+        "abstract": "New legal frameworks for supervised psychedelic services are emerging, with Oregon and Colorado implementing programs to train and license psilocybin facilitators. This study describes Oregon's early psilocybin facilitator workforce and assesses state-approved training programs. The Open Psychedelic Evaluation Nexus (OPEN) reviewed Oregon Health Authority-approved training programs and surveyed facilitators who had completed or were enrolled in these programs between July and November 2023. Data collection included a review of public listings, contact with training programs, and facilitator survey. Results indicated that in the 16 active training programs, the mean tuition was $9,359 and half offered diversity scholarships. Survey respondents (n = 106) were relatively diverse; many had an existing healthcare license. The majority reported that training expenses were a moderate-to-severe financial strain. Most were satisfied with training. The mean planned price for a session was $1,388 and the most common areas of specialization were trauma, mental disorders, consciousness exploration, and spirituality. Facilitators requested ongoing training opportunities. In conclusion, Oregon's emerging psilocybin facilitator workforce and training programs are in early development. These findings are crucial for informing future policy and training program development to support a diverse and effective workforce."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate contains only a tail fragment of its own Oregon workforce abstract. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1080/02791072.2025.2495937",
+      "fields": {
+        "abstract": "Neurobiological effects and psychological models propose that psychedelics may promote psychological flexibility, suggesting a transdiagnostic effect by disrupting maladaptive patterns. The objective of this study was therefore to investigate the determinants of psychological flexibility change following a psychedelic use. This retrospective online survey included French individuals who had undergone a significant psychedelic experience. Participants were assessed for mystical experience intensity with the MEQ-30, and psychological flexibility via the AAQ-II, at three retrospective time points. Data analysis comprised descriptive statistics, correlation analysis, ANCOVA to evaluate the impact of psychedelic use variables on psychological flexibility, and linear regression to identify predictors of psychological flexibility changes. Data showed a positive correlation between mystical experience intensity and improvements in psychological flexibility, especially 1-month post-experience (p < .01), and during the 6 months before the survey (p < .01). Key predictors of changes in psychological flexibility included baseline AAQ-II scores, MEQ total scores and frequent psychedelic use, underlining the interaction between personal and experiential factors in determining therapeutic outcomes. In conclusion, this study highlights how the intensity of mystical experience and baseline psychological flexibility may be the key factors influencing changes in psychological flexibility post-psychedelic use, suggesting a potential therapeutic value."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate contains only a tail fragment of its own psychological-flexibility abstract. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1080/02791072.2025.2520221",
+      "fields": {
+        "abstract": "Psychedelic research has traditionally focused on controlled, clinical settings to evaluate the therapeutic potential of substances such as psilocybin. However, in recent years, there has been growing interest in naturalistic research, which explores psychedelic use in real-world settings. This review aims to critically analyze trends in naturalistic psychedelic research, focusing on sample demographics and the diversity of contextual factors across different settings. A systematic search in PubMed, PsycINFO, and Web of Science was conducted, including studies that involved the use of classic psychedelics in real-world settings. Two reviewers independently screened articles and extracted data on both sample and setting characteristics. A total of 103 studies were included, most of which employed a cross-sectional survey-based design (n = 54), with sample characteristics being widely reported, albeit with considerable variability across studies. Ayahuasca was the most frequently studied substance (66%), and ceremonial settings were the most commonly reported (35.9%). While sample characteristics were widely reported, there was significant variability. Specific contextual components, such as music, were often underreported, with longitudinal studies providing the most comprehensive details. This review highlights the need for systematic reporting standards in naturalistic psychedelic research to maximize its complementary value alongside clinical trials."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate contains only a tail fragment of its own naturalistic-studies scoping-review abstract; supplement mention is a benign link. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1080/02791072.2025.2537040",
+      "fields": {
+        "abstract": "Interest in and use of hallucinogens appears to be growing in the United States, yet less is known about the use of multiple hallucinogens. The aims of this study are to characterize subgroups of lifetime hallucinogen use and to identify sociodemographic correlates of these subgroups. Latent class models were fit using 2021-2022 National Survey on Drug Use and Health (NSDUH) data on a sub-sample of individuals who reported having ever used any hallucinogen (n = 17,977). A four-class model identified the following subgroup classes: Psilocybin (16%), LSD/Psilocybin (46%), Ecstasy (23%), and a fourth class (15%) labeled Multiple substances, with high probabilities of use of psilocybin, LCD, and ecstasy, in addition to moderate probabilities of use of other hallucinogens. In survey-weighted multinomial logistic regression analyses, compared to the Psilocybin class, the adjusted odds of being in the LSD/Psilocybin class increased with age-group level (AORs = 1.5-6.4, 95% CIs:1.3-8.7), and non-White participants had higher odds of being in the Ecstasy class (AORs = 1.7-3.2, 95% CIs:1.1-4.4). As policies regulating and clinical practice with hallucinogens continue to evolve, these patterns of lifetime hallucinogen use demonstrate the overlapping nature of hallucinogen experiences in the U.S. population, which has implications for expanding clinical trial inclusion criteria and establishing a baseline for future trends."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate contains only a tail fragment of its own hallucinogen latent-class abstract. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1080/02791072.2026.2644856",
+      "fields": {
+        "abstract": "Psychedelic experiences have been associated with improved quality of life, but many studies rely on samples of enthusiasts, raising concerns about selection bias. This study examined whether self-reported quality-of-life impact differed between a convenience sample of psychedelic enthusiasts and a general population sample recruited through Prolific, and whether sample differences persisted after controlling for mindset, setting, motivation, and personality. A total of N = 1,182 participants (N = 583 enthusiasts; N = 599 general sample) with prior psychedelic experience completed an online survey assessing perceived impact, contextual factors, motivation for use, and Big Five personality. Between-group differences were analyzed using Welch's t-tests, Pearson´s chi-squared tests and Mann-Whitney-Wilcoxon tests. A Type III ANCOVA was used to assess whether sample differences in quality-of-life impact remained after controlling for relevant covariates. Enthusiasts reported significantly greater quality-of-life impact (d = 0.84), higher openness, extraversion and agreeableness, more favorable mindsets and settings, and a higher frequency of personal growth motives. In the ANCOVA, sample membership was the strongest predictor of quality-of-life impact, followed by setting, motivation, openness, and mindset. These findings provide empirical clarification of how enthusiast-leaning recruitment strategies can shape reported outcomes in psychedelic research. Results underscore the need to consider sampling frames when interpreting reported benefits and to prioritize representative recruitment in future psychedelic research."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate contains only a tail fragment of its own selection-bias abstract. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1080/10911359.2015.1083502",
+      "fields": {
+        "abstract": "The current study was designed to determine the extent to which self-reported ecstasy use in a population of juvenile adolescent detainees in a southern state is associated with high-risk health behaviors pertaining to sexually transmitted infection (STI) symptomology and past history of STI occurrence. Participants were 764 African American females extracted from an overall sample of 2,260 juvenile offenders housed at selected Youth Development Campuses in the state of Georgia. Significance tests were conducted using univariate logistic regressions to examine the independent associations of participant's self-reported ecstasy use and dichotomized HIV risk behavior correlates and history of having a prior STI before the most recent incarceration Participants who reported ecstasy use prior to incarceration were 1.7 (OR = 1.68, 95% CI = 0.78-3.64) and 1.8 times (OR = 1.87, 95% CI = 1.24-2.81) more likely respectively to indicate having had genital warts or chlamydia, and were more than 1.5 times (OR = 2.21, 95% CI = 0.83-5.44) and two times more likely to report having had gonorrhea or herpes, accordingly. Prevention programs for adolescent offender populations should develop interventions that target adolescents' substance use behavior as a function of STI risk taking as well as being culturally competent to deal specifically with these problem behaviors."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate contains only a tail fragment of its own offender MDMA abstract. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1080/23328940.2022.2069965",
+      "fields": {
+        "abstract": "The synthetic cathinone (\"bath salt\") methylone induces a hyperthermia response and with chronic administration tolerance to this hyperthermia has been reported. The microbiome-gut-brain axis has been implicated in multiple bodily systems and pathologies, and intentional manipulation of the gut-microbiome has yielded clinically significant results. Here, we examined the effects of bi-directional Fecal Microbiota Transplantation (FMT) between methylone-induced hyperthermic tolerant (MHT) and methylone-naïve (MN) rats. Rats treated with methylone once per week developed tolerance to methylone-induced hyperthermia by the fourth week. Once tolerant, daily bi-directional FMT between the two groups were performed for seven days prior to the next methylone treatment. The FMT abated the developed tolerance in the MHT group. When treated with methylone for the first time following FMT, recipient MN rats displayed significant tolerance to hyperthermia despite it being their initial drug treatment. Post-FMT, MHT rats displayed elevations in norepinephrine and expression of UCP1, UCP3 and TGR5 in brown adipose tissue, with reductions in expression of TGR5 and UCP3 in skeletal muscle. The pre- and post-FMT methylone tolerance phenotypes of transplant recipients are concurrent with changes in the relative abundance of several classes of Proteobacteria, most evident for Gammaproteobacteria and Alphaproteobacteria. MHT recipients demonstrated a marked increase in the relative proportion of the Firmicutes class Erysipelotrichia. These findings suggest that transplantation of gut-microbiomes can confer phenotypic responses to a drug and that the microbiome may be playing a major role in sympathomimetic-mediated hyperthermia. Abbreviations: 3,4-methylenedioxymethamphetamine (MDMA); methylone-induced hyperthermic tolerant (MHT); methylone-naïve (MN); fecal microbiota transplantation (FMT); uncoupling protein (UCP); subcutaneous (sc); intraperitoneal (ip); brown adipose tissue (BAT); skeletal muscle (SKM); sympathetic nervous system (SNS); norepinephrine (NE); quantitative PCR (qRT-PCR); quantification cycle (Cq); High Performance Liquid Chromatography-Electrochemical Detection (HPLC-EC); amplicon sequence variants (ASVs); principal coordinates analysis (PCoA); permutational multivariate analysis (PERMANOVA)."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "The input field contains an abbreviations list rather than its own methylone article abstract. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1093/chemse/bjag026",
+      "fields": {
+        "pmid": "42641131"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Verified report/source fixes20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "The candidate identifies a published journal report, while the cached PMID/native DOI link points to its earlier preprint. Preserve the journal report and final publication status; quarantine/repair the stale PMID association and record the preprint-to-publication relationship. Do not overwrite the journal record with preprint types.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ],
+      "source_repair_followups": [
+        "Exact final-published native DOI/title/PMID; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/screening_correction_20261019/high_reasoning_validation/source_audit/main_changes/native_pubmed_scope_audit_20261019/published_identifier_followups_001.json"
+      ]
+    },
+    {
+      "doi": "10.1111/j.1600-0528.1999.tb02022.x",
+      "fields": {
+        "related_dois": "10.1111/j.1600-0528.1998.tb02022.x"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Both 1999 and 1998 forms are registered with the same report title and pages; the exact native report uses the 1998 form. Preserve the eligible report and stage a specific identifier relationship for the existing owner, rather than a global year rewrite or an additional report.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/reviewed_proposals.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1111/jcpt.12541",
+      "fields": {
+        "abstract": "Lanicemine (AZD6765) is a low-trapping N-methyl-d-aspartate receptor channel blocker that has demonstrated antidepressant efficacy in three of four clinical studies. The aim of this study was to develop a population pharmacokinetic model describing the concentration vs time profile of intravenously administered lanicemine in healthy subjects and patients with major depressive disorder (MDD) and to use the model to evaluate the impact of demographic and clinical factors and concomitant medication on the pharmacokinetics of lanicemine. Data were derived from four studies: two Phase I trials in healthy subjects (studies 8 [NCT01069822] and 13 [NCT00785915]) and two Phase II trials in patients with MDD (studies 1 [NCT00491686] and 9 [NCT00781742]). Population pharmacokinetic analysis was performed by nonlinear mixed-effects modelling. The covariates evaluated within the model included sex, race, age and body weight parameters, clinically relevant laboratory measures, and use of concomitant medications. Goodness-of-fit plots, bootstrap and visual predictive checks were conducted to confirm concordance with observed data. A total of 2531 plasma lanicemine concentrations were available for analysis from 191 healthy subjects and patients with MDD. The pharmacokinetics of lanicemine following intravenous infusion was best described by a two-compartment model with zero-order input and first-order elimination. Mean systemic clearance (CL) was estimated at 9.43 L/h (90% CI 9.12-9.77), central compartment volume of distribution (V1) was 106 L (90% CI 93.7-115), peripheral volume of distribution (V2) was 47.3 (95% CI 39.6-56.6), and intercompartmental clearance (Q) was 75.7 (90% CI 51.8-127). Lean body mass and body surface area had a statistically significant effect on CL and V1, respectively. The population pharmacokinetic model developed adequately described the clinical observation of lanicemine in patients with MDD and healthy volunteers. Lean body mass and body surface area were identified as covariates that significantly influence the pharmacokinetics of lanicemine."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate contains only the first paragraph of its own pharmacokinetic abstract. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1124/dmd.111.039727",
+      "fields": {
+        "abstract": "In this study, the selectivity of UDP-glucuronosyltransferase (UGT) enzyme inhibition by ketamine (KTM) and the kinetics of KTM inhibition of human liver microsomal morphine (MOR) and codeine (COD) glucuronidation were characterized to explore a pharmacokinetic basis for the KTM-opioid interaction. With the exception of UGT1A4, KTM inhibited the activities of recombinant human UGT enzymes in a concentration-dependent manner. However, IC(50) values were <100 μM only for UGT2B4, UGT2B7, and UGT2B15. UGT2B7 catalyzes MOR 3- and 6-glucuronidation and the 6-glucuronidation of COD, with an additional substantial contribution of UGT2B4 to the latter reaction. Consistent with the effects of KTM on the activities of recombinant UGT2B enzyme activities, KTM competitively inhibited human liver microsomal MOR and COD glucuronidation. K(i) values for KTM inhibition of MOR 3- and 6-glucuronidation and COD 6-glucuronidation by human liver microsomes supplemented with 2% bovine serum albumin were 5.8 ± 0.1, 4.6 ± 0.2, and 3.5 ± 0.1 μM, respectively. Based on the derived inhibitor constants, in vitro-in vivo extrapolation was used to predict the effects of anesthetic and analgesic doses of KTM on MOR and COD clearances. Potentially clinically significant interactions (>50% increases in the in vivo area under the curve ratios) with MOR and COD were predicted for anesthetic doses of KTM and for a subanesthetic dose of KTM on COD glucuronidation."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate omits substantive parts of its own main abstract. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1126/sciadv.aee2152",
+      "fields": {
+        "abstract": "Thalamofrontal (TF) dysconnectivity is one of the most consistent circuit-level abnormalities reported in patients with schizophrenia and is linked to deficits in short-term memory (STM). However, the biological mechanisms underlying TF weakening remain unclear. Here, we show that repeated adolescent N-methyl-d-aspartate receptor (NMDAR) antagonism produces STM deficits by impairing TF synaptic transmission. In mice repeatedly exposed to ketamine, STM impairment coincided with reduced release probability and attenuated short-term depression at mediodorsal thalamus (MD) → dorsomedial prefrontal cortex (dmPFC) synapses, without detectable changes in corticocortical synaptic release probability, intrinsic excitability, or gross synaptic ultrastructure. These presynaptic deficits were accompanied by diminished direction-selective population coding in the dmPFC and impaired delayed alternation performance. Chemogenetically strengthening MD → dmPFC projections restored both neural selectivity and behavior. These findings identify a projection-specific presynaptic mechanism through which adolescent NMDAR hypofunction weakens TF communication and produces cognitive impairment, offering a biological explanation for clinically observed TF dysconnectivity and establishing TF synapses as a therapeutic target."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Abstract variants belong to the same paper; circuit-specific source results support different endpoint statements. Preserve the actual published main abstract rather than treating different circuits as contradictory. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1126/science.1193692",
+      "fields": {
+        "abstract": "The serotonin transporter (SERT) ensures the recapture of serotonin and is the pharmacological target of selective serotonin reuptake inhibitor (SSRI) antidepressants. We show that SERT is a target of microRNA-16 (miR-16). miR-16 is expressed at higher levels in noradrenergic than in serotonergic cells; its reduction in noradrenergic neurons causes de novo SERT expression. In mice, chronic treatment with the SSRI fluoxetine (Prozac) increases miR-16 levels in serotonergic raphe nuclei, which reduces SERT expression. Further, raphe exposed to fluoxetine release the neurotrophic factor S100β, which acts on noradrenergic cells of the locus coeruleus. By decreasing miR-16, S100β turns on the expression of serotonergic functions in noradrenergic neurons. Based on pharmacological and behavioral data, we propose that miR-16 contributes to the therapeutic action of SSRI antidepressants in monoaminergic neurons."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate is the Science editorial synopsis, not the main abstract of its own research article; the primary report remains retained. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1128/aem.01801-21",
+      "fields": {
+        "abstract": "Ergot alkaloids derived from lysergic acid have impacted humanity as contaminants of crops and as the bases of pharmaceuticals prescribed to treat dementia, migraines, and other disorders. Several plant-associated fungi in the Clavicipitaceae produce lysergic acid derivatives, but many of these fungi are difficult to culture and manipulate. Some Aspergillus species, which may be more ideal experimental and industrial organisms, contain an alternate branch of the ergot alkaloid pathway, but none were known to produce lysergic acid derivatives. We mined the genomes of Aspergillus species for ergot alkaloid synthesis (eas) gene clusters and discovered that three species, A. leporis, A. homomorphus, and A. hancockii, had eas clusters indicative of the capacity to produce a lysergic acid amide. In culture, A. leporis, A. homomorphus, and A. hancockii produced lysergic acid amides, predominantly lysergic acid α-hydroxyethylamide (LAH). Aspergillus leporis and A. homomorphus produced high concentrations of LAH and secreted most of their ergot alkaloid yield into the culture medium. Phylogenetic analyses indicated that genes encoding enzymes leading to the synthesis of lysergic acid were orthologous to those of the lysergic acid amide-producing Clavicipitaceae; however, genes to incorporate lysergic acid into an amide derivative evolved from different ancestral genes in the Aspergillus species. Our data demonstrate that fungi outside the Clavicipitaceae produce lysergic acid amides and indicate that the capacity to produce lysergic acid evolved once, but the ability to insert it into LAH evolved independently in Aspergillus species and the Clavicipitaceae. The LAH-producing Aspergillus species may be useful for the study and production of these pharmaceutically important compounds. IMPORTANCE Lysergic acid derivatives are specialized metabolites with historical, agricultural, and medical significance and were known heretofore only from fungi in one family, the Clavicipitaceae. Our data show that several Aspergillus species, representing a different family of fungi, also produce lysergic acid derivatives and that the ability to put lysergic acid into its amide forms evolved independently in the two lineages of fungi. From microbiological and pharmaceutical perspectives, the Aspergillus species may represent better experimental and industrial organisms than the currently employed lysergic acid producers of the plant-associated Clavicipitaceae. The observation that both lineages independently evolved the derivative lysergic acid α-hydroxyethylamide (LAH), among many possible lysergic acid amides, suggests selection for this metabolite."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate is the Importance/summary section instead of its own main abstract. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1152/jn.00078.2021",
+      "fields": {
+        "abstract": "Faces are stimuli of critical importance for primates. The common marmoset (Callithrix jacchus) is a promising model for investigations of face processing, as this species possesses oculomotor and face-processing networks resembling those of macaques and humans. Face processing is often disrupted in neuropsychiatric conditions such as schizophrenia (SZ), and thus, it is important to recapitulate underlying circuitry dysfunction preclinically. The N-methyl-d-aspartate (NMDA) noncompetitive antagonist ketamine has been used extensively to model the cognitive symptoms of SZ. Here, we investigated the effects of a subanesthetic dose of ketamine on oculomotor behavior in marmosets during face viewing. Four marmosets received systemic ketamine or saline injections while viewing phase-scrambled or intact videos of conspecifics' faces. To evaluate effects of ketamine on scan paths during face viewing, we identified regions of interest in each face video and classified locations of saccade onsets and landing positions within these areas. A preference for the snout over eye regions was observed following ketamine administration. In addition, regions in which saccades landed could be significantly predicted by saccade onset region in the saline but not the ketamine condition. Effects on saccade control were limited to an increase in saccade peak velocity in all conditions and a reduction in saccade amplitudes during viewing of scrambled videos. Thus, ketamine induced a significant disruption of scan paths during viewing of conspecific faces but limited effects on saccade motor control. These findings support the use of ketamine in marmosets for investigating changes in neural circuits underlying social cognition in neuropsychiatric disorders.NEW & NOTEWORTHY Face processing, an important social cognitive ability, is impaired in neuropsychiatric conditions such as schizophrenia. The highly social common marmoset model presents an opportunity to investigate these impairments. We administered subanesthetic doses of ketamine to marmosets to model the cognitive symptoms of schizophrenia. We observed a disruption of scan paths during viewing of conspecifics' faces. These findings support the use of ketamine in marmosets as a model for investigating social cognition in neuropsychiatric disorders."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate is the New and Noteworthy section instead of its own main abstract. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1152/jn.00343.2020",
+      "fields": {
+        "abstract": "Descending facilitatory circuitry that involves the rostroventromedial medulla (RVM) exerts a significant role in the development of antinociceptive tolerance and hyperalgesia following chronic morphine treatment. The role of the RVM in the development of antinociceptive tolerance to oxycodone, another clinically used strong opioid, is not yet known. Ketamine, an N-methyl-d-aspartate (NMDA) receptor antagonist, attenuates opioid antinociceptive tolerance, but its effect on RVM cell discharge in opioid-tolerant animals is not known. Here, we compared chronic effects of morphine and oxycodone on the discharge properties of RVM cells and attempted to attenuate chronic treatment-induced changes with ketamine. Parallel recordings of RVM cell discharge and limb withdrawal response were performed under light pentobarbital anesthesia in male rats following sustained systemic treatment with morphine or oxycodone at equianalgesic doses. Ongoing activity and the response to noxious heat and pinch were determined in pronociceptive RVM ON-cells and antinociceptive OFF-cells on the sixth treatment day. Proportions of RVM cell types were not changed. Chronic oxycodone induced antinociceptive tolerance both in limb withdrawal and RVM cell activity. Chronic morphine induced antinociceptive tolerance in limb withdrawal that was accompanied by pronociceptive heat response changes in RVM ON- and OFF-cells. A behaviorally subantinociceptive dose of acute ketamine reversed antinociceptive tolerance both to morphine and oxycodone in limb withdrawal and reversed the chronic morphine-induced pronociceptive discharge changes in RVM cells. The results indicate that an NMDA receptor-dependent descending pronociceptive circuitry involving the RVM has an important role in behavioral antinociceptive tolerance to morphine but not oxycodone.NEW & NOTEWORTHY Morphine and oxycodone are two clinically used strong opioids. Chronic treatment with oxycodone as well as morphine can lead to analgesic tolerance and paradoxical hyperalgesia. Here we show that an N-methyl-d-aspartate receptor-dependent pronociceptive change in discharge properties of rostroventromedial medullary neurons controlling spinal nociception has an important role in antinociceptive tolerance to morphine but not oxycodone. Interestingly, chronic oxycodone did not induce pronociceptive changes in the rostroventromedial medulla."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate is the New and Noteworthy section instead of its own main abstract. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1371/journal.pgen.1003313",
+      "fields": {
+        "abstract": "We report a genome-wide RNA interference (RNAi) screen for Suppressors of Clozapine-induced Larval Arrest (scla genes) in Caenorhabditis elegans, the first genetic suppressor screen for antipsychotic drug (APD) targets in an animal. The screen identifies 40 suppressors, including the α-like nicotinic acetylcholine receptor (nAChR) homolog acr-7. We validate the requirement for acr-7 by showing that acr-7 knockout suppresses clozapine-induced larval arrest and that expression of a full-length translational GFP fusion construct rescues this phenotype. nAChR agonists phenocopy the developmental effects of clozapine, while nAChR antagonists partially block these effects. ACR-7 is strongly expressed in the pharynx, and clozapine inhibits pharyngeal pumping. acr-7 knockout and nAChR antagonists suppress clozapine-induced inhibition of pharyngeal pumping. These findings suggest that clozapine activates ACR-7 channels in pharyngeal muscle, leading to tetanus of pharyngeal muscle with consequent larval arrest. No APDs are known to activate nAChRs, but a number of studies indicate that α7-nAChR agonists may prove effective for the treatment of psychosis. α-like nAChR signaling is a mechanism through which clozapine may produce its therapeutic and/or toxic effects in humans, a hypothesis that could be tested following identification of the mammalian ortholog of C. elegans acr-7."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate is an Author Summary instead of its own main abstract. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.14196/mjiri.31.60",
+      "fields": {
+        "abstract": "Background: 3,4- methylenedioxymethamphetamine (MDMA) is a chemical derivative of amphetamine that can induce learning and memory impairment. Due to the effect of neurotrophins on memory and learning, the impact of MDMA was evaluated on the brain - derived neurotrophic factor (BDNF), neurotrophin- 4 (NT-4), and tropomyosin- related kinase B (Trk- β) expression in the hippocampus. Methods: In this study, 20 adult male Wistar rats (200-250 g) received saline (1 mL) or 10 mg/kg of MDMA intraperitoneally as single or multiple injection for 2 consecutive days per week for 2 months. Expression of BDNF, Trk-β, and NT4 were assessed using Western blotting and RT PCR methods. Results: Our results revealed that the expression of BDNF, Trk- β, and NT4 proteins and genes significantly decreased in MDMA groups compared to the sham group (p<0.05). Furthermore, the acute group showed the lowest expression of these proteins. Conclusion: The results of the present study suggest that ecstasy administration may downregulate the expression of BDNF, Trk- β, and NT-4 in hippocampus, which is more extensive in case of acute treatment. It seems that in the chronic group, hippocampus was able to compensate the ecstasy- induced neurotoxicity."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate contains only background text instead of its own complete abstract. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1590/s0104-11692007000700015",
+      "fields": {
+        "abstract": "Recent studies have pointed that it is necessary to define the impact of specific dimensions of the social-economic context that can work as risk factors regarding drug addiction. This study aimed to verify potential relationships between the drug addiction during adolescence and the social-economic level. A total of 568 adolescents participated in this study answering an anonymous self-filled questionnaire. The analyses involved the description of the variable distribution in the sample and statistical analyzes to determine the differences found. Contrary to the common sense, adolescents from the higher social classes presented a significant higher perceptual of alcohol, tobacco, weed and solvent consumption when compared to their counterparts from lower social classes. These data suggest the importance of studies that seek to clarify the possible influences of the social-economic status on the consumption of drugs among adolescents."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "The input abstract is Portuguese, while the matching primary report has an English main version. Use the verified English version and actual English abstract, not an exclusion based on the input language. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.17269/cjph.102.2268",
+      "fields": {
+        "related_dois": "10.1007/bf03404870"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "The original Canadian identifier is not currently returned by Crossref, while the native record and registered Springer DOI match the supplied title/report. Preserve the V5-retained report and stage an enumerated canonical identifier repair with provenance; do not treat failed resolution as an exclusion.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/reviewed_proposals.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.22038/ijbms.2022.64980.14308",
+      "fields": {
+        "abstract": "Ecstasy is a popular recreational psychostimulant with side effects on the central nervous system. This study examined the corpus striatum tissue of adult rats that received ecstasy during the embryonic period for histological and molecular studies. Rats were divided into control and ecstasy groups. The ecstasy group was given MDMA 15 mg/kg intraperitoneally twice daily at 8-hour intervals on days 7-15 of gestation. At the age of 15 weeks, adult offspring of both groups were examined for learning and memory study by the Morris water maze test. Then, ventral striatum tissue was harvested for TUNEL assay, Nissl staining, and real-time PCR for the expression of the GFAP and CD11b. Ecstasy up-regulated the GFAP and CD11b expression in the striatum of offspring (*P˂0.05). Furthermore, the Morris water maze test showed that exposure to ecstasy significantly impaired learning and spatial memory (*P˂0.05). TUNEL assay results did not show any significant change in the number of apoptotic cells in the striatum tissue of ecstasy offspring compared with controls, while Nissl staining showed a significant decrease in the number of neurons in the ecstasy group (*P˂0.05). Exposure to ecstasy during pregnancy causes long-lasting changes in brain regions underlying learning and memory, including the striatum, and impaired working memory in the offspring. In addition, these data provide the first evidence that exposure to ecstasy during the embryonic period causes a persistent change in the activity of microglial cells and the number of astrocyte cells in the striatum."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate contains only an incomplete portion of its own main abstract. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.22074/ijfs.2020.44410",
+      "fields": {
+        "abstract": "3,4-Methylenedioxymethamphetamine (MDMA) disrupts function of the endocrine system and different organs such as heart, blood vessels, kidney, liver and nervous systems. This revision was conducted to evaluate impact of MDMA on apoptosis and Zinc in the MDMA-induced apoptosis of cultured Sertoli cells by measuring Caspase-3 gene expression. In this experimental study, Sertoli cells were incubated with MDMA (0, 0.5, 1, 3 and 5 mM), Zinc (0, 8, 16, 32, 64 μM) and Zinc (8 μM) prior to adding MDMA (5 mM) for 24 and 48 hours. MTT assay was used for evaluating impacts of these conditions on the viability of Sertoli cells. Caspase-3 gene expression level was detected using quantitative reverse transcription PCR (qRT-PCR) in all of the tested groups. Finding showed that cellular viability was decreased and level of Caspase-3 mRNA was increased in MDMA treated cells. Additionally, pre-treatment with Zinc (8 μM) attenuated MDMA-induced apoptosis and down-regulated caspase-3. The mean of caspase-3 mRNA level (fold change ± SE) was 3.98 ± 1.18, 0.31 ± 0.28, and 1.72 ± 0.28 in respectively MDMA (5 mM), Zinc (8 μM), and Zinc+MDMA groups vs. control group. The mean of Caspase-3 mRNA (fold change) was not statistically different in the tested groups (P>0.05), unless MDMA (5 mM) group (P=0.008). We suggest that MDMA toxicity could be involved in apoptosis of Sertoli cells. In addition, Zinc could reduce MDMA-induced apoptosis by down-regulation of Caspase-3 mRNA levels."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Candidate lost intervening scientific text; the exact native main abstract preserves it. Repair the input without silently changing scientific claims. Stage an exact source-backed abstract repair through the existing metadata owner; do not change Luna V5 decisions or replay screening in this review.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.3389/fnbeh.2017.00139/full",
+      "fields": {
+        "related_dois": "10.3389/fnbeh.2017.00139"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "The matching original PDF/publisher page explicitly supplies the actual report DOI, while the frozen key has a URL suffix, galley number or wrong identifier. Stage this specific identifier repair through the existing owner. Preserve old key/source provenance; do not invent a global suffix, punctuation or alias rule.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/reviewed_proposals.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.3389/fpsyt.2025.1681795/abstract",
+      "fields": {
+        "related_dois": "10.3389/fpsyt.2025.1681795"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "The matching original PDF/publisher page explicitly supplies the actual report DOI, while the frozen key has a URL suffix, galley number or wrong identifier. Stage this specific identifier repair through the existing owner. Preserve old key/source provenance; do not invent a global suffix, punctuation or alias rule.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/reviewed_proposals.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.37275/oaijmr.v1i2.553",
+      "fields": {
+        "related_dois": "10.37275/oaijmr.v1i2.34"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "The matching original PDF/publisher page explicitly supplies the actual report DOI, while the frozen key has a URL suffix, galley number or wrong identifier. Stage this specific identifier repair through the existing owner. Preserve old key/source provenance; do not invent a global suffix, punctuation or alias rule.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/reviewed_proposals.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.5114/bta.2020.96412",
+      "fields": {
+        "related_dois": "10.5114/bta.2020.94770"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "The matching original PDF/publisher page explicitly supplies the actual report DOI, while the frozen key has a URL suffix, galley number or wrong identifier. Stage this specific identifier repair through the existing owner. Preserve old key/source provenance; do not invent a global suffix, punctuation or alias rule.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/reviewed_proposals.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1016/0306-3623(94)90035-3",
+      "fields": {
+        "abstract": "1. 2C-H [2-(2,5-dimethoxyphenyl)ethylamine] (pD2 = 6.74), TMPEA [2,(2,4,5-trimethoxyphenyl)ethylamine] (pD2 = 5.83), 2C-D [2-(2,5-dimethoxy-4-methylphenyl)ethylamine] (pD2 = 5.06), homoveratrylamine [DMPEA, 2-(4,5-dimethoxyphenyl)ethylamine] (pD2 = 4.46) and homopiperonylamine [MDPEA, 2-(3,4-methylenedioxyphenyl)ethylamine] (pD2 = 4.19), elicit concentration-dependent contraction of the isolated rat thoracic aorta. 2. At 9.9 x 10(-6) M, 2C-N [2-(2,5-dimethoxy-4-nitrophenyl)ethylamine] behaves as a competitive antagonist to serotonin in this preparation. 3. Considering previous results with the structurally related 2C-B [2-(4-bromo-2,5-dimethoxyphenyl)ethylamine], weak or partial agonistic activity or antagonism of aortic contraction appears to be related to psychedelic properties reported in humans for phenylethylamines.",
+        "study_title": "Alpha-adrenergic and 5-HT2-serotonergic effects of some beta-phenylethylamines on isolated rat thoracic aorta."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Exact native report abstract; the old abstract belonged to a distinct sibling report, which remains separate.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1111/j.1471-4159.1984.tb02803.x",
+      "fields": {
+        "abstract": "An initiating cell-free protein synthesis system derived from brain was utilized to demonstrate that the intravenous injection of D-lysergic acid diethylamide (LSD) to rabbits resulted in a lesion at the initiation stage of brain protein synthesis. Three inhibitors of initiation, edeine, poly(I), and aurintricarboxylic acid were used to demonstrate a reduction in initiation-dependent amino acid incorporation in the brain cell-free system. One hour after LSD injection, there was also a measurable decrease in the formation of 40S and 80S initiation complexes in vitro, using either [35S]methionine or [35S]Met-tRNAf. Analysis of the methionine pool size after LSD administration indicated there was no change in methionine levels. Analysis of the formation of initiation complexes in the brain cell-free protein synthesis system prepared 6 h after LSD administration indicated that there was a return to control levels at this time. The effects of LSD on steps in the initiation process are thus reversible.",
+        "study_title": "Effect of intravenous administration of D-lysergic acid diethylamide on initiation of protein synthesis in a cell-free system derived from brain."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Exact native report abstract; the old abstract belonged to a distinct sibling report, which remains separate.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1016/j.devcel.2006.09.011",
+      "fields": {
+        "study_title": "DEP Domains: More Than Just Membrane Anchors",
+        "study_journal": "Developmental Cell",
+        "authors": "Songhai Chen; Heidi E. Hamm",
+        "study_year": "2006",
+        "publication_date": "2006-10",
+        "publication_type": "journal-article"
+      },
+      "clear_fields": [
+        "pmcid",
+        "pmid"
+      ],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Exact registered report metadata; conflicting prior title/journal/author/identifier fields are archived. No transfer of the unrelated report’s V5 decision.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/primary_checks/crossref/4ea7c0e678331f81.json"
+        }
+      ]
+    },
+    {
+      "doi": "10.1016/j.socscimed.2023.116032",
+      "fields": {
+        "study_title": "Reconfigured professional purpose in times of crisis: Experiences of frontline healthcare professionals during the COVID-19 pandemic",
+        "study_journal": "Social Science &amp; Medicine",
+        "authors": "Jenny K. Rodriguez; Stephen Procter; Gregorio Perez Arrau",
+        "study_year": "2023",
+        "publication_date": "2023-07",
+        "publication_type": "journal-article"
+      },
+      "clear_fields": [
+        "pmcid",
+        "pmid"
+      ],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Exact registered report metadata; conflicting prior title/journal/author/identifier fields are archived. No transfer of the unrelated report’s V5 decision.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/primary_checks/crossref/0a5250d601847a5b.json"
+        }
+      ]
+    },
+    {
+      "doi": "10.1093/jat/14.5.285",
+      "fields": {
+        "study_title": "Determination of Lysergic Acid Diethylamide (LSD) in Urine by Instrumental High-Performance Thin-Layer Chromatography",
+        "study_journal": "Journal of Analytical Toxicology",
+        "authors": "Lee M. Blum; Edward F. Carenzo; Fredric Rieders",
+        "study_year": "1990",
+        "publication_date": "1990-09-01",
+        "publication_type": "journal-article"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Exact registered report metadata; conflicting prior title/journal/author/identifier fields are archived. No transfer of the unrelated report’s V5 decision.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/primary_checks/crossref/a1a86f650360d1c1.json"
+        }
+      ]
+    },
+    {
+      "doi": "10.1016/j.watres.2021.117789",
+      "fields": {
+        "study_title": "Wastewater-based epidemiology for illicit drugs: A critical review on global data",
+        "study_journal": "Water Research",
+        "authors": "Marit Huizer; Thomas L. ter Laak; Pim de Voogt; Annemarie P. van Wezel",
+        "study_year": "2021",
+        "publication_date": "2021-12",
+        "publication_type": "journal-article"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Exact registered report metadata; conflicting prior title/journal/author/identifier fields are archived. No transfer of the unrelated report’s V5 decision.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/primary_checks/crossref/4d05df1695422a7a.json"
+        }
+      ]
+    },
+    {
+      "doi": "10.1111/j.1360-0443.2004.00572.x",
+      "fields": {
+        "study_title": "Factors associated with Ecstasy use in Turkish students",
+        "study_journal": "Addiction",
+        "authors": "Aytül Çorapçıoğlu; Kültegin Ögel",
+        "study_year": "2003",
+        "publication_date": "2003-12-17",
+        "publication_type": "journal-article",
+        "abstract": "ABSTRACT Aims The purpose of this study was to establish the factors associated with Ecstasy use in secondary school students in Turkey. Design, setting and participants This is a survey of a representative sample drawn from cities in different geographical regions in Turkey in 1998 and 2001. The questionnaire was administered to a total of 18 556 and 11 911 10th‐grade students in 1998 and 2001, respectively. Measurements The questionnaire administered in the study was adapted from the questionnaires used in ‘Monitoring the Future’ study in the United States and ESPAD (the European School Survey Project on Alcohol and Other Drugs). It included questions about demographic characteristics, family characteristics, school life, social contacts and use of substances. Findings While the percentage of those who used Ecstasy at least once in their life‐times was 2.65% in 1998, the figure reached 3.31% in 2001. Male gender, older age, use of alcohol, cannabis, heroin and cocaine, non‐medical use of psychotherapeutic drugs and participation in a meeting concerning the adverse effects of substance use were found to be significant variables predicting ‘ever use’ of Ecstasy in both years by logistic regression analysis. Conclusions Ecstasy use, while low in Turkey, appears to be on the increase and follows a pattern in terms of correlates that is similar to other illicit drugs. Whatever the causes behind the rise in Ecstasy use, creative, personalized and informative educational programmes should be conducted in all educational institutions to curb Ecstasy use."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Exact registered report metadata; conflicting prior title/journal/author/identifier fields are archived. No transfer of the unrelated report’s V5 decision.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/primary_checks/crossref/8bd96281a5387894.json"
+        }
+      ]
+    },
+    {
+      "doi": "10.5505/adlitip.2014.08760",
+      "fields": {
+        "study_title": "Socio-demographic data of delinquent children in Kahramanmaraş",
+        "study_journal": "Turkish Journal of Forensic Medicine",
+        "authors": "Hatice Tamer; Ozlem Aciksari; Alper Keten; Ramazan Karanfil; Abdullah Avsar",
+        "study_year": "2014",
+        "publication_date": "2014",
+        "publication_type": "journal-article"
+      },
+      "clear_fields": [
+        "abstract",
+        "pmcid",
+        "pmid"
+      ],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Exact registered report metadata; conflicting prior title/journal/author/identifier fields are archived. No transfer of the unrelated report’s V5 decision.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/primary_checks/crossref/8181f72e5daf751f.json"
+        }
+      ]
+    },
+    {
+      "doi": "10.1136/bjophthalmol-2012-302233",
+      "fields": {
+        "study_title": "Fellow eye vitrectomy for proliferative diabetic retinopathy in an inner city population.",
+        "abstract": "To describe the rate of fellow eye vitrectomy for proliferative diabetic retinopathy in an inner city population. Retrospective interventional case series. Medical and surgical records of 434 consecutive eyes of 358 patients undergoing primary diabetic vitrectomy in an inner city institutional practice were reviewed. Kaplan-Meier statistical analysis was employed to evaluate the rate of fellow eye vitrectomy and visual outcomes were determined for patients with ≥ 3 months follow-up. Fellow eyes underwent diabetic vitrectomy at a rate of 24% within 1 year, 34% within 3 years and 36% within 5 years of primary vitrectomy. A surgical indication of non-clearing vitreous haemorrhage (VH) in the primary eye was associated with a lower rate of fellow eye surgery compared with non-clearing VH with extrafoveal traction retinal detachment (TRD) at years 1, 3 and 5 (p ≤ 0.02), and TRD at years 3 and 5 (p ≤ 0.03). Younger patients underwent fellow eye vitrectomy at a higher rate than older patients (p ≤ 0.01). Surgical intervention was associated with improvement in mean visual acuity (p<0.01). Approximately a third of fellow eyes required diabetic vitrectomy within 3 years of primary eye vitrectomy. Primary eye surgical indication and younger age were significant predictors of need for fellow eye surgery."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Exact native DOI/title identifies a different report from the frozen screening abstract. Repair bibliography but keep report identity held from extraction.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1136/tobaccocontrol-2011-050129",
+      "fields": {
+        "study_title": "A prospective cohort study challenging the effectiveness of population-based medical intervention for smoking cessation.",
+        "abstract": "To examine the population effectiveness of nicotine replacement therapies (NRTs), either with or without professional counselling, and provide evidence needed to better inform healthcare coverage decisions. A prospective cohort study was conducted in three waves on a probability sample of 787 Massachusetts adult smokers who had recently quit smoking. The baseline response rate was 46%; follow-up was completed with 56% of the designated cohort at wave 2 and 68% at wave 3. The relationship between relapse to smoking at follow-up interviews and assistance used, including NRT with or without professional help, was examined. About one-fourth of recent quitters at each wave reported to have relapsed by the subsequent interview. Odds of relapse were unaffected by use of NRT for >6 weeks either with (p=0.117) or without (p=0.159) professional counselling and were highest among prior heavily dependent persons who reported NRT use for any length of time without professional counselling (OR 2.68). This study finds that persons who have quit smoking relapsed at equivalent rates, whether or not they used NRT to help them in their quit attempts. Cessation medication policy should be made in the larger context of public health, and increasing individual treatment coverage should not be at the expense of population evidence-based programmes and policies."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Exact native DOI/title identifies a different report from the frozen screening abstract. Repair bibliography but keep report identity held from extraction.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/source_packets.jsonl"
+        }
+      ]
+    },
+    {
+      "doi": "10.1016/j.rpsm.2021.09.002",
+      "fields": {
+        "language": "en"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Actual English publisher PDF, DOI/title/authors and substantive English Methods/Results match. No need to substitute edition DOI.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/primary_checks/downloads/rpsm_english.pdf"
+        }
+      ]
+    },
+    {
+      "doi": "10.4172/2167-7972.1000340",
+      "fields": {
+        "study_journal": "Journal of Clinical Toxicology",
+        "authors": "Feridun Gürlek; Eyyüp Tasdemir; Tufan Teker"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Original article title/authors match the registered stable record; publisher has conflicting journal/printed DOI metadata. Preserve the registered key and printed DOI evidence; do not invent a registered alias for a Crossref404 identifier.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/journal_credibility_audit_20261022/case_verification_20261022"
+        },
+        {
+          "reason": "Original printed author names repair corrupted provider text.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/journal_credibility_audit_20261022/case_verification_20261022/local_sources/19_held_pdf.txt"
+        }
+      ]
+    },
+    {
+      "doi": "10.4172/2475-7675.1000305",
+      "fields": {
+        "study_journal": "Natural Products Chemistry & Research",
+        "abstract": "Salvinorin A, which is present in the natural plant Salvia divinorum, is a unique non-nitrogenous compound with hallucinogenic activity. When salvinorin A isolated from leaves of Salvia divinorum was irradiated with 300 nm UV light in ethyl acetate, it degraded from 100 μg/mL to 2.84 ± 0.05 μg/mL in 30 min. The calculated average rate constant k of this degradation was 0.12/min and the half-life was 5.7 min. When authentic salvinorin A was irradiated by UV light in an organic solution or an aqueous solution, it degraded over 90% within 40 min, whereas when it was irradiated by natural sunlight, it took 8 h to degrade 50% both in an organic and an aqueous solution. Three photodegradation products were tentatively identified by gas chromatography/mass spectrometry. Their structures were similar to that of salvinorin A, suggesting that they are also candidate non-nitrogenous hallucinogens."
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Original article title/authors match the registered stable record; publisher has conflicting journal/printed DOI metadata. Preserve the registered key and printed DOI evidence; do not invent a registered alias for a Crossref404 identifier.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/journal_credibility_audit_20261022/case_verification_20261022"
+        },
+        {
+          "reason": "Printed abstract restores lost μ and ± glyphs; the 5.7-minute value is photodegradation, not biological elimination.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/journal_credibility_audit_20261022/case_verification_20261022/local_sources/30_pdf.txt"
+        }
+      ]
+    },
+    {
+      "doi": "10.4172/2155-6105.1000266",
+      "fields": {
+        "study_year": "2016",
+        "publication_date": "2016"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Original published article citation/cover, rather than repository posting year.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/journal_credibility_audit_20261022/case_verification_20261022"
+        }
+      ]
+    },
+    {
+      "doi": "10.4172/2155-6105.s6-005",
+      "fields": {
+        "study_year": "2013",
+        "publication_date": "2013"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Original published article citation/cover, rather than repository posting year.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/journal_credibility_audit_20261022/case_verification_20261022"
+        }
+      ]
+    },
+    {
+      "doi": "10.4172/2155-6105.s9-002",
+      "fields": {
+        "study_year": "2012",
+        "publication_date": "2012"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Original published article citation/cover, rather than repository posting year.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/journal_credibility_audit_20261022/case_verification_20261022"
+        }
+      ]
+    },
+    {
+      "doi": "10.4172/2329-6488.1000198",
+      "fields": {
+        "study_year": "2015",
+        "publication_date": "2015"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Source/metadata repairs20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/metadata_repairs_staged.json",
+      "source_repair_evidence_20261022": [
+        {
+          "reason": "Original published article citation/cover, rather than repository posting year.",
+          "source": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/journal_credibility_audit_20261022/case_verification_20261022"
+        }
+      ]
+    },
+    {
+      "doi": "10.5348/ijcri-201758-cr-10797",
+      "fields": {
+        "authors": "Ruben Hummelen; Laus JMM Mulder; Adriaan Dees",
+        "journal_volume": "8",
+        "journal_issue": "5",
+        "journal_pages": "335–338"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Verified report/source fixes20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "source_repair_followups": [
+        "Original publisher HTML/PDF exact ecstasy case report, not unrelated DOI-reuse peritonitis record."
+      ]
+    },
+    {
+      "doi": "10.4045/tidsskr.17.1110",
+      "fields": {
+        "study_title": "Psychedelic drugs in the treatment of anxiety, depression and addiction",
+        "language": "en"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Verified report/source fixes20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "source_repair_followups": [
+        "Actually published English version with same DOI, complete main text and Table1; original Norwegian PDF remains archived."
+      ]
+    },
+    {
+      "doi": "10.12688/f1000research.51613.1",
+      "fields": {
+        "related_dois": "10.12688/f1000research.51613.2",
+        "publication_relations": "[{\"relationship\": \"is_previous_version_of\", \"target_doi\": \"10.12688/f1000research.51613.2\", \"evidence\": \"/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/screening_correction_20261019/high_reasoning_validation/source_audit/main_changes/native_pubmed_scope_audit_20261019/staged_report_revisions_001.json\"}]"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Verified report/source fixes20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "source_repair_followups": [
+        "The original publisher-deposited JATS has version2 plus explicit version1 revision history and peer-review material. Preserve the original version1 report provenance and prefer the reviewed version2 source; these are report revisions, not independent experiments or DOI aliases."
+      ]
+    },
+    {
+      "doi": "10.12688/hrbopenres.13182.1",
+      "fields": {
+        "related_dois": "10.12688/hrbopenres.13182.2",
+        "publication_relations": "[{\"relationship\": \"is_previous_version_of\", \"target_doi\": \"10.12688/hrbopenres.13182.2\", \"evidence\": \"/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/screening_correction_20261019/high_reasoning_validation/source_audit/main_changes/native_pubmed_scope_audit_20261019/staged_report_revisions_001.json\"}]"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Verified report/source fixes20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "source_repair_followups": [
+        "The original publisher-deposited JATS has version2 plus explicit version1 revision history and peer-review material. Preserve the original version1 report provenance and prefer the reviewed version2 source; these are report revisions, not independent experiments or DOI aliases."
+      ]
+    },
+    {
+      "doi": "pii: 13030/qt9pj4r3kv",
+      "fields": {
+        "related_dois": "10.5070/d3239036477"
+      },
+      "clear_fields": [],
+      "evidence_basis": "Verified report/source fixes20261022; /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes",
+      "source_repair_followups": [
+        "Original eScholarship repository cover exact publisher DOI; retain stable PII screening key without adding an unscreened duplicate."
+      ]
+    },
+    {
+      "doi": "10.1111/dar.12077",
+      "fields": {
+        "publication_type": "Conference Abstract"
+      },
+      "evidence_basis": "Exact contribution in verified original conference proceedings; data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/remaining19_final_dispositions.jsonl"
+    },
+    {
+      "doi": "10.5327/cbn240003",
+      "fields": {
+        "publication_type": "Conference Abstract"
+      },
+      "evidence_basis": "Exact contribution in verified original conference proceedings; data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/remaining19_final_dispositions.jsonl"
+    },
+    {
+      "doi": "10.1016/j.jad.2026.121662",
+      "fields": {
+        "study_title": "The role of therapeutic alliance in psilocybin treatment for treatment-resistant depression: A post hoc path analysis.",
+        "abstract": "The contribution of patient support to psilocybin's antidepressant effects remains uncertain. Relationships between therapeutic alliance (Scale to Assess Therapeutic Relationship-Patient version; STAR-P), psychedelic experience (Five-Dimensional Altered States of Consciousness Questionnaire and Emotional Breakthrough Inventory; 5D-ASC and EBI) and clinical outcomes (Montgomery-Åsberg Depression Rating Scale; MADRS) were explored using correlation and path analysis for individuals with treatment-resistant depression receiving 25 mg psilocybin with monitoring and support (N = 79). Change from Baseline to Week 3 MADRS scores showed weaker correlations with pre-dosing therapeutic alliance (-0.178) than with measures of the psychedelic experience: EBI (-0.637), Oceanic Boundlessness (-0.508), and Visual Restructuralization (-0.516). Path analysis showed no nominally significant direct effects of therapeutic alliance on Week 3 MADRS scores, but there were nominally significant effects of therapeutic alliance on psychedelic experience (Oceanic Boundlessness (β = 0.28), Visual Restructuralization (β = 0.27), and Auditory Alterations (β = 0.25)). Only one indirect effect of therapeutic alliance on clinical outcome reached nominal significance (via Visual Restructuralization; β = -0.15). Stronger effects were seen on clinical outcomes for psychedelic experience (EBI (β = -0.59), Oceanic Boundlessness (β = -0.53), Visual Restructuralization (β = -0.54), and Auditory Alterations (β = -0.24)). The therapeutic alliance appeared to facilitate the psychedelic experience, and these experiences in turn had stronger nominally significant direct effects on clinical outcomes. The effects of the alliance itself on therapeutic efficacy were either limited or absent. EudraCT number: 2017-003288-36; Clinicaltrials.gov identifier: NCT03775200.",
+        "pmid": "41881122",
+        "authors": "Guy M Goodwin; Scott T Aaronson; Oscar Alvarez; Robin Carhart-Harris; Megan Croal; David Feifel; David J Hellerstein; Muhammad I Husain; John R Kelly; Namik Kirlic; Rasmus W Licht; Lindsey Marwood; Ania Nowakowska; Tomáš Páleníček; Dimitris Repantis; Robert A Schoevers; Hollie Simmons; Jair C Soares; Metten Somers; Joyce Tsai; Mourad Wahba; Ella Williams; Allan H Young; Matthew B Young; Sidney Zisook; Ekaterina Malievskaia",
+        "study_journal": "Journal of affective disorders",
+        "study_year": "2026",
+        "publication_type": "Clinical Trial, Phase II | Journal Article | Multicenter Study | Randomized Controlled Trial",
+        "language": "en",
+        "publication_date": "2026-03-23"
+      },
+      "clear_fields": [
+        "pmcid"
+      ],
+      "evidence_basis": "Native PubMed DOI/abstract and publisher-deposited Crossref title agree. Evidence: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_batch_rerun_20261022/remaining_failure_recovery_20261025/recovery_plan_v3.json"
+    },
+    {
+      "doi": "10.1007/s00467-003-1164-7",
+      "fields": {
+        "study_title": "Transient proximal tubular renal injury following Ecstasy ingestion.",
+        "abstract": "Multiple renal adverse effects have been anecdotally reported with the ingestion of 3,4-methylenedioxymethamphetamine (Ecstasy), a widely used recreational drug. These side effects include acute renal failure, necrotizing vasculitis, and hyponatremia, the mechanisms for which are unknown. We report a case of transient acute proximal tubular injury and hyponatremia associated with Ecstasy use. An 18-year-old woman presented with new onset seizures and polydipsia. Her initial laboratory evaluation revealed hyponatremia (Na 117 mEq/L), polyuria (urine output >400 mL/h for several hours), renal glycosuria (blood glucose 120 mg/dL, urine glucose >1,000 mg/dL), and solute diuresis (urine osmolality 552 mOsm/kg H2O). Urine electrolyte values reflected a low tubular reabsorption of phosphorus (TRP) of 68.1% (expected TRP >85% at serum P 2.3 mg/dL) with an appropriate transtubular potassium gradient of 3.0 (serum K 3.7 mEq/L). Her hyponatremia was slowly corrected. A repeat TRP after 48 h had normalized to 86.5%, and her glycosuria resolved. An extensive toxin screen was later reported positive for Ecstasy. To our knowledge, this is the first example of an acute and transient proximal tubular injury with Ecstasy ingestion. This complication may become more apparent with increasing use of this drug.",
+        "pmid": "12774221",
+        "authors": "Charles Kwon; Arno Zaritsky; Vikas R Dharnidharka",
+        "study_journal": "Pediatric nephrology (Berlin, Germany)",
+        "study_year": "2003",
+        "publication_type": "Case Reports | Journal Article",
+        "language": "en",
+        "publication_date": "2003-05-28"
+      },
+      "clear_fields": [
+        "pmcid"
+      ],
+      "evidence_basis": "Native PubMed DOI/abstract and publisher-deposited Crossref title agree. Evidence: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_batch_rerun_20261022/remaining_failure_recovery_20261025/recovery_plan_v3.json"
+    },
+    {
+      "doi": "10.1111/1751-2980.12512",
+      "fields": {
+        "study_title": "Clinical pattern and prevalence of upper gastrointestinal toxicity in patients abusing ketamine.",
+        "abstract": "Evaluations of upper gastrointestinal toxicity from ketamine abuse are uncommon. This study investigated the clinical pattern of upper gastrointestinal symptoms in patients inhaling ketamine. In a cross-sectional study of 611 consecutive patients who were seeking treatment for ketamine uropathy in a tertiary hospital setting between August 2008 and June 2016, their clinical pattern of upper gastrointestinal symptoms was evaluated and compared with a control population of 804 non-users. A total of 168 (27.5%) patients abusing ketamine (mean age 26.3 years, 58.9% female) reported the presence of upper gastrointestinal symptoms. These symptoms were significantly more prevalent in patients inhaling ketamine than in those who were not (27.5% vs 5.2%, P < 0.001). Their mean duration of ketamine abuse before symptom presentation was 5.0 ± 3.1 years. The presenting symptoms included epigastric pain (n = 155, 25.4%), recurrent vomiting (n = 48, 7.9%), anemia (n = 36, 5.9%) and gastrointestinal bleeding (n = 20, 3.3%). Uropathy symptoms were preceded by upper gastrointestinal symptoms for 4.4 ± 3.0 years in 141 (83.9%) patients. Logistic regression showed that elder age (odds ratio [OR] 1.06, P = 0.04), active abuser status (OR 1.60, P = 0.04) and longer duration of ketamine abuse (OR 1.00, P = 0.04) were independent factors associated with upper gastrointestinal toxicity. Although epigastric symptoms are unusual in the young population, upper gastrointestinal toxicity was highly prevalent in those inhaling ketamine. Enquiries about ketamine abuse are recommended when assessing young patients with epigastric symptoms.",
+        "pmid": "28749602",
+        "authors": "Shirley Yuk Wah Liu; Stephen Ka Kei Ng; Yuk Him Tam; Samuel Chi Hang Yee; Franco Pui Tak Lai; Cindy Yuek Lam Hong; Philip Wai Yan Chiu; Enders Kwok Wai Ng; Chi Fai Ng",
+        "study_journal": "Journal of digestive diseases",
+        "study_year": "2017",
+        "publication_type": "Journal Article",
+        "language": "en",
+        "publication_date": "2017-09"
+      },
+      "clear_fields": [
+        "pmcid"
+      ],
+      "evidence_basis": "Native PubMed DOI/abstract and publisher-deposited Crossref title agree. Evidence: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_batch_rerun_20261022/remaining_failure_recovery_20261025/recovery_plan_v3.json"
+    },
+    {
+      "doi": "10.1007/s00429-023-02740-w",
+      "fields": {
+        "study_title": "Ketamine ameliorates activity-based anorexia of adolescent female mice through changes in GluN2B-containing NMDA receptors at postsynaptic cytoplasmic locations of pyramidal neurons and interneurons of medial prefrontal cortex.",
+        "abstract": "Anorexia nervosa (AN) is a mental illness with high rates of mortality and relapse, and no approved pharmacotherapy. Using the activity-based anorexia (ABA) model of AN, we previously showed that a single sub-anesthetic intraperitoneal injection of ketamine (30 mg/kg-KET, but not 3 mg/kg-KET), has an immediate and long-lasting effect of reducing anorexia-like behavior among adolescent female mice. We also showed previously that excitatory outflow from medial prefrontal cortex (mPFC) engages hunger-evoked hyperactivity, leading to the ABA condition of severe weight loss. Ketamine is known to target GluN2B-containing NMDARs (NR2B). Might synaptic plasticity involving NR2B in mPFC contribute to ketamine's ameliorative effects? We addressed this question through electron microscopic immunocytochemical quantification of GluN2B at excitatory synapses of pyramidal neurons (PN) and GABAergic interneurons (IN) in mPFC layer 1 of animals that underwent recovery from a second ABA induction (ABA2), 22 days after ketamine injection during the first ABA induction. The 30 mg/kg-KET evoked synaptic plasticity that differed for PN and IN, with changes revolving the cytoplasmic reserve pool of NR2B more than the postsynaptic membrane pool. Those individuals that suppressed hunger-evoked wheel running the most and increased food consumption during recovery from ABA2 the most showed the greatest increase of NR2B at PN and IN excitatory synapses. We hypothesize that 30 mg/kg-KET promotes long-lasting changes in the reserve cytoplasmic pool of NR2B that enables activity-dependent rapid strengthening of mPFC circuits underlying the more adaptive behavior of suppressed running and enhanced food consumption, in turn supporting better weight restoration.",
+        "pmid": "38170266",
+        "authors": "Jennifer Li; Rose Temizer; Yi-Wen Chen; Chiye Aoki",
+        "study_journal": "Brain structure & function",
+        "study_year": "2024",
+        "publication_type": "Journal Article",
+        "language": "en",
+        "publication_date": "2024-01-03"
+      },
+      "clear_fields": [
+        "pmcid"
+      ],
+      "evidence_basis": "Native PubMed DOI/abstract and publisher-deposited Crossref title agree. Evidence: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_batch_rerun_20261022/remaining_failure_recovery_20261025/recovery_plan_v3.json"
+    },
+    {
+      "doi": "10.1016/0091-3057(91)90613-7",
+      "fields": {
+        "study_title": "The discriminative stimulus effect of MK-801 in ketamine-trained rats.",
+        "abstract": "MK-801 [(+)-5-methyl-10,11-dihydro-5H-dibenzo(a,d)cyclohepten-5,10-imine maleate] was assessed for its discriminative stimulus properties in rats trained to discriminate ketamine (7 mg/kg) from vehicle. MK-801 generalized to ketamine in a dose dependent manner with a maximum effect at 0.2 mg/kg, while ketamine generalized fully at 10 mg/kg. These results indicate that ketamine and MK-801 may share a common mechanism of action, which is related to the phencyclidine recognition site in the brain.",
+        "pmid": "2017448",
+        "authors": "M J Benvenga; A V Wing; R A Del Vecchio",
+        "study_journal": "Pharmacology, biochemistry, and behavior",
+        "study_year": "1991",
+        "publication_type": "Journal Article",
+        "language": "en",
+        "publication_date": "1991-01"
+      },
+      "clear_fields": [
+        "pmcid"
+      ],
+      "evidence_basis": "Native PubMed DOI/abstract and publisher-deposited Crossref title agree. Evidence: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_batch_rerun_20261022/remaining_failure_recovery_20261025/recovery_plan_v3.json"
+    },
+    {
+      "doi": "10.1097/00000542-199707000-00010",
+      "fields": {
+        "study_title": "Blockade of myocardial ATP-sensitive potassium channels by ketamine.",
+        "abstract": "The adenosine triphosphate (ATP)-sensitive potassium (KATP) channel underlies the increase in potassium permeability during hypoxia and ischemia. The increased outward potassium current during ischemia may be an endogenous cardioprotective mechanism. This study was designed to determine the effects of ketamine on KATP channel in rat hearts. Inside-out and cell-attached configurations of patch-clamp techniques and 3 M potassium chloride-filled conventional microelectrodes were used to investigate the effect of ketamine on KATP channel currents in single rat ventricular myocytes and on the action potential duration of rat papillary muscles, respectively. Ketamine inhibited KATP channel activity in rat ventricular myocytes in a concentration-dependent manner. In the inside-out patches, the concentration of ketamine for half-maximal inhibition and the Hill coefficient were 62.9 microM and 0.54, respectively. In a concentration-dependent manner, ketamine inhibited pinacidil- and 2,4-dinitrophenol-activated KATP channels in cell-attached patches. The application of ketamine to the intracellular side of membrane patches did not affect the conduction of single-channel currents of KATP channels. Ketamine increased the action potential duration, which was then shortened by pinacidil in a concentration-dependent manner. Ketamine inhibited KATP channel activity in a concentration-dependent manner. These results suggest that ketamine may attenuate the cardioprotective effects of the KATP channel during ischemia and reperfusion in the rat myocardium.",
+        "pmid": "9232136",
+        "authors": "S H Ko; S K Lee; Y J Han; H Choe; Y G Kwak; S W Chae; K P Cho; H S Song",
+        "study_journal": "Anesthesiology",
+        "study_year": "1997",
+        "publication_type": "Journal Article | Research Support, Non-U.S. Gov't",
+        "language": "en",
+        "publication_date": "1997-07"
+      },
+      "clear_fields": [
+        "pmcid"
+      ],
+      "evidence_basis": "Native PubMed DOI/abstract and publisher-deposited Crossref title agree. Evidence: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_batch_rerun_20261022/remaining_failure_recovery_20261025/recovery_plan_v3.json"
+    },
+    {
+      "doi": "10.1016/0014-2999(85)90499-6",
+      "fields": {
+        "study_title": "Neuronal mechanisms involved in drug-induced jumping behavior in mice.",
+        "abstract": "Previously we have found that lithium chloride (250 mg/kg i.p.) plus haloperidol (4 mg/kg i.p.), or apomorphine (0.25 mg/kg i.p.) plus thyrotropin releasing hormone (TRH, 20 mg/kg i.p.), elicited a jumping behavior which involves dopaminergic and cholinergic inhibition, and noradrenergic activation. Pretreatment with antiserotonergic agents such as methysergide (5 and 10 mg/kg i.p.) and cyproheptadine (5 mg/kg i.p.) enhanced the jumping behavior induced by these drugs. 5-Methoxy-N,N-dimethyltryptamine (5-MDMT, 5 mg/kg i.p.), a serotonergic receptor agonist, inhibited the jumping behavior. Muscimol, a GABA receptor agonist, at 2 mg/kg, potentiated jumping. GABA receptor antagonists such as bicuculline (4 mg/kg i.p.) and picrotoxin (0.2 and 1 mg/kg i.p.) depressed jumping. An antihistamine agent, diphenhydramine (5 mg/kg i.p.), also potentiated the jumping behavior. Furthermore methysergide (10 mg/kg i.p.), but not muscimol (2 mg/kg i.p.) elicited jumping behavior when combined with clonidine (0.5 mg/kg i.p.), TRH (20 mg/kg i.p.), haloperidol (4 mg/kg i.p.) or atropine (5 mg/kg i.p.). These results suggest that in addition to dopaminergic, cholinergic and noradrenergic mechanisms, serotonergic inhibition may be directly contributing to the initiation of jumping behavior, whereas GABAergic activation appears to be a modulating factor in this behavior.",
+        "pmid": "2992995",
+        "authors": "I Ushijima; Y Mizuki; M Yamada; G B Glavin",
+        "study_journal": "European journal of pharmacology",
+        "study_year": "1985",
+        "publication_type": "Journal Article",
+        "language": "en",
+        "publication_date": "1985-06-07"
+      },
+      "clear_fields": [
+        "pmcid"
+      ],
+      "evidence_basis": "Native PubMed DOI/abstract and publisher-deposited Crossref title agree. Evidence: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_batch_rerun_20261022/remaining_failure_recovery_20261025/recovery_plan_v3.json"
+    },
+    {
+      "doi": "10.1097/00000542-197805000-00003",
+      "fields": {
+        "study_title": "Interactions of ketamine with vasoactive amines at normothermia and hypothermia in the isolated rabbit heart.",
+        "abstract": "Ketamine has been demonstrated to inhibit norepinephrine uptake in the adrenergic neuronal membrane, an action similar to that of cocaine. This study evaluated possible potentiation of five vasoactive amines, norepinephrine, epinephrine, tyramine, dopamine, and isoproterenol, by ketamine in the isolated rabbit heart at 35, 30, 25 and 20 C. The hearts were perfused with one of the vasoactive amines alone, ketamine (500 μg/ml) alone, and combinations of ketamine with the amines, in random order. Heart rate, left ventricular dP/dt, and left ventricular systolic, diastolic, and mean pressures were recorded. Heart rate was decreased by ketamine alone; this effect became less significant with increasing hypothermia. No significant change from control was observed at 25 or 20 C. Heart rate increased significantly during perfusion with ketamine plus norepinephrine, epinephrine, or tyramine compared with control, and during perfusion with these amines alone at 35 C. The potentiation of heart rate caused by ketamine plus norepinephrine compared with norepinephrine alone was not affected by cooling to any temperature, while the difference between extents of potentiation by epinephrine or tyramine with and without ketamine decreased with cooling, becoming insignificant at 25 C or less. Dopamine and isoproterenol produced greater increases of heart rate alone than when perfused with ketamine, the differences becoming less with cooling. Left ventricular dP/dt was significantly decreased by ketamine alone, this effect becoming less apparent with cooling. Ketamine combined with norepinephrine, epinephrine, tyramine, isoproterenol, or dopamine significantly increased dP/dt over control, while only ketamine combined with norepinephrine, epinephrine, and tyramine significantly increased dP/dt compared with these vasoactive amines alone. Potentiation of left ventricular dP/dt by ketamine plus epinephrine or tyramine (compared with these amines alone) became less apparent with cooling. When ketamine was combined with norepinephrine, however, similar extents of potentiation were observed at all temperatures compared with norepinephrine alone. Ketamine plus isoproterenol or dopamine decreased dP/dt compared with the amines alone at 35 C, this effect becoming less apparent with cooling. These results indicate that ketamine, like cocaine, may be a catecholamine uptake 1 inhibitor.",
+        "pmid": "646148",
+        "authors": "G E Hill; K C Wong; C L Shaw; C R Sentker; R A Blatnick",
+        "study_journal": "Anesthesiology",
+        "study_year": "1978",
+        "publication_type": "Journal Article",
+        "language": "en",
+        "publication_date": "1978-05"
+      },
+      "clear_fields": [
+        "pmcid"
+      ],
+      "evidence_basis": "Native PubMed DOI/abstract and publisher-deposited Crossref title agree. Evidence: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_batch_rerun_20261022/remaining_failure_recovery_20261025/recovery_plan_v3.json"
+    },
+    {
+      "doi": "10.1016/j.scitotenv.2021.145480",
+      "fields": {
+        "study_title": "Field evaluation of diffusive gradients in thin-film passive samplers for wastewater-based epidemiology.",
+        "abstract": "There is a need for a simple water sampling technique to enable routine monitoring of community drug consumption through wastewater-based epidemiology (WBE). This study investigates the potential use of diffusive gradients in thin films to sample organic compounds (o-DGT) for WBE. Three types of resin gels (HLB, XAD 18, and XDA-1) within o-DGT samplers each were deployed in triplicate at the inlets of two sewage treatment plants of Southern Asian cities. The target compounds included 15 illicit drugs and 18 antibiotics. A comprehensive evaluation was undertaken regarding each resin's ability to accumulate the target compounds and accuracy by comparing active samples. The organic compounds accumulated on each resin gel were characterised at the molecular level using Fourier transform ion-cyclotron-resonance mass spectrometry (FT-ICR MS). The results showed that the HLB resin performed better than the XAD 18 and XDA-1 resins. Based on calculations using the HLB-DGT data, methamphetamine and heroin were the two most popular illicit drugs consumed among the studied populations, and were followed by ketamine and codeine, which agreed well with the authoritative reports and reference data. The total drug consumption in Hanoi was one order of magnitude higher than that in Guangzhou, thus implying a probably more serious drug situation in the former. Overall, the findings of this study demonstrate that o-DGT passive samplers are a promising tool for WBE studies, particularly at WWTPs or in urban streams where an automatic sampler for taking composite water samples is absent.",
+        "pmid": "33592478",
+        "authors": "Xin Liu; Ruiling Zhang; Hao Cheng; Mahdi Safaei Khorram; Shizhen Zhao; Trinh Thi Tham; Tri Manh Tran; Tu Binh Minh; Bin Jiang; Biao Jin; Gan Zhang",
+        "study_journal": "The Science of the total environment",
+        "study_year": "2021",
+        "publication_type": "Journal Article",
+        "language": "en",
+        "publication_date": "2021-01-30"
+      },
+      "clear_fields": [
+        "pmcid"
+      ],
+      "evidence_basis": "Native PubMed DOI/abstract and publisher-deposited Crossref title agree. Evidence: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_batch_rerun_20261022/remaining_failure_recovery_20261025/recovery_plan_v3.json"
+    },
+    {
+      "doi": "10.17140/emoj-3-130",
+      "fields": {
+        "publication_type": "Journal Article"
+      },
+      "evidence_basis": "Title and metadata say Review, but the original PDF cover says Research and the abstract reports a prospective 425-patient study. Existing primary routing should not be rejected just for a title keyword. Evidence: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_investigation_20261026/report.html"
+    },
+    {
+      "doi": "10.1089/psymed.2022.0002",
+      "fields": {
+        "abstract": "Background: A trial of psilocybin (COMP360) versus escitalopram for major depressive disorder (MDD) was reported as negative, as there was no significant difference in the primary outcome, mean change in the 16-item Quick Inventory of Depressive Symptomatology-Self-Report (QIDS SR-16). However, analyses using three other depression scales (17-item Hamilton Depression Rating Scale [HAMD-17], Montgomery and Åsberg Depression Rating Scale [MADRS], and Beck Depression Inventory 1A [BDI-1A]) all significantly favored psilocybin, although without a prespecified plan for multiple comparisons correction. Methods: Bayesian reanalysis of a trial of two doses of psilocybin (25 mg) versus 6 weeks of escitalopram (20 mg) was done in 59 patients with MDD. We used skeptical priors, which bias estimates toward zero, and Bayes factors, which quantify evidence for or against a hypothesis. We report posterior estimates for the difference between psilocybin and escitalopram for four different depression scales. Results: Using Bayes factors and ''skeptical priors'' that bias estimates toward zero, for the hypothesis that psilocybin is superior by any margin, we found indeterminate evidence for QIDS SR-16, strong evidence for BDI-1A and MADRS, and extremely strong evidence for HAMD-17. For the stronger hypothesis that psilocybin is superior by a ''clinically meaningful amount'' (using literature-defined values of the minimally clinically important difference), we found moderate evidence against it for the QIDS-SR-16, but indeterminate evidence to support it for the BDI-1A. Further, we found moderate evidence supporting psilocybin's clinically meaningful superiority on the MADRS and HAMD-17. For all scales, we found extremely strong evidence for psilocybin's noninferiority versus escitalopram. Findings were robust to prior sensitivity analysis. Conclusions: The overall pattern of evidence provided by this Bayesian reanalysis supports the following inferences: (1) psilocybin did indeed outperform escitalopram in this trial, but not to an extent that was uniformly clinically meaningful and (2) psilocybin is almost certainly noninferior to escitalopram. These results provide a more precise and nuanced interpretation to previously reported results from this trial and support the need for further research into the relative efficacy of psilocybin therapy for depression with respect to current leading treatments.",
+        "has_correction": true
+      },
+      "evidence_basis": "Verified single-trial Bayesian reanalysis, not meta-analysis. The saved identity-accepted PDF already contains the published MADRS correction (Bayes factor 4.6; probability 83.4%); replace stale registry abstract with its corrected abstract using the standard TEI parser. Preserve trial reuse and correction provenance. Evidence: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/reanalysis_correction/source_version_verification.json"
     }
   ]
 }

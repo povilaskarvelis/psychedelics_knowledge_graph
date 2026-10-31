@@ -1,0 +1,184 @@
+[
+  {
+    "query_name": "pcp_precise",
+    "endpoint": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+    "term": "((\"Phencyclidine\"[MeSH Terms] OR phencyclidine[Title/Abstract])) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+    "date_accessed_utc": "2026-10-19T14:49:31.979663+00:00",
+    "parameters": {
+      "db": "pubmed",
+      "term": "((\"Phencyclidine\"[MeSH Terms] OR phencyclidine[Title/Abstract])) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+      "retmax": 0,
+      "retmode": "json",
+      "tool": "psychedelics_kg_scope_audit"
+    },
+    "contact_email_provided": true,
+    "count": 5673,
+    "query_translation": "(\"Phencyclidine\"[MeSH Terms] OR \"Phencyclidine\"[Title/Abstract]) AND 1800/01/01:2026/10/19[Date - Publication]",
+    "warnings": null,
+    "errors": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "status_code": 200
+      }
+    ],
+    "raw_sha256": "cb1f9d48028863d9b91756298c74f2156a861f25008845cab6840723a5750aac",
+    "interpretation": "Broad database hits, not eligible papers, independent studies, corpus additions, or a recall denominator."
+  },
+  {
+    "query_name": "pcp_precise_english_abstract",
+    "endpoint": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+    "term": "((\"Phencyclidine\"[MeSH Terms] OR phencyclidine[Title/Abstract]) AND english[Language] AND hasabstract) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+    "date_accessed_utc": "2026-10-19T14:49:33.308187+00:00",
+    "parameters": {
+      "db": "pubmed",
+      "term": "((\"Phencyclidine\"[MeSH Terms] OR phencyclidine[Title/Abstract]) AND english[Language] AND hasabstract) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+      "retmax": 0,
+      "retmode": "json",
+      "tool": "psychedelics_kg_scope_audit"
+    },
+    "contact_email_provided": true,
+    "count": 4784,
+    "query_translation": "(\"Phencyclidine\"[MeSH Terms] OR \"Phencyclidine\"[Title/Abstract]) AND \"english\"[Language] AND \"hasabstract\"[All Fields] AND 1800/01/01:2026/10/19[Date - Publication]",
+    "warnings": null,
+    "errors": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "status_code": 200
+      }
+    ],
+    "raw_sha256": "c71071c34aaa296975ddd649c5a78a86b099d634125777c27a9d7f7d2cf641f8",
+    "interpretation": "Broad database hits, not eligible papers, independent studies, corpus additions, or a recall denominator."
+  },
+  {
+    "query_name": "pcp_bare_acronym",
+    "endpoint": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+    "term": "(PCP[Title/Abstract]) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+    "date_accessed_utc": "2026-10-19T14:49:34.886064+00:00",
+    "parameters": {
+      "db": "pubmed",
+      "term": "(PCP[Title/Abstract]) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+      "retmax": 0,
+      "retmode": "json",
+      "tool": "psychedelics_kg_scope_audit"
+    },
+    "contact_email_provided": true,
+    "count": 17047,
+    "query_translation": "\"PCP\"[Title/Abstract] AND 1800/01/01:2026/10/19[Date - Publication]",
+    "warnings": null,
+    "errors": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "status_code": 200
+      }
+    ],
+    "raw_sha256": "17605da655d30f454d10bba8ea7eef69971e522e2fc37869afd2944914b981d9",
+    "interpretation": "Broad database hits, not eligible papers, independent studies, corpus additions, or a recall denominator."
+  },
+  {
+    "query_name": "cannabis_plant",
+    "endpoint": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+    "term": "((\"Cannabis\"[MeSH Terms] OR cannabis[Title/Abstract] OR marijuana[Title/Abstract])) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+    "date_accessed_utc": "2026-10-19T14:49:36.475038+00:00",
+    "parameters": {
+      "db": "pubmed",
+      "term": "((\"Cannabis\"[MeSH Terms] OR cannabis[Title/Abstract] OR marijuana[Title/Abstract])) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+      "retmax": 0,
+      "retmode": "json",
+      "tool": "psychedelics_kg_scope_audit"
+    },
+    "contact_email_provided": true,
+    "count": 53852,
+    "query_translation": "(\"Cannabis\"[MeSH Terms] OR \"Cannabis\"[Title/Abstract] OR \"marijuana\"[Title/Abstract]) AND 1800/01/01:2026/10/19[Date - Publication]",
+    "warnings": null,
+    "errors": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "status_code": 200
+      }
+    ],
+    "raw_sha256": "719ec669868b58716b87798ad20ae42620935f460eca3ce3b9783eb9718d29d3",
+    "interpretation": "Broad database hits, not eligible papers, independent studies, corpus additions, or a recall denominator."
+  },
+  {
+    "query_name": "cannabis_cannabinoids",
+    "endpoint": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+    "term": "((\"Cannabis\"[MeSH Terms] OR \"Cannabinoids\"[MeSH Terms] OR cannabis[Title/Abstract] OR marijuana[Title/Abstract] OR cannabinoid*[Title/Abstract] OR tetrahydrocannabinol*[Title/Abstract] OR cannabidiol[Title/Abstract])) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+    "date_accessed_utc": "2026-10-19T14:49:37.591500+00:00",
+    "parameters": {
+      "db": "pubmed",
+      "term": "((\"Cannabis\"[MeSH Terms] OR \"Cannabinoids\"[MeSH Terms] OR cannabis[Title/Abstract] OR marijuana[Title/Abstract] OR cannabinoid*[Title/Abstract] OR tetrahydrocannabinol*[Title/Abstract] OR cannabidiol[Title/Abstract])) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+      "retmax": 0,
+      "retmode": "json",
+      "tool": "psychedelics_kg_scope_audit"
+    },
+    "contact_email_provided": true,
+    "count": 80099,
+    "query_translation": "(\"Cannabis\"[MeSH Terms] OR \"Cannabinoids\"[MeSH Terms] OR \"Cannabis\"[Title/Abstract] OR \"marijuana\"[Title/Abstract] OR \"cannabinoid*\"[Title/Abstract] OR \"tetrahydrocannabinol*\"[Title/Abstract] OR \"cannabidiol\"[Title/Abstract]) AND 1800/01/01:2026/10/19[Date - Publication]",
+    "warnings": null,
+    "errors": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "status_code": 200
+      }
+    ],
+    "raw_sha256": "ad594d341516e05f2a05d21e58efb3382c2fa5beee4a5c0d696db34b659244b9",
+    "interpretation": "Broad database hits, not eligible papers, independent studies, corpus additions, or a recall denominator."
+  },
+  {
+    "query_name": "cannabis_cannabinoids_english_abstract",
+    "endpoint": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+    "term": "((\"Cannabis\"[MeSH Terms] OR \"Cannabinoids\"[MeSH Terms] OR cannabis[Title/Abstract] OR marijuana[Title/Abstract] OR cannabinoid*[Title/Abstract] OR tetrahydrocannabinol*[Title/Abstract] OR cannabidiol[Title/Abstract]) AND english[Language] AND hasabstract) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+    "date_accessed_utc": "2026-10-19T14:49:39.327842+00:00",
+    "parameters": {
+      "db": "pubmed",
+      "term": "((\"Cannabis\"[MeSH Terms] OR \"Cannabinoids\"[MeSH Terms] OR cannabis[Title/Abstract] OR marijuana[Title/Abstract] OR cannabinoid*[Title/Abstract] OR tetrahydrocannabinol*[Title/Abstract] OR cannabidiol[Title/Abstract]) AND english[Language] AND hasabstract) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+      "retmax": 0,
+      "retmode": "json",
+      "tool": "psychedelics_kg_scope_audit"
+    },
+    "contact_email_provided": true,
+    "count": 68441,
+    "query_translation": "(\"Cannabis\"[MeSH Terms] OR \"Cannabinoids\"[MeSH Terms] OR \"Cannabis\"[Title/Abstract] OR \"marijuana\"[Title/Abstract] OR \"cannabinoid*\"[Title/Abstract] OR \"tetrahydrocannabinol*\"[Title/Abstract] OR \"cannabidiol\"[Title/Abstract]) AND \"english\"[Language] AND \"hasabstract\"[All Fields] AND 1800/01/01:2026/10/19[Date - Publication]",
+    "warnings": null,
+    "errors": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "status_code": 200
+      }
+    ],
+    "raw_sha256": "ec7cd7bf8ceed304ef59fd5066a1bdacefff08422bf55a9357a7c4e5a0054df9",
+    "interpretation": "Broad database hits, not eligible papers, independent studies, corpus additions, or a recall denominator."
+  },
+  {
+    "query_name": "cannabis_and_pcp",
+    "endpoint": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+    "term": "((\"Cannabis\"[MeSH Terms] OR \"Cannabinoids\"[MeSH Terms] OR cannabis[Title/Abstract] OR marijuana[Title/Abstract] OR cannabinoid*[Title/Abstract] OR tetrahydrocannabinol*[Title/Abstract] OR cannabidiol[Title/Abstract]) AND (\"Phencyclidine\"[MeSH Terms] OR phencyclidine[Title/Abstract])) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+    "date_accessed_utc": "2026-10-19T14:49:41.020724+00:00",
+    "parameters": {
+      "db": "pubmed",
+      "term": "((\"Cannabis\"[MeSH Terms] OR \"Cannabinoids\"[MeSH Terms] OR cannabis[Title/Abstract] OR marijuana[Title/Abstract] OR cannabinoid*[Title/Abstract] OR tetrahydrocannabinol*[Title/Abstract] OR cannabidiol[Title/Abstract]) AND (\"Phencyclidine\"[MeSH Terms] OR phencyclidine[Title/Abstract])) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+      "retmax": 0,
+      "retmode": "json",
+      "tool": "psychedelics_kg_scope_audit"
+    },
+    "contact_email_provided": true,
+    "count": 392,
+    "query_translation": "(\"Cannabis\"[MeSH Terms] OR \"Cannabinoids\"[MeSH Terms] OR \"Cannabis\"[Title/Abstract] OR \"marijuana\"[Title/Abstract] OR \"cannabinoid*\"[Title/Abstract] OR \"tetrahydrocannabinol*\"[Title/Abstract] OR \"cannabidiol\"[Title/Abstract]) AND (\"Phencyclidine\"[MeSH Terms] OR \"Phencyclidine\"[Title/Abstract]) AND 1800/01/01:2026/10/19[Date - Publication]",
+    "warnings": null,
+    "errors": null,
+    "attempts": [
+      {
+        "attempt": 1,
+        "status_code": 200
+      }
+    ],
+    "raw_sha256": "2473c0202995451513a6c59b6137e9b2d7e00636483b52f8b2d96b987a8e1786",
+    "interpretation": "Broad database hits, not eligible papers, independent studies, corpus additions, or a recall denominator."
+  }
+]

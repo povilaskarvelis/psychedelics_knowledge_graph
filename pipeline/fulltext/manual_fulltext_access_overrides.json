@@ -157,6 +157,11 @@
       "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1002/bcp.70839",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 1 on 2026-10-16 and downloaded every accessible PDF. Remaining links were broken or closed access; no per-paper cause was provided. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
+    },
+    {
       "doi": "10.1002/bdd.70008",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -322,6 +327,16 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1002/dta.70156",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 1 on 2026-10-16 and downloaded every accessible PDF. Remaining links were broken or closed access; no per-paper cause was provided. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
+    },
+    {
+      "doi": "10.1002/dta.70163",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 1 on 2026-10-16 and downloaded every accessible PDF. Remaining links were broken or closed access; no per-paper cause was provided. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
     },
     {
       "doi": "10.1002/elps.200390119",
@@ -601,6 +616,13 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1006/nbdi.1998.0206",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available.",
+      "open_access_status": "closed",
+      "open_access_is_oa": false
     },
     {
       "doi": "10.1007/978-3-319-55723-6_18",
@@ -1278,6 +1300,11 @@
       "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1016/j.aca.2026.346308",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 2 on 2026-10-16, requested exclusion of the two Kentucky reports, and placed all other downloadable article PDFs in the inbox. No per-paper cause was provided for the remaining inaccessible reports. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
+    },
+    {
       "doi": "10.1016/j.acn.2007.05.005",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -1411,6 +1438,11 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1016/j.bionps.2026.100143",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 1 on 2026-10-16 and downloaded every accessible PDF. Remaining links were broken or closed access; no per-paper cause was provided. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
+    },
+    {
       "doi": "10.1016/j.biopsych.2005.09.006",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -1531,6 +1563,11 @@
       "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1016/j.bpsgos.2026.100833",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 1 on 2026-10-16 and downloaded every accessible PDF. Remaining links were broken or closed access; no per-paper cause was provided. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
+    },
+    {
       "doi": "10.1016/j.brainres.2009.07.040",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -1613,6 +1650,11 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User completed review of the remaining OA-landing DOI list; accessible PDFs were downloaded to the manual inbox and all other reviewed records had no accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.dadr.2026.100482",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 1 on 2026-10-16 and downloaded every accessible PDF. Remaining links were broken or closed access; no per-paper cause was provided. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
     },
     {
       "doi": "10.1016/j.drugalcdep.2003.11.009",
@@ -1901,6 +1943,11 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1016/j.euroneuro.2026.113878",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 1 on 2026-10-16 and downloaded every accessible PDF. Remaining links were broken or closed access; no per-paper cause was provided. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
+    },
+    {
       "doi": "10.1016/j.eurpsy.2016.01.157",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -2091,6 +2138,11 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User completed batch 2 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.jadr.2026.101187",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 1 on 2026-10-16 and downloaded every accessible PDF. Remaining links were broken or closed access; no per-paper cause was provided. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
     },
     {
       "doi": "10.1016/j.jagp.2021.09.014",
@@ -2677,6 +2729,21 @@
       "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1016/j.psyche.2026.100040",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 1 on 2026-10-16 and downloaded every accessible PDF. Remaining links were broken or closed access; no per-paper cause was provided. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
+    },
+    {
+      "doi": "10.1016/j.psyche.2026.100041",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 1 on 2026-10-16 and downloaded every accessible PDF. Remaining links were broken or closed access; no per-paper cause was provided. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
+    },
+    {
+      "doi": "10.1016/j.psyche.2026.100043",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 1 on 2026-10-16 and downloaded every accessible PDF. Remaining links were broken or closed access; no per-paper cause was provided. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
+    },
+    {
       "doi": "10.1016/j.psychres.2018.04.012",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -2700,6 +2767,16 @@
       "doi": "10.1016/j.psychres.2026.117152",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.psychres.2026.117516",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 1 on 2026-10-16 and downloaded every accessible PDF. Remaining links were broken or closed access; no per-paper cause was provided. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
+    },
+    {
+      "doi": "10.1016/j.psycom.2026.100292",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 1 on 2026-10-16 and downloaded every accessible PDF. Remaining links were broken or closed access; no per-paper cause was provided. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
     },
     {
       "doi": "10.1016/j.psycr.2024.100236",
@@ -2739,6 +2816,11 @@
       "doi": "10.1016/j.socscimed.2024.116702",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1016/j.socscimed.2026.119909",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 2 on 2026-10-16, requested exclusion of the two Kentucky reports, and placed all other downloadable article PDFs in the inbox. No per-paper cause was provided for the remaining inaccessible reports. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
     },
     {
       "doi": "10.1016/j.talanta.2020.121976",
@@ -3253,6 +3335,11 @@
       "doi": "10.1021/acs.jmedchem.4c01477",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1021/acs.jmedchem.6c01973",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 2 on 2026-10-16, requested exclusion of the two Kentucky reports, and placed all other downloadable article PDFs in the inbox. No per-paper cause was provided for the remaining inaccessible reports. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
     },
     {
       "doi": "10.1021/acs.jnatprod.1c00381",
@@ -4699,6 +4786,11 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1080/02791072.2026.2729623",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 1 on 2026-10-16 and downloaded every accessible PDF. Remaining links were broken or closed access; no per-paper cause was provided. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
     },
     {
       "doi": "10.1080/03007995.2023.2239045",
@@ -6854,6 +6946,16 @@
       "manual_reason": "User completed batch 1 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1111/1556-4029.70492",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Following Read the full text revealed Get access to the full version, institutional login and paid purchase options. No paid access attempted.",
+      "reviewed_url": "https://onlinelibrary.wiley.com/doi/full/10.1111/1556-4029.70492",
+      "reviewed_at_utc": "2026-10-18T15:27:46.347584+00:00",
+      "source_review_run": "luna_fulltext_browser_20261018_01"
+    },
+    {
       "doi": "10.1111/acem.13330",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -6933,6 +7035,16 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1111/add.70613",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 1 on 2026-10-16 and downloaded every accessible PDF. Remaining links were broken or closed access; no per-paper cause was provided. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
+    },
+    {
+      "doi": "10.1111/add.70616",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 1 on 2026-10-16 and downloaded every accessible PDF. Remaining links were broken or closed access; no per-paper cause was provided. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
     },
     {
       "doi": "10.1111/anoc.12179",
@@ -8767,6 +8879,11 @@
       "manual_reason": "User completed batch 3 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1177/02698811261473405",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 1 on 2026-10-16 and downloaded every accessible PDF. Remaining links were broken or closed access; no per-paper cause was provided. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
+    },
+    {
       "doi": "10.1177/02698811261473436",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -8933,6 +9050,11 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1177/10398562261494440",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 1 on 2026-10-16 and downloaded every accessible PDF. Remaining links were broken or closed access; no per-paper cause was provided. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
     },
     {
       "doi": "10.1177/10401237261473589",
@@ -9180,6 +9302,16 @@
       "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.1212/cpj.0000000000200584",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Article page explicitly offers purchase options to get full access. Stopped without paid access; inconsistent page type labels remain a format-review signal, not an exclusion.",
+      "reviewed_url": "https://www.neurology.org/doi/10.1212/CPJ.0000000000200584",
+      "reviewed_at_utc": "2026-10-18T15:33:21.552464+00:00",
+      "source_review_run": "luna_fulltext_browser_20261018_01"
+    },
+    {
       "doi": "10.1212/wnl.0000000000001271",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -9197,6 +9329,14 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1248/yakushi1947.79.10_1331",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "The downloaded PDF variant has a Japanese article body with English title/abstract. Hold this variant out of full-text inputs while seeking an English edition. This is a source-quality hold, not a closed-access finding or eligibility exclusion.",
+      "checked_at_utc": "2026-10-18T15:02:19.749462+00:00",
+      "source_quality_review_run": "luna_fulltext_recovery_20261018",
+      "source_quality_review_artifact": "data/processed/model_runs/luna_v5_20261017/fulltext_recovery_20261018/automated_pdf_body_language_review.json"
     },
     {
       "doi": "10.1254/jjp.17.678",
@@ -9757,6 +9897,14 @@
       "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.21320/1818-474x-2024-4-115-126",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "The downloaded PDF variant has a Russian article body with English title/abstract. Hold this variant out of full-text inputs while seeking an English edition. This is a source-quality hold, not a closed-access finding or eligibility exclusion.",
+      "checked_at_utc": "2026-10-18T15:02:19.749462+00:00",
+      "source_quality_review_run": "luna_fulltext_recovery_20261018",
+      "source_quality_review_artifact": "data/processed/model_runs/luna_v5_20261017/fulltext_recovery_20261018/automated_pdf_body_language_review.json"
+    },
+    {
       "doi": "10.21608/ajfm.2017.18280",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review explicitly confirmed that no openly accessible article PDF is available. Suppress repeated PDF retrieval and use abstract-level extraction when available."
@@ -10181,6 +10329,14 @@
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.32592/nkums.15.1.52",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "The downloaded PDF variant has a Persian article body with English title/abstract. Hold this variant out of full-text inputs while seeking an English edition. This is a source-quality hold, not a closed-access finding or eligibility exclusion.",
+      "checked_at_utc": "2026-10-18T15:02:19.749462+00:00",
+      "source_quality_review_run": "luna_fulltext_recovery_20261018",
+      "source_quality_review_artifact": "data/processed/model_runs/luna_v5_20261017/fulltext_recovery_20261018/automated_pdf_body_language_review.json"
+    },
+    {
       "doi": "10.32689/2663-0672-2025-3-22",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -10245,6 +10401,22 @@
       "doi": "10.3402/ejpt.v3i0.19447",
       "manual_access_action": "suppress_pdf_download",
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.3408/jafst.17.27",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "The downloaded PDF variant has a Japanese article body with English title/abstract. Hold this variant out of full-text inputs while seeking an English edition. This is a source-quality hold, not a closed-access finding or eligibility exclusion.",
+      "checked_at_utc": "2026-10-18T15:02:19.749462+00:00",
+      "source_quality_review_run": "luna_fulltext_recovery_20261018",
+      "source_quality_review_artifact": "data/processed/model_runs/luna_v5_20261017/fulltext_recovery_20261018/automated_pdf_body_language_review.json"
+    },
+    {
+      "doi": "10.3408/jafst.834",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "The downloaded PDF variant has a Japanese article body with English title/abstract. Hold this variant out of full-text inputs while seeking an English edition. This is a source-quality hold, not a closed-access finding or eligibility exclusion.",
+      "checked_at_utc": "2026-10-18T15:02:19.749462+00:00",
+      "source_quality_review_run": "luna_fulltext_recovery_20261018",
+      "source_quality_review_artifact": "data/processed/model_runs/luna_v5_20261017/fulltext_recovery_20261018/automated_pdf_body_language_review.json"
     },
     {
       "doi": "10.34101/actaagrar/33/2846",
@@ -10542,6 +10714,11 @@
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.48321/d1da164d9c",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 2 on 2026-10-16, requested exclusion of the two Kentucky reports, and placed all other downloadable article PDFs in the inbox. No per-paper cause was provided for the remaining inaccessible reports. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
+    },
+    {
       "doi": "10.5055/jom.2008.0023",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -10596,11 +10773,27 @@
       "manual_reason": "Manual/user follow-up after browser recovery: no usable openly accessible article PDF remains; suppress PDF-download routing and use abstract-level extraction when available."
     },
     {
+      "doi": "10.5167/uzh-284344",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "The recovered repository PDF is the Research Square v1 preprint, not the published article edition. Preserve the PDF but hold it out of full-text inputs. Recover the published edition and review the repository identifier against the existing publisher DOI 10.1038/s41591-025-03685-9. This is not an eligibility exclusion.",
+      "source_quality_review_run": "luna_fulltext_recovery_20261018",
+      "source_quality_review_artifact": "data/processed/model_runs/luna_v5_20261017/fulltext_recovery_20261018/automated_pdf_source_version_review.json",
+      "checked_at_utc": "2026-10-18T15:05:04.287569+00:00"
+    },
+    {
       "doi": "10.5172/hesr.2010.19.2.192",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.51891/rease.v12i9.30661",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "The downloaded PDF variant has a Portuguese article body with English title/abstract. Hold this variant out of full-text inputs while seeking an English edition. This is a source-quality hold, not a closed-access finding or eligibility exclusion.",
+      "checked_at_utc": "2026-10-18T15:02:19.749462+00:00",
+      "source_quality_review_run": "luna_fulltext_recovery_20261018",
+      "source_quality_review_artifact": "data/processed/model_runs/luna_v5_20261017/fulltext_recovery_20261018/automated_pdf_body_language_review.json"
     },
     {
       "doi": "10.5216/ref.v9i1.21885",
@@ -10684,6 +10877,14 @@
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.55892/jrg.v9i21.3741",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "The downloaded PDF variant has a Portuguese article body with English title/abstract. Hold this variant out of full-text inputs while seeking an English edition. This is a source-quality hold, not a closed-access finding or eligibility exclusion.",
+      "checked_at_utc": "2026-10-18T15:02:19.749462+00:00",
+      "source_quality_review_run": "luna_fulltext_recovery_20261018",
+      "source_quality_review_artifact": "data/processed/model_runs/luna_v5_20261017/fulltext_recovery_20261018/automated_pdf_body_language_review.json"
+    },
+    {
       "doi": "10.56012/tsen2260",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
@@ -10696,6 +10897,14 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.56238/arev8n9-174",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "The downloaded PDF variant has a Portuguese article body with English title/abstract. Hold this variant out of full-text inputs while seeking an English edition. This is a source-quality hold, not a closed-access finding or eligibility exclusion.",
+      "checked_at_utc": "2026-10-18T15:02:19.749462+00:00",
+      "source_quality_review_run": "luna_fulltext_recovery_20261018",
+      "source_quality_review_artifact": "data/processed/model_runs/luna_v5_20261017/fulltext_recovery_20261018/automated_pdf_body_language_review.json"
     },
     {
       "doi": "10.5644/radovi.191",
@@ -10724,6 +10933,11 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User-directed batch closeout of the remaining prioritized manual-recovery queue after repeated low-yield review batches; treat the record as having no accessible article full text and do not pursue additional PDF retrieval. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.5811/westjem.56978",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 2 on 2026-10-16, requested exclusion of the two Kentucky reports, and placed all other downloadable article PDFs in the inbox. No per-paper cause was provided for the remaining inaccessible reports. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
     },
     {
       "doi": "10.5812/iranjradiol.21327",
@@ -10779,11 +10993,45 @@
       "manual_reason": "Manual DOI-page review found no usable eligible English article PDF: the available route was closed access, non-English-only, or otherwise not a usable article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
     },
     {
+      "doi": "10.62574/2jrayyr4",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "The downloaded PDF variant has a Spanish article body with English title/abstract. Hold this variant out of full-text inputs while seeking an English edition. This is a source-quality hold, not a closed-access finding or eligibility exclusion.",
+      "checked_at_utc": "2026-10-18T15:02:19.749462+00:00",
+      "source_quality_review_run": "luna_fulltext_recovery_20261018",
+      "source_quality_review_artifact": "data/processed/model_runs/luna_v5_20261017/fulltext_recovery_20261018/automated_pdf_body_language_review.json"
+    },
+    {
+      "doi": "10.62574/g9gn9z5t",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "The downloaded PDF variant has a Spanish article body with English title/abstract. Hold this variant out of full-text inputs while seeking an English edition. This is a source-quality hold, not a closed-access finding or eligibility exclusion.",
+      "checked_at_utc": "2026-10-18T15:02:19.749462+00:00",
+      "source_quality_review_run": "luna_fulltext_recovery_20261018",
+      "source_quality_review_artifact": "data/processed/model_runs/luna_v5_20261017/fulltext_recovery_20261018/automated_pdf_body_language_review.json"
+    },
+    {
+      "doi": "10.62574/n08gyqka",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "The downloaded PDF variant has a Spanish article body with English title/abstract. Hold this variant out of full-text inputs while seeking an English edition. This is a source-quality hold, not a closed-access finding or eligibility exclusion.",
+      "checked_at_utc": "2026-10-18T15:02:19.749462+00:00",
+      "source_quality_review_run": "luna_fulltext_recovery_20261018",
+      "source_quality_review_artifact": "data/processed/model_runs/luna_v5_20261017/fulltext_recovery_20261018/automated_pdf_body_language_review.json"
+    },
+    {
       "doi": "10.63932/3067-7106.1087",
       "manual_access_action": "suppress_pdf_download",
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User completed batch 2 manual review and downloaded every accessible eligible PDF; remaining records had no usable openly accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.64719/pb.18507",
+      "manual_access_action": "suppress_pdf_download",
+      "open_access_status": "closed",
+      "open_access_is_oa": false,
+      "manual_reason": "Publisher identifies an original research article but explicitly requires Subscriber Access or Purchase Article for full text. Stopped without paid access.",
+      "reviewed_url": "https://medworksmedia.com/pb-article/gh001-efficacy-is-independent-of-prior-antidepressant-treatment-failures-in-treatment-resistant-depression-a-post-hoc-analysis-of-a-phase-2b-randomized-controlled-trial/",
+      "reviewed_at_utc": "2026-10-18T15:31:31.336590+00:00",
+      "source_review_run": "luna_fulltext_browser_20261018_01"
     },
     {
       "doi": "10.64719/pb.18534",
@@ -10805,6 +11053,11 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User completed review of the full OA-landing DOI list; accessible PDFs were downloaded to the manual inbox and all other reviewed records had no accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.70070/fdkn3z10",
+      "manual_access_action": "suppress_pdf_download",
+      "manual_reason": "User completed batch 1 on 2026-10-16 and downloaded every accessible PDF. Remaining links were broken or closed access; no per-paper cause was provided. Suppress repeated PDF retrieval after completed manual review; use abstract-level extraction when available. Closed access is not individually confirmed."
     },
     {
       "doi": "10.70462/acim",
@@ -10927,6 +11180,138 @@
       "open_access_status": "closed",
       "open_access_is_oa": false,
       "manual_reason": "User completed review of the remaining OA-landing DOI list; accessible PDFs were downloaded to the manual inbox and all other reviewed records had no accessible article full text. Suppress repeated PDF retrieval and use abstract-level extraction when available."
+    },
+    {
+      "doi": "10.1001/jama.2025.13481",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The saved file explicitly identifies itself as supplemental material, while the requested DOI is the published randomized trial. Preserve the parent paper, reject this file as its main text and use the title/abstract until a matching main article is available. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.1002/elan.1140060525",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The original saved PDF contains only a catalog/repository title or abstract/summary, without the main report. This is a source-completeness failure, not evidence that the intended journal paper is ineligible. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.1016/0223-5234(87)90032-8",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The original saved PDF contains only a catalog/repository title or abstract/summary, without the main report. This is a source-completeness failure, not evidence that the intended journal paper is ineligible. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.1016/j.bbi.2026.106886",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The journal DOI and final abstract identify the retained published report, but the saved journal-keyed PDF was visually identified as its earlier bioRxiv draft. Preserve both versions; recover/verify the matching final main article and use the final source-backed abstract before full-text extraction. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.1016/j.bbr.2022.113809",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The original saved PDF contains only a catalog/repository title or abstract/summary, without the main report. This is a source-completeness failure, not evidence that the intended journal paper is ineligible. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.1016/j.bbrc.2010.04.078",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The original saved PDF contains only a catalog/repository title or abstract/summary, without the main report. This is a source-completeness failure, not evidence that the intended journal paper is ineligible. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.1016/j.bbrc.2022.09.003",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: Saved Japanese document is a dissertation-summary-like source, not the English journal article identified by the requested DOI. Quarantine source, preserve report and recover the matching English main article; do not infer paper language from the wrong download. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.1016/j.neuroscience.2005.09.019",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The complete saved two-page PDF contains a repository cover plus a figure, not the complete main article. Do not treat the repository language or figure-only pages as a non-English paper; preserve the parent report and replace the partial source. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.1016/s0168-0102(03)00041-5",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: Page 2 was visually inspected and is a Japanese doctoral thesis summary associated with the English journal title. It is not a verified English main journal article. Preserve the intended parent report and replace the saved thesis-summary source. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.1039/an9881300859",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The original saved PDF contains only a catalog/repository title or abstract/summary, without the main report. This is a source-completeness failure, not evidence that the intended journal paper is ineligible. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.1073/pnas.2012482118",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The saved short file consists of supplementary Figures S1-S4 and supporting tables, not the main PNAS article. Keep the parent paper; replace the supplement as the full-text source. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.1080/01480545.2020.1784924",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The repository explicitly labels the saved Figshare PDF Supporting information and Is supplement to the publisher DOI. Preserve the parent paper and replace this supplementary-only file as its main source. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.1088/1741-2552/ac6293",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The original source explicitly says Synopsis of Thesis. It is an English thesis summary associated with the published journal report, not the main journal text. Preserve the parent paper and replace this file. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.1097/aln.0000000000001483",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The original saved PDF contains only a catalog/repository title or abstract/summary, without the main report. This is a source-completeness failure, not evidence that the intended journal paper is ineligible. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.1111/j.1369-1600.2009.00156.x",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The complete saved two-page PDF contains a repository cover plus a figure, not the complete main article. Do not treat the repository language or figure-only pages as a non-English paper; preserve the parent report and replace the partial source. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.1254/jjp.62.131",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The publisher downloaded a different noradrenaline paper for the requested ketamine report; that file is already quarantined. Keep the intended retained report and replace its wrong download, with abstract fallback until source identity passes. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.1556/jpc.27.2014.6.13",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The original saved PDF contains only a catalog/repository title or abstract/summary, without the main report. This is a source-completeness failure, not evidence that the intended journal paper is ineligible. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.1590/s1020-49892004000600006",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The original saved PDF contains only a catalog/repository title or abstract/summary, without the main report. This is a source-completeness failure, not evidence that the intended journal paper is ineligible. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.22059/ijvm.2008.19738",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The saved PDF is a different Salvia officinalis ischemia-reperfusion report, not the requested ketamine report. Quarantine the wrong file; preserve the intended V5-retained record and use its abstract pending the matching source. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.33552/icbc.2025.03.000562",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The actual downloaded file is an unrelated childhood-obesity paper. Quarantine it rather than attaching its findings to this psilocybin record. Preserve the intended retained paper with abstract fallback pending a matching main source. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.3390/ph17070846",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The English article is identifiable, but the saved file is explicitly marked FOR PEER REVIEW with placeholder pagination. The published report remains retained; verify or replace this file with the final version before full-text extraction. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
+    },
+    {
+      "doi": "10.3987/r-1974-02-0228",
+      "manual_access_action": "abstract_only",
+      "manual_reason": "Source-quality closeout20261022: The recovered exact archive PDF contains only a one-page title/summary. Full report versus abstract format remains unproven; reject this as a usable full main text and keep the V5-retained paper on abstract fallback pending a matching main source. The earlier original file and review history are preserved. Full text may be re-enabled only after a matching complete main source is verified.",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/extraction_refresh_20261022_source_fixes/source_actions.jsonl"
     }
   ]
 }

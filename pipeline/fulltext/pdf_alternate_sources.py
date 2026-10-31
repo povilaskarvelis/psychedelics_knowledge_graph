@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 import html as html_lib
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -257,33 +256,6 @@ def title_validation_result(
     return score >= min_title_score, score, "front_title_match"
 
 
-def js_const_value(html: str, name: str) -> str:
-    pattern = rf"\b{name}\s*=\s*[\"']([^\"']+)[\"']"
-    match = re.search(pattern, html)
-    return match.group(1) if match else ""
-
-
-def solve_pmc_pow_cookie(html: str) -> str:
-    """Return a cloudpmc proof-of-work cookie header value for PMC viewer pages."""
-
-    challenge = js_const_value(html, "POW_CHALLENGE")
-    difficulty_text = js_const_value(html, "POW_DIFFICULTY")
-    cookie_name = js_const_value(html, "POW_COOKIE_NAME") or "cloudpmc-viewer-pow"
-    if not challenge:
-        return ""
-    try:
-        difficulty = int(difficulty_text or "4")
-    except ValueError:
-        difficulty = 4
-    prefix = "0" * max(0, difficulty)
-    nonce = 0
-    while True:
-        digest = hashlib.sha256(f"{challenge}{nonce}".encode("utf-8")).hexdigest()
-        if digest.startswith(prefix):
-            return f"{cookie_name}={challenge},{nonce}"
-        nonce += 1
-
-
 def extract_pmcids_from_values(values: Iterable[object]) -> list[str]:
     out: list[str] = []
     for value in values:
@@ -420,25 +392,9 @@ def pmc_article_pdf_candidates(
         pmcid = f"PMC{pmcid}"
     if not pmcid.startswith("PMC"):
         return [], []
-    article_url = f"https://pmc.ncbi.nlm.nih.gov/articles/{pmcid}/"
-    try:
-        body = client.get_bytes(article_url, headers={"Accept": "text/html,*/*;q=0.1"})
-    except Exception as err:
-        return [], [{"event": "pmc_article_error", "pmcid": pmcid, "error": f"{type(err).__name__}: {err}"}]
-    html = body.decode("utf-8", errors="replace")
-    candidates: list[AlternatePdfCandidate] = []
-    for url in extract_pdf_links(article_url, html):
-        add_candidate(
-            candidates,
-            AlternatePdfCandidate(
-                url=url,
-                source="pmc",
-                reason="pmc_article_pdf_link",
-                landing_url=article_url,
-                host_type="repository",
-            ),
-        )
-    return candidates, [{"event": "pmc_article_response", "pmcid": pmcid, "pdf_candidate_count": len(candidates)}]
+    # PMC full text must use the approved XML/cloud APIs, not viewer scraping.
+    return [], [{"event": "pmc_xml_required", "pmcid": pmcid,
+                 "reason": "use_approved_fulltext_api"}]
 
 
 def openalex_repository_candidates(
@@ -584,6 +540,11 @@ def fetch_pdf_bytes_for_candidate(
     events: list[dict] = []
 
     def request(url: str, headers: dict[str, str]) -> bytes:
+        parsed = urlparse(url)
+        if (parsed.hostname or "").endswith("ncbi.nlm.nih.gov") and (
+            parsed.path.startswith("/articles/") or parsed.path.startswith("/pmc/articles/")
+        ):
+            raise ValueError("pmc_xml_required: use the approved PMC full-text APIs")
         body = client.get_bytes(url, headers=headers)
         events.append({"event": "candidate_response", "source": candidate.source, "url": url, "bytes": len(body)})
         return body
@@ -604,34 +565,15 @@ def fetch_pdf_bytes_for_candidate(
         return body, events, "direct_pdf"
 
     html = body[:500_000].decode("utf-8", errors="replace")
-    pow_cookie = solve_pmc_pow_cookie(html)
-    if pow_cookie:
-        try:
-            body = request(
-                candidate.url,
-                {
-                    "Accept": "application/pdf,*/*;q=0.1",
-                    "Cookie": pow_cookie,
-                },
-            )
-        except Exception as err:
-            events.append(
-                {
-                    "event": "pmc_pow_error",
-                    "source": candidate.source,
-                    "url": candidate.url,
-                    "error": f"{type(err).__name__}: {err}",
-                }
-            )
-            return b"", events, "pmc_pow_error"
-        if looks_like_pdf_bytes(body):
-            events.append({"event": "pmc_pow_success", "source": candidate.source, "url": candidate.url})
-            return body, events, "pmc_pow"
+    if "POW_CHALLENGE" in html or "cloudpmc-viewer-pow" in html:
+        events.append({"event": "access_controlled", "source": candidate.source,
+                       "url": candidate.url, "error": "challenge_or_access_control"})
+        return b"", events, "access_controlled"
 
     if allow_landing_resolution:
         for linked_url in extract_pdf_links(candidate.url, html):
             try:
-                linked_body = client.get_bytes(
+                linked_body = request(
                     linked_url,
                     headers={"Accept": "application/pdf,*/*;q=0.1", "Referer": candidate.url},
                 )
@@ -670,7 +612,7 @@ def fetch_pdf_bytes_for_candidate(
                     continue
                 for content_url in dspace_original_content_links_from_json(linked_url, payload):
                     try:
-                        content_body = client.get_bytes(
+                        content_body = request(
                             content_url,
                             headers={"Accept": "application/pdf,*/*;q=0.1", "Referer": candidate.url},
                         )

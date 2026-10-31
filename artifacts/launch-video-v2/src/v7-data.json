@@ -1,0 +1,4534 @@
+{
+  "graph": {
+    "viewBox": "0 0 844 2160",
+    "edges": [
+      {
+        "compound": "Ketamine",
+        "target": "Treatment-resistant depression",
+        "count": 551,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 60, 574 60",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-0\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Major depressive disorder",
+        "count": 620,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 100, 574 100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-1\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Suicidal ideation & behavior",
+        "count": 429,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 140, 574 140",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-2\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Treatment-resistant depression",
+        "count": 458,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 60, 574 60",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-3\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Major depressive disorder",
+        "count": 161,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 100, 574 100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-4\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Suicidal ideation & behavior",
+        "count": 120,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 140, 574 140",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-5\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Major depressive disorder",
+        "count": 122,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 100, 574 100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-6\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Post-traumatic stress disorder",
+        "count": 103,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 180, 574 180",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-7\")"
+      },
+      {
+        "compound": "MDMA",
+        "target": "Post-traumatic stress disorder",
+        "count": 117,
+        "d": "M 216 300.00000000000006 C 359.20000000000005 300.00000000000006, 430.79999999999995 180, 574 180",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-8\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Bipolar depression",
+        "count": 83,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 260, 574 260",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-9\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Treatment-resistant depression",
+        "count": 89,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 60, 574 60",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-10\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Chronic pain",
+        "count": 57,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 340, 574 340",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-11\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Complex regional pain syndrome",
+        "count": 28,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 740, 574 740",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-12\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Distress in life-threatening illness",
+        "count": 53,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 420, 574 420",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-13\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Bipolar disorder",
+        "count": 40,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 460, 574 460",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-14\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Alcohol use disorder",
+        "count": 36,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 220, 574 220",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-15\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Postpartum depression",
+        "count": 38,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 540, 574 540",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-16\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Obsessive-compulsive disorder",
+        "count": 32,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 380, 574 380",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-17\")"
+      },
+      {
+        "compound": "Ayahuasca",
+        "target": "Substance use disorder",
+        "count": 17,
+        "d": "M 216 448.5714285714286 C 359.20000000000005 448.5714285714286, 430.79999999999995 300, 574 300",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-18\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Neuropathic pain",
+        "count": 8,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1020, 574 1020",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-19\")"
+      },
+      {
+        "compound": "LSD",
+        "target": "Major depressive disorder",
+        "count": 30,
+        "d": "M 216 374.28571428571433 C 359.20000000000005 374.28571428571433, 430.79999999999995 100, 574 100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-20\")"
+      },
+      {
+        "compound": "Ibogaine",
+        "target": "Opioid use disorder",
+        "count": 25,
+        "d": "M 216 522.8571428571429 C 359.20000000000005 522.8571428571429, 430.79999999999995 500, 574 500",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-21\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Generalized anxiety disorder",
+        "count": 24,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 580, 574 580",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-22\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Obsessive-compulsive disorder",
+        "count": 22,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 380, 574 380",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-23\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Alcohol use disorder",
+        "count": 24,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 220, 574 220",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-24\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Opioid use disorder",
+        "count": 21,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 500, 574 500",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-25\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Suicidal ideation & behavior",
+        "count": 32,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 140, 574 140",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-26\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Fibromyalgia",
+        "count": 14,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 940, 574 940",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-27\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Post-traumatic stress disorder",
+        "count": 26,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 180, 574 180",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-28\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Tobacco use disorder",
+        "count": 22,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 660, 574 660",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-29\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Cluster headache",
+        "count": 13,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 860, 574 860",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-30\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Post-traumatic stress disorder",
+        "count": 18,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 180, 574 180",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-31\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Anorexia nervosa",
+        "count": 18,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 620, 574 620",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-32\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Migraine",
+        "count": 12,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 820, 574 820",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-33\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Bipolar depression",
+        "count": 16,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 260, 574 260",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-34\")"
+      },
+      {
+        "compound": "Ayahuasca",
+        "target": "Treatment-resistant depression",
+        "count": 16,
+        "d": "M 216 448.5714285714286 C 359.20000000000005 448.5714285714286, 430.79999999999995 60, 574 60",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-35\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Cocaine use disorder",
+        "count": 17,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 900, 574 900",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-36\")"
+      },
+      {
+        "compound": "MDMA",
+        "target": "Alcohol use disorder",
+        "count": 13,
+        "d": "M 216 300.00000000000006 C 359.20000000000005 300.00000000000006, 430.79999999999995 220, 574 220",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-37\")"
+      },
+      {
+        "compound": "MDMA",
+        "target": "Major depressive disorder",
+        "count": 15,
+        "d": "M 216 300.00000000000006 C 359.20000000000005 300.00000000000006, 430.79999999999995 100, 574 100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-38\")"
+      },
+      {
+        "compound": "Ibogaine",
+        "target": "Substance use disorder",
+        "count": 10,
+        "d": "M 216 522.8571428571429 C 359.20000000000005 522.8571428571429, 430.79999999999995 300, 574 300",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-39\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Eating disorders",
+        "count": 12,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 700, 574 700",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-40\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Substance use disorder",
+        "count": 15,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 300, 574 300",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-41\")"
+      },
+      {
+        "compound": "LSD",
+        "target": "ADHD",
+        "count": 14,
+        "d": "M 216 374.28571428571433 C 359.20000000000005 374.28571428571433, 430.79999999999995 780, 574 780",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-42\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Anorexia nervosa",
+        "count": 13,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 620, 574 620",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-43\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Borderline personality disorder",
+        "count": 9,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 980, 574 980",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-44\")"
+      },
+      {
+        "compound": "LSD",
+        "target": "Alcohol use disorder",
+        "count": 2,
+        "d": "M 216 374.28571428571433 C 359.20000000000005 374.28571428571433, 430.79999999999995 220, 574 220",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-45\")"
+      },
+      {
+        "compound": "Ayahuasca",
+        "target": "Major depressive disorder",
+        "count": 12,
+        "d": "M 216 448.5714285714286 C 359.20000000000005 448.5714285714286, 430.79999999999995 100, 574 100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-46\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Postpartum depression",
+        "count": 7,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 540, 574 540",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-47\")"
+      },
+      {
+        "compound": "Ayahuasca",
+        "target": "Suicidal ideation & behavior",
+        "count": 5,
+        "d": "M 216 448.5714285714286 C 359.20000000000005 448.5714285714286, 430.79999999999995 140, 574 140",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-48\")"
+      },
+      {
+        "compound": "DMT",
+        "target": "Treatment-resistant depression",
+        "count": 10,
+        "d": "M 216 671.4285714285714 C 359.20000000000005 671.4285714285714, 430.79999999999995 60, 574 60",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-49\")"
+      },
+      {
+        "compound": "Ayahuasca",
+        "target": "Post-traumatic stress disorder",
+        "count": 10,
+        "d": "M 216 448.5714285714286 C 359.20000000000005 448.5714285714286, 430.79999999999995 180, 574 180",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-50\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Schizophrenia",
+        "count": 9,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1100, 574 1100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-51\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Social anxiety disorder",
+        "count": 7,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1060, 574 1060",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-52\")"
+      },
+      {
+        "compound": "LSD",
+        "target": "Distress in life-threatening illness",
+        "count": 6,
+        "d": "M 216 374.28571428571433 C 359.20000000000005 374.28571428571433, 430.79999999999995 420, 574 420",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-53\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Eating disorders",
+        "count": 10,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 700, 574 700",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-54\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Substance use disorder",
+        "count": 9,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 300, 574 300",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-55\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Catatonia",
+        "count": 6,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1460, 574 1460",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-56\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Cluster headache",
+        "count": 4,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 860, 574 860",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-57\")"
+      },
+      {
+        "compound": "LSD",
+        "target": "Post-traumatic stress disorder",
+        "count": 8,
+        "d": "M 216 374.28571428571433 C 359.20000000000005 374.28571428571433, 430.79999999999995 180, 574 180",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-58\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Methamphetamine use disorder",
+        "count": 7,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 1340, 574 1340",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-59\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Migraine",
+        "count": 6,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 820, 574 820",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-60\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Postoperative sleep disturbance",
+        "count": 9,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 1380, 574 1380",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-61\")"
+      },
+      {
+        "compound": "5-MeO-DMT",
+        "target": "Treatment-resistant depression",
+        "count": 6,
+        "d": "M 216 820 C 359.20000000000005 820, 430.79999999999995 60, 574 60",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-62\")"
+      },
+      {
+        "compound": "Classic psychedelics",
+        "target": "Suicidal ideation & behavior",
+        "count": 7,
+        "d": "M 216 597.1428571428571 C 359.20000000000005 597.1428571428571, 430.79999999999995 140, 574 140",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-63\")"
+      },
+      {
+        "compound": "LSD",
+        "target": "Cluster headache",
+        "count": 6,
+        "d": "M 216 374.28571428571433 C 359.20000000000005 374.28571428571433, 430.79999999999995 860, 574 860",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-64\")"
+      },
+      {
+        "compound": "LSD",
+        "target": "Substance use disorder",
+        "count": 7,
+        "d": "M 216 374.28571428571433 C 359.20000000000005 374.28571428571433, 430.79999999999995 300, 574 300",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-65\")"
+      },
+      {
+        "compound": "MDMA",
+        "target": "Substance use disorder",
+        "count": 9,
+        "d": "M 216 300.00000000000006 C 359.20000000000005 300.00000000000006, 430.79999999999995 300, 574 300",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-66\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Bipolar disorder",
+        "count": 9,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 460, 574 460",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-67\")"
+      },
+      {
+        "compound": "5-MeO-DMT",
+        "target": "Alcohol use disorder",
+        "count": 7,
+        "d": "M 216 820 C 359.20000000000005 820, 430.79999999999995 220, 574 220",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-68\")"
+      },
+      {
+        "compound": "Ayahuasca",
+        "target": "Complicated grief",
+        "count": 7,
+        "d": "M 216 448.5714285714286 C 359.20000000000005 448.5714285714286, 430.79999999999995 1260, 574 1260",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-69\")"
+      },
+      {
+        "compound": "Classic psychedelics",
+        "target": "Alcohol use disorder",
+        "count": 5,
+        "d": "M 216 597.1428571428571 C 359.20000000000005 597.1428571428571, 430.79999999999995 220, 574 220",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-70\")"
+      },
+      {
+        "compound": "Classic psychedelics",
+        "target": "Chronic pain",
+        "count": 8,
+        "d": "M 216 597.1428571428571 C 359.20000000000005 597.1428571428571, 430.79999999999995 340, 574 340",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-71\")"
+      },
+      {
+        "compound": "Dextromethorphan",
+        "target": "Treatment-resistant depression",
+        "count": 7,
+        "d": "M 216 745.7142857142858 C 359.20000000000005 745.7142857142858, 430.79999999999995 60, 574 60",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-72\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "ADHD",
+        "count": 8,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 780, 574 780",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-73\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Body dysmorphic disorder",
+        "count": 7,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 1660, 574 1660",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-74\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Demoralization",
+        "count": 8,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 1580, 574 1580",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-75\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Obsessive-compulsive disorder",
+        "count": 6,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 380, 574 380",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-76\")"
+      },
+      {
+        "compound": "Dextromethorphan",
+        "target": "Major depressive disorder",
+        "count": 2,
+        "d": "M 216 745.7142857142858 C 359.20000000000005 745.7142857142858, 430.79999999999995 100, 574 100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-77\")"
+      },
+      {
+        "compound": "Ibogaine",
+        "target": "Traumatic brain injury",
+        "count": 5,
+        "d": "M 216 522.8571428571429 C 359.20000000000005 522.8571428571429, 430.79999999999995 1420, 574 1420",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-78\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Cannabis use disorder",
+        "count": 4,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1820, 574 1820",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-79\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Central post-stroke pain syndrome",
+        "count": 5,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1980, 574 1980",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-80\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Tobacco use disorder",
+        "count": 5,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 660, 574 660",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-81\")"
+      },
+      {
+        "compound": "LSD",
+        "target": "Suicidal ideation & behavior",
+        "count": 6,
+        "d": "M 216 374.28571428571433 C 359.20000000000005 374.28571428571433, 430.79999999999995 140, 574 140",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-82\")"
+      },
+      {
+        "compound": "MDMA",
+        "target": "Obsessive-compulsive disorder",
+        "count": 6,
+        "d": "M 216 300.00000000000006 C 359.20000000000005 300.00000000000006, 430.79999999999995 380, 574 380",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-83\")"
+      },
+      {
+        "compound": "MDMA",
+        "target": "Suicidal ideation & behavior",
+        "count": 8,
+        "d": "M 216 300.00000000000006 C 359.20000000000005 300.00000000000006, 430.79999999999995 140, 574 140",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-84\")"
+      },
+      {
+        "compound": "Mescaline",
+        "target": "Substance use disorder",
+        "count": 4,
+        "d": "M 216 894.2857142857143 C 359.20000000000005 894.2857142857143, 430.79999999999995 300, 574 300",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-85\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Bipolar disorder",
+        "count": 11,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 460, 574 460",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-86\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Bipolar II disorder",
+        "count": 7,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 1180, 574 1180",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-87\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Opioid use disorder",
+        "count": 5,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 500, 574 500",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-88\")"
+      },
+      {
+        "compound": "Ayahuasca",
+        "target": "Alcohol use disorder",
+        "count": 4,
+        "d": "M 216 448.5714285714286 C 359.20000000000005 448.5714285714286, 430.79999999999995 220, 574 220",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-89\")"
+      },
+      {
+        "compound": "Ayahuasca",
+        "target": "Eating disorders",
+        "count": 2,
+        "d": "M 216 448.5714285714286 C 359.20000000000005 448.5714285714286, 430.79999999999995 700, 574 700",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-90\")"
+      },
+      {
+        "compound": "Dextromethorphan",
+        "target": "Obsessive-compulsive disorder",
+        "count": 5,
+        "d": "M 216 745.7142857142858 C 359.20000000000005 745.7142857142858, 430.79999999999995 380, 574 380",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-91\")"
+      },
+      {
+        "compound": "DMT",
+        "target": "Major depressive disorder",
+        "count": 6,
+        "d": "M 216 671.4285714285714 C 359.20000000000005 671.4285714285714, 430.79999999999995 100, 574 100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-92\")"
+      },
+      {
+        "compound": "Ibogaine",
+        "target": "Parkinson's disease",
+        "count": 5,
+        "d": "M 216 522.8571428571429 C 359.20000000000005 522.8571428571429, 430.79999999999995 1140, 574 1140",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-93\")"
+      },
+      {
+        "compound": "Ibogaine",
+        "target": "Post-traumatic stress disorder",
+        "count": 4,
+        "d": "M 216 522.8571428571429 C 359.20000000000005 522.8571428571429, 430.79999999999995 180, 574 180",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-94\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Autism spectrum disorder",
+        "count": 3,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 2020, 574 2020",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-95\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Postherpetic neuralgia",
+        "count": 1,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1860, 574 1860",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-96\")"
+      },
+      {
+        "compound": "LSD",
+        "target": "Generalized anxiety disorder",
+        "count": 5,
+        "d": "M 216 374.28571428571433 C 359.20000000000005 374.28571428571433, 430.79999999999995 580, 574 580",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-97\")"
+      },
+      {
+        "compound": "LSD",
+        "target": "Opioid use disorder",
+        "count": 2,
+        "d": "M 216 374.28571428571433 C 359.20000000000005 374.28571428571433, 430.79999999999995 500, 574 500",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-98\")"
+      },
+      {
+        "compound": "MDMA",
+        "target": "Distress in life-threatening illness",
+        "count": 5,
+        "d": "M 216 300.00000000000006 C 359.20000000000005 300.00000000000006, 430.79999999999995 420, 574 420",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-99\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Fibromyalgia",
+        "count": 4,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 940, 574 940",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-100\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Parkinson's disease",
+        "count": 5,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 1140, 574 1140",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-101\")"
+      },
+      {
+        "compound": "5-MeO-DMT",
+        "target": "Post-traumatic stress disorder",
+        "count": 4,
+        "d": "M 216 820 C 359.20000000000005 820, 430.79999999999995 180, 574 180",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-102\")"
+      },
+      {
+        "compound": "5-MeO-DMT",
+        "target": "Suicidal ideation & behavior",
+        "count": 4,
+        "d": "M 216 820 C 359.20000000000005 820, 430.79999999999995 140, 574 140",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-103\")"
+      },
+      {
+        "compound": "Classic psychedelics",
+        "target": "Migraine",
+        "count": 3,
+        "d": "M 216 597.1428571428571 C 359.20000000000005 597.1428571428571, 430.79999999999995 820, 574 820",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-104\")"
+      },
+      {
+        "compound": "DMT",
+        "target": "Suicidal ideation & behavior",
+        "count": 4,
+        "d": "M 216 671.4285714285714 C 359.20000000000005 671.4285714285714, 430.79999999999995 140, 574 140",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-105\")"
+      },
+      {
+        "compound": "Hallucinogens",
+        "target": "Substance use disorder",
+        "count": 3,
+        "d": "M 216 968.5714285714287 C 359.20000000000005 968.5714285714287, 430.79999999999995 300, 574 300",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-106\")"
+      },
+      {
+        "compound": "Ibogaine",
+        "target": "Major depressive disorder",
+        "count": 4,
+        "d": "M 216 522.8571428571429 C 359.20000000000005 522.8571428571429, 430.79999999999995 100, 574 100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-107\")"
+      },
+      {
+        "compound": "Ibogaine",
+        "target": "Multiple sclerosis",
+        "count": 4,
+        "d": "M 216 522.8571428571429 C 359.20000000000005 522.8571428571429, 430.79999999999995 1620, 574 1620",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-108\")"
+      },
+      {
+        "compound": "Ibogaine + 5-MeO-DMT (sequential)",
+        "target": "Alcohol use disorder",
+        "count": 2,
+        "d": "M 216 1042.857142857143 C 359.20000000000005 1042.857142857143, 430.79999999999995 220, 574 220",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-109\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Bipolar I disorder",
+        "count": 4,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1700, 574 1700",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-110\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Bipolar II disorder",
+        "count": 4,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1180, 574 1180",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-111\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Multiple sclerosis",
+        "count": 3,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1620, 574 1620",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-112\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Post-treatment Lyme disease syndrome",
+        "count": 4,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1500, 574 1500",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-113\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Rett syndrome",
+        "count": 4,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1540, 574 1540",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-114\")"
+      },
+      {
+        "compound": "Mescaline",
+        "target": "Alcohol use disorder",
+        "count": 1,
+        "d": "M 216 894.2857142857143 C 359.20000000000005 894.2857142857143, 430.79999999999995 220, 574 220",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-115\")"
+      },
+      {
+        "compound": "Nitrous oxide",
+        "target": "Major depressive disorder",
+        "count": 4,
+        "d": "M 216 1265.7142857142858 C 359.20000000000005 1265.7142857142858, 430.79999999999995 100, 574 100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-116\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Chronic pain",
+        "count": 4,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 340, 574 340",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-117\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Cocaine use disorder",
+        "count": 4,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 900, 574 900",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-118\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Post-treatment Lyme disease syndrome",
+        "count": 4,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 1500, 574 1500",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-119\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Alcohol use disorder",
+        "count": 4,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 220, 574 220",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-120\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Persistent depressive disorder",
+        "count": 4,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 1300, 574 1300",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-121\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Postherpetic neuralgia",
+        "count": 4,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 1860, 574 1860",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-122\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Rett syndrome",
+        "count": 4,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 1540, 574 1540",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-123\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Schizoaffective disorder",
+        "count": 4,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 1900, 574 1900",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-124\")"
+      },
+      {
+        "compound": "(2R,6R)-hydroxynorketamine",
+        "target": "Major depressive disorder",
+        "count": 3,
+        "d": "M 216 1117.142857142857 C 359.20000000000005 1117.142857142857, 430.79999999999995 100, 574 100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-125\")"
+      },
+      {
+        "compound": "(2R,6R)-hydroxynorketamine",
+        "target": "Suicidal ideation & behavior",
+        "count": 3,
+        "d": "M 216 1117.142857142857 C 359.20000000000005 1117.142857142857, 430.79999999999995 140, 574 140",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-126\")"
+      },
+      {
+        "compound": "Classic psychedelics",
+        "target": "Obsessive-compulsive disorder",
+        "count": 2,
+        "d": "M 216 597.1428571428571 C 359.20000000000005 597.1428571428571, 430.79999999999995 380, 574 380",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-127\")"
+      },
+      {
+        "compound": "Classic psychedelics",
+        "target": "Post-traumatic stress disorder",
+        "count": 4,
+        "d": "M 216 597.1428571428571 C 359.20000000000005 597.1428571428571, 430.79999999999995 180, 574 180",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-128\")"
+      },
+      {
+        "compound": "Dextromethorphan",
+        "target": "Post-traumatic stress disorder",
+        "count": 3,
+        "d": "M 216 745.7142857142858 C 359.20000000000005 745.7142857142858, 430.79999999999995 180, 574 180",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-129\")"
+      },
+      {
+        "compound": "Ibogaine",
+        "target": "Alcohol use disorder",
+        "count": 1,
+        "d": "M 216 522.8571428571429 C 359.20000000000005 522.8571428571429, 430.79999999999995 220, 574 220",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-130\")"
+      },
+      {
+        "compound": "Ibogaine",
+        "target": "Cocaine use disorder",
+        "count": 2,
+        "d": "M 216 522.8571428571429 C 359.20000000000005 522.8571428571429, 430.79999999999995 900, 574 900",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-131\")"
+      },
+      {
+        "compound": "Ibogaine",
+        "target": "Neuropathic pain",
+        "count": 3,
+        "d": "M 216 522.8571428571429 C 359.20000000000005 522.8571428571429, 430.79999999999995 1020, 574 1020",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-132\")"
+      },
+      {
+        "compound": "Ibogaine + 5-MeO-DMT (sequential)",
+        "target": "Post-traumatic stress disorder",
+        "count": 3,
+        "d": "M 216 1042.857142857143 C 359.20000000000005 1042.857142857143, 430.79999999999995 180, 574 180",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-133\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Mood disorders",
+        "count": 2,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1780, 574 1780",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-134\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Persistent depressive disorder",
+        "count": 2,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1300, 574 1300",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-135\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Stimulant use disorder",
+        "count": 3,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1940, 574 1940",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-136\")"
+      },
+      {
+        "compound": "LSA",
+        "target": "Cluster headache",
+        "count": 2,
+        "d": "M 216 1637.1428571428573 C 359.20000000000005 1637.1428571428573, 430.79999999999995 860, 574 860",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-137\")"
+      },
+      {
+        "compound": "LSD",
+        "target": "Complex post-traumatic stress disorder",
+        "count": 3,
+        "d": "M 216 374.28571428571433 C 359.20000000000005 374.28571428571433, 430.79999999999995 1220, 574 1220",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-138\")"
+      },
+      {
+        "compound": "LSD",
+        "target": "Eating disorders",
+        "count": 3,
+        "d": "M 216 374.28571428571433 C 359.20000000000005 374.28571428571433, 430.79999999999995 700, 574 700",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-139\")"
+      },
+      {
+        "compound": "LSD",
+        "target": "Migraine",
+        "count": 2,
+        "d": "M 216 374.28571428571433 C 359.20000000000005 374.28571428571433, 430.79999999999995 820, 574 820",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-140\")"
+      },
+      {
+        "compound": "LSD",
+        "target": "Obsessive-compulsive disorder",
+        "count": 2,
+        "d": "M 216 374.28571428571433 C 359.20000000000005 374.28571428571433, 430.79999999999995 380, 574 380",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-141\")"
+      },
+      {
+        "compound": "MDMA",
+        "target": "Chronic pain",
+        "count": 3,
+        "d": "M 216 300.00000000000006 C 359.20000000000005 300.00000000000006, 430.79999999999995 340, 574 340",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-142\")"
+      },
+      {
+        "compound": "MDMA",
+        "target": "Complex post-traumatic stress disorder",
+        "count": 3,
+        "d": "M 216 300.00000000000006 C 359.20000000000005 300.00000000000006, 430.79999999999995 1220, 574 1220",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-143\")"
+      },
+      {
+        "compound": "MDMA",
+        "target": "Social anxiety disorder",
+        "count": 3,
+        "d": "M 216 300.00000000000006 C 359.20000000000005 300.00000000000006, 430.79999999999995 1060, 574 1060",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-144\")"
+      },
+      {
+        "compound": "Mescaline",
+        "target": "Post-traumatic stress disorder",
+        "count": 3,
+        "d": "M 216 894.2857142857143 C 359.20000000000005 894.2857142857143, 430.79999999999995 180, 574 180",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-145\")"
+      },
+      {
+        "compound": "Psilocin",
+        "target": "ADHD",
+        "count": 3,
+        "d": "M 216 1414.2857142857144 C 359.20000000000005 1414.2857142857144, 430.79999999999995 780, 574 780",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-146\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Headache disorders",
+        "count": 3,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 1740, 574 1740",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-147\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Persistent depressive disorder",
+        "count": 3,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 1300, 574 1300",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-148\")"
+      },
+      {
+        "compound": "Psychedelic-assisted therapy",
+        "target": "Distress in life-threatening illness",
+        "count": 2,
+        "d": "M 216 1191.4285714285716 C 359.20000000000005 1191.4285714285716, 430.79999999999995 420, 574 420",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-149\")"
+      },
+      {
+        "compound": "R-ketamine",
+        "target": "Treatment-resistant depression",
+        "count": 1,
+        "d": "M 216 2082.857142857143 C 359.20000000000005 2082.857142857143, 430.79999999999995 60, 574 60",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-150\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Chronic pain",
+        "count": 3,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 340, 574 340",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-151\")"
+      },
+      {
+        "compound": "(2R,6R)-hydroxynorketamine",
+        "target": "Opioid use disorder",
+        "count": 2,
+        "d": "M 216 1117.142857142857 C 359.20000000000005 1117.142857142857, 430.79999999999995 500, 574 500",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-152\")"
+      },
+      {
+        "compound": "5-MeO-DMT",
+        "target": "Substance use disorder",
+        "count": 2,
+        "d": "M 216 820 C 359.20000000000005 820, 430.79999999999995 300, 574 300",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-153\")"
+      },
+      {
+        "compound": "Ayahuasca",
+        "target": "Bipolar disorder",
+        "count": 3,
+        "d": "M 216 448.5714285714286 C 359.20000000000005 448.5714285714286, 430.79999999999995 460, 574 460",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-154\")"
+      },
+      {
+        "compound": "Ayahuasca",
+        "target": "Generalized anxiety disorder",
+        "count": 2,
+        "d": "M 216 448.5714285714286 C 359.20000000000005 448.5714285714286, 430.79999999999995 580, 574 580",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-155\")"
+      },
+      {
+        "compound": "Ayahuasca",
+        "target": "Tobacco use disorder",
+        "count": 1,
+        "d": "M 216 448.5714285714286 C 359.20000000000005 448.5714285714286, 430.79999999999995 660, 574 660",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-156\")"
+      },
+      {
+        "compound": "Classic psychedelics",
+        "target": "Fibromyalgia",
+        "count": 2,
+        "d": "M 216 597.1428571428571 C 359.20000000000005 597.1428571428571, 430.79999999999995 940, 574 940",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-157\")"
+      },
+      {
+        "compound": "Classic psychedelics",
+        "target": "Headache disorders",
+        "count": 2,
+        "d": "M 216 597.1428571428571 C 359.20000000000005 597.1428571428571, 430.79999999999995 1740, 574 1740",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-158\")"
+      },
+      {
+        "compound": "Classic psychedelics",
+        "target": "Major depressive disorder",
+        "count": 2,
+        "d": "M 216 597.1428571428571 C 359.20000000000005 597.1428571428571, 430.79999999999995 100, 574 100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-159\")"
+      },
+      {
+        "compound": "Classic psychedelics",
+        "target": "Substance use disorder",
+        "count": 1,
+        "d": "M 216 597.1428571428571 C 359.20000000000005 597.1428571428571, 430.79999999999995 300, 574 300",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-160\")"
+      },
+      {
+        "compound": "Dextromethorphan",
+        "target": "Bipolar depression",
+        "count": 2,
+        "d": "M 216 745.7142857142858 C 359.20000000000005 745.7142857142858, 430.79999999999995 260, 574 260",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-161\")"
+      },
+      {
+        "compound": "Dextromethorphan",
+        "target": "Suicidal ideation & behavior",
+        "count": 2,
+        "d": "M 216 745.7142857142858 C 359.20000000000005 745.7142857142858, 430.79999999999995 140, 574 140",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-162\")"
+      },
+      {
+        "compound": "DMT",
+        "target": "Post-traumatic stress disorder",
+        "count": 3,
+        "d": "M 216 671.4285714285714 C 359.20000000000005 671.4285714285714, 430.79999999999995 180, 574 180",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-163\")"
+      },
+      {
+        "compound": "DMT",
+        "target": "Substance use disorder",
+        "count": 2,
+        "d": "M 216 671.4285714285714 C 359.20000000000005 671.4285714285714, 430.79999999999995 300, 574 300",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-164\")"
+      },
+      {
+        "compound": "DPT",
+        "target": "Distress in life-threatening illness",
+        "count": 1,
+        "d": "M 216 1860.0000000000002 C 359.20000000000005 1860.0000000000002, 430.79999999999995 420, 574 420",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-165\")"
+      },
+      {
+        "compound": "Hallucinogens",
+        "target": "Alcohol use disorder",
+        "count": 3,
+        "d": "M 216 968.5714285714287 C 359.20000000000005 968.5714285714287, 430.79999999999995 220, 574 220",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-166\")"
+      },
+      {
+        "compound": "Ibogaine",
+        "target": "Suicidal ideation & behavior",
+        "count": 2,
+        "d": "M 216 522.8571428571429 C 359.20000000000005 522.8571428571429, 430.79999999999995 140, 574 140",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-167\")"
+      },
+      {
+        "compound": "Ibogaine + 5-MeO-DMT (sequential)",
+        "target": "Suicidal ideation & behavior",
+        "count": 2,
+        "d": "M 216 1042.857142857143 C 359.20000000000005 1042.857142857143, 430.79999999999995 140, 574 140",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-168\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Developmental stuttering",
+        "count": 2,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 2060, 574 2060",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-169\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Methamphetamine use disorder",
+        "count": 2,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1340, 574 1340",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-170\")"
+      },
+      {
+        "compound": "LSD",
+        "target": "Chronic pain",
+        "count": 2,
+        "d": "M 216 374.28571428571433 C 359.20000000000005 374.28571428571433, 430.79999999999995 340, 574 340",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-171\")"
+      },
+      {
+        "compound": "LSD",
+        "target": "Tobacco use disorder",
+        "count": 2,
+        "d": "M 216 374.28571428571433 C 359.20000000000005 374.28571428571433, 430.79999999999995 660, 574 660",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-172\")"
+      },
+      {
+        "compound": "MDMA",
+        "target": "Borderline personality disorder",
+        "count": 2,
+        "d": "M 216 300.00000000000006 C 359.20000000000005 300.00000000000006, 430.79999999999995 980, 574 980",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-173\")"
+      },
+      {
+        "compound": "MDMA",
+        "target": "Schizophrenia",
+        "count": 2,
+        "d": "M 216 300.00000000000006 C 359.20000000000005 300.00000000000006, 430.79999999999995 1100, 574 1100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-174\")"
+      },
+      {
+        "compound": "MDMA",
+        "target": "Stimulant use disorder",
+        "count": 2,
+        "d": "M 216 300.00000000000006 C 359.20000000000005 300.00000000000006, 430.79999999999995 1940, 574 1940",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-175\")"
+      },
+      {
+        "compound": "Mescaline",
+        "target": "Major depressive disorder",
+        "count": 2,
+        "d": "M 216 894.2857142857143 C 359.20000000000005 894.2857142857143, 430.79999999999995 100, 574 100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-176\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Anosmia",
+        "count": 1,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 2100, 574 2100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-177\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Generalized anxiety disorder",
+        "count": 2,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 580, 574 580",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-178\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Neuropathic pain",
+        "count": 2,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 1020, 574 1020",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-179\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Social anxiety disorder",
+        "count": 2,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 1060, 574 1060",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-180\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Traumatic brain injury",
+        "count": 2,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 1420, 574 1420",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-181\")"
+      },
+      {
+        "compound": "Psychedelic-assisted therapy",
+        "target": "Alcohol use disorder",
+        "count": 3,
+        "d": "M 216 1191.4285714285716 C 359.20000000000005 1191.4285714285716, 430.79999999999995 220, 574 220",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-182\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Borderline personality disorder",
+        "count": 2,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 980, 574 980",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-183\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Catatonia",
+        "count": 2,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 1460, 574 1460",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-184\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Generalized anxiety disorder",
+        "count": 1,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 580, 574 580",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-185\")"
+      },
+      {
+        "compound": "25I-NBOMe",
+        "target": "Major depressive disorder",
+        "count": 1,
+        "d": "M 216 1488.5714285714287 C 359.20000000000005 1488.5714285714287, 430.79999999999995 100, 574 100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-186\")"
+      },
+      {
+        "compound": "25I-NBOMe",
+        "target": "Suicidal ideation & behavior",
+        "count": 1,
+        "d": "M 216 1488.5714285714287 C 359.20000000000005 1488.5714285714287, 430.79999999999995 140, 574 140",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-187\")"
+      },
+      {
+        "compound": "2C-B",
+        "target": "Bipolar I disorder",
+        "count": 1,
+        "d": "M 216 1711.4285714285716 C 359.20000000000005 1711.4285714285716, 430.79999999999995 1700, 574 1700",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-188\")"
+      },
+      {
+        "compound": "5-MeO-DMT",
+        "target": "Eating disorders",
+        "count": 1,
+        "d": "M 216 820 C 359.20000000000005 820, 430.79999999999995 700, 574 700",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-189\")"
+      },
+      {
+        "compound": "Ayahuasca",
+        "target": "Borderline personality disorder",
+        "count": 1,
+        "d": "M 216 448.5714285714286 C 359.20000000000005 448.5714285714286, 430.79999999999995 980, 574 980",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-190\")"
+      },
+      {
+        "compound": "Ayahuasca",
+        "target": "Cannabis use disorder",
+        "count": 1,
+        "d": "M 216 448.5714285714286 C 359.20000000000005 448.5714285714286, 430.79999999999995 1820, 574 1820",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-191\")"
+      },
+      {
+        "compound": "Ayahuasca",
+        "target": "Distress in life-threatening illness",
+        "count": 1,
+        "d": "M 216 448.5714285714286 C 359.20000000000005 448.5714285714286, 430.79999999999995 420, 574 420",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-192\")"
+      },
+      {
+        "compound": "Ayahuasca",
+        "target": "Opioid use disorder",
+        "count": 1,
+        "d": "M 216 448.5714285714286 C 359.20000000000005 448.5714285714286, 430.79999999999995 500, 574 500",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-193\")"
+      },
+      {
+        "compound": "Ayahuasca",
+        "target": "Schizoaffective disorder",
+        "count": 1,
+        "d": "M 216 448.5714285714286 C 359.20000000000005 448.5714285714286, 430.79999999999995 1900, 574 1900",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-194\")"
+      },
+      {
+        "compound": "Chemsex",
+        "target": "Generalized anxiety disorder",
+        "count": 1,
+        "d": "M 216 1340 C 359.20000000000005 1340, 430.79999999999995 580, 574 580",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-195\")"
+      },
+      {
+        "compound": "Chemsex",
+        "target": "Major depressive disorder",
+        "count": 1,
+        "d": "M 216 1340 C 359.20000000000005 1340, 430.79999999999995 100, 574 100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-196\")"
+      },
+      {
+        "compound": "Chemsex",
+        "target": "Post-traumatic stress disorder",
+        "count": 1,
+        "d": "M 216 1340 C 359.20000000000005 1340, 430.79999999999995 180, 574 180",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-197\")"
+      },
+      {
+        "compound": "Dextromethorphan",
+        "target": "ADHD",
+        "count": 1,
+        "d": "M 216 745.7142857142858 C 359.20000000000005 745.7142857142858, 430.79999999999995 780, 574 780",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-198\")"
+      },
+      {
+        "compound": "Dextromethorphan",
+        "target": "Complex post-traumatic stress disorder",
+        "count": 1,
+        "d": "M 216 745.7142857142858 C 359.20000000000005 745.7142857142858, 430.79999999999995 1220, 574 1220",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-199\")"
+      },
+      {
+        "compound": "Dextromethorphan",
+        "target": "Generalized anxiety disorder",
+        "count": 1,
+        "d": "M 216 745.7142857142858 C 359.20000000000005 745.7142857142858, 430.79999999999995 580, 574 580",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-200\")"
+      },
+      {
+        "compound": "Dissociatives",
+        "target": "Bipolar depression",
+        "count": 1,
+        "d": "M 216 1562.857142857143 C 359.20000000000005 1562.857142857143, 430.79999999999995 260, 574 260",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-201\")"
+      },
+      {
+        "compound": "Dissociatives",
+        "target": "Treatment-resistant depression",
+        "count": 1,
+        "d": "M 216 1562.857142857143 C 359.20000000000005 1562.857142857143, 430.79999999999995 60, 574 60",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-202\")"
+      },
+      {
+        "compound": "DMT",
+        "target": "Complex post-traumatic stress disorder",
+        "count": 1,
+        "d": "M 216 671.4285714285714 C 359.20000000000005 671.4285714285714, 430.79999999999995 1220, 574 1220",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-203\")"
+      },
+      {
+        "compound": "DMT",
+        "target": "Fibromyalgia",
+        "count": 1,
+        "d": "M 216 671.4285714285714 C 359.20000000000005 671.4285714285714, 430.79999999999995 940, 574 940",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-204\")"
+      },
+      {
+        "compound": "DMT",
+        "target": "Migraine",
+        "count": 2,
+        "d": "M 216 671.4285714285714 C 359.20000000000005 671.4285714285714, 430.79999999999995 820, 574 820",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-205\")"
+      },
+      {
+        "compound": "DOI",
+        "target": "Substance use disorder",
+        "count": 1,
+        "d": "M 216 1785.7142857142858 C 359.20000000000005 1785.7142857142858, 430.79999999999995 300, 574 300",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-206\")"
+      },
+      {
+        "compound": "Hallucinogens",
+        "target": "Bipolar disorder",
+        "count": 1,
+        "d": "M 216 968.5714285714287 C 359.20000000000005 968.5714285714287, 430.79999999999995 460, 574 460",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-207\")"
+      },
+      {
+        "compound": "Hallucinogens",
+        "target": "Suicidal ideation & behavior",
+        "count": 1,
+        "d": "M 216 968.5714285714287 C 359.20000000000005 968.5714285714287, 430.79999999999995 140, 574 140",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-208\")"
+      },
+      {
+        "compound": "Ibogaine",
+        "target": "Bipolar depression",
+        "count": 1,
+        "d": "M 216 522.8571428571429 C 359.20000000000005 522.8571428571429, 430.79999999999995 260, 574 260",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-209\")"
+      },
+      {
+        "compound": "Ibogaine",
+        "target": "Chronic pain",
+        "count": 1,
+        "d": "M 216 522.8571428571429 C 359.20000000000005 522.8571428571429, 430.79999999999995 340, 574 340",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-210\")"
+      },
+      {
+        "compound": "Ibogaine",
+        "target": "Eating disorders",
+        "count": 1,
+        "d": "M 216 522.8571428571429 C 359.20000000000005 522.8571428571429, 430.79999999999995 700, 574 700",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-211\")"
+      },
+      {
+        "compound": "Ibogaine + 5-MeO-DMT (sequential)",
+        "target": "Traumatic brain injury",
+        "count": 1,
+        "d": "M 216 1042.857142857143 C 359.20000000000005 1042.857142857143, 430.79999999999995 1420, 574 1420",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-212\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "ADHD",
+        "count": 1,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 780, 574 780",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-213\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Complex post-traumatic stress disorder",
+        "count": 1,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1220, 574 1220",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-214\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Complicated grief",
+        "count": 1,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1260, 574 1260",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-215\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Headache disorders",
+        "count": 1,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1740, 574 1740",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-216\")"
+      },
+      {
+        "compound": "Ketamine",
+        "target": "Parkinson's disease",
+        "count": 1,
+        "d": "M 216 77.14285714285714 C 359.20000000000005 77.14285714285714, 430.79999999999995 1140, 574 1140",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-217\")"
+      },
+      {
+        "compound": "LSD",
+        "target": "Anorexia nervosa",
+        "count": 1,
+        "d": "M 216 374.28571428571433 C 359.20000000000005 374.28571428571433, 430.79999999999995 620, 574 620",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-218\")"
+      },
+      {
+        "compound": "LSD",
+        "target": "Mood disorders",
+        "count": 1,
+        "d": "M 216 374.28571428571433 C 359.20000000000005 374.28571428571433, 430.79999999999995 1780, 574 1780",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-219\")"
+      },
+      {
+        "compound": "LSD",
+        "target": "Social anxiety disorder",
+        "count": 1,
+        "d": "M 216 374.28571428571433 C 359.20000000000005 374.28571428571433, 430.79999999999995 1060, 574 1060",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-220\")"
+      },
+      {
+        "compound": "MDMA",
+        "target": "Bipolar I disorder",
+        "count": 1,
+        "d": "M 216 300.00000000000006 C 359.20000000000005 300.00000000000006, 430.79999999999995 1700, 574 1700",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-221\")"
+      },
+      {
+        "compound": "MDMA",
+        "target": "Generalized anxiety disorder",
+        "count": 1,
+        "d": "M 216 300.00000000000006 C 359.20000000000005 300.00000000000006, 430.79999999999995 580, 574 580",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-222\")"
+      },
+      {
+        "compound": "MDMA",
+        "target": "Mood disorders",
+        "count": 1,
+        "d": "M 216 300.00000000000006 C 359.20000000000005 300.00000000000006, 430.79999999999995 1780, 574 1780",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-223\")"
+      },
+      {
+        "compound": "MDMA",
+        "target": "Neuropathic pain",
+        "count": 1,
+        "d": "M 216 300.00000000000006 C 359.20000000000005 300.00000000000006, 430.79999999999995 1020, 574 1020",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-224\")"
+      },
+      {
+        "compound": "MDMA",
+        "target": "Opioid use disorder",
+        "count": 1,
+        "d": "M 216 300.00000000000006 C 359.20000000000005 300.00000000000006, 430.79999999999995 500, 574 500",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-225\")"
+      },
+      {
+        "compound": "Mescaline",
+        "target": "Obsessive-compulsive disorder",
+        "count": 1,
+        "d": "M 216 894.2857142857143 C 359.20000000000005 894.2857142857143, 430.79999999999995 380, 574 380",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-226\")"
+      },
+      {
+        "compound": "Methoxetamine",
+        "target": "Post-traumatic stress disorder",
+        "count": 1,
+        "d": "M 216 1934.2857142857144 C 359.20000000000005 1934.2857142857144, 430.79999999999995 180, 574 180",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-227\")"
+      },
+      {
+        "compound": "Norketamine",
+        "target": "Major depressive disorder",
+        "count": 1,
+        "d": "M 216 2008.5714285714287 C 359.20000000000005 2008.5714285714287, 430.79999999999995 100, 574 100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-228\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Bipolar depression",
+        "count": 1,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 260, 574 260",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-229\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Complicated grief",
+        "count": 1,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 1260, 574 1260",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-230\")"
+      },
+      {
+        "compound": "Psilocybin",
+        "target": "Mood disorders",
+        "count": 1,
+        "d": "M 216 225.71428571428572 C 359.20000000000005 225.71428571428572, 430.79999999999995 1780, 574 1780",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-231\")"
+      },
+      {
+        "compound": "Psychedelic-assisted therapy",
+        "target": "Post-traumatic stress disorder",
+        "count": 1,
+        "d": "M 216 1191.4285714285716 C 359.20000000000005 1191.4285714285716, 430.79999999999995 180, 574 180",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-232\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Complex post-traumatic stress disorder",
+        "count": 1,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 1220, 574 1220",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-233\")"
+      },
+      {
+        "compound": "S-ketamine",
+        "target": "Schizophrenia",
+        "count": 1,
+        "d": "M 216 151.42857142857144 C 359.20000000000005 151.42857142857144, 430.79999999999995 1100, 574 1100",
+        "width": 0,
+        "stroke": "url(\"#edge-gradient-234\")"
+      }
+    ],
+    "nodes": [
+      {
+        "x": 216,
+        "y": 77.14285714285714,
+        "r": 12,
+        "fill": "rgba(67, 187, 166, 0.2)",
+        "stroke": "rgb(67, 187, 166)"
+      },
+      {
+        "x": 216,
+        "y": 151.42857142857144,
+        "r": 12,
+        "fill": "rgba(75, 191, 162, 0.2)",
+        "stroke": "rgb(75, 191, 162)"
+      },
+      {
+        "x": 216,
+        "y": 225.71428571428572,
+        "r": 12,
+        "fill": "rgba(82, 196, 159, 0.2)",
+        "stroke": "rgb(82, 196, 159)"
+      },
+      {
+        "x": 216,
+        "y": 300.00000000000006,
+        "r": 12,
+        "fill": "rgba(90, 200, 155, 0.2)",
+        "stroke": "rgb(90, 200, 155)"
+      },
+      {
+        "x": 216,
+        "y": 374.28571428571433,
+        "r": 12,
+        "fill": "rgba(98, 205, 151, 0.2)",
+        "stroke": "rgb(98, 205, 151)"
+      },
+      {
+        "x": 216,
+        "y": 448.5714285714286,
+        "r": 12,
+        "fill": "rgba(106, 209, 147, 0.2)",
+        "stroke": "rgb(106, 209, 147)"
+      },
+      {
+        "x": 216,
+        "y": 522.8571428571429,
+        "r": 12,
+        "fill": "rgba(113, 214, 144, 0.2)",
+        "stroke": "rgb(113, 214, 144)"
+      },
+      {
+        "x": 216,
+        "y": 597.1428571428571,
+        "r": 12,
+        "fill": "rgba(123, 217, 140, 0.2)",
+        "stroke": "rgb(123, 217, 140)"
+      },
+      {
+        "x": 216,
+        "y": 671.4285714285714,
+        "r": 12,
+        "fill": "rgba(137, 216, 135, 0.2)",
+        "stroke": "rgb(137, 216, 135)"
+      },
+      {
+        "x": 216,
+        "y": 745.7142857142858,
+        "r": 12,
+        "fill": "rgba(151, 215, 131, 0.2)",
+        "stroke": "rgb(151, 215, 131)"
+      },
+      {
+        "x": 216,
+        "y": 820,
+        "r": 12,
+        "fill": "rgba(166, 214, 127, 0.2)",
+        "stroke": "rgb(166, 214, 127)"
+      },
+      {
+        "x": 216,
+        "y": 894.2857142857143,
+        "r": 12,
+        "fill": "rgba(180, 213, 122, 0.2)",
+        "stroke": "rgb(180, 213, 122)"
+      },
+      {
+        "x": 216,
+        "y": 968.5714285714287,
+        "r": 12,
+        "fill": "rgba(194, 212, 118, 0.2)",
+        "stroke": "rgb(194, 212, 118)"
+      },
+      {
+        "x": 216,
+        "y": 1042.857142857143,
+        "r": 12,
+        "fill": "rgba(209, 211, 113, 0.2)",
+        "stroke": "rgb(209, 211, 113)"
+      },
+      {
+        "x": 216,
+        "y": 1117.142857142857,
+        "r": 12,
+        "fill": "rgba(218, 207, 111, 0.2)",
+        "stroke": "rgb(218, 207, 111)"
+      },
+      {
+        "x": 216,
+        "y": 1191.4285714285716,
+        "r": 12,
+        "fill": "rgba(222, 200, 110, 0.2)",
+        "stroke": "rgb(222, 200, 110)"
+      },
+      {
+        "x": 216,
+        "y": 1265.7142857142858,
+        "r": 12,
+        "fill": "rgba(225, 194, 109, 0.2)",
+        "stroke": "rgb(225, 194, 109)"
+      },
+      {
+        "x": 216,
+        "y": 1340,
+        "r": 12,
+        "fill": "rgba(229, 187, 108, 0.2)",
+        "stroke": "rgb(229, 187, 108)"
+      },
+      {
+        "x": 216,
+        "y": 1414.2857142857144,
+        "r": 12,
+        "fill": "rgba(233, 181, 108, 0.2)",
+        "stroke": "rgb(233, 181, 108)"
+      },
+      {
+        "x": 216,
+        "y": 1488.5714285714287,
+        "r": 12,
+        "fill": "rgba(236, 174, 107, 0.2)",
+        "stroke": "rgb(236, 174, 107)"
+      },
+      {
+        "x": 216,
+        "y": 1562.857142857143,
+        "r": 12,
+        "fill": "rgba(240, 168, 106, 0.2)",
+        "stroke": "rgb(240, 168, 106)"
+      },
+      {
+        "x": 216,
+        "y": 1637.1428571428573,
+        "r": 12,
+        "fill": "rgba(240, 161, 110, 0.2)",
+        "stroke": "rgb(240, 161, 110)"
+      },
+      {
+        "x": 216,
+        "y": 1711.4285714285716,
+        "r": 12,
+        "fill": "rgba(239, 153, 115, 0.2)",
+        "stroke": "rgb(239, 153, 115)"
+      },
+      {
+        "x": 216,
+        "y": 1785.7142857142858,
+        "r": 12,
+        "fill": "rgba(237, 146, 120, 0.2)",
+        "stroke": "rgb(237, 146, 120)"
+      },
+      {
+        "x": 216,
+        "y": 1860.0000000000002,
+        "r": 12,
+        "fill": "rgba(236, 139, 125, 0.2)",
+        "stroke": "rgb(236, 139, 125)"
+      },
+      {
+        "x": 216,
+        "y": 1934.2857142857144,
+        "r": 12,
+        "fill": "rgba(235, 132, 131, 0.2)",
+        "stroke": "rgb(235, 132, 131)"
+      },
+      {
+        "x": 216,
+        "y": 2008.5714285714287,
+        "r": 12,
+        "fill": "rgba(233, 124, 136, 0.2)",
+        "stroke": "rgb(233, 124, 136)"
+      },
+      {
+        "x": 216,
+        "y": 2082.857142857143,
+        "r": 12,
+        "fill": "rgba(232, 117, 141, 0.2)",
+        "stroke": "rgb(232, 117, 141)"
+      },
+      {
+        "x": 574,
+        "y": 60,
+        "r": 12,
+        "fill": "rgba(67, 187, 166, 0.2)",
+        "stroke": "rgb(67, 187, 166)"
+      },
+      {
+        "x": 574,
+        "y": 100,
+        "r": 12,
+        "fill": "rgba(71, 189, 164, 0.2)",
+        "stroke": "rgb(71, 189, 164)"
+      },
+      {
+        "x": 574,
+        "y": 140,
+        "r": 12,
+        "fill": "rgba(75, 192, 162, 0.2)",
+        "stroke": "rgb(75, 192, 162)"
+      },
+      {
+        "x": 574,
+        "y": 180,
+        "r": 12,
+        "fill": "rgba(79, 194, 160, 0.2)",
+        "stroke": "rgb(79, 194, 160)"
+      },
+      {
+        "x": 574,
+        "y": 220,
+        "r": 12,
+        "fill": "rgba(83, 196, 158, 0.2)",
+        "stroke": "rgb(83, 196, 158)"
+      },
+      {
+        "x": 574,
+        "y": 260,
+        "r": 12,
+        "fill": "rgba(87, 199, 156, 0.2)",
+        "stroke": "rgb(87, 199, 156)"
+      },
+      {
+        "x": 574,
+        "y": 300,
+        "r": 12,
+        "fill": "rgba(91, 201, 154, 0.2)",
+        "stroke": "rgb(91, 201, 154)"
+      },
+      {
+        "x": 574,
+        "y": 340,
+        "r": 12,
+        "fill": "rgba(96, 203, 152, 0.2)",
+        "stroke": "rgb(96, 203, 152)"
+      },
+      {
+        "x": 574,
+        "y": 380,
+        "r": 12,
+        "fill": "rgba(100, 206, 150, 0.2)",
+        "stroke": "rgb(100, 206, 150)"
+      },
+      {
+        "x": 574,
+        "y": 420,
+        "r": 12,
+        "fill": "rgba(104, 208, 148, 0.2)",
+        "stroke": "rgb(104, 208, 148)"
+      },
+      {
+        "x": 574,
+        "y": 460,
+        "r": 12,
+        "fill": "rgba(108, 211, 146, 0.2)",
+        "stroke": "rgb(108, 211, 146)"
+      },
+      {
+        "x": 574,
+        "y": 500,
+        "r": 12,
+        "fill": "rgba(112, 213, 144, 0.2)",
+        "stroke": "rgb(112, 213, 144)"
+      },
+      {
+        "x": 574,
+        "y": 540,
+        "r": 12,
+        "fill": "rgba(116, 215, 142, 0.2)",
+        "stroke": "rgb(116, 215, 142)"
+      },
+      {
+        "x": 574,
+        "y": 580,
+        "r": 12,
+        "fill": "rgba(121, 217, 140, 0.2)",
+        "stroke": "rgb(121, 217, 140)"
+      },
+      {
+        "x": 574,
+        "y": 620,
+        "r": 12,
+        "fill": "rgba(129, 216, 138, 0.2)",
+        "stroke": "rgb(129, 216, 138)"
+      },
+      {
+        "x": 574,
+        "y": 660,
+        "r": 12,
+        "fill": "rgba(136, 216, 136, 0.2)",
+        "stroke": "rgb(136, 216, 136)"
+      },
+      {
+        "x": 574,
+        "y": 700,
+        "r": 12,
+        "fill": "rgba(144, 215, 133, 0.2)",
+        "stroke": "rgb(144, 215, 133)"
+      },
+      {
+        "x": 574,
+        "y": 740,
+        "r": 12,
+        "fill": "rgba(151, 215, 131, 0.2)",
+        "stroke": "rgb(151, 215, 131)"
+      },
+      {
+        "x": 574,
+        "y": 780,
+        "r": 12,
+        "fill": "rgba(159, 214, 129, 0.2)",
+        "stroke": "rgb(159, 214, 129)"
+      },
+      {
+        "x": 574,
+        "y": 820,
+        "r": 12,
+        "fill": "rgba(167, 214, 126, 0.2)",
+        "stroke": "rgb(167, 214, 126)"
+      },
+      {
+        "x": 574,
+        "y": 860,
+        "r": 12,
+        "fill": "rgba(174, 213, 124, 0.2)",
+        "stroke": "rgb(174, 213, 124)"
+      },
+      {
+        "x": 574,
+        "y": 900,
+        "r": 12,
+        "fill": "rgba(182, 212, 122, 0.2)",
+        "stroke": "rgb(182, 212, 122)"
+      },
+      {
+        "x": 574,
+        "y": 940,
+        "r": 12,
+        "fill": "rgba(189, 212, 119, 0.2)",
+        "stroke": "rgb(189, 212, 119)"
+      },
+      {
+        "x": 574,
+        "y": 980,
+        "r": 12,
+        "fill": "rgba(197, 211, 117, 0.2)",
+        "stroke": "rgb(197, 211, 117)"
+      },
+      {
+        "x": 574,
+        "y": 1020,
+        "r": 12,
+        "fill": "rgba(205, 211, 115, 0.2)",
+        "stroke": "rgb(205, 211, 115)"
+      },
+      {
+        "x": 574,
+        "y": 1060,
+        "r": 12,
+        "fill": "rgba(212, 210, 112, 0.2)",
+        "stroke": "rgb(212, 210, 112)"
+      },
+      {
+        "x": 574,
+        "y": 1100,
+        "r": 12,
+        "fill": "rgba(217, 208, 111, 0.2)",
+        "stroke": "rgb(217, 208, 111)"
+      },
+      {
+        "x": 574,
+        "y": 1140,
+        "r": 12,
+        "fill": "rgba(219, 205, 110, 0.2)",
+        "stroke": "rgb(219, 205, 110)"
+      },
+      {
+        "x": 574,
+        "y": 1180,
+        "r": 12,
+        "fill": "rgba(221, 201, 110, 0.2)",
+        "stroke": "rgb(221, 201, 110)"
+      },
+      {
+        "x": 574,
+        "y": 1220,
+        "r": 12,
+        "fill": "rgba(223, 198, 110, 0.2)",
+        "stroke": "rgb(223, 198, 110)"
+      },
+      {
+        "x": 574,
+        "y": 1260,
+        "r": 12,
+        "fill": "rgba(225, 194, 109, 0.2)",
+        "stroke": "rgb(225, 194, 109)"
+      },
+      {
+        "x": 574,
+        "y": 1300,
+        "r": 12,
+        "fill": "rgba(227, 191, 109, 0.2)",
+        "stroke": "rgb(227, 191, 109)"
+      },
+      {
+        "x": 574,
+        "y": 1340,
+        "r": 12,
+        "fill": "rgba(229, 188, 108, 0.2)",
+        "stroke": "rgb(229, 188, 108)"
+      },
+      {
+        "x": 574,
+        "y": 1380,
+        "r": 12,
+        "fill": "rgba(231, 184, 108, 0.2)",
+        "stroke": "rgb(231, 184, 108)"
+      },
+      {
+        "x": 574,
+        "y": 1420,
+        "r": 12,
+        "fill": "rgba(233, 181, 108, 0.2)",
+        "stroke": "rgb(233, 181, 108)"
+      },
+      {
+        "x": 574,
+        "y": 1460,
+        "r": 12,
+        "fill": "rgba(235, 177, 107, 0.2)",
+        "stroke": "rgb(235, 177, 107)"
+      },
+      {
+        "x": 574,
+        "y": 1500,
+        "r": 12,
+        "fill": "rgba(237, 174, 107, 0.2)",
+        "stroke": "rgb(237, 174, 107)"
+      },
+      {
+        "x": 574,
+        "y": 1540,
+        "r": 12,
+        "fill": "rgba(239, 170, 106, 0.2)",
+        "stroke": "rgb(239, 170, 106)"
+      },
+      {
+        "x": 574,
+        "y": 1580,
+        "r": 12,
+        "fill": "rgba(241, 167, 106, 0.2)",
+        "stroke": "rgb(241, 167, 106)"
+      },
+      {
+        "x": 574,
+        "y": 1620,
+        "r": 12,
+        "fill": "rgba(240, 163, 108, 0.2)",
+        "stroke": "rgb(240, 163, 108)"
+      },
+      {
+        "x": 574,
+        "y": 1660,
+        "r": 12,
+        "fill": "rgba(240, 159, 111, 0.2)",
+        "stroke": "rgb(240, 159, 111)"
+      },
+      {
+        "x": 574,
+        "y": 1700,
+        "r": 12,
+        "fill": "rgba(239, 155, 114, 0.2)",
+        "stroke": "rgb(239, 155, 114)"
+      },
+      {
+        "x": 574,
+        "y": 1740,
+        "r": 12,
+        "fill": "rgba(238, 152, 116, 0.2)",
+        "stroke": "rgb(238, 152, 116)"
+      },
+      {
+        "x": 574,
+        "y": 1780,
+        "r": 12,
+        "fill": "rgba(238, 148, 119, 0.2)",
+        "stroke": "rgb(238, 148, 119)"
+      },
+      {
+        "x": 574,
+        "y": 1820,
+        "r": 12,
+        "fill": "rgba(237, 144, 122, 0.2)",
+        "stroke": "rgb(237, 144, 122)"
+      },
+      {
+        "x": 574,
+        "y": 1860,
+        "r": 12,
+        "fill": "rgba(236, 140, 125, 0.2)",
+        "stroke": "rgb(236, 140, 125)"
+      },
+      {
+        "x": 574,
+        "y": 1900,
+        "r": 12,
+        "fill": "rgba(236, 136, 127, 0.2)",
+        "stroke": "rgb(236, 136, 127)"
+      },
+      {
+        "x": 574,
+        "y": 1940,
+        "r": 12,
+        "fill": "rgba(235, 132, 130, 0.2)",
+        "stroke": "rgb(235, 132, 130)"
+      },
+      {
+        "x": 574,
+        "y": 1980,
+        "r": 12,
+        "fill": "rgba(234, 129, 133, 0.2)",
+        "stroke": "rgb(234, 129, 133)"
+      },
+      {
+        "x": 574,
+        "y": 2020,
+        "r": 12,
+        "fill": "rgba(233, 125, 136, 0.2)",
+        "stroke": "rgb(233, 125, 136)"
+      },
+      {
+        "x": 574,
+        "y": 2060,
+        "r": 12,
+        "fill": "rgba(233, 121, 138, 0.2)",
+        "stroke": "rgb(233, 121, 138)"
+      },
+      {
+        "x": 574,
+        "y": 2100,
+        "r": 12,
+        "fill": "rgba(232, 117, 141, 0.2)",
+        "stroke": "rgb(232, 117, 141)"
+      }
+    ],
+    "labels": [
+      {
+        "name": "Ketamine",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "S-ketamine",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "Psilocybin",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "MDMA",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "LSD",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "Ayahuasca",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "Ibogaine",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "Classic psychedelics",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "DMT",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "Dextromethorphan",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "5-MeO-DMT",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "Mescaline",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "Hallucinogens",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "Ibogaine + 5-MeO-DMT(sequential)",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "(2R,6R)-hydroxynorketamine",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "Psychedelic-assistedtherapy",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "Nitrous oxide",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "Chemsex",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "Psilocin",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "25I-NBOMe",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "Dissociatives",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "LSA",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "2C-B",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "DOI",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "DPT",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "Methoxetamine",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "Norketamine",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "R-ketamine",
+        "x": 194,
+        "y": 0,
+        "anchor": "end"
+      },
+      {
+        "name": "Treatment-resistantdepression",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Major depressive disorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Suicidal ideation & behavior",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Post-traumatic stressdisorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Alcohol use disorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Bipolar depression",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Substance use disorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Chronic pain",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Obsessive-compulsivedisorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Distress in life-threateningillness",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Bipolar disorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Opioid use disorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Postpartum depression",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Generalized anxiety disorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Anorexia nervosa",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Tobacco use disorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Eating disorders",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Complex regional painsyndrome",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "ADHD",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Migraine",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Cluster headache",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Cocaine use disorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Fibromyalgia",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Borderline personalitydisorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Neuropathic pain",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Social anxiety disorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Schizophrenia",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Parkinson's disease",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Bipolar II disorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Complex post-traumaticstress disorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Complicated grief",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Persistent depressivedisorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Methamphetamine usedisorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Postoperative sleepdisturbance",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Traumatic brain injury",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Catatonia",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Post-treatment Lyme diseasesyndrome",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Rett syndrome",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Demoralization",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Multiple sclerosis",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Body dysmorphic disorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Bipolar I disorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Headache disorders",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Mood disorders",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Cannabis use disorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Postherpetic neuralgia",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Schizoaffective disorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Stimulant use disorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Central post-stroke painsyndrome",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Autism spectrum disorder",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Developmental stuttering",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      },
+      {
+        "name": "Anosmia",
+        "x": 596,
+        "y": 0,
+        "anchor": null
+      }
+    ]
+  },
+  "details": {
+    "Sample sizes": "Sample sizes\n>500\n251-500\n101-250\n51-100\n26-50\n11-25\n2-10\n1\n2019\n2026",
+    "Administration route": "Administration route\nOral or sublingual\n43",
+    "Dosing schedule": "Dosing schedule\nRepeated dosing\n27\nSingle-dose session\n22\nMicrodosing\n2",
+    "Comparators": "Comparators\nActive treatment\n19\nBaseline\n8\nObservational controls\n8\nPlacebo\n4\nActive placebo\n3\nStandard care\n3\nDose or route comparison\n2\nNo comparator\n1\nOther\n5",
+    "Follow-up windows": "Follow-up windows\nMedium follow-up (1-3 months)\n30\nShort follow-up (1-4 weeks)\n15\nLong follow-up (4-12 months)\n9\nAcute / same day\n3\nTreatment endpoint\n2\nRetrospective / lifetime\n2\nFollow-up not reported\n2\nExtended follow-up (>12 months)\n1\nEarly follow-up (1-7 days)\n1\nOther\n5",
+    "Study designs": "Study designs\nRCT\n30\nOpen-label trial\n6\nObservational study\n5\nQualitative\n5\nFollow-up study\n4\nSecondary analysis\n4\nComputational\n2\nCase report\n2\nControlled study (randomization unclear)\n1\nSingle-arm trial\n1",
+    "Authors": "Authors\nRobin Carhart-Harris\n11 studies\nFirst author\n0\nLast author\n11\nDavid Erritzøe\n4 studies\nFirst author\n2\nLast author\n2\nBrandon Weiss\n3 studies\nFirst author\n3\nLast author\n0\nRoland R. Griffiths\n3 studies\nFirst author\n0\nLast author\n3\nAlan K. Davis\n3 studies\nFirst author\n2\nLast author\n1\nFrederick S. Barrett\n2 studies\nFirst author\n0\nLast author\n2\nLeor Roseman\n2 studies\nFirst author\n0\nLast author\n2\nTommaso Barba\n2 studies\nFirst author\n2\nLast author\n0\nManish Agrawal\n2 studies\nFirst author\n1\nLast author\n1\nYvan Beaussant\n2 studies\nFirst author\n1\nLast author\n1\nShow 10 more"
+  },
+  "edgeText": "Psilocybin → Major depressive disorder\nAll studies\n75\nOpen access\n56\n75% of studies\nPublications per year\n2019\n2026\nSample sizes\n>500\n251-500\n101-250\n51-100\n26-50\n11-25\n2-10\n1\n2019\n2026\nAdministration route\nOral or sublingual\n43\nDosing schedule\nRepeated dosing\n27\nSingle-dose session\n22\nMicrodosing\n2\nSession context\nTherapy-assisted session\n37\nClinical administration\n6\nNaturalistic use\n5\nCeremony & retreat\n1\nComparators\nActive treatment\n19\nBaseline\n8\nObservational controls\n8\nPlacebo\n4\nActive placebo\n3\nStandard care\n3\nDose or route comparison\n2\nNo comparator\n1\nOther\n5\nFollow-up windows\nMedium follow-up (1-3 months)\n30\nShort follow-up (1-4 weeks)\n15\nLong follow-up (4-12 months)\n9\nAcute / same day\n3\nTreatment endpoint\n2\nRetrospective / lifetime\n2\nFollow-up not reported\n2\nExtended follow-up (>12 months)\n1\nEarly follow-up (1-7 days)\n1\nOther\n5\nStudy designs\nRCT\n30\nOpen-label trial\n6\nObservational study\n5\nQualitative\n5\nFollow-up study\n4\nSecondary analysis\n4\nComputational\n2\nCase report\n2\nControlled study (randomization unclear)\n1\nSingle-arm trial\n1\nOpen science\nRegistered trial\n17\nOpen data\n1\nPreregistered\n4\nAuthors\nRobin Carhart-Harris\n11 studies\nFirst author\n0\nLast author\n11\nDavid Erritzøe\n4 studies\nFirst author\n2\nLast author\n2\nBrandon Weiss\n3 studies\nFirst author\n3\nLast author\n0\nRoland R. Griffiths\n3 studies\nFirst author\n0\nLast author\n3\nAlan K. Davis\n3 studies\nFirst author\n2\nLast author\n1\nFrederick S. Barrett\n2 studies\nFirst author\n0\nLast author\n2\nLeor Roseman\n2 studies\nFirst author\n0\nLast author\n2\nTommaso Barba\n2 studies\nFirst author\n2\nLast author\n0\nManish Agrawal\n2 studies\nFirst author\n1\nLast author\n1\nYvan Beaussant\n2 studies\nFirst author\n1\nLast author\n1\nShow 10 more\nJournals\nJournal of Psychopharmacology\n5\nJournal of Psychedelic Studies\n4\nJournal of Affective Disorders\n3\nPsychological Medicine\n3\nScientific Reports\n3\nEClinicalMedicine\n2\nJAMA Psychiatry\n2\nJournal of psychopharmacology (Oxford, England)\n2\nMolecular Psychiatry\n2\nTranslational Psychiatry\n2\nShow 10 more\nFunders\nImperial College London\n13\nNational Institute for Health and Care Research\n12\nNational Institute on Drug Abuse\n6\nNIDA NIH HHS\n6\nNIHR Imperial Biomedical Research Centre\n6\nHeffter Research Institute\n6\nAlexander Mosley Charitable Trust\n6\nAcademy of Medical Sciences\n5\nNational Center for Advancing Translational Sciences\n3\nNational Institutes of Health\n3\nShow 10 more",
+  "cards": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "momentum": [
+    {
+      "label": "Conditions",
+      "summary": "2,403 latest · 941 prior · Δ +1,462",
+      "svg": "<svg class=\"analytics-sparkline\" viewBox=\"0 0 132 30\" aria-hidden=\"true\">\n      <rect x=\"66.0\" y=\"0\" width=\"66.0\" height=\"30\" class=\"analytics-sparkline-current-window\"></rect><path d=\"M66.0 2 V28\" class=\"analytics-sparkline-divider\"></path>\n      <path d=\"M0 28 H132\" class=\"analytics-sparkline-baseline\"></path>\n      <polyline points=\"0.0,23.5 14.7,22.1 29.3,22.3 44.0,18.3 58.7,17.3 73.3,15.4 88.0,11.4 102.7,8.7 117.3,4.0 132.0,7.5\" style=\"--series-color:#82a9d8\"></polyline>\n    </svg>"
+    },
+    {
+      "label": "Safety",
+      "summary": "2,496 latest · 1,265 prior · Δ +1,231",
+      "svg": "<svg class=\"analytics-sparkline\" viewBox=\"0 0 132 30\" aria-hidden=\"true\">\n      <rect x=\"66.0\" y=\"0\" width=\"66.0\" height=\"30\" class=\"analytics-sparkline-current-window\"></rect><path d=\"M66.0 2 V28\" class=\"analytics-sparkline-divider\"></path>\n      <path d=\"M0 28 H132\" class=\"analytics-sparkline-baseline\"></path>\n      <polyline points=\"0.0,20.0 14.7,20.9 29.3,18.7 44.0,16.3 58.7,16.5 73.3,13.9 88.0,11.8 102.7,7.9 117.3,4.0 132.0,8.3\" style=\"--series-color:#d6a84f\"></polyline>\n    </svg>"
+    },
+    {
+      "label": "Real-world use",
+      "summary": "1,608 latest · 887 prior · Δ +721",
+      "svg": "<svg class=\"analytics-sparkline\" viewBox=\"0 0 132 30\" aria-hidden=\"true\">\n      <rect x=\"66.0\" y=\"0\" width=\"66.0\" height=\"30\" class=\"analytics-sparkline-current-window\"></rect><path d=\"M66.0 2 V28\" class=\"analytics-sparkline-divider\"></path>\n      <path d=\"M0 28 H132\" class=\"analytics-sparkline-baseline\"></path>\n      <polyline points=\"0.0,20.0 14.7,19.6 29.3,17.0 44.0,15.1 58.7,13.9 73.3,10.7 88.0,10.4 102.7,7.1 117.3,4.0 132.0,9.1\" style=\"--series-color:#9bab62\"></polyline>\n    </svg>"
+    },
+    {
+      "label": "Molecular effects",
+      "summary": "1,539 latest · 992 prior · Δ +547",
+      "svg": "<svg class=\"analytics-sparkline\" viewBox=\"0 0 132 30\" aria-hidden=\"true\">\n      <rect x=\"66.0\" y=\"0\" width=\"66.0\" height=\"30\" class=\"analytics-sparkline-current-window\"></rect><path d=\"M66.0 2 V28\" class=\"analytics-sparkline-divider\"></path>\n      <path d=\"M0 28 H132\" class=\"analytics-sparkline-baseline\"></path>\n      <polyline points=\"0.0,18.1 14.7,16.3 29.3,15.1 44.0,14.8 58.7,14.1 73.3,11.4 88.0,12.0 102.7,8.6 117.3,4.0 132.0,8.4\" style=\"--series-color:#72a77c\"></polyline>\n    </svg>"
+    },
+    {
+      "label": "Subjective effects",
+      "summary": "911 latest · 414 prior · Δ +497",
+      "svg": "<svg class=\"analytics-sparkline\" viewBox=\"0 0 132 30\" aria-hidden=\"true\">\n      <rect x=\"66.0\" y=\"0\" width=\"66.0\" height=\"30\" class=\"analytics-sparkline-current-window\"></rect><path d=\"M66.0 2 V28\" class=\"analytics-sparkline-divider\"></path>\n      <path d=\"M0 28 H132\" class=\"analytics-sparkline-baseline\"></path>\n      <polyline points=\"0.0,21.7 14.7,20.5 29.3,22.0 44.0,18.5 58.7,16.0 73.3,13.9 88.0,11.3 102.7,10.6 117.3,4.0 132.0,9.6\" style=\"--series-color:#55b7ab\"></polyline>\n    </svg>"
+    },
+    {
+      "label": "Treatment context",
+      "summary": "685 latest · 199 prior · Δ +486",
+      "svg": "<svg class=\"analytics-sparkline\" viewBox=\"0 0 132 30\" aria-hidden=\"true\">\n      <rect x=\"66.0\" y=\"0\" width=\"66.0\" height=\"30\" class=\"analytics-sparkline-current-window\"></rect><path d=\"M66.0 2 V28\" class=\"analytics-sparkline-divider\"></path>\n      <path d=\"M0 28 H132\" class=\"analytics-sparkline-baseline\"></path>\n      <polyline points=\"0.0,25.8 14.7,24.3 29.3,24.0 44.0,21.7 58.7,18.6 73.3,17.5 88.0,13.7 102.7,10.7 117.3,4.0 132.0,5.7\" style=\"--series-color:#d1846f\"></polyline>\n    </svg>"
+    },
+    {
+      "label": "Targets",
+      "summary": "953 latest · 594 prior · Δ +359",
+      "svg": "<svg class=\"analytics-sparkline\" viewBox=\"0 0 132 30\" aria-hidden=\"true\">\n      <rect x=\"66.0\" y=\"0\" width=\"66.0\" height=\"30\" class=\"analytics-sparkline-current-window\"></rect><path d=\"M66.0 2 V28\" class=\"analytics-sparkline-divider\"></path>\n      <path d=\"M0 28 H132\" class=\"analytics-sparkline-baseline\"></path>\n      <polyline points=\"0.0,18.4 14.7,15.9 29.3,16.4 44.0,14.2 58.7,14.3 73.3,12.5 88.0,10.1 102.7,6.6 117.3,4.0 132.0,9.1\" style=\"--series-color:#b779ad\"></polyline>\n    </svg>"
+    },
+    {
+      "label": "Cognition",
+      "summary": "828 latest · 527 prior · Δ +301",
+      "svg": "<svg class=\"analytics-sparkline\" viewBox=\"0 0 132 30\" aria-hidden=\"true\">\n      <rect x=\"66.0\" y=\"0\" width=\"66.0\" height=\"30\" class=\"analytics-sparkline-current-window\"></rect><path d=\"M66.0 2 V28\" class=\"analytics-sparkline-divider\"></path>\n      <path d=\"M0 28 H132\" class=\"analytics-sparkline-baseline\"></path>\n      <polyline points=\"0.0,17.9 14.7,16.0 29.3,15.8 44.0,15.5 58.7,12.8 73.3,12.0 88.0,11.6 102.7,4.1 117.3,4.0 132.0,10.8\" style=\"--series-color:#a88bd1\"></polyline>\n    </svg>"
+    }
+  ],
+  "scope": "Research-area momentum\nComparison window\n5 years\n2y\n15y\nConditions\n2,403 latest · 941 prior · Δ +1,462\nSafety\n2,496 latest · 1,265 prior · Δ +1,231\nReal-world use\n1,608 latest · 887 prior · Δ +721\nMolecular effects\n1,539 latest · 992 prior · Δ +547\nSubjective effects\n911 latest · 414 prior · Δ +497\nTreatment context\n685 latest · 199 prior · Δ +486\nTargets\n953 latest · 594 prior · Δ +359\nCognition\n828 latest · 527 prior · Δ +301",
+  "authorRows": [
+    {
+      "key": "orcid:0000-0003-4442-7412",
+      "name": "Carlos A. Zarate"
+    },
+    {
+      "key": "orcid:0000-0002-6062-7150",
+      "name": "Robin Carhart-Harris"
+    },
+    {
+      "key": "orcid:0000-0002-1765-9659",
+      "name": "Matthias E. Liechti"
+    },
+    {
+      "key": "orcid:0000-0002-8892-0439",
+      "name": "Kenji Hashimoto"
+    },
+    {
+      "key": "orcid:0000-0002-8565-9415",
+      "name": "Joseph J. Palamar"
+    },
+    {
+      "key": "orcid:0000-0003-4733-2523",
+      "name": "Roger S. McIntyre"
+    },
+    {
+      "key": "orcid:0000-0001-9053-6164",
+      "name": "Franz X. Vollenweider"
+    },
+    {
+      "key": "orcid:0000-0002-4773-2191",
+      "name": "Joshua D. Rosenblat"
+    },
+    {
+      "key": "orcid:0000-0003-4553-376x",
+      "name": "Johannes G. Ramaekers"
+    },
+    {
+      "key": "orcid:0000-0002-5727-2782",
+      "name": "Yuping Ning"
+    },
+    {
+      "key": "orcid:0000-0003-2388-4745",
+      "name": "Rafael G. dos Santos"
+    },
+    {
+      "key": "orcid:0000-0001-5185-7854",
+      "name": "Roland R. Griffiths"
+    },
+    {
+      "key": "orcid:0000-0001-7634-3809",
+      "name": "Kim P. C. Kuypers"
+    },
+    {
+      "key": "orcid:0000-0001-8690-8439",
+      "name": "Ronald S. Duman"
+    },
+    {
+      "key": "orcid:0000-0001-6343-8454",
+      "name": "Wiesław Jerzy Cubała"
+    },
+    {
+      "key": "orcid:0000-0003-4770-8893",
+      "name": "Alan K. Davis"
+    },
+    {
+      "key": "openalex:a5104068648",
+      "name": "A. C. Parrott"
+    },
+    {
+      "key": "orcid:0000-0002-7211-8994",
+      "name": "Harriet de Wit"
+    },
+    {
+      "key": "orcid:0000-0001-5096-5829",
+      "name": "Adam L. Halberstadt"
+    },
+    {
+      "key": "orcid:0000-0001-6516-1073",
+      "name": "Mu‐Hong Chen"
+    },
+    {
+      "key": "orcid:0000-0002-1286-1401",
+      "name": "David Nutt"
+    },
+    {
+      "key": "orcid:0000-0002-0561-6520",
+      "name": "Bryan L. Roth"
+    },
+    {
+      "key": "orcid:0000-0001-6041-5214",
+      "name": "H. Valerie Curran"
+    },
+    {
+      "key": "orcid:0000-0002-7786-8313",
+      "name": "Susan Schenk"
+    }
+  ],
+  "authorCells": [
+    {
+      "key": "orcid:0000-0003-4442-7412",
+      "area": "Conditions",
+      "count": 104,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0003-4442-7412",
+      "area": "Safety",
+      "count": 27,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0003-4442-7412",
+      "area": "Cognition",
+      "count": 9,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0003-4442-7412",
+      "area": "Behavior",
+      "count": 0,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0003-4442-7412",
+      "area": "Subjective effects",
+      "count": 9,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0003-4442-7412",
+      "area": "Treatment context",
+      "count": 0,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0003-4442-7412",
+      "area": "Real-world use",
+      "count": 0,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0003-4442-7412",
+      "area": "Brain regions",
+      "count": 25,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0003-4442-7412",
+      "area": "Molecular effects",
+      "count": 35,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0003-4442-7412",
+      "area": "Targets",
+      "count": 20,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0002-6062-7150",
+      "area": "Conditions",
+      "count": 34,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0002-6062-7150",
+      "area": "Safety",
+      "count": 13,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0002-6062-7150",
+      "area": "Cognition",
+      "count": 19,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0002-6062-7150",
+      "area": "Behavior",
+      "count": 1,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0002-6062-7150",
+      "area": "Subjective effects",
+      "count": 54,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0002-6062-7150",
+      "area": "Treatment context",
+      "count": 21,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0002-6062-7150",
+      "area": "Real-world use",
+      "count": 12,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0002-6062-7150",
+      "area": "Brain regions",
+      "count": 23,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0002-6062-7150",
+      "area": "Molecular effects",
+      "count": 5,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0002-6062-7150",
+      "area": "Targets",
+      "count": 8,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0002-1765-9659",
+      "area": "Conditions",
+      "count": 4,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0002-1765-9659",
+      "area": "Safety",
+      "count": 55,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0002-1765-9659",
+      "area": "Cognition",
+      "count": 14,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0002-1765-9659",
+      "area": "Behavior",
+      "count": 8,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0002-1765-9659",
+      "area": "Subjective effects",
+      "count": 61,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0002-1765-9659",
+      "area": "Treatment context",
+      "count": 3,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0002-1765-9659",
+      "area": "Real-world use",
+      "count": 3,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0002-1765-9659",
+      "area": "Brain regions",
+      "count": 1,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0002-1765-9659",
+      "area": "Molecular effects",
+      "count": 29,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0002-1765-9659",
+      "area": "Targets",
+      "count": 23,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0002-8892-0439",
+      "area": "Conditions",
+      "count": 15,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0002-8892-0439",
+      "area": "Safety",
+      "count": 20,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0002-8892-0439",
+      "area": "Cognition",
+      "count": 32,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0002-8892-0439",
+      "area": "Behavior",
+      "count": 40,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0002-8892-0439",
+      "area": "Subjective effects",
+      "count": 0,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0002-8892-0439",
+      "area": "Treatment context",
+      "count": 0,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0002-8892-0439",
+      "area": "Real-world use",
+      "count": 0,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0002-8892-0439",
+      "area": "Brain regions",
+      "count": 10,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0002-8892-0439",
+      "area": "Molecular effects",
+      "count": 55,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0002-8892-0439",
+      "area": "Targets",
+      "count": 7,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0002-8565-9415",
+      "area": "Conditions",
+      "count": 1,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0002-8565-9415",
+      "area": "Safety",
+      "count": 13,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0002-8565-9415",
+      "area": "Cognition",
+      "count": 1,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0002-8565-9415",
+      "area": "Behavior",
+      "count": 1,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0002-8565-9415",
+      "area": "Subjective effects",
+      "count": 3,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0002-8565-9415",
+      "area": "Treatment context",
+      "count": 0,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0002-8565-9415",
+      "area": "Real-world use",
+      "count": 69,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0002-8565-9415",
+      "area": "Brain regions",
+      "count": 0,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0002-8565-9415",
+      "area": "Molecular effects",
+      "count": 1,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0002-8565-9415",
+      "area": "Targets",
+      "count": 1,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0003-4733-2523",
+      "area": "Conditions",
+      "count": 41,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0003-4733-2523",
+      "area": "Safety",
+      "count": 30,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0003-4733-2523",
+      "area": "Cognition",
+      "count": 4,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0003-4733-2523",
+      "area": "Behavior",
+      "count": 2,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0003-4733-2523",
+      "area": "Subjective effects",
+      "count": 3,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0003-4733-2523",
+      "area": "Treatment context",
+      "count": 2,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0003-4733-2523",
+      "area": "Real-world use",
+      "count": 7,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0003-4733-2523",
+      "area": "Brain regions",
+      "count": 4,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0003-4733-2523",
+      "area": "Molecular effects",
+      "count": 4,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0003-4733-2523",
+      "area": "Targets",
+      "count": 2,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0001-9053-6164",
+      "area": "Conditions",
+      "count": 1,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0001-9053-6164",
+      "area": "Safety",
+      "count": 12,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0001-9053-6164",
+      "area": "Cognition",
+      "count": 30,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0001-9053-6164",
+      "area": "Behavior",
+      "count": 4,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0001-9053-6164",
+      "area": "Subjective effects",
+      "count": 37,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0001-9053-6164",
+      "area": "Treatment context",
+      "count": 4,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0001-9053-6164",
+      "area": "Real-world use",
+      "count": 1,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0001-9053-6164",
+      "area": "Brain regions",
+      "count": 19,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0001-9053-6164",
+      "area": "Molecular effects",
+      "count": 6,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0001-9053-6164",
+      "area": "Targets",
+      "count": 22,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0002-4773-2191",
+      "area": "Conditions",
+      "count": 47,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0002-4773-2191",
+      "area": "Safety",
+      "count": 24,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0002-4773-2191",
+      "area": "Cognition",
+      "count": 1,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0002-4773-2191",
+      "area": "Behavior",
+      "count": 1,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0002-4773-2191",
+      "area": "Subjective effects",
+      "count": 6,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0002-4773-2191",
+      "area": "Treatment context",
+      "count": 5,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0002-4773-2191",
+      "area": "Real-world use",
+      "count": 4,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0002-4773-2191",
+      "area": "Brain regions",
+      "count": 0,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0002-4773-2191",
+      "area": "Molecular effects",
+      "count": 1,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0002-4773-2191",
+      "area": "Targets",
+      "count": 0,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0003-4553-376x",
+      "area": "Conditions",
+      "count": 5,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0003-4553-376x",
+      "area": "Safety",
+      "count": 18,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0003-4553-376x",
+      "area": "Cognition",
+      "count": 31,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0003-4553-376x",
+      "area": "Behavior",
+      "count": 4,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0003-4553-376x",
+      "area": "Subjective effects",
+      "count": 29,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0003-4553-376x",
+      "area": "Treatment context",
+      "count": 2,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0003-4553-376x",
+      "area": "Real-world use",
+      "count": 6,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0003-4553-376x",
+      "area": "Brain regions",
+      "count": 7,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0003-4553-376x",
+      "area": "Molecular effects",
+      "count": 8,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0003-4553-376x",
+      "area": "Targets",
+      "count": 7,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0002-5727-2782",
+      "area": "Conditions",
+      "count": 42,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0002-5727-2782",
+      "area": "Safety",
+      "count": 7,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0002-5727-2782",
+      "area": "Cognition",
+      "count": 7,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0002-5727-2782",
+      "area": "Behavior",
+      "count": 0,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0002-5727-2782",
+      "area": "Subjective effects",
+      "count": 4,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0002-5727-2782",
+      "area": "Treatment context",
+      "count": 0,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0002-5727-2782",
+      "area": "Real-world use",
+      "count": 0,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0002-5727-2782",
+      "area": "Brain regions",
+      "count": 4,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0002-5727-2782",
+      "area": "Molecular effects",
+      "count": 15,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0002-5727-2782",
+      "area": "Targets",
+      "count": 0,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0003-2388-4745",
+      "area": "Conditions",
+      "count": 17,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0003-2388-4745",
+      "area": "Safety",
+      "count": 23,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0003-2388-4745",
+      "area": "Cognition",
+      "count": 8,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0003-2388-4745",
+      "area": "Behavior",
+      "count": 3,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0003-2388-4745",
+      "area": "Subjective effects",
+      "count": 10,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0003-2388-4745",
+      "area": "Treatment context",
+      "count": 3,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0003-2388-4745",
+      "area": "Real-world use",
+      "count": 1,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0003-2388-4745",
+      "area": "Brain regions",
+      "count": 3,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0003-2388-4745",
+      "area": "Molecular effects",
+      "count": 9,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0003-2388-4745",
+      "area": "Targets",
+      "count": 9,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0001-5185-7854",
+      "area": "Conditions",
+      "count": 8,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0001-5185-7854",
+      "area": "Safety",
+      "count": 18,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0001-5185-7854",
+      "area": "Cognition",
+      "count": 11,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0001-5185-7854",
+      "area": "Behavior",
+      "count": 10,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0001-5185-7854",
+      "area": "Subjective effects",
+      "count": 33,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0001-5185-7854",
+      "area": "Treatment context",
+      "count": 7,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0001-5185-7854",
+      "area": "Real-world use",
+      "count": 6,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0001-5185-7854",
+      "area": "Brain regions",
+      "count": 1,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0001-5185-7854",
+      "area": "Molecular effects",
+      "count": 3,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0001-5185-7854",
+      "area": "Targets",
+      "count": 0,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0001-7634-3809",
+      "area": "Conditions",
+      "count": 4,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0001-7634-3809",
+      "area": "Safety",
+      "count": 11,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0001-7634-3809",
+      "area": "Cognition",
+      "count": 23,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0001-7634-3809",
+      "area": "Behavior",
+      "count": 4,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0001-7634-3809",
+      "area": "Subjective effects",
+      "count": 11,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0001-7634-3809",
+      "area": "Treatment context",
+      "count": 3,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0001-7634-3809",
+      "area": "Real-world use",
+      "count": 5,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0001-7634-3809",
+      "area": "Brain regions",
+      "count": 2,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0001-7634-3809",
+      "area": "Molecular effects",
+      "count": 8,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0001-7634-3809",
+      "area": "Targets",
+      "count": 6,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0001-8690-8439",
+      "area": "Conditions",
+      "count": 4,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0001-8690-8439",
+      "area": "Safety",
+      "count": 4,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0001-8690-8439",
+      "area": "Cognition",
+      "count": 10,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0001-8690-8439",
+      "area": "Behavior",
+      "count": 13,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0001-8690-8439",
+      "area": "Subjective effects",
+      "count": 0,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0001-8690-8439",
+      "area": "Treatment context",
+      "count": 0,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0001-8690-8439",
+      "area": "Real-world use",
+      "count": 0,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0001-8690-8439",
+      "area": "Brain regions",
+      "count": 10,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0001-8690-8439",
+      "area": "Molecular effects",
+      "count": 29,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0001-8690-8439",
+      "area": "Targets",
+      "count": 12,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0001-6343-8454",
+      "area": "Conditions",
+      "count": 19,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0001-6343-8454",
+      "area": "Safety",
+      "count": 24,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0001-6343-8454",
+      "area": "Cognition",
+      "count": 2,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0001-6343-8454",
+      "area": "Behavior",
+      "count": 0,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0001-6343-8454",
+      "area": "Subjective effects",
+      "count": 6,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0001-6343-8454",
+      "area": "Treatment context",
+      "count": 4,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0001-6343-8454",
+      "area": "Real-world use",
+      "count": 3,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0001-6343-8454",
+      "area": "Brain regions",
+      "count": 1,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0001-6343-8454",
+      "area": "Molecular effects",
+      "count": 3,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0001-6343-8454",
+      "area": "Targets",
+      "count": 0,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0003-4770-8893",
+      "area": "Conditions",
+      "count": 12,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0003-4770-8893",
+      "area": "Safety",
+      "count": 7,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0003-4770-8893",
+      "area": "Cognition",
+      "count": 9,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0003-4770-8893",
+      "area": "Behavior",
+      "count": 7,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0003-4770-8893",
+      "area": "Subjective effects",
+      "count": 20,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0003-4770-8893",
+      "area": "Treatment context",
+      "count": 10,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0003-4770-8893",
+      "area": "Real-world use",
+      "count": 19,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0003-4770-8893",
+      "area": "Brain regions",
+      "count": 0,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0003-4770-8893",
+      "area": "Molecular effects",
+      "count": 0,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0003-4770-8893",
+      "area": "Targets",
+      "count": 0,
+      "color": "#b779ad"
+    },
+    {
+      "key": "openalex:a5104068648",
+      "area": "Conditions",
+      "count": 1,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "openalex:a5104068648",
+      "area": "Safety",
+      "count": 15,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "openalex:a5104068648",
+      "area": "Cognition",
+      "count": 16,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "openalex:a5104068648",
+      "area": "Behavior",
+      "count": 3,
+      "color": "#d27694"
+    },
+    {
+      "key": "openalex:a5104068648",
+      "area": "Subjective effects",
+      "count": 3,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "openalex:a5104068648",
+      "area": "Treatment context",
+      "count": 0,
+      "color": "#d1846f"
+    },
+    {
+      "key": "openalex:a5104068648",
+      "area": "Real-world use",
+      "count": 10,
+      "color": "#9bab62"
+    },
+    {
+      "key": "openalex:a5104068648",
+      "area": "Brain regions",
+      "count": 2,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "openalex:a5104068648",
+      "area": "Molecular effects",
+      "count": 12,
+      "color": "#72a77c"
+    },
+    {
+      "key": "openalex:a5104068648",
+      "area": "Targets",
+      "count": 2,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0002-7211-8994",
+      "area": "Conditions",
+      "count": 1,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0002-7211-8994",
+      "area": "Safety",
+      "count": 10,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0002-7211-8994",
+      "area": "Cognition",
+      "count": 26,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0002-7211-8994",
+      "area": "Behavior",
+      "count": 8,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0002-7211-8994",
+      "area": "Subjective effects",
+      "count": 25,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0002-7211-8994",
+      "area": "Treatment context",
+      "count": 2,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0002-7211-8994",
+      "area": "Real-world use",
+      "count": 0,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0002-7211-8994",
+      "area": "Brain regions",
+      "count": 3,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0002-7211-8994",
+      "area": "Molecular effects",
+      "count": 4,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0002-7211-8994",
+      "area": "Targets",
+      "count": 0,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0001-5096-5829",
+      "area": "Conditions",
+      "count": 0,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0001-5096-5829",
+      "area": "Safety",
+      "count": 2,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0001-5096-5829",
+      "area": "Cognition",
+      "count": 1,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0001-5096-5829",
+      "area": "Behavior",
+      "count": 21,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0001-5096-5829",
+      "area": "Subjective effects",
+      "count": 1,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0001-5096-5829",
+      "area": "Treatment context",
+      "count": 1,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0001-5096-5829",
+      "area": "Real-world use",
+      "count": 0,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0001-5096-5829",
+      "area": "Brain regions",
+      "count": 0,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0001-5096-5829",
+      "area": "Molecular effects",
+      "count": 3,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0001-5096-5829",
+      "area": "Targets",
+      "count": 29,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0001-6516-1073",
+      "area": "Conditions",
+      "count": 32,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0001-6516-1073",
+      "area": "Safety",
+      "count": 2,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0001-6516-1073",
+      "area": "Cognition",
+      "count": 2,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0001-6516-1073",
+      "area": "Behavior",
+      "count": 0,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0001-6516-1073",
+      "area": "Subjective effects",
+      "count": 1,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0001-6516-1073",
+      "area": "Treatment context",
+      "count": 0,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0001-6516-1073",
+      "area": "Real-world use",
+      "count": 0,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0001-6516-1073",
+      "area": "Brain regions",
+      "count": 5,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0001-6516-1073",
+      "area": "Molecular effects",
+      "count": 10,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0001-6516-1073",
+      "area": "Targets",
+      "count": 1,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0002-1286-1401",
+      "area": "Conditions",
+      "count": 16,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0002-1286-1401",
+      "area": "Safety",
+      "count": 19,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0002-1286-1401",
+      "area": "Cognition",
+      "count": 3,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0002-1286-1401",
+      "area": "Behavior",
+      "count": 2,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0002-1286-1401",
+      "area": "Subjective effects",
+      "count": 11,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0002-1286-1401",
+      "area": "Treatment context",
+      "count": 6,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0002-1286-1401",
+      "area": "Real-world use",
+      "count": 4,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0002-1286-1401",
+      "area": "Brain regions",
+      "count": 7,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0002-1286-1401",
+      "area": "Molecular effects",
+      "count": 4,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0002-1286-1401",
+      "area": "Targets",
+      "count": 4,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0002-0561-6520",
+      "area": "Conditions",
+      "count": 1,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0002-0561-6520",
+      "area": "Safety",
+      "count": 3,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0002-0561-6520",
+      "area": "Cognition",
+      "count": 0,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0002-0561-6520",
+      "area": "Behavior",
+      "count": 3,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0002-0561-6520",
+      "area": "Subjective effects",
+      "count": 1,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0002-0561-6520",
+      "area": "Treatment context",
+      "count": 0,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0002-0561-6520",
+      "area": "Real-world use",
+      "count": 0,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0002-0561-6520",
+      "area": "Brain regions",
+      "count": 2,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0002-0561-6520",
+      "area": "Molecular effects",
+      "count": 14,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0002-0561-6520",
+      "area": "Targets",
+      "count": 30,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0001-6041-5214",
+      "area": "Conditions",
+      "count": 1,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0001-6041-5214",
+      "area": "Safety",
+      "count": 19,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0001-6041-5214",
+      "area": "Cognition",
+      "count": 18,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0001-6041-5214",
+      "area": "Behavior",
+      "count": 4,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0001-6041-5214",
+      "area": "Subjective effects",
+      "count": 10,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0001-6041-5214",
+      "area": "Treatment context",
+      "count": 0,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0001-6041-5214",
+      "area": "Real-world use",
+      "count": 16,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0001-6041-5214",
+      "area": "Brain regions",
+      "count": 0,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0001-6041-5214",
+      "area": "Molecular effects",
+      "count": 1,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0001-6041-5214",
+      "area": "Targets",
+      "count": 0,
+      "color": "#b779ad"
+    },
+    {
+      "key": "orcid:0000-0002-7786-8313",
+      "area": "Conditions",
+      "count": 1,
+      "color": "#82a9d8"
+    },
+    {
+      "key": "orcid:0000-0002-7786-8313",
+      "area": "Safety",
+      "count": 1,
+      "color": "#d6a84f"
+    },
+    {
+      "key": "orcid:0000-0002-7786-8313",
+      "area": "Cognition",
+      "count": 5,
+      "color": "#a88bd1"
+    },
+    {
+      "key": "orcid:0000-0002-7786-8313",
+      "area": "Behavior",
+      "count": 24,
+      "color": "#d27694"
+    },
+    {
+      "key": "orcid:0000-0002-7786-8313",
+      "area": "Subjective effects",
+      "count": 0,
+      "color": "#55b7ab"
+    },
+    {
+      "key": "orcid:0000-0002-7786-8313",
+      "area": "Treatment context",
+      "count": 0,
+      "color": "#d1846f"
+    },
+    {
+      "key": "orcid:0000-0002-7786-8313",
+      "area": "Real-world use",
+      "count": 0,
+      "color": "#9bab62"
+    },
+    {
+      "key": "orcid:0000-0002-7786-8313",
+      "area": "Brain regions",
+      "count": 2,
+      "color": "#5f9eb5"
+    },
+    {
+      "key": "orcid:0000-0002-7786-8313",
+      "area": "Molecular effects",
+      "count": 11,
+      "color": "#72a77c"
+    },
+    {
+      "key": "orcid:0000-0002-7786-8313",
+      "area": "Targets",
+      "count": 7,
+      "color": "#b779ad"
+    }
+  ]
+}

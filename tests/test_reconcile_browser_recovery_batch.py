@@ -56,6 +56,20 @@ def test_reconcile_preserves_interrupted_records_for_later_review() -> None:
     assert report["status_counts"] == {"pending_manual_review": 1}
 
 
+def test_reconcile_uses_only_exclusions_from_current_eligibility_ledger() -> None:
+    outcome, _ = reconcile(
+        pd.DataFrame([{"doi": "10.1/retained"}, {"doi": "10.1/poster"}]),
+        {"imported": []},
+        {"records": [
+            {"doi": "10.1/retained", "decision": "retain", "publication_format": "article"},
+            {"doi": "10.1/poster", "decision": "exclude", "publication_format": "conference_abstract"},
+        ]},
+    )
+    assert outcome["browser_recovery_status"].tolist() == [
+        "pending_manual_review", "excluded_publication_format",
+    ]
+
+
 def test_reconcile_does_not_turn_completed_interrupted_records_into_closed_access() -> None:
     batch = pd.DataFrame(
         [{"doi": "10.1/completed", "manual_status": "partial_review_rate_limited"}]
@@ -123,6 +137,47 @@ def test_reconcile_counts_existing_pdf_conflict_as_already_recovered() -> None:
     )
 
     assert outcome.loc[0, "browser_recovery_status"] == "article_pdf_recovered"
+
+
+def test_completed_browser_review_without_pdf_preserves_unknown_access(tmp_path: Path) -> None:
+    progress = tmp_path / "progress.csv"
+    batch = pd.DataFrame([
+        {"doi": "10.1/unavailable", "manual_status": "reviewed_no_accessible_pdf",
+         "manual_notes": "Batch finished; some links failed and some were paywalled."},
+        {"doi": "10.1/recovered", "manual_status": "reviewed_no_accessible_pdf", "manual_notes": ""},
+    ])
+    batch.to_csv(progress, index=False)
+    outcome, report = reconcile(
+        batch, {"imported": [{"doi": "10.1/recovered", "status": "matched"}]}, {"records": []},
+    )
+    assert report["status_counts"] == {"reviewed_no_accessible_pdf": 1, "article_pdf_recovered": 1}
+    overrides = tmp_path / "overrides.json"
+    assert apply_access_overrides(overrides, outcome) == 1
+    record = json.loads(overrides.read_text())["records"][0]
+    assert record["doi"] == "10.1/unavailable"
+    assert record["manual_access_action"] == "suppress_pdf_download"
+    assert "open_access_status" not in record
+    assert "open_access_is_oa" not in record
+    assert "some links failed" in record["manual_reason"]
+    candidate = tmp_path / "candidate.parquet"
+    pd.DataFrame([{"doi": "10.1/unavailable", "open_access_status": "hybrid",
+                   "open_access_is_oa": True}]).to_parquet(candidate, index=False)
+    assert project_access_overrides_to_candidate(overrides, candidate, outcome) == 1
+    updated = pd.read_parquet(candidate).iloc[0]
+    assert updated["open_access_status"] == "hybrid"
+    assert bool(updated["open_access_is_oa"])
+    assert updated["manual_fulltext_access_action"] == "suppress_pdf_download"
+    apply_progress_updates(progress, outcome)
+    assert pd.read_csv(progress)["manual_status"].tolist() == [
+        "reviewed_no_accessible_pdf", "article_pdf_recovered",
+    ]
+    overrides.write_text(json.dumps({"records": [{
+        "doi": "10.1/unavailable", "open_access_status": "closed", "open_access_is_oa": False,
+    }]}))
+    apply_access_overrides(overrides, outcome)
+    prior = json.loads(overrides.read_text())["records"][0]
+    assert prior["open_access_status"] == "closed"
+    assert prior["open_access_is_oa"] is False
 
 
 def test_merge_import_reports_preserves_multi_pass_imports_and_reviews() -> None:

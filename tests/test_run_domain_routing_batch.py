@@ -1,4 +1,5 @@
 import argparse
+import hashlib
 import json
 import tempfile
 import unittest
@@ -92,6 +93,16 @@ class GeminiDomainRoutingBatchTests(unittest.TestCase):
             self.assertIn("instructions", request_line["body"])
             self.assertEqual(request_line["body"]["text"]["format"]["type"], "json_schema")
             self.assertIn("Title: Psilocybin therapy and depression outcomes", request_line["body"]["input"])
+
+            amended = tmp / "v5_pcp_scope.txt"
+            amended.write_text("Frozen V5 scope with phencyclidine (PCP) explicitly eligible.")
+            args.screening_instruction_file = str(amended)
+            manifest = write_batch_requests(args)
+            request_line = json.loads(batch_jsonl.read_text().splitlines()[0])
+            self.assertEqual(request_line["body"]["instructions"], amended.read_text())
+            self.assertEqual(manifest["inputs"]["screening_instruction_file"], str(amended.resolve()))
+            self.assertEqual(manifest["records"][0]["prompt_sha256"], hashlib.sha256(amended.read_bytes()).hexdigest())
+            self.assertEqual(request_line["body"]["reasoning"]["effort"], "low")
 
     def test_parse_batch_results_writes_routing_table_and_raw_jsonl(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

@@ -1,0 +1,26 @@
+{
+  "query_name": "pcp_bare_acronym",
+  "endpoint": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+  "term": "(PCP[Title/Abstract]) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+  "date_accessed_utc": "2026-10-19T14:49:34.886064+00:00",
+  "parameters": {
+    "db": "pubmed",
+    "term": "(PCP[Title/Abstract]) AND (\"1800/01/01\"[Date - Publication] : \"2026/10/19\"[Date - Publication])",
+    "retmax": 0,
+    "retmode": "json",
+    "tool": "psychedelics_kg_scope_audit"
+  },
+  "contact_email_provided": true,
+  "count": 17047,
+  "query_translation": "\"PCP\"[Title/Abstract] AND 1800/01/01:2026/10/19[Date - Publication]",
+  "warnings": null,
+  "errors": null,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status_code": 200
+    }
+  ],
+  "raw_sha256": "17605da655d30f454d10bba8ea7eef69971e522e2fc37869afd2944914b981d9",
+  "interpretation": "Broad database hits, not eligible papers, independent studies, corpus additions, or a recall denominator."
+}

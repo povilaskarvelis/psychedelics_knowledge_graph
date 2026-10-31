@@ -1,0 +1,17 @@
+[
+  {
+    "run": "living_full_composite_v3_20260715",
+    "cannabis_query_rows": 29,
+    "rows_with_cannabis_after_removing_use_disorder_terms": 0
+  },
+  {
+    "run": "living_update_v3_20260915",
+    "cannabis_query_rows": 17,
+    "rows_with_cannabis_after_removing_use_disorder_terms": 0
+  },
+  {
+    "run": "living_update_v3_20261015",
+    "cannabis_query_rows": 17,
+    "rows_with_cannabis_after_removing_use_disorder_terms": 0
+  }
+]

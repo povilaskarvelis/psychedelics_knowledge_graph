@@ -1,0 +1,332 @@
+{
+  "source": "Local Analyze view, all compounds and publication types; unique papers per research area per year",
+  "capturedAt": "2026-09-18T12:11:15.715Z",
+  "semantics": "Normalized shares of research-area assignments, not exclusive shares of papers. A paper can contribute to multiple research areas. Complete years only.",
+  "rows": [
+    {
+      "key": "primary",
+      "count": 12805,
+      "claims": 67616
+    },
+    {
+      "key": "meta_analyses",
+      "count": 306,
+      "claims": 1769
+    },
+    {
+      "key": "reviews",
+      "count": 3710,
+      "claims": 11384
+    }
+  ],
+  "areas": [
+    {
+      "key": "condition_indication",
+      "label": "Conditions",
+      "color": "#708aa7"
+    },
+    {
+      "key": "safety_adverse_event",
+      "label": "Safety",
+      "color": "#b89a5b"
+    },
+    {
+      "key": "cognitive_behavioral_construct",
+      "label": "Cognition",
+      "color": "#a96f7e"
+    },
+    {
+      "key": "behavioral_effect",
+      "label": "Behavior",
+      "color": "#69a196"
+    },
+    {
+      "key": "subjective_experience_construct",
+      "label": "Subjective effects",
+      "color": "#b98278"
+    },
+    {
+      "key": "intervention_component",
+      "label": "Treatment context",
+      "color": "#7e72a1"
+    },
+    {
+      "key": "public_health_measure",
+      "label": "Real-world use",
+      "color": "#9f9872"
+    },
+    {
+      "key": "brain_system",
+      "label": "Brain regions",
+      "color": "#719d96"
+    },
+    {
+      "key": "pathway_readout",
+      "label": "Molecular effects",
+      "color": "#9c8670"
+    },
+    {
+      "key": "target_system",
+      "label": "Targets",
+      "color": "#70819a"
+    }
+  ],
+  "years": [
+    {
+      "year": 2010,
+      "papers": 339,
+      "counts": [
+        23,
+        113,
+        63,
+        53,
+        29,
+        9,
+        93,
+        33,
+        107,
+        85
+      ]
+    },
+    {
+      "year": 2011,
+      "papers": 388,
+      "counts": [
+        24,
+        133,
+        64,
+        69,
+        36,
+        4,
+        106,
+        35,
+        126,
+        88
+      ]
+    },
+    {
+      "year": 2012,
+      "papers": 390,
+      "counts": [
+        44,
+        124,
+        62,
+        62,
+        44,
+        11,
+        103,
+        39,
+        111,
+        82
+      ]
+    },
+    {
+      "year": 2013,
+      "papers": 476,
+      "counts": [
+        79,
+        161,
+        73,
+        78,
+        31,
+        6,
+        121,
+        40,
+        145,
+        118
+      ]
+    },
+    {
+      "year": 2014,
+      "papers": 468,
+      "counts": [
+        89,
+        170,
+        74,
+        79,
+        47,
+        21,
+        105,
+        52,
+        142,
+        101
+      ]
+    },
+    {
+      "year": 2015,
+      "papers": 529,
+      "counts": [
+        106,
+        189,
+        79,
+        96,
+        46,
+        17,
+        111,
+        72,
+        152,
+        102
+      ]
+    },
+    {
+      "year": 2016,
+      "papers": 548,
+      "counts": [
+        103,
+        179,
+        84,
+        97,
+        55,
+        15,
+        111,
+        59,
+        174,
+        108
+      ]
+    },
+    {
+      "year": 2017,
+      "papers": 601,
+      "counts": [
+        125,
+        215,
+        89,
+        115,
+        65,
+        18,
+        132,
+        77,
+        165,
+        101
+      ]
+    },
+    {
+      "year": 2018,
+      "papers": 683,
+      "counts": [
+        169,
+        191,
+        103,
+        120,
+        76,
+        31,
+        145,
+        88,
+        199,
+        124
+      ]
+    },
+    {
+      "year": 2019,
+      "papers": 749,
+      "counts": [
+        154,
+        251,
+        109,
+        139,
+        61,
+        32,
+        192,
+        87,
+        217,
+        119
+      ]
+    },
+    {
+      "year": 2020,
+      "papers": 924,
+      "counts": [
+        267,
+        321,
+        109,
+        139,
+        98,
+        55,
+        220,
+        115,
+        225,
+        145
+      ]
+    },
+    {
+      "year": 2021,
+      "papers": 997,
+      "counts": [
+        296,
+        328,
+        132,
+        120,
+        125,
+        77,
+        236,
+        100,
+        230,
+        146
+      ]
+    },
+    {
+      "year": 2022,
+      "papers": 1171,
+      "counts": [
+        350,
+        392,
+        141,
+        154,
+        150,
+        87,
+        290,
+        102,
+        279,
+        173
+      ]
+    },
+    {
+      "year": 2023,
+      "papers": 1313,
+      "counts": [
+        458,
+        449,
+        143,
+        166,
+        177,
+        116,
+        300,
+        124,
+        272,
+        189
+      ]
+    },
+    {
+      "year": 2024,
+      "papers": 1543,
+      "counts": [
+        522,
+        563,
+        210,
+        208,
+        184,
+        147,
+        355,
+        134,
+        328,
+        217
+      ]
+    },
+    {
+      "year": 2025,
+      "papers": 1806,
+      "counts": [
+        662,
+        680,
+        213,
+        217,
+        255,
+        201,
+        410,
+        144,
+        408,
+        248
+      ]
+    }
+  ]
+}

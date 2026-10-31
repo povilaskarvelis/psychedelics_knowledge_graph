@@ -25,7 +25,7 @@ import re
 from typing import Any, Iterable
 from urllib.parse import urlsplit
 
-from pipeline.ingest.metadata_utils import normalize, normalize_doi
+from pipeline.ingest.metadata_utils import normalize, normalize_doi, strip_markup
 
 
 ASSERTION_SCHEMA_VERSION = "paper_open_science_assertion_v1"
@@ -444,11 +444,6 @@ def load_best_fulltext(paths: Iterable[Path]) -> tuple[str, str, str]:
 
 def split_paths(value: object) -> list[Path]:
     return [Path(item.strip()) for item in clean(value).split(" | ") if item.strip()]
-
-
-def strip_markup(value: str) -> str:
-    text = re.sub(r"<[^>]+>", " ", value)
-    return " ".join(html.unescape(text).split())
 
 
 def normalized_url(value: str) -> str:

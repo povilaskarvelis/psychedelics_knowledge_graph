@@ -1,0 +1,194 @@
+{
+  "all_input_hashes_match": true,
+  "all_contract_hashes_match": true,
+  "screening_unchanged": true,
+  "unique_ready_tasks": 37584,
+  "unique_papers": 22496,
+  "all_task_ids_unique": true,
+  "all_ready_papers_in_completed_luna_inclusions": true,
+  "retired_model_provenance_reused": false,
+  "production_request_examples_verified": [
+    {
+      "family": "primary",
+      "domain": "clinical_outcome",
+      "depth": "article_text",
+      "task_id": "12fca39cacce8f2349e5"
+    },
+    {
+      "family": "primary",
+      "domain": "molecular_target",
+      "depth": "article_text",
+      "task_id": "4c38ebf36e503ebc3d4d"
+    },
+    {
+      "family": "primary",
+      "domain": "brain_system",
+      "depth": "article_text",
+      "task_id": "acd5a3e4438443c05caa"
+    },
+    {
+      "family": "primary",
+      "domain": "cognitive_behavioral",
+      "depth": "article_text",
+      "task_id": "f64dad8f963d7a9f37ed"
+    },
+    {
+      "family": "primary",
+      "domain": "molecular_pathway_readout",
+      "depth": "article_text",
+      "task_id": "5a12ef35edac060ea439"
+    },
+    {
+      "family": "primary",
+      "domain": "subjective_experience",
+      "depth": "article_text",
+      "task_id": "fc16bb5284e8a11b7160"
+    },
+    {
+      "family": "primary",
+      "domain": "pharmacokinetics_exposure",
+      "depth": "article_text",
+      "task_id": "6e5323e8ddb9901faae6"
+    },
+    {
+      "family": "primary",
+      "domain": "intervention_context",
+      "depth": "article_text",
+      "task_id": "2bc29b534f0e73962193"
+    },
+    {
+      "family": "primary",
+      "domain": "safety_tolerability",
+      "depth": "article_text",
+      "task_id": "fbb1c8b3004a74f99575"
+    },
+    {
+      "family": "primary",
+      "domain": "real_world_public_health",
+      "depth": "article_text",
+      "task_id": "51ea1d8e6835bc23f14c"
+    },
+    {
+      "family": "primary",
+      "domain": "general_primary",
+      "depth": "article_text",
+      "task_id": "f4ad1770477fdaaa8a3b"
+    },
+    {
+      "family": "primary",
+      "domain": "clinical_outcome",
+      "depth": "abstract_only",
+      "task_id": "39cb49baba5110f42dd9"
+    },
+    {
+      "family": "primary",
+      "domain": "molecular_target",
+      "depth": "abstract_only",
+      "task_id": "258f5bfbe0deb47966c1"
+    },
+    {
+      "family": "primary",
+      "domain": "brain_system",
+      "depth": "abstract_only",
+      "task_id": "d129b096382a445f5321"
+    },
+    {
+      "family": "primary",
+      "domain": "cognitive_behavioral",
+      "depth": "abstract_only",
+      "task_id": "23806267071522286226"
+    },
+    {
+      "family": "primary",
+      "domain": "molecular_pathway_readout",
+      "depth": "abstract_only",
+      "task_id": "d4dc5df29b0ff58480e1"
+    },
+    {
+      "family": "primary",
+      "domain": "subjective_experience",
+      "depth": "abstract_only",
+      "task_id": "3cb88092a7743243e0a9"
+    },
+    {
+      "family": "primary",
+      "domain": "general_topic_coverage",
+      "depth": "article_text",
+      "task_id": "302c9b997b6993312be9"
+    },
+    {
+      "family": "primary",
+      "domain": "pharmacokinetics_exposure",
+      "depth": "abstract_only",
+      "task_id": "880f8aa29f431f736d81"
+    },
+    {
+      "family": "primary",
+      "domain": "intervention_context",
+      "depth": "abstract_only",
+      "task_id": "57d9384d9b31d304f911"
+    },
+    {
+      "family": "primary",
+      "domain": "safety_tolerability",
+      "depth": "abstract_only",
+      "task_id": "af69db33a6a11e699de7"
+    },
+    {
+      "family": "primary",
+      "domain": "real_world_public_health",
+      "depth": "abstract_only",
+      "task_id": "18bcded537f1fc296abb"
+    },
+    {
+      "family": "primary",
+      "domain": "general_primary",
+      "depth": "abstract_only",
+      "task_id": "e00e3e74da70540f5291"
+    },
+    {
+      "family": "primary",
+      "domain": "general_topic_coverage",
+      "depth": "abstract_only",
+      "task_id": "8ebce34763afc23b9b69"
+    },
+    {
+      "family": "review",
+      "domain": "review",
+      "depth": "abstract_only",
+      "task_id": "reviewrel:fea8942f78af162f64ba"
+    },
+    {
+      "family": "review",
+      "domain": "review",
+      "depth": "article_text",
+      "task_id": "reviewrel:2fa8ce66a2c63af73cea"
+    },
+    {
+      "family": "meta",
+      "domain": "meta",
+      "depth": "article_text",
+      "task_id": "metav2:20ad2c463610a4dbd4d1"
+    },
+    {
+      "family": "meta",
+      "domain": "meta",
+      "depth": "abstract_only",
+      "task_id": "metav2:b7858553384551004c0f"
+    }
+  ],
+  "old_primary_guideline_ready_tasks": 30751,
+  "new_primary_guideline_ready_tasks": 33181,
+  "newly_ready_primary_guideline_tasks": 2432,
+  "newly_ready_by_depth": {
+    "article_text": 330,
+    "abstract_only": 2102
+  },
+  "previous_tasks_removed": 2,
+  "review_blocked_tasks": 0,
+  "meta_blocked_tasks": 0,
+  "estimated_input_above_model_limit": [],
+  "new_model_calls": 0,
+  "new_extraction_jobs": [],
+  "targeted_test_result": "82 tests passed; includes candidate-abstract recovery and existing input/route/transport checks."
+}
