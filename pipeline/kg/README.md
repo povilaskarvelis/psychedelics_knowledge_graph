@@ -1236,3 +1236,29 @@ and lists that separately name both a substituted drug and its parent. Recognizi
 `2-Br-LSD` must not add an LSD subject merely from its suffix; a separately named
 LSD exposure remains distinct. Compact modified names such as `DM-nor-MXE` must
 not acquire methoxetamine's identity from the contained abbreviation.
+
+## Absent and context-only subject mentions (1 November 2026)
+
+A registered compound found by text search becomes a finding's subject only when
+the exposure names it affirmatively. These mentions are not subjects:
+
+- negated names: "vehicle-treated, no psilocybin", "no acute PCP challenge",
+  "the abstract does not report a ketamine-related change". A parent name inside a
+  negated longer name ("dmt" in "no 5-MeO-DMT") is negated with it, and an
+  exclusion that opens a list ("other than racemic ketamine and esketamine")
+  covers every listed name;
+- names of a parent trial only: "ketamine trial context: ...; baseline findings",
+  "with psilocybin/eugenol combinations as context".
+
+"No X effect", "no X-induced increase" and similar null-result wording keep X as
+the subject, as do "with or without X", "presence or absence of X" and real-world
+"non-use of X", which all describe studies of X. The same rule applies to a focal compound copied from such text, and
+to a drug class named only in a negated phrase ("no psychedelic exposure").
+Tested comparator arms ("rTMS versus esketamine") and compounds given in a
+combination keep their links: a link shows that a paper studied the pair.
+
+Specific identities are masked together before a parent name is tested, so
+S-ketamine and R-ketamine named in one exposure no longer add racemic ketamine,
+while "(R,S)-ketamine" next to S-ketamine keeps racemic ketamine. "Bolus followed
+by infusion" is one drug's dosing schedule, not a sequence of two drugs.
+See `tests/test_subject_resolution_repairs.py`.

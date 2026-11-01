@@ -130,7 +130,7 @@ DEFAULT_OPEN_SCIENCE_ASSERTIONS_PATH = (
     ROOT / "data" / "processed" / "corpus" / "paper_open_science_assertions.parquet"
 )
 KG_TABLE_VERSION = "0.2"
-NORMALIZATION_CONTRACT_VERSION = "routed_safety_remaining_patterns_20261030_v3"
+NORMALIZATION_CONTRACT_VERSION = "routed_subject_absence_20261101_v1"
 MOLECULAR_SUBTOPIC_TAXONOMY_VERSION = "molecular_subtopics_v4_20261028_measured_readouts"
 
 ROUTED_GRAPH_SOURCES = {
@@ -3105,19 +3105,144 @@ def raw_graph_scope_blocked_compound_result(label: str) -> dict | None:
 
 
 _REGISTRY_COMPOUND_TEXT_CACHE: dict[tuple[int, str], frozenset[str]] = {}
+_REGISTRY_COMPOUND_MENTION_CACHE: dict[tuple[int, str], tuple[tuple[int, int, str], ...]] = {}
 _REGISTRY_ENTITY_TEXT_CACHE: dict[tuple[int, str, str], frozenset[str]] = {}
 
 
+# "No X" denies an exposure ("vehicle-treated, no psilocybin"); "no X effect"
+# reports a null result for a tested X, which keeps X as the subject.
+NO_EXPOSURE_PREFIX_RE = re.compile(r"\bno\s+(?:(?:acute|exogenous|prior|additional|concurrent|further|study)\s+){0,2}$")
+NULL_RESULT_SUFFIX_RE = re.compile(
+    r"\s+(?:(?:treatment|group|arm|condition|dose|administration|infusion|session)\s+)?"
+    r"(?:effects?|induced|related|associated|dependent|specific|elicited|evoked|mediated|responses?|"
+    r"differences?|changes?|increases?|decreases?|influences?|impacts?|benefits?|improvements?|interactions?)\b"
+)
+# "Ketamine trial context: ...; baseline findings" names the parent trial's
+# drug, not the exposure that produced this result; "X and trial context" keeps X.
+CONTEXT_ONLY_MENTION_SUFFIX_RE = re.compile(
+    r"\s+(?:(?!(?:and|or|plus|with)\b)[a-z0-9]+\s+)?(?:trial|study) context\b|"
+    r"\s+(?:(?!(?:and|or|plus)\b)[a-z0-9]+\s+){0,3}as context\b"
+)
+CONTEXT_DESCRIPTION_PREFIX_RE = re.compile(r"\b(?:trial|study) context\s+(?:[a-z0-9]+\s+){0,6}$")
+# "With or without X" and "presence or absence of X" mean X was given in some conditions.
+BOTH_CONDITIONS_PREFIX_RE = re.compile(
+    r"\b(?:with (?:or|and|versus|vs) without|(?:presence|present) (?:or|and|versus|vs) (?:absence|absent) of)\s*$"
+)
+ABSENCE_OR_CONTEXT_CUE_RE = re.compile(r"\b(?:no|non|not|without|absence|context)\b", re.I)
+
+
 def affirmative_identity_mention(text: str, start: int, end: int) -> bool:
-    """Exclude explicitly absent identities, without dropping null-effect studies."""
+    """Exclude explicitly absent or context-only identities, without dropping null-effect studies."""
     prefix = text[max(0, start - 45):start]
     suffix = text[end:end + 70]
-    if re.search(r"\b(?:other than|except(?: for)?|excluding|without|not|non)\s*$", prefix, re.I):
+    if BOTH_CONDITIONS_PREFIX_RE.search(prefix):
+        return True
+    if re.search(
+        r"\b(?:other than|except(?: for)?|excluding|without|not|non|absence of|"
+        r"(?:does|do|did) not (?:report|assess|examine|test|measure|include|involve)(?: an?| any)?)\s*$",
+        prefix, re.I,
+    ):
+        return False
+    if NO_EXPOSURE_PREFIX_RE.search(prefix) and not NULL_RESULT_SUFFIX_RE.match(suffix):
+        return False
+    if CONTEXT_ONLY_MENTION_SUFFIX_RE.match(suffix) or CONTEXT_DESCRIPTION_PREFIX_RE.search(prefix):
         return False
     return not re.match(
-        r"\s+(?:(?:was|were|is|are)\s+)?not\s+(?:administered|given|used|studied|tested|included)\b",
+        r"\s+(?:(?:was|were|is|are)\s+)?not\s+(?:administered|given|used|studied|tested|included|"
+        r"examined|assessed|measured)\b",
         suffix, re.I,
     )
+
+
+def registry_compound_mentions(
+    text_key: str,
+    registry: dict[tuple[str, str], dict],
+) -> tuple[tuple[int, int, str], ...]:
+    """Every (start, end, label) match of a registered compound key in label-key text."""
+    cache_key = (id(registry), text_key)
+    cached = _REGISTRY_COMPOUND_MENTION_CACHE.get(cache_key)
+    if cached is not None:
+        return cached
+    mentions = tuple(
+        (match.start(), match.end(), normalize(item.get("label", "")))
+        for (entity_type, key), item in registry.items()
+        if entity_type == "compound" and len(key) >= 3
+        for match in re.finditer(rf"\b{re.escape(key)}\b", text_key)
+    )
+    _REGISTRY_COMPOUND_MENTION_CACHE[cache_key] = mentions
+    return mentions
+
+
+LIST_EXCLUSION_PREFIX_RE = re.compile(r"\b(?:other than|except(?: for)?|excluding)\s*$")
+
+
+def affirmative_compound_mention(
+    text_key: str,
+    start: int,
+    end: int,
+    mentions: tuple[tuple[int, int, str], ...],
+) -> bool:
+    """A parent name inside a longer identity ("dmt" in "5 meo dmt") shares that identity's negation."""
+    spans = [(s, e) for s, e, _label in mentions if s <= start and e >= end] or [(start, end)]
+    outer_start, outer_end = min(spans, key=lambda span: (span[0], -span[1]))
+    if ((outer_start, outer_end) != (start, end)
+            and re.search(r"\bnon\s*$", text_key[max(0, outer_start - 45):outer_start])):
+        # In "non-intranasal esketamine" the prefix negates the route, not the drug.
+        outer_start, outer_end = start, end
+    if not affirmative_identity_mention(text_key, outer_start, outer_end):
+        return False
+    # An exclusion that opens a list ("other than racemic ketamine and
+    # esketamine") covers every listed name. A repeated name ("other than LSD
+    # and LSD") is a separate arm, and label keys keep no punctuation, so a
+    # bare-space link counts only inside an and/or list ("A, B or C").
+    labels = {label for s, e, label in mentions if s >= outer_start and e <= outer_end}
+    current_start, current_end = outer_start, outer_end
+    for _ in range(8):
+        links = [
+            (s, e) for s, e, _label in mentions
+            if e <= current_start and re.fullmatch(r"\s+(?:(?:and|or|nor)\s+)?", text_key[e:current_start])
+        ]
+        if not links:
+            return True
+        previous_start = min(s for s, _e in links)
+        previous_end = max(e for s, e in links if s == previous_start)
+        if {label for s, e, label in mentions if s >= previous_start and e <= previous_end} & labels:
+            return True
+        joined = re.search(r"\b(?:and|or|nor)\b", text_key[previous_end:current_start])
+        continues = any(
+            re.fullmatch(r"\s+(?:and|or|nor)\s+", text_key[current_end:s]) for s, _e, _label in mentions if s > current_end
+        )
+        if not joined and not continues:
+            return True
+        if LIST_EXCLUSION_PREFIX_RE.search(text_key[max(0, previous_start - 45):previous_start]):
+            return False
+        current_start, current_end = previous_start, previous_end
+    return True
+
+
+def compound_named_only_as_absent(value: object, label: str, registry: dict[tuple[str, str], dict]) -> bool:
+    """True when text names a compound, but every mention denies it or names only a parent trial."""
+    if not label or not ABSENCE_OR_CONTEXT_CUE_RE.search(normalize(value)):
+        return False
+    text_key = label_key(chemical_identity_surface(value))
+    mentions = registry_compound_mentions(text_key, registry)
+    own = [(start, end) for start, end, mention_label in mentions if mention_label == label]
+    return bool(own) and not any(affirmative_compound_mention(text_key, start, end, mentions) for start, end in own)
+
+
+# The negator must govern the class itself: "no drug administration or
+# psychedelic exposure" negates it, "non-ketamine psychedelics" does not.
+NEGATED_CLASS_PREFIX_RE = re.compile(
+    r"(?:\b(?:non|not)[- ]?|\b(?:no|without|absence of)\s+(?:(?:drugs?|administration|or|and|exposure|use|prior|"
+    r"acute|treatment|other|classic(?:al)?|serotonergic|compounds?)\s+){0,4})$",
+    re.I,
+)
+
+
+def affirmative_class_mention(text: str, match: re.Match) -> bool:
+    """A class named only in a negated phrase ("no psychedelic exposure") is absent."""
+    clause = re.split(r"[;,.:()]", text[:match.start()])[-1]
+    return not NEGATED_CLASS_PREFIX_RE.search(clause)
 
 
 def affirmative_target_label(value: object) -> str:
@@ -3160,13 +3285,12 @@ def registry_compound_labels_in_text(value: object, registry: dict[tuple[str, st
     cached = _REGISTRY_COMPOUND_TEXT_CACHE.get(cache_key)
     if cached is not None:
         return set(cached)
-    labels: set[str] = set()
-    for entity_type, key in registry:
-        if entity_type != "compound" or len(key) < 3:
-            continue
-        if any(affirmative_identity_mention(text_key, m.start(), m.end()) for m in re.finditer(rf"\b{re.escape(key)}\b", text_key)):
-            labels.add(normalize(registry[(entity_type, key)].get("label", "")))
-    result = {label for label in labels if label}
+    mentions = registry_compound_mentions(text_key, registry)
+    result = {
+        label
+        for start, end, label in mentions
+        if label and affirmative_compound_mention(text_key, start, end, mentions)
+    }
     _REGISTRY_COMPOUND_TEXT_CACHE[cache_key] = frozenset(result)
     return result
 
@@ -3193,7 +3317,11 @@ EXPLICIT_COMPOUND_COADMIN_RE = re.compile(
     re.IGNORECASE,
 )
 EXPLICIT_COMPOUND_SEQUENCE_RE = re.compile(
-    r"\b(?:followed by|then (?:received|administered|given)|sequential(?:ly)? (?:administered|given|doses?|dosing|treatment|regimen)|"
+    # "Bolus followed by 0.006 mg/kg/min infusion" is one drug's dosing schedule;
+    # "followed by a 5-day washout and DOI" and "followed by 5-MeO-DMT" are sequences.
+    r"\b(?:followed by(?!\s+(?:an?\s+)?(?:\d+(?:\.\d+)?\s*(?:mg|g|µg|μg|ug|mcg|ml)\b|"
+    r"continuous\b|maintenance\b|infusions?\b|bolus\b))|then (?:received|administered|given)|"
+    r"sequential(?:ly)? (?:administered|given|doses?|dosing|treatment|regimen)|"
     r"staged (?:administration|treatment|regimen))\b",
     re.IGNORECASE,
 )
@@ -3332,32 +3460,36 @@ def looks_like_compound_list(value: object) -> bool:
     return drug_like_parts >= 2
 
 
+COMPOUND_TEXT_LABEL_MASKS = {
+    "S-ketamine": r"\b(?:s ketamine|esketamine)\b",
+    "R-ketamine": r"\b(?:r ketamine|arketamine)\b",
+    "5-MeO-DMT": r"\b(?:5 meo dmt|5 methoxy n n dimethyltryptamine|5 methoxy dmt)\b",
+    "5-MeO-DiPT": r"\b5 meo dipt\b",
+    "4-OH-DiPT": r"\b4 (?:ho|oh) dipt\b",
+    "2-bromo-LSD": r"\b(?:2 (?:bromo|br) lsd|bol(?: 148)?)\b",
+    "Bufotenin": r"\b(?:5 hydroxy n n dimethyltryptamine|5 hydroxy dmt|5 ho dmt|5 hodmt|bufotenine?)\b",
+}
+
+
 def prune_compound_text_labels(raw: object, labels: set[str]) -> set[str]:
     if len(labels) <= 1:
         return labels
+    specifics = [specific for specific in COMPOUND_TEXT_LABEL_SUPERSEDES if specific in labels]
+    if not specifics:
+        return labels
+    surface = normalize(raw)
+    if "2-bromo-LSD" in specifics:
+        surface = re.sub(r"\bBOL\s*\([^)]*\)", "", surface, flags=re.I)
+    # Mask every named specific identity before testing a parent name, so that
+    # S-ketamine and R-ketamine named together do not add racemic ketamine.
+    masked = label_key(chemical_identity_surface(surface))
+    for specific in specifics:
+        masked = re.sub(COMPOUND_TEXT_LABEL_MASKS[specific], " ", masked)
     pruned = set(labels)
-    for specific, broad_labels in COMPOUND_TEXT_LABEL_SUPERSEDES.items():
-        if specific in pruned:
-            raw_key = label_key(raw)
-            masked = raw_key
-            if specific == "S-ketamine":
-                masked = re.sub(r"\b(?:s ketamine|esketamine)\b", " ", masked)
-            elif specific == "R-ketamine":
-                masked = re.sub(r"\b(?:r ketamine|arketamine)\b", " ", masked)
-            elif specific == "5-MeO-DMT":
-                masked = re.sub(r"\b(?:5 meo dmt|5 methoxy n n dimethyltryptamine|5 methoxy dmt)\b", " ", masked)
-            elif specific == "5-MeO-DiPT":
-                masked = re.sub(r"\b5 meo dipt\b", " ", label_key(chemical_identity_surface(raw)))
-            elif specific == "4-OH-DiPT":
-                masked = re.sub(r"\b4 (?:ho|oh) dipt\b", " ", label_key(chemical_identity_surface(raw)))
-            elif specific == "2-bromo-LSD":
-                masked = label_key(re.sub(r"\bBOL\s*\([^)]*\)", "", normalize(raw), flags=re.I))
-                masked = re.sub(r"\b(?:2 (?:bromo|br) lsd|bol(?: 148)?)\b", " ", masked)
-            elif specific == "Bufotenin":
-                masked = re.sub(r"\b(?:5 hydroxy n n dimethyltryptamine|5 hydroxy dmt|5 ho dmt|5 hodmt|bufotenine?)\b", " ", masked)
-            for broad in broad_labels:
-                if not re.search(rf"\b{re.escape(label_key(broad))}\b", masked):
-                    pruned.discard(broad)
+    for specific in specifics:
+        for broad in COMPOUND_TEXT_LABEL_SUPERSEDES[specific]:
+            if not re.search(rf"\b{re.escape(label_key(broad))}\b", masked):
+                pruned.discard(broad)
     return pruned
 
 
@@ -3894,6 +4026,7 @@ def affirmatively_named_compound_labels(
     raw = normalize(value)
     raw_key = label_key(raw)
     labels = ordered_graphable_compound_labels(raw, registry)
+    mentions = registry_compound_mentions(raw_key, registry)
     affirmative: list[str] = []
     for label in labels:
         matched_affirmatively = False
@@ -3916,14 +4049,9 @@ def affirmatively_named_compound_labels(
                 # A shared negation in labels such as non-psilocybin/LSD applies to both names.
                 continue
             for match in matches:
-                prefix = raw_key[max(0, match.start() - 40) : match.start()]
-                suffix = raw_key[match.end() : match.end() + 32]
-                if re.search(
-                    r"\b(?:other than|except(?: for)?|excluding|without|not|non)\s*$",
-                    prefix,
-                    re.IGNORECASE,
-                ):
+                if not affirmative_compound_mention(raw_key, match.start(), match.end(), mentions):
                     continue
+                suffix = raw_key[match.end() : match.end() + 32]
                 if re.match(r"\s+equivalents?\b", suffix, re.IGNORECASE):
                     continue
                 matched_affirmatively = True
@@ -4201,8 +4329,7 @@ def explicit_overview_compound_class_subject(
         class_match = pattern.search(raw)
         if not class_match:
             continue
-        class_prefix = raw[max(0, class_match.start() - 12) : class_match.start()]
-        if re.search(r"\b(?:non|not)[- ]?$", class_prefix, re.IGNORECASE):
+        if not affirmative_class_mention(raw, class_match):
             continue
         if named_labels and re.search(r"\b(?:and|or|with|plus|versus)\b", raw[:class_match.start()], re.I):
             # "MDMA and classic hallucinogens" is not wholly a classic class.
@@ -4483,6 +4610,10 @@ def _overview_graph_subjects(
         return []
 
     focal_match = graphable_compound_match(focal, registry) if focal else {"matched": False}
+    if focal_match.get("matched") and compound_named_only_as_absent(raw, normalize(focal_match.get("label", "")), registry):
+        # A focal name copied from "no DOI treatment" or parent-trial context
+        # is not the exposure of this result.
+        focal_match = {"matched": False}
 
     if kind == "compound_class":
         subject_context = " ".join(
@@ -4565,7 +4696,7 @@ def _overview_graph_subjects(
                 ]
         if SPECIFIC_COMPOUND_WITH_CLASS_PARENTHETICAL_RE.search(raw):
             return []
-        if GENERIC_PSYCHEDELIC_CLASS_RE.search(raw):
+        if any(affirmative_class_mention(raw, match) for match in GENERIC_PSYCHEDELIC_CLASS_RE.finditer(raw)):
             context = " ".join(
                 normalize(row.get(field, ""))
                 for field in PSYCHEDELIC_OVERVIEW_CONTEXT_FIELDS
@@ -11984,6 +12115,7 @@ def build_tables(
     write_duckdb: bool = True,
 ) -> dict:
     _REGISTRY_COMPOUND_TEXT_CACHE.clear()
+    _REGISTRY_COMPOUND_MENTION_CACHE.clear()
     _REGISTRY_ENTITY_TEXT_CACHE.clear()
     if graph_sources is None:
         graph_sources = graph_sources_for_preset(source_preset, run_id=evidence_run_id or run_id)
