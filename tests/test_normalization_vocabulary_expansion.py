@@ -39,7 +39,7 @@ def test_neighboring_constructs_remain_distinct(vocab):
 
 @pytest.mark.parametrize('raw,label',[
     ('2-Br-LSD','2-bromo-LSD'),('BOL-148','2-bromo-LSD'),('MXE','Methoxetamine'),
-    ('Psilocine','Psilocin'),('4-HO-DiPT','4-OH-DiPT'),
+    ('Psilocine','Psilocin'),('4-HO-DiPT','4-OH-DiPT'),('4-OH-MET','4-HO-MET'),
 ])
 def test_verified_compound_aliases(raw,label,registry):
     row={'compound':raw,'graph_subject_kind':'atomic_compound'}
@@ -49,7 +49,7 @@ def test_verified_compound_aliases(raw,label,registry):
 
 @pytest.mark.parametrize('raw',[
     '2-Br-LSD analogue 4a','N1-([11C]-methyl)-2-Br-LSD ([11C]-MBL)',
-    '4-HO-DiPT versus 4-MeO-DiPT','4-HO-MET','Psilocine derivative 4f',
+    '4-HO-DiPT versus 4-MeO-DiPT','Psilocine derivative 4f',
     'MXE analogue 25a',
     'N-4-MXE (compound 19)', 'DM-nor-MXE (compound 20)',
     'DM-nor-4-MXE (compound 21)', 'Desmethyl-4-MXE (compound 23)',

@@ -130,7 +130,7 @@ DEFAULT_OPEN_SCIENCE_ASSERTIONS_PATH = (
     ROOT / "data" / "processed" / "corpus" / "paper_open_science_assertions.parquet"
 )
 KG_TABLE_VERSION = "0.2"
-NORMALIZATION_CONTRACT_VERSION = "routed_subject_absence_20261101_v1"
+NORMALIZATION_CONTRACT_VERSION = "routed_scope_registry_20261101_v1"
 MOLECULAR_SUBTOPIC_TAXONOMY_VERSION = "molecular_subtopics_v4_20261028_measured_readouts"
 
 ROUTED_GRAPH_SOURCES = {
@@ -2775,13 +2775,16 @@ def chemical_identity_surface(value: object) -> str:
     return text
 
 
+# AL-LAD, ETH-LAD, PRO-LAD and 1P-LSD are registered compounds; their 1-acyl
+# prodrugs (1P-AL-LAD, 1cP-LSD, ...) remain distinct unregistered identities.
 UNREGISTERED_CHEMICAL_DERIVATIVE_RE = re.compile(
-    r"\b(?:MLD[- ]?41|ETH[- ]?LAD|AL[- ]?LAD|(?:1[ABcDfPSTV]|2[- ]?oxo(?:[- ]3[- ](?:OH|hydroxy))?)[- ]LSD|"
+    r"\b(?:MLD[- ]?41|1(?:[ABDFPSTV]|cP)[- ](?:AL|ETH|PRO)[- ]LAD|"
+    r"(?:1(?:[ABDFSTV]|cP)|2[- ]?oxo(?:[- ]3[- ](?:OH|hydroxy))?)[- ]LSD|"
     r"(?:\d[- ]?)?Cl[- ]MDMA|chlorinated\s+MDMA|1[- ]methyl[- ]d[- ]lysergic|"
-    r"salvinorin [AB] acid|6[- ]ethyl[- ]6[- ]nor[- ]lysergic|(?:1[- ]?)?benzyl[^,;]*bufotenin|benzyl analog(?:ue)? of bufotenin|"
+    r"salvinorin [AB] acid|(?:1[- ]?)?benzyl[^,;]*bufotenin|benzyl analog(?:ue)? of bufotenin|"
     r"[234][ -]?(?:MeO|HO|OH|Me|F|Cl|Br)[ -]?(?:PCP|phencyclidine)|"
     r"[234][ -]?(?:methoxy|hydroxy|methyl|fluoro|chloro|bromo)[ -]?phencyclidine|"
-    r"(?:2C[- ]?[A-Z]|DOB|DOM)[- ](?:FLY|DragonFLY|AZET)|N[- ]MDMA|(?:PCP|phencyclidine)[- ](?:Im|iminium)|"
+    r"(?:2C[- ]?[A-Z](?:[- ]?\d+)?|DOB|DOM)[- ](?:FLY|DragonFLY|AZET)|N[- ]MDMA|(?:PCP|phencyclidine)[- ](?:Im|iminium)|"
     r"FOH[- ]PCP|(?:[234][- ](?:Br|Cl)[- ]4,5[- ])MDMA|[234][- ]OH[- ](?:cyclo|pip)\s+PCP)\b", re.I,
 )
 
@@ -3291,8 +3294,45 @@ def registry_compound_labels_in_text(value: object, registry: dict[tuple[str, st
         for start, end, label in mentions
         if label and affirmative_compound_mention(text_key, start, end, mentions)
     }
+    result = drop_marketed_only_labels(text_key, mentions, result)
     _REGISTRY_COMPOUND_TEXT_CACHE[cache_key] = frozenset(result)
     return result
+
+
+# In "25B-NBOH exposure; powder sold as LSD" the named substance is the
+# exposure; the drug after "sold as" is only the identity it was sold under.
+MARKETED_IDENTITY_CUE_RE = re.compile(
+    r"\b(?:(?:sold|marketed|presented|misrepresented|mis sold|purchased|bought|advertised) as|"
+    r"(?:believed|thought|presumed|assumed|purported) to (?:be|contain))"
+    r"(?: (?:a|an|the|powdered|liquid|synthetic|blotter))* $"
+)
+
+
+def drop_marketed_only_labels(
+    text_key: str,
+    mentions: tuple[tuple[int, int, str], ...],
+    labels: set[str],
+) -> set[str]:
+    """Drop a compound named only as the marketed identity of another named compound."""
+    if len(labels) < 2:
+        return labels
+    marketed: set[str] = set()
+    for label in labels:
+        cue_starts: list[int] = []
+        for start, _end, mention_label in mentions:
+            if mention_label != label:
+                continue
+            window_start = max(0, start - 60)
+            cue = MARKETED_IDENTITY_CUE_RE.search(text_key[window_start:start])
+            if not cue:
+                break
+            cue_starts.append(window_start + cue.start())
+        else:
+            # Another compound must be named before the cue, as the actual substance.
+            if cue_starts and any(other != label and other in labels and end <= min(cue_starts)
+                                  for _start, end, other in mentions):
+                marketed.add(label)
+    return labels - marketed or labels
 
 
 COMPOUND_TEXT_LABEL_SUPERSEDES = {
@@ -3303,6 +3343,11 @@ COMPOUND_TEXT_LABEL_SUPERSEDES = {
     "4-OH-DiPT": {"DiPT"},
     "Bufotenin": {"DMT"},
     "2-bromo-LSD": {"LSD"},
+    "1P-LSD": {"LSD"},
+    "AL-LAD": {"LSD"},
+    "ETH-LAD": {"LSD"},
+    "PRO-LAD": {"LSD"},
+    "5-MeO-AMT": {"Alpha-methyltryptamine"},
 }
 COMPOUND_COMBO_TEXT_RE = re.compile(
     r"\b(and|or|plus|followed by|combined with|coadministered|co-administered|sequential)\b|\s\+\s|\s/\s",
@@ -3468,6 +3513,16 @@ COMPOUND_TEXT_LABEL_MASKS = {
     "4-OH-DiPT": r"\b4 (?:ho|oh) dipt\b",
     "2-bromo-LSD": r"\b(?:2 (?:bromo|br) lsd|bol(?: 148)?)\b",
     "Bufotenin": r"\b(?:5 hydroxy n n dimethyltryptamine|5 hydroxy dmt|5 ho dmt|5 hodmt|bufotenine?)\b",
+    "1P-LSD": r"\b(?:1p (?:lsd|lad)|1 propionyl (?:lsd|lysergic acid diethylamide))\b",
+    "AL-LAD": r"\b(?:al lad|6 allyl 6 nor (?:lsd|lysergic acid diethylamide))\b",
+    "ETH-LAD": r"\b(?:eth lad|6 ethyl 6 nor (?:lsd|lysergic acid diethylamide))\b",
+    "PRO-LAD": r"\b(?:pro lad|6 propyl 6 nor (?:lsd|lysergic acid diethylamide))\b",
+    "5-MeO-AMT": r"\b(?:5 meo amt|5 methoxy (?:alpha methyltryptamine|amt))\b",
+}
+# A parent is still named when one of its own names survives the masks above.
+COMPOUND_TEXT_PARENT_PATTERNS = {
+    "LSD": r"\b(?:lsd(?: 25)?|lysergide|lysergic acid diethylamide)\b",
+    "Alpha-methyltryptamine": r"\b(?:alpha methyltryptamine|amt|indopan)\b",
 }
 
 
@@ -3488,7 +3543,8 @@ def prune_compound_text_labels(raw: object, labels: set[str]) -> set[str]:
     pruned = set(labels)
     for specific in specifics:
         for broad in COMPOUND_TEXT_LABEL_SUPERSEDES[specific]:
-            if not re.search(rf"\b{re.escape(label_key(broad))}\b", masked):
+            parent = COMPOUND_TEXT_PARENT_PATTERNS.get(broad, rf"\b{re.escape(label_key(broad))}\b")
+            if not re.search(parent, masked):
                 pruned.discard(broad)
     return pruned
 

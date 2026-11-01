@@ -38,6 +38,42 @@
       ]
     },
     {
+      "label": "4-HO-MET",
+      "aliases": [
+        "4-OH-MET",
+        "4-hydroxy-N-methyl-N-ethyltryptamine",
+        "metocin"
+      ],
+      "ids": {
+        "pubchem_cid": "",
+        "chembl_id": "",
+        "drugbank_id": "",
+        "inchi_key": ""
+      },
+      "status": "needs_external_id_lookup",
+      "identity_sources": [
+        "https://pubchem.ncbi.nlm.nih.gov/compound/21786582"
+      ]
+    },
+    {
+      "label": "4-HO-MiPT",
+      "aliases": [
+        "4-OH-MiPT",
+        "4-hydroxy-N-methyl-N-isopropyltryptamine",
+        "miprocin"
+      ],
+      "ids": {
+        "pubchem_cid": "",
+        "chembl_id": "",
+        "drugbank_id": "",
+        "inchi_key": ""
+      },
+      "status": "needs_external_id_lookup",
+      "identity_sources": [
+        "https://pubchem.ncbi.nlm.nih.gov/compound/10082683"
+      ]
+    },
+    {
       "label": "2C-B",
       "aliases": [
         "4-bromo-2,5-dimethoxyphenethylamine"
@@ -62,6 +98,90 @@
         "inchi_key": ""
       },
       "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "2C-C",
+      "aliases": [
+        "4-chloro-2,5-dimethoxyphenethylamine",
+        "2,5-dimethoxy-4-chlorophenethylamine"
+      ],
+      "ids": {
+        "pubchem_cid": "",
+        "chembl_id": "",
+        "drugbank_id": "",
+        "inchi_key": ""
+      },
+      "status": "needs_external_id_lookup",
+      "identity_sources": [
+        "https://pubchem.ncbi.nlm.nih.gov/compound/29979100"
+      ]
+    },
+    {
+      "label": "2C-D",
+      "aliases": [
+        "2,5-dimethoxy-4-methylphenethylamine",
+        "4-methyl-2,5-dimethoxyphenethylamine",
+        "2,5-dimethoxy-4-methyl-beta-phenethylamine"
+      ],
+      "ids": {
+        "pubchem_cid": "",
+        "chembl_id": "",
+        "drugbank_id": "",
+        "inchi_key": ""
+      },
+      "status": "needs_external_id_lookup",
+      "identity_sources": [
+        "https://pubchem.ncbi.nlm.nih.gov/compound/135740"
+      ]
+    },
+    {
+      "label": "2C-P",
+      "aliases": [
+        "2,5-dimethoxy-4-propylphenethylamine",
+        "4-propyl-2,5-dimethoxyphenethylamine"
+      ],
+      "ids": {
+        "pubchem_cid": "",
+        "chembl_id": "",
+        "drugbank_id": "",
+        "inchi_key": ""
+      },
+      "status": "needs_external_id_lookup",
+      "identity_sources": [
+        "https://pubchem.ncbi.nlm.nih.gov/compound/44350080"
+      ]
+    },
+    {
+      "label": "2C-T-2",
+      "aliases": [
+        "2,5-dimethoxy-4-ethylthiophenethylamine"
+      ],
+      "ids": {
+        "pubchem_cid": "",
+        "chembl_id": "",
+        "drugbank_id": "",
+        "inchi_key": ""
+      },
+      "status": "needs_external_id_lookup",
+      "identity_sources": [
+        "https://pubchem.ncbi.nlm.nih.gov/compound/12074193"
+      ]
+    },
+    {
+      "label": "2C-T-7",
+      "aliases": [
+        "2,5-dimethoxy-4-propylthiophenethylamine"
+      ],
+      "ids": {
+        "pubchem_cid": "",
+        "chembl_id": "",
+        "drugbank_id": "",
+        "inchi_key": ""
+      },
+      "status": "needs_external_id_lookup",
+      "identity_sources": [
+        "https://pubchem.ncbi.nlm.nih.gov/compound/24728635"
+      ]
     },
     {
       "label": "2-bromo-LSD",
@@ -172,6 +292,34 @@
       "status": "needs_external_id_lookup"
     },
     {
+      "label": "25B-NBOH",
+      "aliases": [],
+      "ids": {
+        "pubchem_cid": "",
+        "chembl_id": "",
+        "drugbank_id": "",
+        "inchi_key": ""
+      },
+      "status": "needs_external_id_lookup",
+      "identity_sources": [
+        "https://pubchem.ncbi.nlm.nih.gov/compound/125181394"
+      ]
+    },
+    {
+      "label": "25C-NBOH",
+      "aliases": [],
+      "ids": {
+        "pubchem_cid": "",
+        "chembl_id": "",
+        "drugbank_id": "",
+        "inchi_key": ""
+      },
+      "status": "needs_external_id_lookup",
+      "identity_sources": [
+        "https://pubchem.ncbi.nlm.nih.gov/compound/125181419"
+      ]
+    },
+    {
       "label": "25CN-NBOH",
       "aliases": [],
       "ids": {
@@ -231,6 +379,24 @@
         "inchi_key": ""
       },
       "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "Alpha-methyltryptamine",
+      "aliases": [
+        "AMT",
+        "DL-alpha-methyltryptamine",
+        "Indopan"
+      ],
+      "ids": {
+        "pubchem_cid": "",
+        "chembl_id": "",
+        "drugbank_id": "",
+        "inchi_key": ""
+      },
+      "status": "needs_external_id_lookup",
+      "identity_sources": [
+        "https://pubchem.ncbi.nlm.nih.gov/compound/9287"
+      ]
     },
     {
       "label": "5-MeO-DET",
@@ -503,6 +669,40 @@
       "status": "needs_external_id_lookup"
     },
     {
+      "label": "DOC",
+      "aliases": [
+        "2,5-dimethoxy-4-chloroamphetamine",
+        "4-chloro-2,5-dimethoxyamphetamine"
+      ],
+      "ids": {
+        "pubchem_cid": "",
+        "chembl_id": "",
+        "drugbank_id": "",
+        "inchi_key": ""
+      },
+      "status": "needs_external_id_lookup",
+      "identity_sources": [
+        "https://pubchem.ncbi.nlm.nih.gov/compound/542036"
+      ]
+    },
+    {
+      "label": "DOET",
+      "aliases": [
+        "2,5-dimethoxy-4-ethylamphetamine",
+        "4-ethyl-2,5-dimethoxyamphetamine"
+      ],
+      "ids": {
+        "pubchem_cid": "",
+        "chembl_id": "",
+        "drugbank_id": "",
+        "inchi_key": ""
+      },
+      "status": "needs_external_id_lookup",
+      "identity_sources": [
+        "https://pubchem.ncbi.nlm.nih.gov/compound/27402"
+      ]
+    },
+    {
       "label": "Iboga",
       "aliases": [
         "iboga",
@@ -646,6 +846,78 @@
         "inchi_key": ""
       },
       "status": "needs_external_id_lookup"
+    },
+    {
+      "label": "1P-LSD",
+      "aliases": [
+        "1-propionyl-LSD",
+        "1-propionyl-lysergic acid diethylamide",
+        "1P-LAD"
+      ],
+      "ids": {
+        "pubchem_cid": "",
+        "chembl_id": "",
+        "drugbank_id": "",
+        "inchi_key": ""
+      },
+      "status": "needs_external_id_lookup",
+      "identity_sources": [
+        "https://pubchem.ncbi.nlm.nih.gov/compound/119025985"
+      ]
+    },
+    {
+      "label": "AL-LAD",
+      "aliases": [
+        "6-allyl-6-nor-LSD",
+        "6-allyl-6-nor-lysergic acid diethylamide",
+        "N-allylnorlysergic acid diethylamide"
+      ],
+      "ids": {
+        "pubchem_cid": "",
+        "chembl_id": "",
+        "drugbank_id": "",
+        "inchi_key": ""
+      },
+      "status": "needs_external_id_lookup",
+      "identity_sources": [
+        "https://pubchem.ncbi.nlm.nih.gov/compound/15227511"
+      ]
+    },
+    {
+      "label": "ETH-LAD",
+      "aliases": [
+        "6-ethyl-6-nor-LSD",
+        "6-ethyl-6-nor-lysergic acid diethylamide",
+        "N-ethylnorlysergic acid diethylamide"
+      ],
+      "ids": {
+        "pubchem_cid": "",
+        "chembl_id": "",
+        "drugbank_id": "",
+        "inchi_key": ""
+      },
+      "status": "needs_external_id_lookup",
+      "identity_sources": [
+        "https://pubchem.ncbi.nlm.nih.gov/compound/44457783"
+      ]
+    },
+    {
+      "label": "PRO-LAD",
+      "aliases": [
+        "6-propyl-6-nor-LSD",
+        "6-propyl-6-nor-lysergic acid diethylamide",
+        "N-propylnorlysergic acid diethylamide"
+      ],
+      "ids": {
+        "pubchem_cid": "",
+        "chembl_id": "",
+        "drugbank_id": "",
+        "inchi_key": ""
+      },
+      "status": "needs_external_id_lookup",
+      "identity_sources": [
+        "https://pubchem.ncbi.nlm.nih.gov/compound/44457803"
+      ]
     },
     {
       "label": "Hawaiian baby woodrose",
@@ -4948,7 +5220,9 @@
         "major depression",
         "severe depression",
         "Severe depression",
-        "severe major depression"
+        "severe major depression",
+        "recurrent depressive disorder",
+        "difficult-to-treat depression"
       ],
       "ids": {
         "mondo_id": "",
@@ -4961,8 +5235,7 @@
       "label": "Methamphetamine use disorder",
       "aliases": [
         "methamphetamine dependence",
-        "methamphetamine addiction",
-        "methamphetamine use"
+        "methamphetamine addiction"
       ],
       "ids": {
         "mondo_id": "",
@@ -5074,8 +5347,7 @@
     {
       "label": "Persistent depressive disorder",
       "aliases": [
-        "dysthymia",
-        "recurrent depressive disorder"
+        "dysthymia"
       ],
       "ids": {
         "mondo_id": "",
@@ -5634,7 +5906,6 @@
         "treatment-refractory depressed participants",
         "treatment-resistant depressive episode",
         "treatment resistant depressive episode",
-        "difficult-to-treat depression",
         "DTD",
         "refractory major depression"
       ],

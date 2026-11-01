@@ -20,7 +20,7 @@ def registry():
 @pytest.mark.parametrize("label", [
     "1-methyl-d-lysergic acid diethylamide (MLD-41)",
     "MLD-41, compared with LSD-25",
-    "ETH-LAD (6-ethyl-6-nor-lysergic acid diethylamide)",
+    "1P-ETH-LAD", "1cP-LSD",
     "1T-LSD", "Cl-MDMA", "6-Cl-MDMA", "2-oxo-3-OH-LSD",
 ])
 def test_unregistered_derivative_never_inherits_parent_identity(label, registry):
@@ -38,6 +38,7 @@ def test_unregistered_derivative_never_inherits_parent_identity(label, registry)
     ("S,R(±)ketamine", "Ketamine"), ("(R,S)-ketamine", "Ketamine"),
     ("R-ketamine", "R-ketamine"), ("S-ketamine", "S-ketamine"),
     ("MDMA", "MDMA"), ("Norketamine", "Norketamine"),
+    ("1P-LSD", "1P-LSD"), ("ETH-LAD (6-ethyl-6-nor-lysergic acid diethylamide)", "ETH-LAD"),
 ])
 def test_parent_names_racemate_and_enantiomers_remain_distinct(label, expected, registry):
     match = b.graphable_compound_match(label, registry)
