@@ -136,6 +136,11 @@ DEFAULT_PAPER_METADATA_OVERRIDES = ROOT / "data" / "curated" / "paper_metadata_o
 DEFAULT_RETRACTION_STATUS = ROOT / "data" / "curated" / "retraction_status.json"
 SOURCE_IDENTITY_HOLD_STATUS = "source_identity_not_verified"
 RETRACTED_HOLD_STATUS = "retracted_publication"
+# Retraction-check statuses shown with a paper that stays in the graph. A
+# publisher withdrawal record alone is not shown: it may concern a notice
+# rather than the article.
+DISPLAYED_PUBLICATION_NOTICES = {"expression_of_concern", "partially_retracted", "retracted_and_replaced"}
+PUBLICATION_NOTICE_COLUMNS = ("publication_notice", "publication_notice_date", "publication_notice_url")
 KG_TABLE_VERSION = "0.2"
 NORMALIZATION_CONTRACT_VERSION = "routed_retraction_holds_20261101_v1"
 MOLECULAR_SUBTOPIC_TAXONOMY_VERSION = "molecular_subtopics_v4_20261028_measured_readouts"
@@ -12182,14 +12187,18 @@ def load_curated_paper_decisions(
     concern, a partial retraction, a publisher withdrawal record) keeps its rows.
     """
     retracted_papers: dict[str, str] = {}
+    paper_notices: dict[str, dict[str, str]] = {}
     retraction_last_check: dict = {}
     if retraction_status_path is not None and retraction_status_path.is_file():
         retraction_status = load_json_object(retraction_status_path)
         retraction_last_check = retraction_status.get("last_check") or {}
         for record in retraction_status.get("records", []):
             canonical = resolve_registered_doi(record.get("doi", ""), doi_aliases)
-            if canonical and normalize(record.get("status", "")) == "retracted":
+            status = normalize(record.get("status", ""))
+            if canonical and status == "retracted":
                 retracted_papers[canonical] = normalize(record.get("reason", ""))
+            elif canonical and status in DISPLAYED_PUBLICATION_NOTICES:
+                paper_notices[canonical] = publication_notice_fields(record)
     held_papers: dict[str, str] = {}
     if disposition_overrides_path is not None and disposition_overrides_path.is_file():
         for group in load_json_object(disposition_overrides_path).get("overrides", []):
@@ -12216,8 +12225,49 @@ def load_curated_paper_decisions(
         "cleared_abstracts": cleared_abstracts,
         "curated_titles": curated_titles,
         "retracted_papers": retracted_papers,
+        "paper_notices": paper_notices,
         "retraction_last_check": retraction_last_check,
     }
+
+
+def publication_notice_fields(record: dict) -> dict[str, str]:
+    """The paper-level notice shown with a paper: its status, date and a link to the notice.
+
+    Only notices found on a registry record that is the paper itself are used.
+    A Crossref notice DOI is preferred because it carries the date; a PubMed
+    notice is linked by its PMID.
+    """
+    status = normalize(record.get("status", ""))
+    notices = [
+        notice
+        for evidence in (record.get("sources") or {}).values()
+        if normalize(evidence.get("identity", "")) in {"doi_match", "title_match"}
+        for notice in evidence.get("notices") or []
+        if normalize(notice.get("status", "")) == status
+    ]
+    chosen = next((notice for notice in notices if normalize(notice.get("notice_doi", ""))), None)
+    if chosen is not None:
+        url = f"https://doi.org/{normalize(chosen['notice_doi'])}"
+    else:
+        chosen = next((notice for notice in notices if normalize(notice.get("notice_pmid", ""))), {})
+        url = f"https://pubmed.ncbi.nlm.nih.gov/{normalize(chosen['notice_pmid'])}/" if chosen else ""
+    return {
+        "publication_notice": status,
+        "publication_notice_date": normalize(chosen.get("date", "")),
+        "publication_notice_url": url,
+    }
+
+
+def apply_publication_notices(
+    papers_df: pd.DataFrame, notices: dict[str, dict[str, str]], doi_aliases: dict[str, str]
+) -> pd.DataFrame:
+    """Add the notice columns to the papers table; papers without a notice get blanks."""
+    out = papers_df.copy()
+    dois = out["study_doi"] if "study_doi" in out else pd.Series([""] * len(out), dtype=object)
+    keys = [resolve_registered_doi(value, doi_aliases) for value in dois]
+    for column in PUBLICATION_NOTICE_COLUMNS:
+        out[column] = [notices.get(key, {}).get(column, "") for key in keys]
+    return out
 
 
 def split_curated_paper_holds(
@@ -13112,7 +13162,9 @@ def build_tables(
 
     proposition_summary = finalize_proposition_groups(findings, evidence_edges, finding_id_field)
     research_area_queue, research_area_summary = build_review_queue(findings, audits)
-    papers_df = dataframe(list(papers.values()))
+    papers_df = apply_publication_notices(
+        dataframe(list(papers.values())), paper_decisions["paper_notices"], doi_aliases
+    )
     funding_assertions = pd.DataFrame()
     funding_attempts = pd.DataFrame()
     funding_report = {

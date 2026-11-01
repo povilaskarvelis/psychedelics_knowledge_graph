@@ -7431,6 +7431,22 @@ body[data-workspace-mode="analysis"] .bibliography-panel .search input[type="sea
   font-style: italic;
 }
 
+.publication-notice {
+  display: inline-block;
+  margin-left: 2px;
+  padding: 0 6px;
+  border: 1px solid rgba(241, 183, 75, 0.42);
+  border-radius: 4px;
+  background: rgba(241, 183, 75, 0.08);
+  color: #eadfca;
+  font-size: 0.86em;
+  font-style: normal;
+}
+
+.publication-notice a {
+  color: inherit;
+}
+
 .card .card-field-label {
   font-weight: 600;
 }

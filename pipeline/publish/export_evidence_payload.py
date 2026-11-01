@@ -150,6 +150,10 @@ PAPER_FIELDS = (
     "publication_relations",
     "is_retracted",
     "has_correction",
+    # Expression of concern or similar journal notice (retraction check).
+    "publication_notice",
+    "publication_notice_date",
+    "publication_notice_url",
     "open_access_is_oa",
     "open_access_status",
     "open_access_url",

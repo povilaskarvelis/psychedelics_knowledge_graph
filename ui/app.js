@@ -4711,6 +4711,9 @@ function normalizeBibliographyPaper(item, index = 0) {
     trialRegistryIds: cleanDisplayText(item?.trial_registry_ids ?? item?.trialRegistryIds),
     keywords: cleanDisplayText(item?.keywords),
     meshTerms: cleanDisplayText(item?.mesh_terms ?? item?.meshTerms),
+    publicationNotice: cleanDisplayText(item?.publication_notice ?? item?.publicationNotice),
+    publicationNoticeDate: cleanDisplayText(item?.publication_notice_date ?? item?.publicationNoticeDate),
+    publicationNoticeUrl: cleanDisplayText(item?.publication_notice_url ?? item?.publicationNoticeUrl),
     searchText: rawSearchTextForObject(item),
     contexts: Array.isArray(item?.contexts)
       ? item.contexts
@@ -4839,6 +4842,9 @@ function bibliographyRowsFromClaims(data) {
         trial_registry_ids: claim.trial_registry_ids,
         keywords: claim.keywords,
         mesh_terms: claim.mesh_terms,
+        publication_notice: claim.publication_notice,
+        publication_notice_date: claim.publication_notice_date,
+        publication_notice_url: claim.publication_notice_url,
       },
       index
     );
@@ -4852,7 +4858,7 @@ function bibliographyRowsFromClaims(data) {
       return;
     }
 
-    ["doi", "openalexId", "title", "authors", "year", "journal", "publicationDate", "publicationType", "publisher", "trialRegistryIds", "keywords", "meshTerms"].forEach(
+    ["doi", "openalexId", "title", "authors", "year", "journal", "publicationDate", "publicationType", "publisher", "trialRegistryIds", "keywords", "meshTerms", "publicationNotice", "publicationNoticeDate", "publicationNoticeUrl"].forEach(
       (field) => {
         if (!existing[field] && baseEntry[field]) existing[field] = baseEntry[field];
       }
@@ -4962,6 +4968,7 @@ function bibliographyCitationHtml(entry) {
       ${journal ? `<em>${escapeHtml(journal)}</em>` : ""}
       ${doiHref ? `<a class="doi-link" href="${escapeHtml(doiHref)}" target="_blank" rel="noopener noreferrer">${escapeHtml(doiHref)}</a>` : ""}
       ${openAlexHref ? `<a href="${escapeHtml(openAlexHref)}" target="_blank" rel="noopener noreferrer">OpenAlex</a>` : ""}
+      ${publicationNoticeHtml(entry.publicationNotice, entry.publicationNoticeDate, entry.publicationNoticeUrl)}
     </p>
   `;
 }
@@ -5169,6 +5176,25 @@ function linkedStudyIdentifierHtml(claim) {
   return "";
 }
 
+const PUBLICATION_NOTICE_LABELS = {
+  expression_of_concern: "Expression of concern",
+  partially_retracted: "Partial retraction",
+  retracted_and_replaced: "Retracted and replaced",
+};
+
+// A journal notice about a paper that stays in the graph (from the retraction check).
+function publicationNoticeHtml(notice, date, url) {
+  const label = PUBLICATION_NOTICE_LABELS[normalizeValue(notice)];
+  if (!label) return "";
+  const dateText = meaningfulText(date);
+  const text = `${label}: journal notice${dateText ? `, ${dateText}` : ""}`;
+  const href = meaningfulText(url);
+  const content = href
+    ? `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(text)}</a>`
+    : escapeHtml(text);
+  return `<span class="publication-notice">${content}</span>`;
+}
+
 function studyReferenceHtml(claim, className = "card-reference") {
   const authors = citationAuthors(claimAuthors(claim));
   const year = meaningfulText(claim.study_year);
@@ -5184,6 +5210,7 @@ function studyReferenceHtml(claim, className = "card-reference") {
     escapeHtml(sentencePart(title)),
     journal ? `<span class="card-reference-journal">${escapeHtml(sentencePart(journal))}</span>` : "",
     source,
+    publicationNoticeHtml(claim.publication_notice, claim.publication_notice_date, claim.publication_notice_url),
   ]
     .filter(Boolean)
     .join(" ");

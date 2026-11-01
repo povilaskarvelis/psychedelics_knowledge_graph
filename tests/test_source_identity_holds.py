@@ -123,7 +123,10 @@ def test_build_holds_every_row_of_a_retracted_paper(tmp_path):
         "records": [
             {"doi": "10.1000/retracted-alias", "status": "retracted",
              "reason": "Retracted: Crossref (Retraction Watch): retraction, notice 10.1000/notice, 2021-05-01."},
-            {"doi": "10.1000/concern", "status": "expression_of_concern", "reason": "Expression of concern."},
+            {"doi": "10.1000/concern", "status": "expression_of_concern", "reason": "Expression of concern.",
+             "sources": {"crossref": {"identity": "doi_match", "notices": [
+                 {"source": "crossref", "status": "expression_of_concern", "notice_doi": "10.1000/eoc", "date": "2024-12-03"},
+             ]}}},
             {"doi": "10.1000/conflict", "status": "identity_conflict", "reason": "Another paper's record."},
         ],
     }))
@@ -166,6 +169,31 @@ def test_build_holds_every_row_of_a_retracted_paper(tmp_path):
     assert decisions["retraction_status"]["last_check"]["papers_checked"] == 3
     # The custom sources here are not the checked evidence run.
     assert decisions["retraction_status"]["check_covers_evidence_run"] is False
+    # An expression of concern stays in the graph and travels with the paper.
+    papers = pd.read_parquet(out_dir / "papers.parquet").set_index("study_doi")
+    assert papers.loc["10.1000/concern", list(b.PUBLICATION_NOTICE_COLUMNS)].tolist() == [
+        "expression_of_concern", "2024-12-03", "https://doi.org/10.1000/eoc",
+    ]
+    assert papers.loc["10.1000/conflict", "publication_notice"] == ""
+
+
+def test_pubmed_only_notice_links_to_pubmed():
+    record = {"status": "expression_of_concern", "sources": {
+        "pubmed": {"identity": "doi_match", "notices": [
+            {"source": "pubmed", "status": "expression_of_concern", "notice_pmid": "40044086"},
+        ]},
+        # A notice on another paper's record is never shown.
+        "crossref": {"identity": "title_conflict", "notices": [
+            {"source": "crossref", "status": "expression_of_concern", "notice_doi": "10.1000/other"},
+        ]},
+    }}
+    assert b.publication_notice_fields(record) == {
+        "publication_notice": "expression_of_concern",
+        "publication_notice_date": "",
+        "publication_notice_url": "https://pubmed.ncbi.nlm.nih.gov/40044086/",
+    }
+    from pipeline.publish.export_evidence_payload import PAPER_FIELDS
+    assert set(b.PUBLICATION_NOTICE_COLUMNS) <= set(PAPER_FIELDS)
 
 
 def test_fully_held_paper_is_reported_as_source_not_verified():
