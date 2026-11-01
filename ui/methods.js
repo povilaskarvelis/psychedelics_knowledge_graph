@@ -66,6 +66,7 @@ const PRISMA_REASON_LABELS = {
   no_extractable_finding: "No specific finding available for graph representation",
   insufficient_source_text: "Available text too limited for reliable extraction",
   source_not_verified: "Source document could not be verified",
+  retracted: "Publication retracted",
   not_results_report: "Not a results report",
   unsupported_finding_detail: "Finding could not be mapped to the graph",
   extraction_failed: "Evidence extraction failed",

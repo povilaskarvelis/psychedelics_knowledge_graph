@@ -1,0 +1,313 @@
+{
+  "schema_version": "retraction_status_v1",
+  "description": "Retraction status of papers checked against Crossref (publisher notices and Retraction Watch) and PubMed. Written by pipeline/ingest/check_retractions.py; the KG build holds retracted papers.",
+  "last_check": {
+    "checked_at_utc": "2026-11-01T10:20:39+00:00",
+    "scope": {
+      "kind": "evidence_run",
+      "id": "luna_v5_20261030_safety_final"
+    },
+    "papers_checked": 25446,
+    "paper_dois_sha256": "6b7b1e9a21baea06164d7f4d2433a97192e45dedb4d10756d5228e4c8722ecc3",
+    "crossref": {
+      "dois_queried": 25435,
+      "records_found": 25130,
+      "lookup_errors": 0
+    },
+    "pubmed": {
+      "pmids_queried": 21261,
+      "records_found": 21257,
+      "lookup_errors": 0
+    },
+    "status_counts": {
+      "expression_of_concern": 4,
+      "retracted": 2,
+      "withdrawn": 1
+    },
+    "report": "data/processed/retraction_checks/20261101T102039Z/retraction_check_report.json"
+  },
+  "records": [
+    {
+      "doi": "10.1002/jts.22479",
+      "pmid": "32073177",
+      "title": "Posttraumatic Growth After MDMA‐Assisted Psychotherapy for Posttraumatic Stress Disorder",
+      "status": "expression_of_concern",
+      "reason": "Expression of concern: Crossref (the publisher): expression of concern, notice 10.1002/jts.23116, 2024-12-03; PubMed: Expression of concern in PMID 39627911.",
+      "sources": {
+        "crossref": {
+          "identity": "doi_match",
+          "title": "Posttraumatic Growth After MDMA‐Assisted Psychotherapy for Posttraumatic Stress Disorder",
+          "title_similarity": 1.0,
+          "notices": [
+            {
+              "source": "crossref",
+              "provider": "publisher",
+              "type": "expression_of_concern",
+              "status": "expression_of_concern",
+              "notice_doi": "10.1002/jts.23116",
+              "date": "2024-12-03"
+            }
+          ]
+        },
+        "pubmed": {
+          "identity": "doi_match",
+          "pmid": "32073177",
+          "title": "Posttraumatic Growth After MDMA-Assisted Psychotherapy for Posttraumatic Stress Disorder.",
+          "title_similarity": 1.0,
+          "dois": [
+            "10.1002/jts.22479"
+          ],
+          "notices": [
+            {
+              "source": "pubmed",
+              "type": "Expression of concern in",
+              "status": "expression_of_concern",
+              "notice_pmid": "39627911",
+              "citation": "J Trauma Stress. 2025 Jun;38(3):556. doi: 10.1002/jts.23116."
+            }
+          ]
+        }
+      },
+      "first_recorded_at_utc": "2026-11-01T10:04:19+00:00"
+    },
+    {
+      "doi": "10.1002/jts.22696",
+      "pmid": "34114250",
+      "title": "Sleep Quality Improvements After MDMA‐Assisted Psychotherapy for the Treatment of Posttraumatic Stress Disorder",
+      "status": "expression_of_concern",
+      "reason": "Expression of concern: Crossref (the publisher): expression of concern, notice 10.1002/jts.23117, 2024-12-03; PubMed: Expression of concern in PMID 39627875.",
+      "sources": {
+        "crossref": {
+          "identity": "doi_match",
+          "title": "Sleep Quality Improvements After MDMA‐Assisted Psychotherapy for the Treatment of Posttraumatic Stress Disorder",
+          "title_similarity": 1.0,
+          "notices": [
+            {
+              "source": "crossref",
+              "provider": "publisher",
+              "type": "expression_of_concern",
+              "status": "expression_of_concern",
+              "notice_doi": "10.1002/jts.23117",
+              "date": "2024-12-03"
+            }
+          ]
+        },
+        "pubmed": {
+          "identity": "doi_match",
+          "pmid": "34114250",
+          "title": "Sleep Quality Improvements After MDMA-Assisted Psychotherapy for the Treatment of Posttraumatic Stress Disorder.",
+          "title_similarity": 1.0,
+          "dois": [
+            "10.1002/jts.22696"
+          ],
+          "notices": [
+            {
+              "source": "pubmed",
+              "type": "Expression of concern in",
+              "status": "expression_of_concern",
+              "notice_pmid": "39627875",
+              "citation": "J Trauma Stress. 2025 Jun;38(3):555. doi: 10.1002/jts.23117."
+            }
+          ]
+        }
+      },
+      "first_recorded_at_utc": "2026-11-01T10:04:19+00:00"
+    },
+    {
+      "doi": "10.1016/j.jad.2024.11.034",
+      "pmid": "39549887",
+      "title": "Intravenous ketamine versus electroconvulsive therapy for major depressive disorder or bipolar depression: A meta-analysis of randomized controlled trials.",
+      "status": "expression_of_concern",
+      "reason": "Expression of concern: PubMed: Expression of concern in PMID 40044086.",
+      "sources": {
+        "crossref": {
+          "identity": "doi_match",
+          "title": "Intravenous ketamine versus electroconvulsive therapy for major depressive disorder or bipolar depression: A meta-analysis of randomized controlled trials",
+          "title_similarity": 1.0
+        },
+        "pubmed": {
+          "identity": "doi_match",
+          "pmid": "39549887",
+          "title": "Intravenous ketamine versus electroconvulsive therapy for major depressive disorder or bipolar depression: A meta-analysis of randomized controlled trials.",
+          "title_similarity": 1.0,
+          "dois": [
+            "10.1016/j.jad.2024.11.034"
+          ],
+          "notices": [
+            {
+              "source": "pubmed",
+              "type": "Expression of concern in",
+              "status": "expression_of_concern",
+              "notice_pmid": "40044086",
+              "citation": "J Affect Disord. 2025 Jun 1;378:350-351. doi: 10.1016/j.jad.2025.03.010."
+            }
+          ]
+        }
+      },
+      "first_recorded_at_utc": "2026-11-01T10:04:19+00:00"
+    },
+    {
+      "doi": "10.1016/j.neuro.2020.12.005",
+      "pmid": "33338551",
+      "title": "In utero exposure to dexamethasone causes a persistent and age-dependent exacerbation of the neurotoxic effects and glia activation induced by MDMA in dopaminergic brain regions of C57BL/6J mice.",
+      "status": "withdrawn",
+      "reason": "Withdrawn: Crossref (the publisher): withdrawal, notice 10.1016/j.neuro.2023.12.014, 2023-12-23.",
+      "sources": {
+        "crossref": {
+          "identity": "doi_match",
+          "title": "In utero exposure to dexamethasone causes a persistent and age-dependent exacerbation of the neurotoxic effects and glia activation induced by MDMA in dopaminergic brain regions of C57BL/6J mice",
+          "title_similarity": 1.0,
+          "notices": [
+            {
+              "source": "crossref",
+              "provider": "publisher",
+              "type": "withdrawal",
+              "status": "withdrawn",
+              "notice_doi": "10.1016/j.neuro.2023.12.014",
+              "date": "2023-12-23"
+            }
+          ]
+        },
+        "pubmed": {
+          "identity": "doi_match",
+          "pmid": "33338551",
+          "title": "In utero exposure to dexamethasone causes a persistent and age-dependent exacerbation of the neurotoxic effects and glia activation induced by MDMA in dopaminergic brain regions of C57BL/6J mice.",
+          "title_similarity": 1.0,
+          "dois": [
+            "10.1016/j.neuro.2020.12.005"
+          ]
+        }
+      },
+      "first_recorded_at_utc": "2026-11-01T10:20:39+00:00"
+    },
+    {
+      "doi": "10.1073/pnas.2535785123",
+      "pmid": "42341036",
+      "title": "Chemical ecology and convergent evolution of natural hallucinogens: From ecological defense to conserved neural targets.",
+      "status": "retracted",
+      "reason": "Retracted: Crossref (the publisher): retraction, notice 10.1073/pnas.2633586123, 2026-10-05; PubMed: Retracted Publication; PubMed: Retraction in PMID 42832681.",
+      "sources": {
+        "crossref": {
+          "identity": "doi_match",
+          "title": "RETRACTED: Chemical ecology and convergent evolution of natural hallucinogens: From ecological defense to conserved neural targets",
+          "title_similarity": 1.0,
+          "notices": [
+            {
+              "source": "crossref",
+              "provider": "publisher",
+              "type": "retraction",
+              "status": "retracted",
+              "notice_doi": "10.1073/pnas.2633586123",
+              "date": "2026-10-05"
+            }
+          ]
+        },
+        "pubmed": {
+          "identity": "doi_match",
+          "pmid": "42341036",
+          "title": "Chemical ecology and convergent evolution of natural hallucinogens: From ecological defense to conserved neural targets.",
+          "title_similarity": 1.0,
+          "dois": [
+            "10.1073/pnas.2535785123"
+          ],
+          "notices": [
+            {
+              "source": "pubmed",
+              "type": "Retracted Publication",
+              "status": "retracted"
+            },
+            {
+              "source": "pubmed",
+              "type": "Retraction in",
+              "status": "retracted",
+              "notice_pmid": "42832681",
+              "citation": "Proc Natl Acad Sci U S A. 2026 Oct 13;123(41):e2633586123. doi: 10.1073/pnas.2633586123."
+            }
+          ]
+        }
+      },
+      "first_recorded_at_utc": "2026-11-01T10:04:19+00:00"
+    },
+    {
+      "doi": "10.1136/bmj-2023-078084",
+      "pmid": "38692686",
+      "title": "Efficacy of psilocybin for treating symptoms of depression: systematic review and meta-analysis.",
+      "status": "expression_of_concern",
+      "reason": "Expression of concern: PubMed: Expression of concern in PMID 38704154.",
+      "sources": {
+        "crossref": {
+          "identity": "doi_match",
+          "title": "Efficacy of psilocybin for treating symptoms of depression: systematic review and meta-analysis",
+          "title_similarity": 1.0
+        },
+        "pubmed": {
+          "identity": "doi_match",
+          "pmid": "38692686",
+          "title": "Efficacy of psilocybin for treating symptoms of depression: systematic review and meta-analysis.",
+          "title_similarity": 1.0,
+          "dois": [
+            "10.1136/bmj-2023-078084"
+          ],
+          "notices": [
+            {
+              "source": "pubmed",
+              "type": "Expression of concern in",
+              "status": "expression_of_concern",
+              "notice_pmid": "38704154",
+              "citation": "BMJ. 2024 May 4;385:q1025. doi: 10.1136/bmj.q1025."
+            }
+          ]
+        }
+      },
+      "first_recorded_at_utc": "2026-11-01T10:04:19+00:00"
+    },
+    {
+      "doi": "10.3389/fnins.2020.576813",
+      "pmid": "33100963",
+      "title": "17β-Estradiol Protects Neural Stem/Progenitor Cells Against Ketamine-Induced Injury Through Estrogen Receptor β Pathway.",
+      "status": "retracted",
+      "reason": "Retracted: Crossref (the publisher): retraction, notice 10.3389/fnins.2026.2017403, 2026-10-12; PubMed: Retracted Publication; PubMed: Retraction in PMID 42964865.",
+      "sources": {
+        "crossref": {
+          "identity": "doi_match",
+          "title": "17β-Estradiol Protects Neural Stem/Progenitor Cells Against Ketamine-Induced Injury Through Estrogen Receptor β Pathway",
+          "title_similarity": 1.0,
+          "notices": [
+            {
+              "source": "crossref",
+              "provider": "publisher",
+              "type": "retraction",
+              "status": "retracted",
+              "notice_doi": "10.3389/fnins.2026.2017403",
+              "date": "2026-10-12"
+            }
+          ]
+        },
+        "pubmed": {
+          "identity": "doi_match",
+          "pmid": "33100963",
+          "title": "17β-Estradiol Protects Neural Stem/Progenitor Cells Against Ketamine-Induced Injury Through Estrogen Receptor β Pathway.",
+          "title_similarity": 1.0,
+          "dois": [
+            "10.3389/fnins.2020.576813"
+          ],
+          "notices": [
+            {
+              "source": "pubmed",
+              "type": "Retracted Publication",
+              "status": "retracted"
+            },
+            {
+              "source": "pubmed",
+              "type": "Retraction in",
+              "status": "retracted",
+              "notice_pmid": "42964865",
+              "citation": "Front Neurosci. 2026 Oct 12;20:2017403. doi: 10.3389/fnins.2026.2017403."
+            }
+          ]
+        }
+      },
+      "first_recorded_at_utc": "2026-11-01T10:04:19+00:00"
+    }
+  ]
+}

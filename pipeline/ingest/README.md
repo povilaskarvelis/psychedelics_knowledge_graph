@@ -223,3 +223,47 @@ completeness, terminal status, assertion keys and counts, and stored payload
 hashes, then reports provider coverage, overlap, structured identifier
 coverage, and gains over the legacy candidate columns. Those legacy columns
 are read only for the post hoc comparison.
+
+## Retraction check
+
+A paper can be retracted after it was screened and extracted. Before every KG
+build, `scripts/build_routed_kg_payload.sh` checks the papers of the evidence run
+against two registries:
+
+```bash
+python pipeline/ingest/check_retractions.py --evidence-run-id <evidence_run_id>
+```
+
+- Crossref, by DOI: the `updated-by` notices that publishers deposit and the
+  Retraction Watch records that Crossref distributes. DOIs that a batch query
+  does not return are looked up singly, because Crossref registers some DOIs as
+  aliases of another DOI.
+- PubMed, by the ledger PMID: the publication type "Retracted Publication" and
+  the links "Retraction in", "Partial retraction in", "Retraction and
+  replacement in" and "Expression of concern in".
+
+A notice counts only when the registry record is the paper itself. The Crossref
+record must not carry a different title (title similarity of at least 0.8 after
+a "Retracted:" prefix is removed). The PubMed record must carry the paper's DOI
+or an alias of it, or the paper's title when it carries no DOI. A notice on a
+conflicting record gives the status `identity_conflict`, which holds nothing and
+is listed for review.
+
+Each paper with a notice receives one status: `reinstated` (a reinstatement
+dated after the retraction), `retracted`, `retracted_and_replaced`,
+`partially_retracted`, `withdrawn`, `expression_of_concern`, `notice` (the paper
+is itself a notice) or `identity_conflict`. `withdrawn` is a publisher's
+withdrawal or removal record that neither Retraction Watch nor PubMed records as
+a retraction: Elsevier uses withdrawals for in-press versions, and registered the
+withdrawal of a duplicate corrigendum against the corrected article
+(`10.1016/j.neuro.2020.12.005`). Corrections and errata are not recorded. The
+statuses are written to `data/curated/retraction_status.json` together with the
+date, scope and lookup counts of the last check, and the per-paper report is
+written under `data/processed/retraction_checks/`. The status file is replaced
+only when every Crossref and PubMed lookup succeeded; records of papers outside
+the checked scope are kept. The KG build holds every row of a `retracted` paper
+(see `pipeline/kg/README.md`); the other statuses are recorded for review and
+hold nothing.
+
+Use `--kg-dir` to check the papers of an existing KG build and `--dry-run` to
+write only the report. `RETRACTION_CHECK=0` builds without re-checking.

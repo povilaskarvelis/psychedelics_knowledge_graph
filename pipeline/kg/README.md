@@ -1262,3 +1262,46 @@ S-ketamine and R-ketamine named in one exposure no longer add racemic ketamine,
 while "(R,S)-ketamine" next to S-ketamine keeps racemic ketamine. "Bolus followed
 by infusion" is one drug's dosing schedule, not a sequence of two drugs.
 See `tests/test_subject_resolution_repairs.py`.
+
+## Curated source-identity holds (1 November 2026)
+
+Curation can find, after extraction, that the text a paper was extracted from
+belongs to another publication. The KG build applies two curated files to the
+evidence rows it reads, before normalization:
+
+- `data/curated/graph_inclusion_disposition_overrides.json`: every row of a paper
+  whose final disposition is `source_not_verified` is held;
+- `data/curated/paper_metadata_overrides.json`: rows with access level
+  `abstract_only` are held for a paper whose abstract was cleared without a
+  replacement, while its rows from verified article text remain. Curated titles
+  replace provider titles in the rows.
+
+Held rows are written to `normalization_audit` with status
+`source_identity_not_verified` and the curated reason, and the corpus ledger
+reports a paper with no remaining rows as `source_not_verified`. The manifest
+records both files' hashes, the held row counts per source and the held paper IDs.
+Pass `--graph-disposition-overrides` or `--paper-metadata-overrides` to use other
+files. See `tests/test_source_identity_holds.py`.
+
+The decisions added on 1 November came from checking three signals against each
+DOI's Crossref record (and PubMed where Crossref was wrong): extraction warnings
+that the title and text describe different studies, abstracts attached verbatim
+to differently titled DOIs, and full texts whose document DOI differs from the
+requested one. Where the title was wrong and the abstract right, the title was
+corrected and the findings kept. Most full-text DOI conflicts were the same work
+(repository copies, preprint and published versions, issue DOIs or truncated
+DOIs read from the PDF) and needed no decision.
+
+### Retracted papers
+
+The build also reads `data/curated/retraction_status.json`, which
+`pipeline/ingest/check_retractions.py` writes (see `pipeline/ingest/README.md`).
+Every row of a paper with status `retracted` is held with audit status
+`retracted_publication` and the check's reason (the registries and the notice),
+and the corpus ledger reports the paper as `retracted` ("Publication retracted"
+on the Methods page). Expressions of concern, partial retractions,
+retract-and-replace notices, publisher withdrawal records and conflicting
+registry records hold nothing. The
+manifest records the file's hash, the date and scope of the last check, whether
+that scope is this evidence run, and the held rows and paper IDs. Pass
+`--retraction-status` to use another file.

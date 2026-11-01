@@ -7,7 +7,8 @@ usage() {
   cat >&2 <<'EOF'
 Usage: scripts/build_routed_kg_payload.sh RUN_ID [build_author_tables args...]
 
-Rebuilds the routed KG tables, refreshes the author identity/authorship layer,
+Re-checks the evidence run's papers for retractions, rebuilds the routed KG
+tables, refreshes the author identity/authorship layer,
 exports the private query-service runtime, exports the allowlisted compact
 graph/dashboard/detail payloads used by the browser UI, and promotes the complete
 release through the guarded publisher when explicitly requested.
@@ -25,6 +26,7 @@ Environment overrides:
   AUTHOR_CACHE_SEED=/path/to/cache  # optional override; EVIDENCE_RUN_ID caches are inherited automatically
   REVIEW_BASELINE_DIR=/path/to/reviewed-kg-run  # carry unchanged reviewed decisions before exports
   AUTHOR_AUDIT_DIR=/path/to/audit  # defaults to KG_DIR/author_identity_audit
+  RETRACTION_CHECK=0  # reuse data/curated/retraction_status.json instead of re-checking (--offline also skips the check)
   ACTIVATE_DEFAULT=1  # explicitly promote this run after the versioned build succeeds
   PUBLISH_QUERY_API_R2=1  # publish the promoted browser/API release and trigger the API deploy hook
 EOF
@@ -48,6 +50,7 @@ QUERY_DIR="${QUERY_DIR:-"${ROOT_DIR}/data/processed/query_api_runs/${RUN_ID}"}"
 AUTHOR_CACHE="${KG_DIR}/openalex_author_cache.json"
 ACTIVATE_DEFAULT="${ACTIVATE_DEFAULT:-0}"
 PUBLISH_QUERY_API_R2="${PUBLISH_QUERY_API_R2:-0}"
+RETRACTION_CHECK="${RETRACTION_CHECK:-1}"
 EVIDENCE_RUN_ID="${EVIDENCE_RUN_ID:-${RUN_ID}}"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 OFFLINE_REQUESTED=0
@@ -71,6 +74,11 @@ fi
 
 if [[ "${PUBLISH_QUERY_API_R2}" == "1" && "${ACTIVATE_DEFAULT}" != "1" ]]; then
   echo "PUBLISH_QUERY_API_R2=1 requires ACTIVATE_DEFAULT=1" >&2
+  exit 2
+fi
+
+if [[ "${RETRACTION_CHECK}" != "0" && "${RETRACTION_CHECK}" != "1" ]]; then
+  echo "RETRACTION_CHECK must be 0 or 1" >&2
   exit 2
 fi
 
@@ -116,6 +124,13 @@ if [[ "${OFFLINE_REQUESTED}" == "1" && ! -f "${AUTHOR_CACHE}" && -z "${RESOLVED_
   echo "Offline author build refused: ${AUTHOR_CACHE} does not exist." >&2
   echo "Set AUTHOR_CACHE_SEED=/path/to/openalex_author_cache.json, use EVIDENCE_RUN_ID with an existing cache, or omit --offline." >&2
   exit 2
+fi
+
+# Papers can be retracted after they were extracted, so every build re-checks
+# the evidence run's papers; the KG build holds the retracted ones.
+if [[ "${RETRACTION_CHECK}" == "1" && "${OFFLINE_REQUESTED}" == "0" ]]; then
+  "${PYTHON_BIN}" "${ROOT_DIR}/pipeline/ingest/check_retractions.py" \
+    --evidence-run-id "${EVIDENCE_RUN_ID}"
 fi
 
 "${PYTHON_BIN}" "${ROOT_DIR}/pipeline/kg/build_evidence_tables.py" \

@@ -24,6 +24,10 @@ RUN_ID=luna_v5_YYYYMMDD_first_batch
 scripts/build_routed_kg_payload.sh "$RUN_ID"
 ```
 
+The script first checks the evidence run's papers for retractions
+(`pipeline/ingest/check_retractions.py`), and the KG build holds the retracted
+ones. `RETRACTION_CHECK=0` or `--offline` reuses the recorded status.
+
 After reviewing that versioned run, promote it without rebuilding it:
 
 ```bash

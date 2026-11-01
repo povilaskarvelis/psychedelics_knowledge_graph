@@ -47,6 +47,7 @@ FINAL_DISPOSITIONS = {
     "no_extractable_finding",
     "insufficient_source_text",
     "source_not_verified",
+    "retracted",
     "not_results_report",
     "unsupported_finding_detail",
     "extraction_failed",
@@ -54,6 +55,10 @@ FINAL_DISPOSITIONS = {
 
 AUDIT_NOT_GRAPHABLE_SUFFIXES = ("_not_graphable",)
 AUDIT_UNMAPPED_SUFFIXES = ("_unmapped",)
+# Written by build_evidence_tables for rows extracted from text that curation
+# attributed to another publication, and for rows of retracted papers.
+AUDIT_SOURCE_IDENTITY_STATUS = "source_identity_not_verified"
+AUDIT_RETRACTED_STATUS = "retracted_publication"
 
 
 def now_utc() -> str:
@@ -182,6 +187,21 @@ def load_extraction_outcomes(
 
 
 def decision_from_audit(statuses: set[str]) -> dict:
+    if AUDIT_RETRACTED_STATUS in statuses:
+        return {
+            "disposition": "retracted",
+            "reason": "Crossref (publisher notices or Retraction Watch) or PubMed records the publication as retracted.",
+            "next_action": "Revisit only if the retraction is reversed.",
+        }
+    if AUDIT_SOURCE_IDENTITY_STATUS in statuses:
+        return {
+            "disposition": "source_not_verified",
+            "reason": (
+                "Curation found that the abstract or article text used for extraction "
+                "belongs to another publication."
+            ),
+            "next_action": "Revisit only if the correct article text or abstract can be verified.",
+        }
     if any(status.endswith(AUDIT_UNMAPPED_SUFFIXES) for status in statuses):
         return {
             "disposition": "unsupported_finding_detail",

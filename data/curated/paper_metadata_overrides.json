@@ -1489,6 +1489,178 @@
         "has_correction": true
       },
       "evidence_basis": "Verified single-trial Bayesian reanalysis, not meta-analysis. The saved identity-accepted PDF already contains the published MADRS correction (Bayes factor 4.6; probability 83.4%); replace stale registry abstract with its corrected abstract using the standard TEI parser. Preserve trial reuse and correction provenance. Evidence: /Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/normalization_repairs_20261026/routing/reanalysis_correction/source_version_verification.json"
+    },
+    {
+      "doi": "10.1016/0304-3959(90)92383-2",
+      "evidence_basis": "Crossref's DOI record identifies this Pain record as 'Responses of young lambs to castration after intthecal etorphine or xylazine'. The provider abstract reports intracellular recordings from rat locus coeruleus neurones in brain slices and belongs to another publication. The extraction model reported the same title-abstract mismatch.",
+      "fields": {},
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1213/ane.0b013e3182377bbc",
+      "evidence_basis": "Crossref's DOI record identifies this Anesthesia & Analgesia record as 'Simulation in Obstetric Anesthesia'. The provider abstract reports a piglet study of salvinorin A and cerebral autoregulation and belongs to another publication. The extraction model reported the same title-abstract mismatch.",
+      "fields": {},
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1037//1064-1297.7.1.28",
+      "evidence_basis": "Crossref's DOI record identifies this record as 'Phencyclidine- and diazepam-like discriminative stimulus effects of inhalants in mice'. The provider abstract reports anxiolytic and discriminative stimulus effects of diazepam, NPC 17742 and phencyclidine in rats and belongs to another publication. The extraction model reported the same title-abstract mismatch.",
+      "fields": {},
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1097/00042560-200105010-00013",
+      "evidence_basis": "Crossref's DOI record identifies this record as 'HIV-Positive Men's Sexual Practices in the Context of Self-Disclosure of HIV Status'. The provider abstract compares substance use among men who have sex with men at high risk for HIV infection with a national sample and belongs to another publication. The extraction model reported the same title-abstract mismatch.",
+      "fields": {},
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1016/j.gheart.2014.03.2361",
+      "evidence_basis": "Crossref's DOI record identifies this Global Heart meeting abstract (PW277) as a study of vagal stimulation and myocardial infarct size. The provider abstract concerns ketamine and amphetamine analogues and cerebral arterial vasodilation and belongs to another meeting abstract. The extraction model reported the same title-abstract mismatch.",
+      "fields": {},
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1177/0004867419866510",
+      "evidence_basis": "Crossref's DOI record identifies this record as 'Considerations for use of ketamine to treat depression in Australia and New Zealand'. The provider abstract is a fragment about socioeconomic determinants and a mental health inquiry, contains no ketamine content and belongs to another publication. The extraction model reported the same title-abstract mismatch.",
+      "fields": {},
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.13039/501100000780",
+      "evidence_basis": "10.13039 is the Crossref Funder Registry prefix, so this identifier names a funder, not a publication. The stored title describes a ketamine and dorsal raphe stimulation study and the provider abstract describes wastewater drug surveillance; neither can be attributed to this identifier. The extraction model reported the same title-abstract mismatch.",
+      "fields": {},
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1016/0306-3747(94)90197-x",
+      "evidence_basis": "Crossref's DOI record identifies this Additives for Polymers (1994) item as 'Curing agents'. The provider abstract describes an analytical method for 41 drugs of abuse in particulate matter, sewage sludge and sediment and belongs to another publication; the same abstract is attached to 10.1016/0306-3747(94)90194-5.",
+      "fields": {},
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1016/0306-3747(94)90194-5",
+      "evidence_basis": "Crossref's DOI record identifies this Additives for Polymers (1994) item as 'Fire retardants'. The provider abstract describes an analytical method for 41 drugs of abuse in particulate matter, sewage sludge and sediment and belongs to another publication; the same abstract is attached to 10.1016/0306-3747(94)90197-x.",
+      "fields": {},
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1136/adc.2006.094854",
+      "evidence_basis": "Crossref's DOI record identifies this Archives of Disease in Childhood (2006) item as 'GLUCOCORTICOID TREATMENT IN CROUP'. The provider abstract is the abstract of 10.1016/s0022-3565(25)21752-9, 'Phencyclidine blood protein binding: influence of protein, pH and species' (1983).",
+      "fields": {},
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1136/bmj.3.5722.81",
+      "evidence_basis": "Crossref's DOI record identifies this BMJ (1970) item as 'SUPPLEMENT'. The provider abstract is the abstract of 10.1016/s0022-3565(25)27266-4, 'An electrographic study of d-lysergic acid diethylamide and nine congeners' (1966).",
+      "fields": {},
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1080/10826084.2020.1717536",
+      "evidence_basis": "Crossref's DOI record identifies this Substance Use & Misuse article title. The provider title belongs to an unrelated engineering publication; the abstract and article text match the Crossref title.",
+      "fields": {
+        "study_title": "High Prevalence of Tobacco Product and E-Cigarette Use among Electronic Dance Music Party Attendees"
+      }
+    },
+    {
+      "doi": "10.1016/0014-2999(93)90482-w",
+      "evidence_basis": "Crossref's DOI record identifies this European Journal of Pharmacology article title. The provider title belongs to an unrelated literary publication; the abstract matches the Crossref title.",
+      "fields": {
+        "study_title": "Ketamine relaxes rabbit femoral arteries by reducing [Ca2+]i and phospholipase C activity"
+      }
+    },
+    {
+      "doi": "10.1016/j.curtheres.2008.06.001",
+      "evidence_basis": "Crossref's DOI record identifies this Current Therapeutic Research article title. The provider title belongs to an unrelated transit research report; the abstract matches the Crossref title.",
+      "fields": {
+        "study_title": "Ecstasy-induced recurrent toxic hepatitis in a young adult"
+      }
+    },
+    {
+      "doi": "10.1080/00048670701579074",
+      "evidence_basis": "Crossref's DOI record identifies this Australian and New Zealand Journal of Psychiatry article title. The provider title belongs to an unrelated publication; the abstract matches the Crossref title.",
+      "fields": {
+        "study_title": "Future of God in Recovery from Drug Addiction"
+      }
+    },
+    {
+      "doi": "10.1097/00008877-199802000-00005",
+      "evidence_basis": "PubMed 9832946 (Behavioural Pharmacology 1998;9(1):31-40) matches the attached abstract. Crossref's title for this DOI, 'Novel antithrombotics based on modulation of the protein C pathway', matches neither the journal nor the abstract.",
+      "fields": {
+        "study_title": "Discriminative stimulus effects of diazepam, ketamine and their mixture: ethanol substitution patterns"
+      }
+    },
+    {
+      "doi": "10.1016/0014-2999(82)90555-6",
+      "evidence_basis": "Crossref's DOI record identifies this European Journal of Pharmacology article title. The provider title belongs to an unrelated publication; the abstract matches the Crossref title.",
+      "fields": {
+        "study_title": "Interactions of [3H]LSD with serotonin receptors in human brain"
+      }
+    },
+    {
+      "doi": "10.1038/s41386-023-01617-0",
+      "evidence_basis": "Crossref's DOI record identifies this Neuropsychopharmacology article title. The provider title belongs to an unrelated publication; the abstract and article text match the Crossref title.",
+      "fields": {
+        "study_title": "The effect of ketamine on synaptic mistuning induced by impaired glutamate reuptake"
+      }
+    },
+    {
+      "doi": "10.1126/science.157.3795.1461",
+      "evidence_basis": "Crossref's DOI record identifies this Science article title. The provider title belongs to an unrelated publication; the abstract matches the Crossref title.",
+      "fields": {
+        "study_title": "Serotonin Release from Brain Slices by Electrical Stimulation: Regional Differences and Effect of LSD"
+      }
+    },
+    {
+      "doi": "10.1358/mf.2000.22.2.796066",
+      "evidence_basis": "Crossref's DOI record identifies this Methods and Findings in Experimental and Clinical Pharmacology article title. The provider title belongs to an unrelated publication; the abstract matches the Crossref title.",
+      "fields": {
+        "study_title": "Pharmacokinetic characterization of the indole alkaloid ibogaine in rats"
+      }
+    },
+    {
+      "doi": "10.3109/00952997709002748",
+      "evidence_basis": "Crossref's DOI record identifies this American Journal of Drug and Alcohol Abuse article title. The provider title belongs to an unrelated publication; the abstract matches the Crossref title.",
+      "fields": {
+        "study_title": "Alcohol and Marijuana Consumption among Undergraduate Polydrug Users"
+      }
+    },
+    {
+      "doi": "10.31661/gmj.v8i0.963",
+      "evidence_basis": "Crossref's record for this DOI gives an author affiliation as the title. The header of the retrieved article text, which carries this DOI, gives this title, and the abstract matches it.",
+      "fields": {
+        "study_title": "Neuroprotective Effect of Pentoxifylline on 3,4-Methylenedioxymethamphetamine-Induced Apoptosis in CA1 Cells of Wistar Rat Hippocampus"
+      }
+    },
+    {
+      "doi": "10.1016/0022-510x(83)90042-4",
+      "evidence_basis": "Crossref's DOI record identifies this Journal of the Neurological Sciences article title. The provider title belongs to an unrelated publication; the abstract matches the Crossref title.",
+      "fields": {
+        "study_title": "Acute treatment of Huntington's chorea with lisuride"
+      }
     }
   ]
 }

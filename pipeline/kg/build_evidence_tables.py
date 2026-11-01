@@ -30,6 +30,7 @@ try:
         DEFAULT_DOI_ALIAS_REGISTRY,
         load_doi_aliases,
         materialize_funding,
+        resolve_registered_doi,
         source_sha256,
         subset_assertions_for_papers,
     )
@@ -75,6 +76,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         DEFAULT_DOI_ALIAS_REGISTRY,
         load_doi_aliases,
         materialize_funding,
+        resolve_registered_doi,
         source_sha256,
         subset_assertions_for_papers,
     )
@@ -129,8 +131,13 @@ DEFAULT_OPEN_SCIENCE_FEATURES_PATH = (
 DEFAULT_OPEN_SCIENCE_ASSERTIONS_PATH = (
     ROOT / "data" / "processed" / "corpus" / "paper_open_science_assertions.parquet"
 )
+DEFAULT_GRAPH_DISPOSITION_OVERRIDES = ROOT / "data" / "curated" / "graph_inclusion_disposition_overrides.json"
+DEFAULT_PAPER_METADATA_OVERRIDES = ROOT / "data" / "curated" / "paper_metadata_overrides.json"
+DEFAULT_RETRACTION_STATUS = ROOT / "data" / "curated" / "retraction_status.json"
+SOURCE_IDENTITY_HOLD_STATUS = "source_identity_not_verified"
+RETRACTED_HOLD_STATUS = "retracted_publication"
 KG_TABLE_VERSION = "0.2"
-NORMALIZATION_CONTRACT_VERSION = "routed_scope_registry_20261101_v1"
+NORMALIZATION_CONTRACT_VERSION = "routed_retraction_holds_20261101_v1"
 MOLECULAR_SUBTOPIC_TAXONOMY_VERSION = "molecular_subtopics_v4_20261028_measured_readouts"
 
 ROUTED_GRAPH_SOURCES = {
@@ -12154,6 +12161,103 @@ def write_parquet(df: pd.DataFrame, path: Path) -> None:
     df.to_parquet(path, engine="pyarrow", index=False)
 
 
+def load_curated_paper_decisions(
+    disposition_overrides_path: Path | None,
+    metadata_overrides_path: Path | None,
+    doi_aliases: dict[str, str],
+    retraction_status_path: Path | None = None,
+) -> dict[str, dict]:
+    """Load reviewed paper decisions that must also reach evidence already extracted.
+
+    Extraction can predate curation. A paper whose final disposition is
+    ``source_not_verified`` was extracted from text that belongs to another
+    publication, so none of its rows are graphed. An abstract cleared without a
+    replacement belonged to another publication, so rows extracted from that
+    abstract are held while rows from verified article text remain. Curated
+    titles replace provider titles that belong to another publication; assembly
+    applies the same titles, so applying them again here changes nothing for
+    runs assembled after the title was curated. A paper that the retraction
+    check (``pipeline/ingest/check_retractions.py``) found retracted is held
+    whole; a paper with another status from that check (an expression of
+    concern, a partial retraction, a publisher withdrawal record) keeps its rows.
+    """
+    retracted_papers: dict[str, str] = {}
+    retraction_last_check: dict = {}
+    if retraction_status_path is not None and retraction_status_path.is_file():
+        retraction_status = load_json_object(retraction_status_path)
+        retraction_last_check = retraction_status.get("last_check") or {}
+        for record in retraction_status.get("records", []):
+            canonical = resolve_registered_doi(record.get("doi", ""), doi_aliases)
+            if canonical and normalize(record.get("status", "")) == "retracted":
+                retracted_papers[canonical] = normalize(record.get("reason", ""))
+    held_papers: dict[str, str] = {}
+    if disposition_overrides_path is not None and disposition_overrides_path.is_file():
+        for group in load_json_object(disposition_overrides_path).get("overrides", []):
+            if normalize(group.get("disposition", "")) != "source_not_verified":
+                continue
+            for doi in group.get("dois", []):
+                canonical = resolve_registered_doi(doi, doi_aliases)
+                if canonical:
+                    held_papers[canonical] = normalize(group.get("reason", ""))
+    cleared_abstracts: dict[str, str] = {}
+    curated_titles: dict[str, str] = {}
+    if metadata_overrides_path is not None and metadata_overrides_path.is_file():
+        for record in load_json_object(metadata_overrides_path).get("records", []):
+            canonical = resolve_registered_doi(record.get("doi", ""), doi_aliases)
+            fields = record.get("fields") or {}
+            if not canonical:
+                continue
+            if "abstract" in (record.get("clear_fields") or []) and not normalize(fields.get("abstract", "")):
+                cleared_abstracts[canonical] = normalize(record.get("evidence_basis", ""))
+            if normalize(fields.get("study_title", "")):
+                curated_titles[canonical] = normalize(fields["study_title"])
+    return {
+        "held_papers": held_papers,
+        "cleared_abstracts": cleared_abstracts,
+        "curated_titles": curated_titles,
+        "retracted_papers": retracted_papers,
+        "retraction_last_check": retraction_last_check,
+    }
+
+
+def split_curated_paper_holds(
+    rows: list[dict],
+    decisions: dict[str, dict],
+    doi_aliases: dict[str, str],
+) -> tuple[list[dict], list[tuple[dict, str, str]]]:
+    """Apply curated titles and set aside rows of retracted papers and rows from another publication's text.
+
+    Each held row comes with the audit status and the reason it was held.
+    """
+    kept: list[dict] = []
+    held: list[tuple[dict, str, str]] = []
+    for row in rows:
+        doi = resolve_registered_doi(row.get("study_doi", ""), doi_aliases)
+        title = decisions["curated_titles"].get(doi, "")
+        if title and normalize(row.get("study_title", "")) != title:
+            row = {**row, "study_title": title}
+        if doi in decisions["retracted_papers"]:
+            held.append((row, RETRACTED_HOLD_STATUS, decisions["retracted_papers"][doi] or "the publication was retracted"))
+        elif doi in decisions["held_papers"]:
+            held.append((
+                row, SOURCE_IDENTITY_HOLD_STATUS,
+                decisions["held_papers"][doi] or "the extracted text belongs to another publication",
+            ))
+        elif doi in decisions["cleared_abstracts"] and normalize(row.get("access_level", "")).casefold() == "abstract_only":
+            held.append((
+                row, SOURCE_IDENTITY_HOLD_STATUS,
+                decisions["cleared_abstracts"][doi] or "the extracted abstract belongs to another publication",
+            ))
+        else:
+            kept.append(row)
+    return kept, held
+
+
+def curated_input_record(path: Path | None) -> dict[str, str]:
+    present = path is not None and path.is_file()
+    return {"path": str(path) if path is not None else "", "sha256": source_sha256(path) if present else ""}
+
+
 def build_tables(
     *,
     graph_sources: dict[str, dict] | None = None,
@@ -12167,6 +12271,9 @@ def build_tables(
     open_science_features_path: Path | None = None,
     open_science_assertions_path: Path | None = None,
     doi_alias_registry_path: Path | None = DEFAULT_DOI_ALIAS_REGISTRY,
+    graph_disposition_overrides_path: Path | None = DEFAULT_GRAPH_DISPOSITION_OVERRIDES,
+    paper_metadata_overrides_path: Path | None = DEFAULT_PAPER_METADATA_OVERRIDES,
+    retraction_status_path: Path | None = DEFAULT_RETRACTION_STATUS,
     out_dir: Path = DEFAULT_OUT_DIR,
     write_duckdb: bool = True,
 ) -> dict:
@@ -12190,6 +12297,20 @@ def build_tables(
     evidence_edges: list[dict] = []
     audits: list[dict] = []
     source_counts: dict[str, int] = {}
+    doi_aliases = load_doi_aliases(doi_alias_registry_path)
+    paper_decisions = load_curated_paper_decisions(
+        graph_disposition_overrides_path, paper_metadata_overrides_path, doi_aliases, retraction_status_path
+    )
+    held_rows_by_status: dict[str, dict[str, int]] = {SOURCE_IDENTITY_HOLD_STATUS: {}, RETRACTED_HOLD_STATUS: {}}
+    held_papers_by_status: dict[str, set[str]] = {SOURCE_IDENTITY_HOLD_STATUS: set(), RETRACTED_HOLD_STATUS: set()}
+    retraction_checked_scope = paper_decisions["retraction_last_check"].get("scope") or {}
+    retraction_check_covers_run = retraction_checked_scope == {"kind": "evidence_run", "id": evidence_run_id or run_id}
+    if (evidence_run_id or run_id) and not retraction_check_covers_run:
+        print(
+            f"NOTE: the retraction status was last checked for {retraction_checked_scope or 'no run'}; "
+            f"pipeline/ingest/check_retractions.py --evidence-run-id {evidence_run_id or run_id} checks this run's papers.",
+            flush=True,
+        )
 
     clinical_projection_paths = {
         Path(cfg["path"]).resolve() for cfg in graph_sources.values()
@@ -12197,6 +12318,16 @@ def build_tables(
     }
     for source_name, cfg in graph_sources.items():
         source_rows = rows_for_source(cfg)
+        source_counts[source_name] = len(source_rows)
+        source_rows, held_rows = split_curated_paper_holds(source_rows, paper_decisions, doi_aliases)
+        for status_rows in held_rows_by_status.values():
+            status_rows[source_name] = 0
+        for held_row, hold_status, hold_reason in held_rows:
+            held_domain = normalize(held_row.get("domain", "")) or normalize(held_row.get("domain_route", "")) or cfg["domain"]
+            audit_source_row = {**held_row, "normalization_status": hold_status, "normalization_notes": hold_reason}
+            audits.append(audit_row(audit_source_row, source_name, held_domain, cfg["dataset"]))
+            held_papers_by_status[hold_status].add(paper_id_for(held_row))
+            held_rows_by_status[hold_status][source_name] += 1
         explicit_clinical_sources = {
             clinical_observation_signature(r): r for r in source_rows if explicit_clinical_observation(r)
         }
@@ -12207,7 +12338,6 @@ def build_tables(
         explicit_intervention_sources = {intervention_source_signature(r) for r in source_rows if intervention_source_contract(r)}
         explicit_pk_sources = {pk_observation_signature(r): r for r in source_rows if explicit_pk_observation(r)}
         recovered_pk_sources: set[tuple[str, ...]] = set()
-        source_counts[source_name] = len(source_rows)
         source_domain = cfg["domain"]
         source_dataset = cfg["dataset"]
         default_evidence_type = cfg["default_evidence_type"]
@@ -12983,7 +13113,6 @@ def build_tables(
     proposition_summary = finalize_proposition_groups(findings, evidence_edges, finding_id_field)
     research_area_queue, research_area_summary = build_review_queue(findings, audits)
     papers_df = dataframe(list(papers.values()))
-    doi_aliases = load_doi_aliases(doi_alias_registry_path)
     funding_assertions = pd.DataFrame()
     funding_attempts = pd.DataFrame()
     funding_report = {
@@ -13137,6 +13266,23 @@ def build_tables(
         "registry_path": str(registry_path),
         "node_vocabulary_path": str(node_vocabulary_path),
         "source_counts": source_counts,
+        "curated_paper_decisions": {
+            "graph_disposition_overrides": curated_input_record(graph_disposition_overrides_path),
+            "paper_metadata_overrides": curated_input_record(paper_metadata_overrides_path),
+            "held_papers": len(paper_decisions["held_papers"]),
+            "cleared_abstracts": len(paper_decisions["cleared_abstracts"]),
+            "curated_titles": len(paper_decisions["curated_titles"]),
+            "source_identity_held_rows": held_rows_by_status[SOURCE_IDENTITY_HOLD_STATUS],
+            "source_identity_held_paper_ids": sorted(held_papers_by_status[SOURCE_IDENTITY_HOLD_STATUS]),
+            "retraction_status": {
+                **curated_input_record(retraction_status_path),
+                "last_check": paper_decisions["retraction_last_check"],
+                "check_covers_evidence_run": retraction_check_covers_run,
+            },
+            "retracted_papers": len(paper_decisions["retracted_papers"]),
+            "retracted_held_rows": held_rows_by_status[RETRACTED_HOLD_STATUS],
+            "retracted_held_paper_ids": sorted(held_papers_by_status[RETRACTED_HOLD_STATUS]),
+        },
         "tables": {
             table_name: {
                 "path": str(out_dir / f"{table_name}.parquet"),
@@ -13262,6 +13408,24 @@ def parse_args() -> argparse.Namespace:
         help="Registered DOI aliases applied to paper and funding identities.",
     )
     parser.add_argument(
+        "--graph-disposition-overrides",
+        type=Path,
+        default=DEFAULT_GRAPH_DISPOSITION_OVERRIDES,
+        help="Curated final dispositions; papers marked source_not_verified are held from the graph.",
+    )
+    parser.add_argument(
+        "--paper-metadata-overrides",
+        type=Path,
+        default=DEFAULT_PAPER_METADATA_OVERRIDES,
+        help="Curated paper metadata; corrected titles are applied and rows from cleared abstracts are held.",
+    )
+    parser.add_argument(
+        "--retraction-status",
+        type=Path,
+        default=DEFAULT_RETRACTION_STATUS,
+        help="Output of pipeline/ingest/check_retractions.py; rows of retracted papers are held.",
+    )
+    parser.add_argument(
         "--allow-current-overwrite",
         action="store_true",
         help="Allow a routed KG build to write directly to data/processed/kg.",
@@ -13295,6 +13459,9 @@ def main() -> None:
         open_science_features_path=args.open_science_features,
         open_science_assertions_path=args.open_science_assertions,
         doi_alias_registry_path=args.doi_alias_registry,
+        graph_disposition_overrides_path=args.graph_disposition_overrides,
+        paper_metadata_overrides_path=args.paper_metadata_overrides,
+        retraction_status_path=args.retraction_status,
         out_dir=out_dir,
         write_duckdb=not args.skip_duckdb,
     )

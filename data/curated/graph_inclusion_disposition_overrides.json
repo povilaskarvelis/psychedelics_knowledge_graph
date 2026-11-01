@@ -47,6 +47,22 @@
       "disposition": "extraction_failed",
       "reason": "Gemini V2 review extraction failed twice from verified article text and once from the abstract because the model generated pathological repeated Unicode combining marks until truncation.",
       "next_action": "Retain the selected report and retry only with a materially different model or extraction implementation."
+    },
+    {
+      "dois": [
+        "10.26190/98dq-9g49"
+      ],
+      "disposition": "source_not_verified",
+      "reason": "The DOI identifies the South Australian Drug Trends 2020 EDRS report, but the retrieved article text carries a different document DOI (10.26190/unsworks/31806) and describes 2025 interviews; the extraction model reported the mismatch.",
+      "next_action": "Revisit only if the 2020 report text can be retrieved and verified."
+    },
+    {
+      "dois": [
+        "10.1111/jnc.15896"
+      ],
+      "disposition": "source_not_verified",
+      "reason": "Crossref identifies this DOI as a poster-session collection (Journal of Neurochemistry 2023, 'Poster Sessions A'). The attached abstract is one poster within it, so its findings cannot be attributed to this record.",
+      "next_action": "Revisit only if the poster's own record can be identified."
     }
   ]
 }
