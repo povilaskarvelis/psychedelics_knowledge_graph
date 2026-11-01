@@ -70,6 +70,14 @@ def relation_for_legacy_alias_type(value: object) -> str:
     return LEGACY_ALIAS_RELATIONS[legacy]
 
 
+def work_relation_index(path: Path = DEFAULT_WORK_REGISTRY) -> dict[frozenset[str], str]:
+    """Map each registered pair of DOIs, in either order, to its relation."""
+    return {
+        frozenset((record["alias_doi"], record["canonical_doi"])): record["relation"]
+        for record in load_work_relations(path)
+    }
+
+
 def load_work_relations(path: Path = DEFAULT_WORK_REGISTRY) -> list[dict[str, str]]:
     """Return the registry's alias records with their relation in the fixed vocabulary."""
     payload = json.loads(Path(path).read_text(encoding="utf-8"))

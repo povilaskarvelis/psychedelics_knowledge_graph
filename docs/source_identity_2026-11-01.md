@@ -1,12 +1,13 @@
 # Source identity: causes and fix design — 1 November 2026
 
-> **Status, 1 November 2026.** Steps 1–3 of §8 are implemented.
+> **Status, 1 November 2026.** Steps 1–4 of §8 are implemented.
 >
 > 1. The full-text gate decides per artifact, and a paper whose stored text is rejected falls back to its abstract.
 > 2. The shared metadata merge applies curated decisions last.
 > 3. `pipeline/identity/` holds the decision file (`data/curated/source_identity_decisions.jsonl`) and the `migrate` command, which gathers 363 decisions on 352 papers from six older files.
+> 4. `python -m pipeline.identity audit` writes a review queue without changing pipeline data. On the candidate it queued 1,521 items (§6.1).
 >
-> The pipeline still reads the older files until step 5.
+> The pipeline still reads the older files until step 5. Decision D4 (§7) is new.
 
 ## Scope and method
 
@@ -293,6 +294,37 @@ Expected decisions:
 - **DOI belongs to another paper** (59 confirmed): find the correct DOI for the screened title, retrieve its text and re-extract. The screening decision stands, because it was made on the right title and abstract.
 - **Screening made on another work's abstract** (such as the 1917 item): hold the record (decision D2).
 
+### 6.1 Audit of the candidate, 1 November
+
+`python -m pipeline.identity audit` was run on the candidate's extraction outputs (`routed_runs/luna_v5_20261030_safety_final`) and findings (`latest_graph_preview_vocabulary_20261031/kg`). It took about 3 minutes and read the first pages of 2,866 PDFs. Its queue is in `data/processed/identity/audits/20261101T182251Z/`.
+
+It queues items for papers that have findings in the candidate (1,397 items) or are retained for extraction (124). Items about other records are counted but not queued (5,673, mostly component DOIs and shared abstracts of excluded records); `--include-corpus` queues them too. 123 items are left out because a current decision settles them.
+
+| Check | Queued | Rules and suggested decisions |
+|---|---:|---|
+| Full texts | 1,333 | 1,001 title only, 998 of them suggested `verified` (D4); 130 identifier only (65 suggested `verified`); 100 the paper's title under another DOI, suggested `version_of` (44 preprint, 34 repository copy, 22 same publication); 71 too little evidence; 8 the paper's DOI under another title; 6 another DOI with an unclear title (5 suggested `version_of`); 5 possible multi-item pages; 4 printed DOI matches but the parsed DOI differs; 5 supplements or correction notices, suggested `wrong_kind`; 2 another title without an identifier; 1 another work, suggested `not_this_work` (the 2025 Drug Trends report) |
+| Shared abstracts | 166 | 144 one report under DOIs the registry does not link, suggested `version_of`; 12 web-page text, suggested `wrong_kind`; 3 another work's abstract, suggested `not_this_work`; 7 for review |
+| Model statements | 18 | review |
+| Record titles against PubMed | 4 | 3 suggested `record_corrected`; 1 for review |
+
+Compared with the investigations [V]:
+
+- All 47 preprints are suggested as `version_of` (preprint), 36 of the 82 repository versions as repository copies and 20 of the 30 publisher aliases as the same publication. The others are verified by the rule, already decided, or outside the release and the extraction cohort.
+- 41 of the 47 DOI-reading errors are no longer queued: the rule reads the paper's DOI when a parser cut it or ran it on into a link, and the PDF's first pages when the parsed text has no DOI.
+- 17 of the 36 papers with model statements are queued. The other 19 already have decisions, mostly title or abstract corrections that answer the statement.
+- Most of the 386 wrong abstracts and the 59 DOI–title disagreements belong to records that are neither in the candidate nor retained for extraction, so they are counted, not queued.
+
+Testing on these cases changed the rule in six places (`pipeline/identity/README.md`):
+
+- Numbers are compared as digits in order, so the 2020 and 2025 Drug Trends reports differ while "H215O" and "H(2)(15)O" do not.
+- A parsed heading that is not a title (masthead, cover-sheet notice, section heading, page number) is ignored, and the paper's title printed at the start counts.
+- The paper's DOI printed in the text no longer outweighs another DOI the parser read as the document's own. This catches `10.1016/j.jad.2026.121662`, whose repository cover sheet names the paper above an oncology article.
+- The pages after a repository cover sheet are checked instead of the cover sheet (58 PDFs).
+- A page that prints other DOIs and agrees only by a printed title is a possible multi-item page (abstract books).
+- A text that opens with supplementary figure or table captions is a supplement (`10.1038/s41467-026-70885-3`).
+
+The audit applies the record corrections already in the decision file before checking texts. Two titles corrected on 1 November (`10.1038/s41386-023-01617-0`, `10.1080/10826084.2020.1717536`) therefore verify against their full texts.
+
 ---
 
 ## 7. Decisions needed
@@ -305,6 +337,9 @@ Expected decisions:
 - **D3. A title check against Crossref and DataCite for every DOI.** This is needed to find all record-level DOI errors: 98,135 DOIs have no PubMed record to compare against.
   - It costs about 24,000 read-only lookups for represented papers: about 80 minutes at 5 requests per second.
   - Recommended.
+- **D4. Full texts that match by title alone** (1,001 in the queue: 936 papers in the candidate with 3,700 main findings, and 65 retained for extraction). Their title agrees with the paper, but no DOI, PMID or PMCID was found in the parsed text or on the PDF's first pages. Most of these PDFs print no DOI: in a sample of 120, one printed it on its first two pages and four printed it anywhere. Under the rule they are unconfirmed, so step 5 would stop using them unless they are decided. The current audit accepts them (rule R1d).
+  - Recommended: check a random sample of 50 against the PDFs. If all are the right paper, record the 998 with similarity of at least 0.95 or a printed title as `verified` in one batch, with that sample as the basis.
+  - Alternative: accept title-only texts by a named rule in the verifier (title similarity at least 0.95, an article, no other DOI read as the document's own).
 
 ---
 

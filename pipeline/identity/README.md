@@ -34,12 +34,98 @@ Rules:
 - `register.py` validates every line, and pipeline runs never write the file.
 - Earlier lines are kept byte for byte when decisions are appended.
 
+## The rule
+
+`verify.py` decides whether a text belongs to a paper. A text is verified
+when an identifier taken from the source itself (a DOI, PMID or PMCID in the
+document header or provider record) and the source's title both agree with the
+paper. An identifier alone or a title alone leaves it unconfirmed.
+
+`evidence.py` reads and compares the evidence:
+
+- DOIs that say nothing about the paper are set aside: truncated or run-on
+  parses of the paper's own DOI, and funder, ISSN, issue and placeholder DOIs.
+  A run-on parse still prints the paper's full DOI and counts as it.
+- The paper's DOI printed in the first pages confirms the paper when the
+  parser read no other DOI as the document's own. When it read another, the
+  text stays unconfirmed: that DOI may be a cited article's, or the paper's DOI
+  may be on a cover sheet attached to another text. A preprint or repository
+  DOI given as the document's own marks a version.
+- Other DOIs printed in the first pages never contradict the paper, because
+  page one also prints cited and related DOIs. When only the printed title
+  agrees, they mark a page that may hold several items, such as an abstract
+  book.
+- A repository cover sheet describes the deposit, not the attached file. The
+  audit checks the pages after it, from the PDF.
+- Titles are compared with numbers kept: otherwise equal titles with different
+  numbers are different editions, years or parts. A title without its subtitle
+  agrees with the full title.
+- A parsed title that is not the document's title (a journal or repository
+  masthead, a cover-sheet notice, a section heading or letter-spaced text) is
+  ignored unless it agrees with the paper's title. The paper's title printed
+  at the start of the text then counts as the title.
+- DOIs broken across lines are rejoined before they are read.
+- Supplements and correction notices are not the article.
+
+| Verdict | Meaning |
+|---|---|
+| `verified` | identifier and title agree |
+| `version_of` | the source names another DOI of the same work, registered in the work registry |
+| `unconfirmed` | only one kind of evidence, or none |
+| `conflict` | identifier and title do not point to the same work |
+| `wrong_kind` | the text or the paper's DOI is not an article |
+
 ## Commands
 
 ```bash
 python -m pipeline.identity migrate
 python -m pipeline.identity migrate --check
+python -m pipeline.identity audit
 ```
+
+### audit
+
+`audit` lists the texts and records that need a decision. It changes no
+pipeline data; it writes `review_queue.csv` and `audit_summary.json` to a new
+folder under `data/processed/identity/audits/`.
+
+| Check | Target | Evidence |
+|---|---|---|
+| `fulltext` | a stored full text | header identifiers and title, the first pages of the PDF when the parsed text is not enough, document kind |
+| `shared_abstract` | an abstract | the same abstract on records that the work registry does not link; the title that agrees with it owns it |
+| `record_title` | a record | PubMed's title for the record's DOI |
+| `record_doi` | a record | a DOI that names no work, or a part of another item |
+| `openalex_pmid_collision` | a record | an OpenAlex work ID equal to the PMID of another work |
+| `model_report` | the text the release used | the extraction model wrote that the text and the paper differ (`model_reports.py`) |
+
+It reads the candidate ledger, the stored full texts and PDFs, the PubMed
+records kept from discovery, the work registry and the decision file, and the
+release's extraction outputs and findings. By default the release is the
+active one; another is named with `--outputs` and `--kg-dir`:
+
+```bash
+python -m pipeline.identity audit \
+  --outputs data/processed/extraction/routed_runs/<run_id>/route_extraction_outputs.jsonl \
+  --kg-dir <release folder>/kg
+```
+
+Record corrections in the decision file are applied to the audit's copy of
+the ledger before texts are checked. An item that a current decision already
+settles is left out and counted. A hold settles nothing. Items about records that are neither in the release nor
+retained for extraction are counted but not queued; `--include-corpus` queues
+them too. Each queued item has:
+
+- `scope`: `release` when the release has findings for the paper, `extraction`
+  when the paper is retained for extraction, `corpus` otherwise; the queue is
+  sorted by scope, verdict and main-graph findings;
+- `verdict` and `rule` from the check;
+- a suggested decision (`suggested_verdict`, `suggested_relation`,
+  `suggested_related_doi`, `suggested_fields`) with its basis, or `review`
+  when the evidence does not point to one;
+- `target`: the text or record a decision would name, by SHA-256 and document
+  DOI;
+- the findings the release has for the paper, and the decisions it already
+  has.
 
 `migrate` copies the decisions still kept in older files into the decision
 file:
@@ -57,7 +143,8 @@ Migrated entries are regenerated on every run. Decisions added directly to the
 file are kept. `--check` writes nothing and exits 1 when the file no longer
 matches those sources. Run `migrate` after editing any of them.
 
-The pipeline still reads the older files. Readers move to the decision file in
-later steps (`audit`, `decide`, `apply`; §8 of the design document). Access
-overrides and the DOI alias registry stay where they are: the first decides how
-text is retrieved, and the second is the work registry, read through `works.py`.
+The pipeline still reads the older files, and no pipeline stage calls
+`verify.py` yet. Readers move to the decision file and the verifier in later
+steps (`decide`, `apply`; §8 of the design document). Access overrides and the
+DOI alias registry stay where they are: the first decides how text is
+retrieved, and the second is the work registry, read through `works.py`.
