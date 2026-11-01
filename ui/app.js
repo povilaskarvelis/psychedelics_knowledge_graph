@@ -12622,6 +12622,57 @@ async function loadGraphPayloadConfig() {
   return graphPayloadConfigPromise;
 }
 
+const RELEASE_CHECK_INTERVAL_MS = 10 * 60 * 1000;
+let lastReleaseCheckAt = Date.now();
+let newerReleaseNoticeShown = false;
+
+function archivedReleaseCopy() {
+  return Boolean(document.querySelector('meta[name="kg-archived-release"]'));
+}
+
+// A page keeps the release it opened with; tell the reader when a newer one is
+// published instead of switching data under an open session.
+async function checkForNewerRelease() {
+  if (newerReleaseNoticeShown || archivedReleaseCopy() || localDataSourceRequested()) return;
+  if (document.visibilityState !== "visible" || !graphPayloadConfigPromise) return;
+  if (Date.now() - lastReleaseCheckAt < RELEASE_CHECK_INTERVAL_MS) return;
+  lastReleaseCheckAt = Date.now();
+  try {
+    const loaded = await graphPayloadConfigPromise;
+    const response = await fetch(loaded.__pointer_url, { cache: "no-store" });
+    if (!response.ok) return;
+    const live = await response.json();
+    if (live?.release_id && loaded?.release_id && live.release_id !== loaded.release_id) {
+      showNewerReleaseNotice();
+    }
+  } catch {
+    // A failed check leaves the open release in place.
+  }
+}
+
+function showNewerReleaseNotice() {
+  newerReleaseNoticeShown = true;
+  const notice = document.createElement("div");
+  notice.className = "release-update-notice";
+  notice.setAttribute("role", "status");
+  notice.innerHTML = `
+    <p>A newer release of the graph has been published. This page still shows the release it
+    opened with, which stays listed under <a href="/methods/#release-notes">Release notes</a>.</p>
+    <div class="release-update-notice-actions">
+      <button type="button" data-release-notice-action="reload">Load the newer release</button>
+      <button type="button" data-release-notice-action="dismiss">Keep this release</button>
+    </div>
+  `;
+  notice.addEventListener("click", (event) => {
+    const action = event.target.closest("[data-release-notice-action]")?.dataset.releaseNoticeAction;
+    if (action === "reload") window.location.reload();
+    if (action === "dismiss") notice.remove();
+  });
+  document.body.appendChild(notice);
+}
+
+document.addEventListener("visibilitychange", checkForNewerRelease);
+
 function analysisSourceClaims(source = "all") {
   return analysisDataBySource?.[source] || claimStores.normalized.bySource[source] || [];
 }

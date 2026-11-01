@@ -1,5 +1,12 @@
 # Pipeline review — 31 October 2026
 
+> **Status, 1 November 2026.** The code reviewed here was committed in `fb6c963`; the suite then had one failure (`bs4` not installed). Two recommendations were withdrawn by project decision:
+>
+> - No papers will be re-screened (S1, S2, I3, I9, §4, §7.1 item 4, §7.2 item 7).
+> - "Open access" keeps its project definition: the pipeline obtained the paper's full text. Publisher and OpenAlex open-access flags are not used because they are often wrong (U1).
+>
+> Release safety was addressed on 1 November (not yet published): U3 by a retention policy and a release archive that keeps earlier releases viewable, U2 by frozen paper keys for public refreshes, and U4 by a check that a scoped update's base release is still active. See `docs/r2_deployment.md`.
+
 ## Scope and method
 
 This review covers the whole pipeline, from search to the public site and API. It reviews the current working tree, including about 17,700 uncommitted lines of pipeline changes. The data checked are:
@@ -56,7 +63,7 @@ The serious problems are scientific rather than mechanical. They fall into five 
    - Primary findings have no supporting quotes; statistics are free text.
    - One result is copied to several conditions or several compounds.
 4. **Operations put data and releases at risk:**
-   - The candidate was built from uncommitted code.
+   - The candidate was built from uncommitted code (committed on 1 November in `fb6c963`).
    - Run state, including the spending ledger, lives in Dropbox, which has already produced conflicting copies of that ledger.
    - The release scripts delete every unpromoted run.
    - A routine public refresh would publish headline counts from mutable state.
@@ -251,13 +258,13 @@ Structural:
 |---|---|---|---|---|
 | I1 | No check that an abstract belongs to the titled paper or is unique to its DOI. Wrong abstracts produce findings (see §2.2) | Critical | `abstract_quality.py:119-163`; examples [V] | Quick: hash normalized abstracts; treat abstracts shared by non-aliased DOIs or with negligible title overlap as unverified. Larger: per-field provenance; abstract-only extraction only from a DOI-verified abstract source |
 | I2 | The same report under several DOIs; the alias registry is manual (129 records, 69 without an evidence basis) | High | 68 duplicate groups with findings in the candidate [R] | Generate alias candidates from shared PMID, PMCID or OpenAlex ID, or identical title, abstract and year; block release while candidates are unreviewed; later a DOI-independent work ID |
-| I3 | The canonical prescreen table is stale and labelled with a rule version that was never run. `rerun_luna.py:154-168, 199-201` copied the July (v2_9) decisions and stamped them `cleanup_only_luna_v5_20261017`. Re-running the current rules changes 4,657 decisions: 793 excluded records would be retained, including 218 case reports and 46 trials; 319 retained records would be excluded, 15 of them represented | High | [R]; examples such as "LSD flashbacks" (`10.1001/archpsyc.1984.01790170105015`) are currently excluded as non-evidence letters [V] | Re-run the cleanup prescreen (offline, about 1 minute); send the 793 to Luna; store a rule-set hash with each decision |
+| I3 | The canonical prescreen table is stale and labelled with a rule version that was never run. `rerun_luna.py:154-168, 199-201` copied the July (v2_9) decisions and stamped them `cleanup_only_luna_v5_20261017`. Re-running the current rules changes 4,657 decisions: 793 excluded records would be retained, including 218 case reports and 46 trials; 319 retained records would be excluded, 15 of them represented | High | [R]; examples such as "LSD flashbacks" (`10.1001/archpsyc.1984.01790170105015`) are currently excluded as non-evidence letters [V] | Re-screening declined (1 November). Label the table with the rule version that produced it (v2_9) and store a rule-set hash with each decision |
 | I4 | One PubMed record with an epub/print year gap aborts a whole metadata write after the cache was already written (`metadata_utils.py:509-522` vs `:933-944`; `materialize_candidate_metadata.py:63-85`) | High when triggered | 56 such rows in the cache [R] | Quarantine conflicting rows; take year and date from the same element |
 | I5 | The language rule depends on which provider filled the field. 50% of rows have no language. PubMed "English Abstract" (a non-English article) is mostly not excluded: 17 such reports with 40 findings are in the candidate. The batch PMC path can take a translated abstract | Medium | `run_deterministic_prescreen.py:844-864`; `run_batch_abstract_enrichment.py:261-269` [R] | Use PubMed Language and the "English Abstract" type; restrict PMC to the main front-matter abstract |
 | I6 | Provider identity checks are inconsistent: the per-record Semantic Scholar lookup accepts another DOI's record; batch PMC and PMID-only matches skip the DOI check | Medium | `metadata_utils.py:1437-1506`; `run_batch_abstract_enrichment.py:290-300, 327` [R] | Reject any response whose DOI differs |
 | I7 | Trial registry IDs are harvested from the whole PubMed XML, including reference lists, so reviews inherit the IDs of trials they cite | Medium | `metadata_utils.py:992-997`; 452 reviews carry 3,699 such IDs [R] | Limit to title, abstract, DataBankList and the Crossref clinical-trial number |
 | I8 | Writes unlocked and partly non-atomic; full-cache rewrite at each checkpoint (§2.4) | Medium | [R] | One ledger lock, one atomic-write helper, append-only checkpoints |
-| I9 | The abstract gate excludes plausibly relevant records. 87,479 records are excluded for having no usable abstract; 12,685 of them have a psychedelic or ketamine term in the title (320 case reports, 320 trials, 287 with a PMCID). Short-abstract formats are excluded systematically: "Key Clinical Message" case reports, JAMA research letters | Medium (recall) | [R] | Send title-term records with a PMCID or a short abstract to title-only or full-text screening |
+| I9 | The abstract gate excludes plausibly relevant records. 87,479 records are excluded for having no usable abstract; 12,685 of them have a psychedelic or ketamine term in the title (320 case reports, 320 trials, 287 with a PMCID). Short-abstract formats are excluded systematically: "Key Clinical Message" case reports, JAMA research letters | Medium (recall) | [R] | Declined for existing records (no re-screening, 1 November). For new records in later updates: send title-term records with a PMCID or a short abstract to title-only or full-text screening |
 | I10 | DOI keys are not validated: 153 "pii: …" keys; trailing-dot handling differs between normalizers ("10.1124/mol.67.1." is represented, while the correct DOI is not); `open_science_features.py:343-344` strips a valid trailing ")" | Low | [R] | One shared, validating normalizer |
 | I11 | Abstract provenance mislabelled: 5,205 abstracts are attributed to Unpaywall, which never returns abstracts. The contamination check depends on that label | Low | `enrich_paper_metadata.py:312` [R] | Record the provider per field |
 | I12 | SSRN preprints pass preprint detection (117 records); `10.2139/ssrn.4237108` duplicates its journal version | Low | `preprint_detection.py:9-22` [R] | Add the `10.2139/ssrn` pattern and link versions |
@@ -274,8 +281,8 @@ Domain hardcoding:
 
 | # | Finding | Sev. | Location / evidence | Fix |
 |---|---|---|---|---|
-| S1 | The schema puts the decision before the reasons: `domain_tags`, `primary_domain`, `screening_decision`, `screening_reason`, …, `rationale` (`run_domain_routing.py:124-160`). Median reasoning is 24 tokens. 53 accepted decisions contradict their own reason: 52 inclusions whose reason concludes exclusion, 1 the reverse. 34 of them contribute 160–166 edges in the candidate (25–27 in the main graph). Separately, 12,778 exclusions wrote area tags, which were stripped without a record because `validate_record` returns early for V5 | High | Schema order [V]; examples `10.1182/blood-2024-194510` (epoetin), `10.2196/73815` (VR-CBT), `10.1002/dta.3519` (HHC), all "include" with reasons ending "excluded" [V]; counts [R] | Quick: re-screen the 53; fix the early return in `screening_contract.py:220-221`. Larger: order fields as evidence → reason → decision → type → tags |
-| S2 | Recall is not monitored (§2.1). Seven of the 12 sampled misses concern ketamine purpose rules, and rule 3 (a drug's own mechanism or toxicity qualifies) conflicts with rule 4 (anesthesia and analgesia exclusion) in `docs/screening/title_abstract_screening.md:49-79`. There is no needs-review state | High | [R] | Second independent pass over exclusions that name an in-scope compound, including a paper if either pass includes it; resolve rules 3 and 4; a human-labelled random audit of exclusions in each update |
+| S1 | The schema puts the decision before the reasons: `domain_tags`, `primary_domain`, `screening_decision`, `screening_reason`, …, `rationale` (`run_domain_routing.py:124-160`). Median reasoning is 24 tokens. 53 accepted decisions contradict their own reason: 52 inclusions whose reason concludes exclusion, 1 the reverse. 34 of them contribute 160–166 edges in the candidate (25–27 in the main graph). Separately, 12,778 exclusions wrote area tags, which were stripped without a record because `validate_record` returns early for V5 | High | Schema order [V]; examples `10.1182/blood-2024-194510` (epoetin), `10.2196/73815` (VR-CBT), `10.1002/dta.3519` (HHC), all "include" with reasons ending "excluded" [V]; counts [R] | Re-screening declined (1 November). Fix the early return in `screening_contract.py:220-221`. For new records in later updates, order fields as evidence → reason → decision → type → tags |
+| S2 | Recall is not monitored (§2.1). Seven of the 12 sampled misses concern ketamine purpose rules, and rule 3 (a drug's own mechanism or toxicity qualifies) conflicts with rule 4 (anesthesia and analgesia exclusion) in `docs/screening/title_abstract_screening.md:49-79`. There is no needs-review state | High | [R] | A second pass over existing exclusions was declined (no re-screening, 1 November). For later updates: resolve rules 3 and 4; a human-labelled random audit of exclusions in each update |
 | S3 | Unscreened papers can reach extraction. A prescreen-retained DOI with no Luna row gets a retained `general_primary` route with an empty decision (`build_extraction_routes.py:1231-1238, 910-924`). The documented `--refresh-derived` scoped update runs prescreen and route rebuild without screening (`run_scoped_paper_update.py:394-418`). `parsed_rows_from_raw` drops rows that fail the current validator (`run_domain_routing.py:707-712`), so a rebuild would turn the 53 rows from S1 into unscreened routes | High | [R] (mechanism reproduced; not observed in production) | Mark such DOIs `awaiting_screening` and not retained; assert routing ⊇ prescreen-retained before canonical writes |
 | S4 | A full rerun erases curated overrides (§2.4) | High | `rerun_luna.py:70-83` [V] | Keep identity and format curation and reapply it automatically; put scope curation on a re-review list |
 | S5 | A scoped route build still overwrites the canonical route table (September #2) | Medium | `build_extraction_routes.py:1217, 1823` [R] | Refuse `--doi-file` when the output is the canonical table |
@@ -377,7 +384,7 @@ Data observations from the candidate:
 
 | # | Finding | Sev. | Location / evidence | Fix |
 |---|---|---|---|---|
-| U1 | "Open access" is really extraction depth, and it is the default Explore filter. `accessView = "open"` (`ui/app.js:549`) keeps findings whose source text was full text (`:1448-1457`) and labels them "Open access" (`:6458-6466`). The default view hides 11,825 of 23,058 candidate reports (51%), mostly older literature: 66% of pre-2021 primary papers are abstract-only [V]. 2,027 abstract-only reports are open access, and 138 extracted reports are not [R] | High | [V] | Quick: rename to "Full-text extraction" and default to all records. Larger: add a real open-access facet |
+| U1 | "Open access" means the pipeline obtained the paper's full text; publisher and OpenAlex flags are not used because they are often wrong (project definition, confirmed 1 November). The default Explore view shows these reports (`ui/app.js:549, 1448-1457, 6458-6466`). The label is consistent within each paper: no paper mixes access levels [V]. It is wrong only where the retrieved document is a different paper (T1, T5) or where the extraction fallback sends the abstract and stamps it `article_text` (X4) | — | [V] | No change to the label or the default; fix T1, T5 and X4 |
 | U2 | A refresh would publish denominators from the mutable ledger (§2.4) | High | [V] code; simulation [R] | Freeze a ledger snapshot and hash per release; `--check-active` should validate the ledger and the represented DOI set |
 | U3 | Pruning deletes candidates; the remote prune removes all earlier releases (§2.4) | High | [V] | Protect candidates; keep the last N releases; make pruning a separate opt-in command |
 | U4 | Scoped update against a superseded base (§2.4) | High | [P] | Require the base release ID to equal the active pointer's |
@@ -414,7 +421,7 @@ Assets are cached as immutable for one year while cache-busting is done by hand.
 - Version links between preprint, published and translated editions.
 - Structured direction and significance for all primary domains.
 - Verbatim support and number verification for primary findings.
-- A screening path for records without an abstract (title-only, or full text when a PMCID exists).
+- A screening path for new records without an abstract (title-only, or full text when a PMCID exists); existing records are not re-screened.
 - A path for the 61,951 records without a DOI.
 - External identifiers in the registry.
 - A consistency check between the scope vocabulary and the registry.
@@ -431,7 +438,6 @@ Assets are cached as immutable for one year while cache-busting is done by hand.
 
 **Questionable steps**
 
-- The "Open access" default.
 - Excluding a record solely because its abstract has fewer than 50 words.
 - Separate extraction calls per research area.
 - A schema that asks for the decision before the reasons.
@@ -465,7 +471,7 @@ Assets are cached as immutable for one year while cache-busting is done by hand.
 | 09-05 control characters in doses | None in candidate outputs; still in deployed (57 dose fields) and in inputs (T6); no release gate |
 | 09-05 reports counted as studies | Still present (§2.2) |
 | 09-05 no primary quotes, free-text statistics | Still present (X3) |
-| 09-05 "Open access" conflated with depth | Still present (U1) |
+| 09-05 "Open access" conflated with depth | Not a defect: "Open access" is defined as full text obtained by the pipeline (U1) |
 | 09-05 duplicated Python/JS classification | Still present, now with an observed divergence (U8) |
 | 10-25 readiness: hold dispositions | Fixed |
 | 10-25 readiness: V6.1 boundary | Still open; it does not address misses among exclusions |
@@ -480,6 +486,8 @@ Assets are cached as immutable for one year while cache-busting is done by hand.
 - `test_repository_requires_report_specific_identity_and_abstract`: `bs4` is not installed in the main environment.
 
 A red suite that is expected to be red stops failures from being noticed. Fix these four and add CI.
+
+Update, 1 November: after commit `fb6c963`, 2,694 passed and 1 failed (`bs4`).
 
 ---
 
@@ -497,10 +505,9 @@ A red suite that is expected to be red stops failures from being noticed. Fix th
    - enforce model-reported identity mismatches in all three parsers;
    - hold DOIs that share an abstract with a differently titled DOI;
    - commit the full-text identity guard and triage the 223 artifacts.
-4. **Screening (S1):** re-screen the 53 self-contradicting decisions; fix the validator's early return.
+4. **Screening (S1):** fix the validator's early return. Re-screening the 53 decisions was declined (1 November).
 5. **Registry (§2.2, K6):** add the 16 missing in-scope compounds; add a test that every scope compound resolves; remove the aliases that equate distinct concepts.
-6. **Interface (U1, U5–U7, U9):**
-   - rename "Open access" and default to all records;
+6. **Interface (U5–U7, U9):**
    - show evidence locations and quotes;
    - export unique per-node counts;
    - state the display threshold.
@@ -510,8 +517,8 @@ A red suite that is expected to be red stops failures from being noticed. Fix th
    - check the base release in scoped updates;
    - stop full reruns from erasing identity curation.
 8. **Code state:**
-   - commit the 17,700 lines (with the untracked modules they import) in reviewable pieces;
-   - fix the five failing tests;
+   - done on 1 November: the code is committed (`fb6c963`) and four of the five failing tests pass;
+   - install `bs4` or mark that test as needing it;
    - pin one environment;
    - add CI that runs the suite.
 9. **Retractions:** run a retraction check before the release.
@@ -541,12 +548,9 @@ A red suite that is expected to be red stops failures from being noticed. Fix th
    - section-type inheritance and all figure captions;
    - sup/sub and Symbol-font repair;
    - supplement detection and a completeness gate.
-7. **Screening:**
+7. **Screening (new records in later updates only; no re-screening, 1 November):**
    - reorder the schema (evidence → reason → decision);
-   - a second pass over exclusions that name an in-scope compound;
-   - resolve the rule 3 / rule 4 conflict;
-   - a title-only or full-text path for no-abstract records;
-   - re-run the prescreen under the current rules (793 records).
+   - resolve the rule 3 / rule 4 conflict.
 
 ### 7.3 Architecture, including generalization to other fields
 

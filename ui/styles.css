@@ -1676,6 +1676,91 @@ button.primary:hover {
   color: inherit;
 }
 
+.release-archive {
+  margin: 0 0 26px;
+}
+
+.release-archive h3 + p {
+  margin-top: 8px;
+}
+
+.release-archive-list {
+  margin: 12px 0 0;
+  padding-left: 22px;
+  color: var(--muted);
+  font-size: 0.98rem;
+  line-height: 1.68;
+}
+
+.release-archive-list li + li {
+  margin-top: 6px;
+}
+
+.release-archive-list strong {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.release-archive-list a,
+.release-update-notice a {
+  color: var(--link-color);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid var(--link-border);
+}
+
+.release-archive-list a:hover,
+.release-archive-list a:focus-visible,
+.release-update-notice a:hover,
+.release-update-notice a:focus-visible {
+  color: var(--link-color-hover);
+  border-bottom-color: var(--link-border-hover);
+}
+
+.release-update-notice {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1200;
+  max-width: min(440px, calc(100vw - 32px));
+  padding: 14px 16px;
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+  background: var(--card-raised);
+  color: var(--fg);
+  box-shadow: var(--shadow);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.release-update-notice p {
+  margin: 0;
+}
+
+.release-update-notice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.release-update-notice button {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--control-border);
+  border-radius: 6px;
+  background: var(--control-surface);
+  color: var(--fg);
+  font: inherit;
+  cursor: pointer;
+}
+
+.release-update-notice button:hover,
+.release-update-notice button:focus-visible {
+  border-color: var(--control-border-hover);
+  background: var(--control-surface-hover);
+}
+
 .about-feedback-action {
   margin-top: 18px;
 }

@@ -4,6 +4,10 @@ const methodsBibliographySearchEl = document.getElementById("methodsBibliography
 const methodsBibliographySummaryEl = document.getElementById("methodsBibliographySummary");
 const methodsBibliographyRowsEl = document.getElementById("methodsBibliographyRows");
 const methodsBibliographyLoadMoreEl = document.getElementById("methodsBibliographyLoadMore");
+const methodsReleaseArchiveEl = document.getElementById("releaseArchive");
+const methodsReleaseArchiveListEl = document.getElementById("releaseArchiveList");
+const RELEASE_ARCHIVE_INDEX_KEY = "browser/archive/index.json";
+const PUBLIC_SITE_ORIGIN = "https://psychedelicskg.com";
 const PUBLIC_DATA_POINTER_URL = "https://data.psychedelicskg.com/browser/active.json";
 const PUBLIC_PREVIEW_POINTER_URL = "/__preview__/published.json";
 const LOCAL_DATA_POINTER_URL = "/__preview__/active.json";
@@ -633,6 +637,68 @@ function renderMethodsError(error) {
   if (methodsPipelineEl) methodsPipelineEl.innerHTML = message;
 }
 
+function releaseArchiveSiteUrl(key) {
+  // Archived copies are served through the site's /browser/ proxy, so they
+  // share its origin; local previews link to the public site instead.
+  const path = `/${String(key).replace(/^\/+/, "")}`;
+  return LOCAL_DATA_HOSTS.has(window.location.hostname) ? `${PUBLIC_SITE_ORIGIN}${path}` : path;
+}
+
+function formatReleaseDate(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+function renderReleaseArchive(index) {
+  if (!methodsReleaseArchiveEl || !methodsReleaseArchiveListEl) return;
+  const currentId = String(index?.current_release_id || "");
+  const releases = (Array.isArray(index?.releases) ? index.releases : []).filter(
+    (release) => release?.site_entry_key || release?.release_id === currentId
+  );
+  if (!releases.length) return;
+  methodsReleaseArchiveListEl.innerHTML = releases
+    .map((release) => {
+      const isCurrent = release.release_id === currentId;
+      const papers = Number(release.paper_counts?.total);
+      const details = [
+        Number.isFinite(papers) && papers > 0 ? `${formatNumber(papers)} papers` : "",
+        release.site_version ? `site version ${release.site_version}` : "",
+      ].filter(Boolean).join(" · ");
+      let link = "";
+      if (isCurrent) {
+        link = '<a href="/">Current release</a>';
+      } else if (release.site_entry_key) {
+        link = `<a href="${escapeHtml(releaseArchiveSiteUrl(release.site_entry_key))}">View this release</a>`;
+      }
+      const parts = [`<strong>${escapeHtml(formatReleaseDate(release.published_at))}</strong>`];
+      if (details) parts.push(escapeHtml(details));
+      if (link) parts.push(link);
+      return `<li>${parts.join(" · ")}</li>`;
+    })
+    .join("");
+  methodsReleaseArchiveEl.hidden = false;
+}
+
+async function initReleaseArchive() {
+  if (!methodsReleaseArchiveEl) return;
+  try {
+    const pointer = await loadPublicDataPointer();
+    if (pointer.schema_version === LOCAL_DATA_POINTER_SCHEMA) return;
+    const url = new URL(RELEASE_ARCHIVE_INDEX_KEY, `${new URL(pointer.__pointer_url).origin}/`).href;
+    const response = await fetch(url, { cache: "no-store" });
+    if (!response.ok) return;
+    renderReleaseArchive(await response.json());
+  } catch {
+    // The release list is optional; the rest of the page does not depend on it.
+  }
+}
+
 async function initMethods() {
   if (!methodsPipelineEl) return;
   try {
@@ -646,6 +712,7 @@ async function initMethods() {
 
 initMethods();
 initMethodsBibliography();
+initReleaseArchive();
 
 methodsBibliographySearchEl?.addEventListener("input", scheduleBibliographyRender);
 methodsBibliographyLoadMoreEl?.addEventListener("click", appendBibliographyRows);

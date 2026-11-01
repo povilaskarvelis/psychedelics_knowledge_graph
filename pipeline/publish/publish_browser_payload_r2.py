@@ -2,7 +2,9 @@
 """Publish the active public website data release to Cloudflare R2.
 
 Release objects are immutable and checksum-verified. The stable browser pointer
-is replaced only after every file in the release is readable from R2.
+is replaced only after every file in the release is readable from R2. Each
+release is also archived with a copy of the site it was published with
+(see release_archive.py), so it stays viewable after a later release replaces it.
 """
 
 from __future__ import annotations
@@ -10,6 +12,7 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+import tempfile
 from dataclasses import replace
 from pathlib import Path
 
@@ -27,6 +30,26 @@ from pipeline.publish.publish_query_api_r2 import (  # noqa: E402
 )
 from scripts.build_analysis_payload import build_analysis_release
 from pipeline.kg.graph_view_contract import graph_view_ids  # noqa: E402
+from pipeline.publish.release_archive import (  # noqa: E402
+    DEFAULT_DATA_ORIGIN,
+    archive_metadata,
+    archive_slug,
+    build_site_snapshot,
+    entry_from_pointer,
+    find_entry,
+    live_pointer,
+    live_release_is_archived,
+    manifest_paper_counts,
+    read_archive_index,
+    read_existing_archive_pointer,
+    read_release_metadata,
+    source_tree_state,
+    unarchived_live_release_message,
+    upload_site_snapshot,
+    upsert_entry,
+    write_archive_index,
+    write_archive_pointer,
+)
 from services.query_api.config import R2Settings, normalize_r2_prefix  # noqa: E402
 from services.query_api.r2_store import (  # noqa: E402
     ObjectStore,
@@ -50,6 +73,10 @@ METHODS_RELEASE_FILES = {
     "graph_inclusion_dispositions": "graph_inclusion_dispositions.json",
 }
 DETAIL_VIEW_KEYS = set(graph_view_ids())
+
+
+class UnarchivedLiveRelease(RuntimeError):
+    pass
 
 
 def safe_payload_path(browser_runs_dir: Path, relative_path: str) -> Path:
@@ -212,6 +239,12 @@ def publish_active_browser_release(
     browser_prefix: str = "browser",
     expected_run_id: str = "",
     published_at: str | None = None,
+    archive: bool = True,
+    site_source_root: Path | None = ROOT,
+    site_build_dir: Path | None = None,
+    allow_unarchived_outgoing: bool = False,
+    replace_archived_site: bool = False,
+    data_origin: str = DEFAULT_DATA_ORIGIN,
 ) -> dict:
     pointer = read_json_object(active_pointer_path)
     if pointer.get("schema_version") != BROWSER_POINTER_SCHEMA_VERSION:
@@ -241,6 +274,16 @@ def publish_active_browser_release(
     object_prefix = release_object_prefix(
         browser_settings, run_id=run_id, release_id=release_id
     )
+    archive_index = read_archive_index(store, prefix) if archive else None
+    outgoing = live_pointer(store, prefix) if archive else None
+    outgoing_release_id = str((outgoing or {}).get("release_id") or "").strip()
+    if (
+        outgoing
+        and outgoing_release_id != release_id
+        and not live_release_is_archived(outgoing, archive_index)
+        and not allow_unarchived_outgoing
+    ):
+        raise UnarchivedLiveRelease(unarchived_live_release_message(outgoing_release_id))
     release_files = collect_browser_release_files(
         browser_runs_dir=browser_runs_dir,
         manifest_path=manifest_path,
@@ -289,6 +332,16 @@ def publish_active_browser_release(
         raise RuntimeError("Browser release has no manifest")
 
     detail_view_paths = remote_detail_view_path_map(pointer, remote_files)
+    slug = ""
+    if archive:
+        # A re-run for the same release reuses its first publication time, so
+        # its archived pointer and folder stay identical.
+        previous_entry = find_entry(archive_index["releases"], release_id) or {}
+        published_at = str(previous_entry.get("published_at") or "") or published_at or now_utc()
+        slug = str(previous_entry.get("slug") or "") or archive_slug(release_id, published_at)
+        prior_pointer = read_existing_archive_pointer(store, prefix, slug) or {}
+        if prior_pointer.get("release_id") == release_id and prior_pointer.get("published_at"):
+            published_at = str(prior_pointer["published_at"])
     active = {
         "schema_version": BROWSER_ACTIVE_SCHEMA_VERSION,
         "published_at": published_at or now_utc(),
@@ -313,8 +366,43 @@ def publish_active_browser_release(
     }
     if detail_view_paths:
         active["active_detail_bootstraps_by_view"] = detail_view_paths
+    archive_result: dict = {}
+    if archive:
+        paper_counts, finding_count = manifest_paper_counts(manifest)
+        commit, tree_dirty = (
+            source_tree_state(site_source_root) if site_source_root is not None else ("", None)
+        )
+        with tempfile.TemporaryDirectory(prefix="browser-release-archive-") as tmp:
+            snapshot = build_site_snapshot(
+                work_dir=Path(tmp),
+                slug=slug,
+                browser_prefix=prefix,
+                data_origin=data_origin,
+                release_id=release_id,
+                published_at=active["published_at"],
+                paper_total=paper_counts.get("total"),
+                site_source_root=site_source_root,
+                site_build_dir=site_build_dir,
+                commit=commit,
+                tree_dirty=tree_dirty,
+            )
+            active["archive"] = archive_metadata(
+                slug=slug,
+                browser_prefix=prefix,
+                site=snapshot,
+                release_metadata=read_release_metadata(site_source_root),
+                paper_counts=paper_counts,
+                finding_count=finding_count,
+            )
+            archive_result["site_upload"] = upload_site_snapshot(
+                store, snapshot, browser_prefix=prefix, slug=slug, replace=replace_archived_site
+            )
     active_bytes = canonical_json_bytes(active)
     active_sha = sha256_bytes(active_bytes)
+    if archive:
+        archive_result["pointer_upload"] = write_archive_pointer(
+            store, active["archive"]["pointer_key"], active_bytes, replace=replace_archived_site
+        )
     active_key = f"{prefix}/active.json"
     store.put_bytes(
         active_key,
@@ -325,11 +413,22 @@ def publish_active_browser_release(
     )
     if store.get_bytes(active_key) != active_bytes:
         raise RuntimeError("R2 browser pointer failed read-after-write verification")
+    if archive:
+        entries = archive_index["releases"]
+        if outgoing and outgoing_release_id != release_id and find_entry(entries, outgoing_release_id) is None:
+            # Record the replaced release even without an archived copy, so
+            # history pruning keeps it as the previous release.
+            entries = upsert_entry(entries, entry_from_pointer(outgoing))
+        entries = upsert_entry(entries, entry_from_pointer(active))
+        write_archive_index(store, prefix, entries=entries, current_release_id=release_id)
+        archive_result["slug"] = slug
+        archive_result["site_entry_key"] = active["archive"]["site_entry_key"]
     return {
         **active,
         "active_key": active_key,
         "uploaded_count": uploaded_count,
         "existing_count": existing_count,
+        "archive_result": archive_result,
     }
 
 
@@ -340,11 +439,39 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--methods-views-dir", type=Path, default=DEFAULT_METHODS_VIEWS_DIR)
     parser.add_argument("--browser-prefix", default=os.environ.get("PKG_R2_BROWSER_PREFIX", "browser"))
     parser.add_argument("--run-id", default="", help="Require this run to be active")
+    parser.add_argument(
+        "--site-source-root",
+        type=Path,
+        default=ROOT,
+        help="Repository tree whose static site is archived with this release.",
+    )
+    parser.add_argument(
+        "--data-origin",
+        default=os.environ.get("PKG_PUBLIC_DATA_ORIGIN", DEFAULT_DATA_ORIGIN),
+        help="Public origin that serves the browser bucket.",
+    )
+    parser.add_argument(
+        "--no-archive",
+        action="store_true",
+        help="Publish without archiving the release or checking that the live release is archived.",
+    )
+    parser.add_argument(
+        "--allow-unarchived-outgoing",
+        action="store_true",
+        help="Replace a live release that has no archived copy.",
+    )
+    parser.add_argument(
+        "--replace-archived-site",
+        action="store_true",
+        help="Replace this release's archived site copy if it differs from the current site.",
+    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
+    from pipeline.publish.promote_routed_run import promotion_lock
+
     # PKG_R2_* is reserved for the public browser bucket. The API runtime uses
     # the separate PKG_API_R2_* namespace and must never be published here.
     settings = R2Settings.from_env(
@@ -353,21 +480,34 @@ def main() -> int:
         default_object_prefix="browser",
     )
     assert settings is not None
-    result = publish_active_browser_release(
-        store=R2ObjectStore(settings),
-        settings=settings,
-        active_pointer_path=args.active_pointer.resolve(),
-        browser_runs_dir=args.browser_runs_dir.resolve(),
-        methods_views_dir=args.methods_views_dir.resolve(),
-        browser_prefix=args.browser_prefix,
-        expected_run_id=args.run_id.strip(),
-    )
+    with promotion_lock():
+        result = publish_active_browser_release(
+            store=R2ObjectStore(settings),
+            settings=settings,
+            active_pointer_path=args.active_pointer.resolve(),
+            browser_runs_dir=args.browser_runs_dir.resolve(),
+            methods_views_dir=args.methods_views_dir.resolve(),
+            browser_prefix=args.browser_prefix,
+            expected_run_id=args.run_id.strip(),
+            archive=not args.no_archive,
+            site_source_root=args.site_source_root.resolve(),
+            allow_unarchived_outgoing=args.allow_unarchived_outgoing,
+            replace_archived_site=args.replace_archived_site,
+            data_origin=args.data_origin,
+        )
     print(f"Published R2 browser release: {result['release_id']}")
     print(f"Active object: {result['active_key']}")
     print(
         f"Release files: {result['uploaded_count']} uploaded, "
         f"{result['existing_count']} already present"
     )
+    archive_result = result.get("archive_result") or {}
+    if archive_result:
+        site_upload = archive_result.get("site_upload") or {}
+        print(
+            f"Archived site copy: {archive_result['site_entry_key']} "
+            f"({site_upload.get('uploaded', 0)} uploaded, {site_upload.get('existing', 0)} already present)"
+        )
     return 0
 
 

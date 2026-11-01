@@ -41,10 +41,16 @@ It regenerates the graph and API from the current KG run, binds both manifests
 to one new public release ID, validates and rebuilds the site, publishes the
 allowlisted graph and Methods artifacts to the public R2 bucket and the API
 runtime to its separate private R2 bucket, and triggers the configured API
-deploy hook. After both active pointers have been verified, it deletes
-superseded browser/API release objects and older local versioned release
-directories, leaving only the active run. Generated public payloads are no
-longer committed to Git. It never changes extraction or evidence decisions.
+deploy hook. Paper counts come from the selected-paper keys frozen by the
+release's own export (`selected_candidate_keys.json`), not from the current
+candidate table. Each published release is archived with a copy of the site it
+was published with (`release_archive.py`), and the scripts refuse to replace a
+live release that has no archived copy. After both active pointers have been
+verified, `prune_release_history.py` applies the retention policy in
+`docs/r2_deployment.md`: it keeps the live release, the one before it, the last
+release of each evidence release, and local runs that were never published and
+are still recent. Generated public payloads are no longer committed to Git. It
+never changes extraction or evidence decisions.
 
 The promoter validates the KG, payload, author tables, and extraction inputs;
 materializes every final graph decision into the canonical

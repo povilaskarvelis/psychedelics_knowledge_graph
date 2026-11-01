@@ -32,6 +32,7 @@ if str(ROOT) not in sys.path:
 
 from pipeline.extract.route_extraction_profiles import is_legacy_v1_secondary_profile
 from pipeline.kg.graph_view_contract import graph_view_ids
+from pipeline.publish.release_history import record_release
 
 
 PROCESSED_DIR = ROOT / "data" / "processed"
@@ -725,6 +726,12 @@ def refresh_public_artifacts(requested_run_id: str = "") -> dict:
             raise
         finally:
             shutil.rmtree(stage_root, ignore_errors=True)
+        record_release(
+            kind="public_refresh",
+            run_id=run_id,
+            evidence_release_id=evidence_release_id,
+            public_release_id=public_release_id,
+        )
         return {
             "run_id": run_id,
             "release_id": public_release_id,
@@ -896,6 +903,13 @@ def promote(args: argparse.Namespace) -> dict:
         shutil.rmtree(previous_methods, ignore_errors=True)
         shutil.rmtree(previous_dist, ignore_errors=True)
         shutil.rmtree(stage_root, ignore_errors=True)
+        record_release(
+            kind="promotion",
+            run_id=run_id,
+            evidence_release_id=release_id,
+            public_release_id=normalize(graph_pointer.get("public_release_id")),
+            replaced_extraction_pointer=json.loads(old_extraction) if old_extraction else None,
+        )
         return {
             "run_id": run_id,
             "release_id": release_id,

@@ -1431,3 +1431,33 @@ def test_reviewed_citation_names_include_authors_without_structured_identity(tmp
     rows["author_list_review_id"] = ""
     rows.to_parquet(tmp_path / "paper_authors.parquet", index=False)
     assert "reviewed_author_names" not in evidence_exporter.load_author_identities(tmp_path)["paper-1"]
+
+
+def test_frozen_candidate_keys_round_trip(tmp_path: Path) -> None:
+    key_sets = {
+        "primary": {"doi:10.1/b", "doi:10.1/a"},
+        "meta_analyses": set(),
+        "reviews": {"doi:10.1/c"},
+        "all": {"doi:10.1/a", "doi:10.1/b", "doi:10.1/c"},
+    }
+    path = tmp_path / evidence_exporter.CANDIDATE_KEYS_FILENAME
+    digest = evidence_exporter.write_candidate_key_sets(path, key_sets)
+
+    assert len(digest) == 64
+    assert json.loads(path.read_text(encoding="utf-8"))["keys_by_source"]["primary"] == [
+        "doi:10.1/a",
+        "doi:10.1/b",
+    ]
+    assert evidence_exporter.read_candidate_key_sets(path) == key_sets
+    assert evidence_exporter.write_candidate_key_sets(path, key_sets) == digest
+
+
+def test_frozen_candidate_keys_reject_other_files(tmp_path: Path) -> None:
+    path = tmp_path / "keys.json"
+    path.write_text(json.dumps({"schema_version": "other"}), encoding="utf-8")
+    try:
+        evidence_exporter.read_candidate_key_sets(path)
+    except ValueError as error:
+        assert "Unexpected frozen candidate keys file" in str(error)
+    else:
+        raise AssertionError("an unrelated JSON file was accepted as frozen keys")

@@ -47,6 +47,8 @@ DEFAULT_KG_DIR = ROOT / "data" / "processed" / "kg"
 DEFAULT_OUT_DIR = ROOT / "data" / "processed"
 DEFAULT_ACTIVE_JSON = ROOT / "data" / "processed" / "graph_payload_active.json"
 DEFAULT_CANDIDATE_PAPERS_TABLE = ROOT / "data" / "processed" / "corpus" / "candidate_papers.parquet"
+CANDIDATE_KEYS_FILENAME = "selected_candidate_keys.json"
+CANDIDATE_KEYS_SCHEMA_VERSION = "psychedelics_kg_selected_candidate_keys_v1"
 ROUTED_SOURCE_NAME = "routed_extractions"
 ROUTED_SOURCE_NAMES = {ROUTED_SOURCE_NAME, "routed_clinical_endpoints"}
 ACTIVE_SCHEMA_VERSION = "route_native_evidence_payload_active_v1"
@@ -1286,6 +1288,35 @@ def load_selected_candidate_study_key_sets(
     return keys_by_source
 
 
+def write_candidate_key_sets(path: Path, key_sets: dict[str, set[str]]) -> str:
+    """Freeze the selected-paper denominator used by this export.
+
+    A later public refresh of the same release reads this file instead of the
+    candidate table, which changes as later screening and updates are written.
+    """
+    payload = {
+        "schema_version": CANDIDATE_KEYS_SCHEMA_VERSION,
+        "keys_by_source": {
+            source_key: sorted(key_sets.get(source_key) or ()) for source_key in UI_SOURCE_KEYS
+        },
+    }
+    data = (json.dumps(payload, sort_keys=True, ensure_ascii=False) + "\n").encode("utf-8")
+    path.write_bytes(data)
+    return hashlib.sha256(data).hexdigest()
+
+
+def read_candidate_key_sets(path: Path) -> dict[str, set[str]]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict) or payload.get("schema_version") != CANDIDATE_KEYS_SCHEMA_VERSION:
+        raise ValueError(f"Unexpected frozen candidate keys file: {path}")
+    keys_by_source = payload.get("keys_by_source")
+    if not isinstance(keys_by_source, dict) or set(keys_by_source) != set(UI_SOURCE_KEYS):
+        raise ValueError(f"Frozen candidate keys file lacks source keys: {path}")
+    key_sets = {source_key: set(keys_by_source[source_key]) for source_key in UI_SOURCE_KEYS}
+    key_sets["all"] = set().union(*key_sets.values())
+    return key_sets
+
+
 def value_counts(findings: Iterable[dict], field: str) -> dict[str, int]:
     counts: dict[str, int] = {}
     for finding in findings:
@@ -1919,6 +1950,7 @@ def export_evidence_payload(
     active_json: Path | None = None,
     require_fresh_author_tables: bool = True,
     candidate_papers_table: Path | None = None,
+    candidate_keys_file: Path | None = None,
     doi_alias_registry: Path | None = DEFAULT_DOI_ALIAS_REGISTRY,
     generated_at: str | None = None,
 ) -> dict:
@@ -1932,19 +1964,30 @@ def export_evidence_payload(
         require_author_identities=require_fresh_author_tables,
     )
     doi_aliases = load_doi_aliases(doi_alias_registry)
-    candidate_study_key_sets = (
-        load_selected_candidate_study_key_sets(candidate_papers_table, doi_aliases)
-        if candidate_papers_table is not None
-        else load_candidate_study_key_sets(kg_dir)
-    )
+    if candidate_keys_file is not None:
+        candidate_study_key_sets = read_candidate_key_sets(candidate_keys_file)
+    elif candidate_papers_table is not None:
+        candidate_study_key_sets = load_selected_candidate_study_key_sets(candidate_papers_table, doi_aliases)
+    else:
+        candidate_study_key_sets = load_candidate_study_key_sets(kg_dir)
     denominator_source = (
         "selected_candidate_corpus"
-        if candidate_papers_table is not None and candidate_study_key_sets is not None
+        if (candidate_keys_file is not None or candidate_papers_table is not None)
+        and candidate_study_key_sets is not None
         else "kg_artifact_fallback"
     )
     candidate_study_keys = None if candidate_study_key_sets is None else candidate_study_key_sets["all"]
     stats = summary_stats(findings, candidate_study_keys)
     out_dir.mkdir(parents=True, exist_ok=True)
+    candidate_denominator: dict[str, str] = {"source": denominator_source}
+    if denominator_source == "selected_candidate_corpus":
+        candidate_denominator.update(
+            {
+                "file": CANDIDATE_KEYS_FILENAME,
+                "sha256": write_candidate_key_sets(out_dir / CANDIDATE_KEYS_FILENAME, candidate_study_key_sets),
+                "read_from": "frozen_keys" if candidate_keys_file is not None else "candidate_table",
+            }
+        )
 
     manifest_path = out_dir / manifest_name
     graph_bootstrap_paths = {
@@ -2074,6 +2117,7 @@ def export_evidence_payload(
                 "denominator_source": denominator_source,
             },
         },
+        "candidate_denominator": candidate_denominator,
         "status": "ok",
     }
     if active_json:
@@ -2109,6 +2153,14 @@ def main() -> int:
         help="Canonical selected-paper table used as the coverage denominator.",
     )
     parser.add_argument(
+        "--candidate-keys",
+        default="",
+        help=(
+            f"Frozen selected-paper keys ({CANDIDATE_KEYS_FILENAME}) written by an earlier export "
+            "of this release. Used instead of --candidate-papers by public refreshes."
+        ),
+    )
+    parser.add_argument(
         "--doi-alias-registry",
         default=str(DEFAULT_DOI_ALIAS_REGISTRY),
         help="Registered DOI aliases used to reconcile candidate coverage with canonical graph papers.",
@@ -2142,6 +2194,7 @@ def main() -> int:
         active_json=Path(args.active_json).resolve() if args.activate_default else None,
         require_fresh_author_tables=not args.allow_stale_authors,
         candidate_papers_table=Path(args.candidate_papers).resolve(),
+        candidate_keys_file=Path(args.candidate_keys).resolve() if args.candidate_keys else None,
         doi_alias_registry=Path(args.doi_alias_registry).resolve(),
         generated_at=args.generated_at,
     )

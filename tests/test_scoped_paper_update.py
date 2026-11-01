@@ -597,5 +597,29 @@ class ScopedPaperUpdateTest(unittest.TestCase):
                 updater.prepare(self.prepare_args())
 
 
+class PreparedBaseCheckTest(unittest.TestCase):
+    def write_pointer(self, root: Path, run_id: str) -> Path:
+        pointer = root / "active_routed_run.json"
+        pointer.write_text(json.dumps({"run_id": run_id}), encoding="utf-8")
+        return pointer
+
+    def test_update_prepared_against_a_replaced_release_stops(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            pointer = self.write_pointer(Path(tmpdir), "luna_release")
+            manifest = {"base": {"run_id": "september_release"}}
+            with self.assertRaisesRegex(ValueError, "Prepare the update again"):
+                updater.require_prepared_base_is_active(manifest, active_pointer=pointer)
+
+    def test_update_on_the_active_release_or_explicit_base_continues(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            pointer = self.write_pointer(Path(tmpdir), "luna_release")
+            updater.require_prepared_base_is_active(
+                {"base": {"run_id": "luna_release"}}, active_pointer=pointer
+            )
+            updater.require_prepared_base_is_active(
+                {"base": {"run_id": "explicit"}}, active_pointer=pointer
+            )
+
+
 if __name__ == "__main__":
     unittest.main()

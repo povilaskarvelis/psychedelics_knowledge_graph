@@ -65,3 +65,61 @@ class FakeObjectStore:
         self.operations.append(("download_file", key))
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(self.objects[key])
+
+
+def write_built_site(root: Path) -> Path:
+    """A minimal built site with the URL patterns the real site uses."""
+    site = root / "built_site"
+    (site / "ui").mkdir(parents=True)
+    (site / "methods").mkdir()
+    (site / "compounds" / "psilocybin").mkdir(parents=True)
+    (site / "schema").mkdir()
+    (site / "index.html").write_text(
+        """<!doctype html>
+<html><head>
+<meta name="robots" content="index,follow" />
+<link rel="icon" href="/favicon.ico" />
+<base href="./ui/" />
+<link rel="preload" href="https://data.psychedelicskg.com/browser/active.json" as="fetch" />
+<link rel="stylesheet" href="styles.css?v=1" />
+</head><body>
+<a href="/about/">About</a><a href="/methods/">Methods</a><a href="/feedback/?source=graph">Feedback</a>
+<script src="/ui/site-nav.js?v=1"></script><script src="app.js?v=1"></script>
+</body></html>
+""",
+        encoding="utf-8",
+    )
+    (site / "methods" / "index.html").write_text(
+        """<!doctype html>
+<html><head><link rel="stylesheet" href="/ui/styles.css?v=1" /></head><body>
+<a href="/">Back</a><a href="/methods/#release-notes">Notes</a><a href="../">Up</a>
+<script src="/ui/methods.js?v=1"></script>
+</body></html>
+""",
+        encoding="utf-8",
+    )
+    (site / "compounds" / "psilocybin" / "index.html").write_text(
+        """<!doctype html>
+<html><head></head><body>
+<main data-compound-data="/compounds/psilocybin/data.json" data-label="/not-a-path/"></main>
+<a href="/">Back</a>
+</body></html>
+""",
+        encoding="utf-8",
+    )
+    (site / "compounds" / "psilocybin" / "data.json").write_text("{}", encoding="utf-8")
+    (site / "schema" / "graph_view_contract.json").write_text("{}", encoding="utf-8")
+    (site / "ui" / "app.js").write_text(
+        'const POINTER = "https://data.psychedelicskg.com/browser/active.json";\n'
+        'function preview() { return ["/browser/active.json"]; }\n'
+        'const worker = new Worker("/ui/analysis-worker.js?v=1");\n',
+        encoding="utf-8",
+    )
+    (site / "ui" / "methods.js").write_text(
+        'const PUBLIC = "https://data.psychedelicskg.com/browser/active.json";\n'
+        'const PREVIEW = "/browser/active.json";\n',
+        encoding="utf-8",
+    )
+    (site / "ui" / "styles.css").write_text("body { color: black; }\n", encoding="utf-8")
+    (site / "ui" / "index.html").write_text("<html><head></head><body></body></html>", encoding="utf-8")
+    return site

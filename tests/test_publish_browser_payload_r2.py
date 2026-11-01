@@ -7,10 +7,11 @@ from pathlib import Path
 from pipeline.kg.graph_view_contract import graph_view_ids
 from pipeline.publish.publish_browser_payload_r2 import (
     BROWSER_ACTIVE_SCHEMA_VERSION,
+    UnarchivedLiveRelease,
     publish_active_browser_release,
 )
 from pipeline.publish.publish_query_api_r2 import ImmutableObjectConflict
-from tests.r2_fixtures import FakeObjectStore
+from tests.r2_fixtures import FakeObjectStore, write_built_site
 from tests.test_publish_query_api_r2 import r2_settings
 
 DETAIL_VIEW_KEYS = graph_view_ids()
@@ -103,27 +104,54 @@ class PublishBrowserPayloadR2Test(unittest.TestCase):
             )
         return pointer_path, runs, methods_views
 
+    def publish(self, store, pointer, runs, methods_views, site, **options):
+        return publish_active_browser_release(
+            store=store,
+            settings=r2_settings(),
+            active_pointer_path=pointer,
+            browser_runs_dir=runs,
+            methods_views_dir=methods_views,
+            site_source_root=None,
+            site_build_dir=site,
+            **options,
+        )
+
+    def switch_public_release(self, pointer: Path, runs: Path, release_id: str) -> None:
+        payload = json.loads(pointer.read_text(encoding="utf-8"))
+        payload["public_release_id"] = release_id
+        pointer.write_text(json.dumps(payload), encoding="utf-8")
+        manifest_path = runs / "test_run" / "graph_payload_manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["release_id"] = release_id
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
     def test_uploads_immutable_release_before_switching_pointer(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             pointer, runs, methods_views = self.build_release(root)
+            site = write_built_site(root)
             store = FakeObjectStore()
 
-            result = publish_active_browser_release(
-                store=store,
-                settings=r2_settings(),
-                active_pointer_path=pointer,
-                browser_runs_dir=runs,
-                methods_views_dir=methods_views,
+            result = self.publish(
+                store, pointer, runs, methods_views, site,
                 published_at="2026-07-19T00:00:00+00:00",
             )
 
             self.assertEqual(result["schema_version"], BROWSER_ACTIVE_SCHEMA_VERSION)
             self.assertEqual(result["active_key"], "browser/active.json")
-            self.assertEqual(store.operations[-2:], [
-                ("put_bytes", "browser/active.json"),
-                ("get_bytes", "browser/active.json"),
-            ])
+            written = [key for operation, key in store.operations if operation in {"put_bytes", "upload_file"}]
+            pointer_key = result["archive"]["pointer_key"]
+            self.assertTrue(pointer_key.startswith("browser/archive/2026-07-19-"))
+            self.assertLess(written.index(pointer_key), written.index("browser/active.json"))
+            self.assertLess(
+                written.index(result["archive"]["site_entry_key"]),
+                written.index("browser/active.json"),
+            )
+            self.assertEqual(written[-1], "browser/archive/index.json")
+            self.assertEqual(store.objects[pointer_key], store.objects["browser/active.json"])
+            index = json.loads(store.objects["browser/archive/index.json"])
+            self.assertEqual(index["current_release_id"], "test_run:public:r1")
+            self.assertEqual([entry["release_id"] for entry in index["releases"]], ["test_run:public:r1"])
             active = json.loads(store.objects["browser/active.json"])
             self.assertTrue(active["active_manifest"].startswith("browser/releases/"))
             self.assertTrue(
@@ -145,15 +173,64 @@ class PublishBrowserPayloadR2Test(unittest.TestCase):
             self.assertIn("analysis_index_", active["active_analysis_index"])
             self.assertEqual(result["uploaded_count"], 47)
 
-            second = publish_active_browser_release(
-                store=store,
-                settings=r2_settings(),
-                active_pointer_path=pointer,
-                browser_runs_dir=runs,
-                methods_views_dir=methods_views,
-            )
+            first_pointer = store.objects["browser/active.json"]
+            second = self.publish(store, pointer, runs, methods_views, site)
             self.assertEqual(second["uploaded_count"], 0)
             self.assertEqual(second["existing_count"], 47)
+            self.assertEqual(second["archive_result"]["site_upload"]["uploaded"], 0)
+            self.assertEqual(store.objects["browser/active.json"], first_pointer)
+
+    def test_new_release_keeps_the_replaced_release_in_the_archive(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            pointer, runs, methods_views = self.build_release(root)
+            site = write_built_site(root)
+            store = FakeObjectStore()
+            first = self.publish(
+                store, pointer, runs, methods_views, site,
+                published_at="2026-07-19T00:00:00+00:00",
+            )
+            self.switch_public_release(pointer, runs, "test_run:public:r2")
+
+            second = self.publish(
+                store, pointer, runs, methods_views, site,
+                published_at="2026-08-19T00:00:00+00:00",
+            )
+
+            index = json.loads(store.objects["browser/archive/index.json"])
+            self.assertEqual(index["current_release_id"], "test_run:public:r2")
+            self.assertEqual(
+                [entry["release_id"] for entry in index["releases"]],
+                ["test_run:public:r2", "test_run:public:r1"],
+            )
+            self.assertIn(first["archive"]["site_entry_key"], store.objects)
+            self.assertNotEqual(first["archive"]["slug"], second["archive"]["slug"])
+
+    def test_unarchived_live_release_is_not_replaced(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            pointer, runs, methods_views = self.build_release(root)
+            site = write_built_site(root)
+            store = FakeObjectStore()
+            legacy = {
+                "release_id": "legacy:public:1",
+                "evidence_release_id": "legacy:evidence",
+                "run_id": "legacy",
+                "published_at": "2026-06-01T00:00:00+00:00",
+                "object_prefix": "browser/releases/legacy/public",
+            }
+            store.objects["browser/active.json"] = json.dumps(legacy).encode()
+
+            with self.assertRaises(UnarchivedLiveRelease):
+                self.publish(store, pointer, runs, methods_views, site)
+            self.assertEqual(json.loads(store.objects["browser/active.json"]), legacy)
+            self.assertFalse(any(key.startswith("browser/releases/") for key in store.objects))
+
+            self.publish(store, pointer, runs, methods_views, site, allow_unarchived_outgoing=True)
+            index = json.loads(store.objects["browser/archive/index.json"])
+            legacy_entry = [entry for entry in index["releases"] if entry["release_id"] == "legacy:public:1"]
+            self.assertEqual(len(legacy_entry), 1)
+            self.assertEqual(legacy_entry[0]["site_entry_key"], "")
 
     def test_checksum_failure_does_not_switch_pointer(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -214,27 +291,16 @@ class PublishBrowserPayloadR2Test(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             pointer, runs, methods_views = self.build_release(root)
+            site = write_built_site(root)
             store = FakeObjectStore()
-            first = publish_active_browser_release(
-                store=store,
-                settings=r2_settings(),
-                active_pointer_path=pointer,
-                browser_runs_dir=runs,
-                methods_views_dir=methods_views,
-            )
+            first = self.publish(store, pointer, runs, methods_views, site)
             previous = store.objects["browser/active.json"]
             detail_key = first["active_detail_bootstraps"]["primary"]
             store.objects[detail_key] = b"different"
             store.metadata[detail_key] = {"sha256": "0" * 64}
 
             with self.assertRaises(ImmutableObjectConflict):
-                publish_active_browser_release(
-                    store=store,
-                    settings=r2_settings(),
-                    active_pointer_path=pointer,
-                    browser_runs_dir=runs,
-                    methods_views_dir=methods_views,
-                )
+                self.publish(store, pointer, runs, methods_views, site)
             self.assertEqual(store.objects["browser/active.json"], previous)
 
 

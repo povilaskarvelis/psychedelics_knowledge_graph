@@ -74,6 +74,12 @@ if [[ "${PUBLISH_QUERY_API_R2}" == "1" && "${ACTIVATE_DEFAULT}" != "1" ]]; then
   exit 2
 fi
 
+# Publishing replaces the live release, which must stay viewable as an archived
+# copy. Check before the build and promotion rather than after them.
+if [[ "${PUBLISH_QUERY_API_R2}" == "1" ]]; then
+  "${PYTHON_BIN}" "${ROOT_DIR}/pipeline/publish/release_archive.py" --check-live
+fi
+
 # Carry-forward is intentionally append-only. Reject an active or baseline
 # target before the expensive evidence build instead of discovering the unsafe
 # target only after that build completes.

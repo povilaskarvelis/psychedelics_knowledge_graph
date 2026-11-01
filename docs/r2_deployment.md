@@ -81,9 +81,10 @@ complete. Re-running them is safe: matching objects are reused, while a
 conflicting immutable object stops activation.
 
 Routine publication uses the repository wrappers below. Once both active
-pointers identify the same verified release, the wrappers prune every older
-browser/API release prefix and older local versioned release directory. The
-project intentionally retains only the current active release.
+pointers identify the same verified release, the wrappers delete release data
+outside the retention policy described under "Release archive and retention":
+earlier releases stay viewable as archived copies, and local runs in use or
+still recent are kept.
 
 ## Deploy the API from GitHub
 
@@ -229,9 +230,12 @@ This command loads the ignored `.env`, rebuilds both public outputs, gives them
 one shared public release ID, validates every referenced graph and Methods file,
 builds the code-only static site, publishes the matching public and private API
 data to their versioned R2 pointers, triggers the deploy hook when configured,
-and then prunes inactive remote and local release history. Data updates no
-longer require committing generated payloads or rebuilding Netlify. Use
-`NO_R2_PUBLISH=1` only for a local dry run.
+and then applies the retention policy described under "Release archive and
+retention". Paper counts are recomputed from the selected-paper keys that the
+release's own export froze in `selected_candidate_keys.json`; a release exported
+before those keys existed is refused unless `ALLOW_CURRENT_LEDGER_DENOMINATOR=1`
+is set. Data updates no longer require committing generated payloads or
+rebuilding Netlify. Use `NO_R2_PUBLISH=1` only for a local dry run.
 
 If no deploy hook is configured, publishing still succeeds; manually redeploy or
 restart the API service so it synchronizes the new active release.
@@ -243,10 +247,52 @@ restart the API service so it synchronizes the new active release.
   return 503 while documentation and process health checks remain reachable.
 - API pagination cursors remain bound to their release and return HTTP 409 after
   a release change.
-- After successful synchronized publication, older remote and local release
-  payloads are deleted. A prior release can only be reconstructed from the
-  canonical pipeline inputs and extraction evidence, not activated from stored
-  release history.
+- Publishing refuses to replace a live release that has no archived site copy,
+  and the publish scripts check this before they build or promote anything.
+- After successful synchronized publication, releases outside the retention
+  policy below are deleted. To roll back, promote the previous local run (kept
+  by the policy) and publish it again; this creates a new public release ID.
+
+## Release archive and retention
+
+Every published browser release is archived under
+`browser/archive/<date>-<hash>/`: a frozen copy of its data pointer
+(`pointer.json`) and a copy of the explorer, Methods and compound pages it was
+published with, rewritten to load only that release. Old releases therefore
+display as they were published, whatever later changes are made to the site or
+the payload format. They are reachable on the site at
+`https://psychedelicskg.com/browser/archive/<date>-<hash>/index.html` through the
+`/browser/*` proxy, carry a notice that links to the current release, and are
+marked `noindex`. `browser/archive/index.json` lists them; the Methods page
+release notes read it. Pages opened before an update keep their release and
+show a notice that a newer release exists.
+
+Retention, applied by `pipeline/publish/prune_release_history.py` after each
+publication (dry run when called without `--execute`):
+
+- public browser bucket: the live release, the release published just before
+  it, and the last release of every evidence release, with their archived
+  copies; replaced public refreshes of the same evidence release are deleted;
+- private API bucket: the live release and the one before it;
+- local `graph_payload_runs`, `kg_routed_runs`, `query_api_runs` and
+  `extraction/routed_runs`: the active run, the run published before it
+  (from `data/processed/release_history.jsonl`, written by every promotion and
+  public refresh), runs containing a `.keep` file, and runs that were never
+  published unless they were last changed before the active release was promoted
+  and more than 7 days ago (`--candidate-grace-days`). Frozen model inputs and
+  outputs under `data/processed/model_runs/` are never pruned.
+
+A release published before archiving existed must be archived once before it is
+replaced. Give the git ref of the site code that displays it now (normally
+`origin/main`, the deployed branch); nothing needs to be checked out. Run
+without `--execute` first to build the copy and see its size and URL:
+
+```bash
+set -a; source .env; set +a
+python3 pipeline/publish/release_archive.py --archive-live --site-ref origin/main
+python3 pipeline/publish/release_archive.py --archive-live --site-ref origin/main --execute
+python3 pipeline/publish/release_archive.py --list
+```
 
 ## Public website-data layout
 

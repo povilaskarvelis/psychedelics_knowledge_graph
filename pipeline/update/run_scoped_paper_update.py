@@ -386,6 +386,26 @@ def resolve_active_base(
     )
 
 
+def require_prepared_base_is_active(manifest: dict, active_pointer: Path = ACTIVE_EXTRACTION_POINTER) -> None:
+    """Stop if another release was promoted after this update was prepared.
+
+    The update replaces its scope inside the base release's outputs, so
+    finishing it on a replaced base would silently drop the newer release.
+    """
+    base_run_id = normalize(manifest.get("base", {}).get("run_id", ""))
+    if not base_run_id or base_run_id == "explicit":
+        return
+    if active_pointer.is_file():
+        active_run_id = normalize(read_json_object(active_pointer).get("run_id"))
+    else:
+        active_run_id = active_run_from_graph_pointer()
+    if active_run_id != base_run_id:
+        raise ValueError(
+            f"This update was prepared against {base_run_id}, but the active release is now "
+            f"{active_run_id}. Prepare the update again so it starts from the active release."
+        )
+
+
 def run_checked(command: list[str], *, env: dict[str, str] | None = None) -> None:
     print("+ " + " ".join(command), flush=True)
     subprocess.run(command, cwd=ROOT, env=env, check=True)
@@ -1046,6 +1066,7 @@ def finalize(args: argparse.Namespace) -> int:
         )
     if manifest.get("phase") != "prepared" or manifest.get("update_id") != update_id:
         raise ValueError(f"Not a prepared manifest for update {update_id}: {manifest_path}")
+    require_prepared_base_is_active(manifest)
 
     scope = read_doi_file(Path(manifest["scope"]["scope_dois_file"]))
     base_outputs = verify_snapshot(manifest["base"]["outputs"], "Base outputs")
@@ -1308,6 +1329,7 @@ def promote(args: argparse.Namespace) -> int:
         )
     if manifest.get("phase") != "finalized_candidate" or manifest.get("update_id") != update_id:
         raise ValueError(f"Update must be finalized before promotion: {manifest_path}")
+    require_prepared_base_is_active(manifest)
     report = read_json_object(Path(manifest["finalize_report"]))
     candidate = report["candidate_run"]
     verify_snapshot(candidate["outputs"], "Candidate outputs")
