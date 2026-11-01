@@ -32,7 +32,11 @@ try:
         write_jsonl,
     )
     from pipeline.fulltext.convert_pdfs import compact_text, normalize, normalize_doi, write_json
-    from pipeline.fulltext.source_identity_audit_gate import SourceIdentityAuditGate
+    from pipeline.fulltext.source_identity_audit_gate import (
+        GATE_REJECTION_REASONS,
+        GATE_VERIFIED,
+        SourceIdentityAuditGate,
+    )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.extract.build_extraction_tasks import (
@@ -54,7 +58,11 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         write_jsonl,
     )
     from pipeline.fulltext.convert_pdfs import compact_text, normalize, normalize_doi, write_json
-    from pipeline.fulltext.source_identity_audit_gate import SourceIdentityAuditGate
+    from pipeline.fulltext.source_identity_audit_gate import (
+        GATE_REJECTION_REASONS,
+        GATE_VERIFIED,
+        SourceIdentityAuditGate,
+    )
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -106,12 +114,13 @@ def enforce_source_identity_gate(route_rows: list[dict], audit_path: Path) -> tu
         if normalize(row.get("route_action", "")) != DEFAULT_ROUTE_ACTION or not artifact_path:
             eligible.append(row)
             continue
-        if not gate.is_verified(doi, Path(artifact_path)):
+        status = gate.status(doi, Path(artifact_path))
+        if status != GATE_VERIFIED:
             rejected.append(
                 {
                     "doi": doi,
                     "artifact_path": artifact_path,
-                    "reason": "artifact is absent from the verified source-identity audit",
+                    "reason": GATE_REJECTION_REASONS.get(status, status),
                 }
             )
             continue

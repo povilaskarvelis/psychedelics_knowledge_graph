@@ -153,6 +153,36 @@ class BuildExtractionRoutesTests(unittest.TestCase):
 
         self.assertEqual(merged.iloc[0]["abstract"], "Canonical candidate abstract.")
 
+    def test_curated_clear_is_not_refilled_from_enrichment_cache(self) -> None:
+        doi = "10.1000/foreign-abstract"
+        candidate = pd.DataFrame([{"doi": doi, "study_title": "Provider title", "abstract": ""}])
+        enrichment = pd.DataFrame(
+            [{"doi": doi, "study_title": "Provider title", "abstract": "Abstract of another publication."}]
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            overrides = Path(tmp) / "paper_metadata_overrides.json"
+            overrides.write_text(
+                json.dumps(
+                    {
+                        "records": [
+                            {
+                                "doi": doi.upper(),
+                                "fields": {"study_title": "Curated title of the registered work"},
+                                "clear_fields": ["abstract"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            merged = merged_extraction_metadata(candidate, enrichment, curated_overrides_path=overrides)
+            legacy = merged_extraction_metadata(candidate, enrichment, curated_overrides_path=None)
+
+        self.assertEqual(merged.iloc[0]["abstract"], "")
+        self.assertEqual(merged.iloc[0]["study_title"], "Curated title of the registered work")
+        self.assertEqual(legacy.iloc[0]["abstract"], "Abstract of another publication.")
+
     def test_candidate_ledger_supplies_metadata_when_enrichment_row_is_missing(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1150,6 +1180,55 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertTrue(rows[0]["has_probable_pdf_url"])
         self.assertEqual(rows[0]["pdf_url_quality"], "probable_pdf")
         self.assertFalse(rows[0]["has_converted_full_text"])
+
+    def rejected_fulltext_route(self, *, abstract: str) -> dict:
+        doi = "10.1000/rejected-fulltext"
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            paper_root = root / "papers"
+            pdf_path = paper_root / "10.1000_rejected_fulltext__abc123.pdf"
+            pdf_path.parent.mkdir(parents=True)
+            pdf_path.write_bytes(b"%PDF-1.7\nthe PDF that was converted and rejected")
+            fulltext_dir = root / "fulltext"
+            artifact = fulltext_dir / "articles" / f"{doi_to_slug(doi)}.json"
+            artifact.parent.mkdir(parents=True)
+            artifact.write_text(json.dumps({"best_char_count": 5000}), encoding="utf-8")
+            audit = write_source_identity_audit(
+                root,
+                [{"requested_doi": doi, "artifact_path": str(artifact.resolve()), "identity_verified": False}],
+            )
+            rows = build_route_rows(
+                pd.DataFrame([{"doi": doi, "study_title": "Psilocybin trial", "abstract": abstract,
+                               "publication_type": "Journal Article"}]),
+                pd.DataFrame([{"doi": doi, "prescreen_decision": "retain", "retained_for_extraction_candidate": True,
+                               "prescreen_action": "retain_for_extraction_candidate",
+                               "routing_tags": "clinical_outcome"}]),
+                pd.DataFrame([{"doi": doi, "retained_for_extraction_candidate": True,
+                               "source_family": "primary_or_unclear", "literature_type_confidence": "medium"}]),
+                fulltext_dir=fulltext_dir,
+                paper_root=paper_root,
+                source_identity_audit=audit,
+                generated_at_utc="2026-11-01T00:00:00+00:00",
+            )
+        self.assertEqual(len(rows), 1)
+        return rows[0]
+
+    def test_rejected_full_text_falls_back_to_abstract_instead_of_reconversion(self) -> None:
+        row = self.rejected_fulltext_route(abstract="A clinical trial abstract.")
+
+        self.assertEqual(row["access_tier"], "abstract_only")
+        self.assertEqual(row["route_action"], "extract_from_abstract_only")
+        self.assertEqual(row["fulltext_identity_status"], "identity_unverified")
+        self.assertFalse(row["has_converted_full_text"])
+        self.assertTrue(row["has_local_pdf"])
+        self.assertIn("did not verify the artifact", row["source_text_state_reason"])
+        self.assertFalse(row["source_identity_verified"])
+
+    def test_rejected_full_text_without_abstract_waits_for_text(self) -> None:
+        row = self.rejected_fulltext_route(abstract="")
+
+        self.assertEqual(row["access_tier"], "no_usable_text")
+        self.assertEqual(row["route_action"], "hold_until_text_available")
 
     def test_probable_pdf_url_does_not_block_available_abstract(self) -> None:
         metadata_df = pd.DataFrame(

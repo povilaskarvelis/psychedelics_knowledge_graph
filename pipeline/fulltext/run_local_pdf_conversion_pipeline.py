@@ -290,6 +290,8 @@ def rebuild_routes_command(args: argparse.Namespace) -> list[str]:
 
 
 def source_identity_audit_command(args: argparse.Namespace) -> list[str]:
+    # Unverified artifacts are recorded per artifact and left unused by the
+    # gate; they do not stop the route rebuild for the rest of the store.
     return [
         args.python,
         str(FULLTEXT_DIR / "audit_fulltext_source_identity.py"),
@@ -305,7 +307,6 @@ def source_identity_audit_command(args: argparse.Namespace) -> list[str]:
         str(Path(args.source_identity_audit_csv).resolve()),
         "--unverified-doi-file",
         str(Path(args.source_identity_unverified_dois).resolve()),
-        "--fail-on-unverified",
     ]
 
 

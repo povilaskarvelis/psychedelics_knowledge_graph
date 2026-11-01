@@ -671,7 +671,16 @@ def main() -> int:
             unverified_doi_file=Path(args.source_identity_unverified_dois),
             identity_registry_path=Path(args.identity_registry),
             pdf_hash_attestation_registry_path=Path(args.pdf_hash_attestation_registry),
+            written_artifacts=[
+                record["artifact_path"] for record in records if record.get("status") == "written"
+            ],
         )
+        if source_identity_audit_refresh["written_unverified_artifacts"]:
+            print(
+                "SOURCE_IDENTITY_AUDIT: written artifacts not verified and left unused: "
+                f"{len(source_identity_audit_refresh['written_unverified_artifacts']):,}",
+                flush=True,
+            )
 
     route_rebuild = {}
     if (
@@ -724,6 +733,9 @@ def main() -> int:
             "status": dict(counts),
             "route_rebuild_performed": bool(route_rebuild),
             "source_identity_audit_refreshed": bool(source_identity_audit_refresh),
+            "written_unverified_artifacts": list(
+                source_identity_audit_refresh.get("written_unverified_artifacts", [])
+            ),
         },
         "records": records,
     }

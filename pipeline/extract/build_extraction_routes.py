@@ -36,9 +36,15 @@ try:
     from pipeline.fulltext.convert_pdfs import doi_to_slug, has_article_body, normalize_doi
     from pipeline.fulltext.source_identity_audit_gate import (
         DEFAULT_SOURCE_IDENTITY_AUDIT,
+        GATE_REJECTION_REASONS,
+        GATE_VERIFIED,
         SourceIdentityAuditGate,
     )
     from pipeline.ingest.candidate_status import apply_candidate_updates
+    from pipeline.ingest.materialize_candidate_metadata import (
+        DEFAULT_CURATED_OVERRIDES as DEFAULT_CURATED_METADATA_OVERRIDES,
+        read_curated_overrides,
+    )
     from pipeline.ingest.metadata_utils import (
         is_probable_pdf_url,
         join_candidates,
@@ -56,9 +62,15 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     from pipeline.fulltext.convert_pdfs import doi_to_slug, has_article_body, normalize_doi
     from pipeline.fulltext.source_identity_audit_gate import (
         DEFAULT_SOURCE_IDENTITY_AUDIT,
+        GATE_REJECTION_REASONS,
+        GATE_VERIFIED,
         SourceIdentityAuditGate,
     )
     from pipeline.ingest.candidate_status import apply_candidate_updates
+    from pipeline.ingest.materialize_candidate_metadata import (
+        DEFAULT_CURATED_OVERRIDES as DEFAULT_CURATED_METADATA_OVERRIDES,
+        read_curated_overrides,
+    )
     from pipeline.ingest.preprint_detection import classify_publication_stage
     from pipeline.ingest.metadata_utils import (
         is_probable_pdf_url,
@@ -540,11 +552,8 @@ def domain_routing_by_doi(df: pd.DataFrame) -> dict[str, list[dict]]:
     return dict(out)
 
 
-def artifact_ready(
-    path: Path,
-    doi: str,
-    source_identity_gate: SourceIdentityAuditGate,
-) -> tuple[bool, int]:
+def artifact_text_ready(path: Path) -> tuple[bool, int]:
+    """Return whether a stored artifact holds article text, and its size."""
     try:
         artifact = json.loads(path.read_text(encoding="utf-8"))
     except Exception:
@@ -566,7 +575,16 @@ def artifact_ready(
         }:
             if not has_article_body(extraction.get("text", "")):
                 return False, 0
-    return char_count > 0 and source_identity_gate.is_verified(doi, path), char_count
+    return char_count > 0, char_count
+
+
+def artifact_ready(
+    path: Path,
+    doi: str,
+    source_identity_gate: SourceIdentityAuditGate,
+) -> tuple[bool, int]:
+    text_ready, char_count = artifact_text_ready(path)
+    return text_ready and source_identity_gate.is_verified(doi, path), char_count
 
 
 def fulltext_status_for_doi(
@@ -580,17 +598,26 @@ def fulltext_status_for_doi(
     canonical_path = fulltext_dir / CANONICAL_FULLTEXT_ARTICLE_DIR / f"{slug}.json"
     ready_paths: list[str] = []
     char_counts: list[int] = []
+    # Blank when no artifact holds article text; otherwise the gate's verdict.
+    identity_status = ""
     if canonical_path.is_file():
-        gate = source_identity_gate or SourceIdentityAuditGate(source_identity_audit)
-        ready, char_count = artifact_ready(canonical_path, doi, gate)
-        if ready:
-            ready_paths.append(str(canonical_path))
-            char_counts.append(char_count)
+        text_ready, char_count = artifact_text_ready(canonical_path)
+        if text_ready:
+            gate = source_identity_gate or SourceIdentityAuditGate(source_identity_audit)
+            identity_status = gate.status(doi, canonical_path)
+            if identity_status == GATE_VERIFIED:
+                ready_paths.append(str(canonical_path))
+                char_counts.append(char_count)
     return {
         "has_converted_full_text": bool(ready_paths),
         "fulltext_artifact_paths": join_values(ready_paths),
         "fulltext_char_count": max(char_counts) if char_counts else 0,
+        "fulltext_identity_status": identity_status,
     }
+
+
+def fulltext_identity_rejected(fulltext_status: dict) -> bool:
+    return clean(fulltext_status.get("fulltext_identity_status", "")) not in {"", GATE_VERIFIED}
 
 
 def local_pdf_slug(path: Path) -> str:
@@ -658,6 +685,11 @@ def metadata_pdf_url_quality(metadata: dict) -> str:
 def access_tier(metadata: dict, fulltext_status: dict, local_pdf_status: dict) -> str:
     if fulltext_status.get("has_converted_full_text"):
         return "full_text_available"
+    if fulltext_identity_rejected(fulltext_status):
+        # The stored text was converted but is not usable under the current
+        # audit. Converting the same local PDF again cannot change that, so the
+        # paper uses its abstract until a verified text or a decision exists.
+        return "abstract_only" if clean(metadata.get("abstract", "")) else "no_usable_text"
     if local_pdf_status.get("has_local_pdf"):
         return "local_pdf_available"
     if clean(metadata.get("abstract", "")):
@@ -1277,6 +1309,12 @@ def build_route_rows(
         source_text_state, source_text_state_reason, source_identity_verified = (
             source_text_state_for_access(access)
         )
+        if fulltext_identity_rejected(fulltext_status):
+            identity_status = clean(fulltext_status.get("fulltext_identity_status", ""))
+            source_text_state_reason = (
+                f"Stored full text is not used because {GATE_REJECTION_REASONS.get(identity_status, identity_status)}. "
+                + source_text_state_reason
+            )
         if manual_fulltext_access_action == "abstract_only" and manual_fulltext_access_reason:
             source_text_state_reason = manual_fulltext_access_reason
         bridge = "bridge_clinical_mechanism" in tags
@@ -1348,6 +1386,7 @@ def build_route_rows(
                     "has_converted_full_text": bool(fulltext_status.get("has_converted_full_text")),
                     "fulltext_artifact_paths": clean(fulltext_status.get("fulltext_artifact_paths", "")),
                     "fulltext_char_count": int(fulltext_status.get("fulltext_char_count", 0) or 0),
+                    "fulltext_identity_status": clean(fulltext_status.get("fulltext_identity_status", "")),
                     "has_local_pdf": bool(local_pdf_status.get("has_local_pdf")),
                     "local_pdf_paths": clean(local_pdf_status.get("local_pdf_paths", "")),
                     "local_pdf_count": int(local_pdf_status.get("local_pdf_count", 0) or 0),
@@ -1651,6 +1690,7 @@ def build_summary(rows: list[dict], *, inputs: dict) -> tuple[dict, list[dict]]:
         "by_source_type": dict(count_rows(rows, "source_type")),
         "by_domain_route": dict(count_rows(rows, "domain_route")),
         "by_access_tier": dict(count_rows(rows, "access_tier")),
+        "by_fulltext_identity_status": dict(count_rows(rows, "fulltext_identity_status")),
         "by_route_action": dict(count_rows(rows, "route_action")),
         "by_prompt_profile": dict(count_rows(rows, "prompt_profile")),
         "by_schema_profile": dict(count_rows(rows, "schema_profile")),
@@ -1666,6 +1706,7 @@ def build_summary(rows: list[dict], *, inputs: dict) -> tuple[dict, list[dict]]:
         ("source_type", summary["by_source_type"]),
         ("domain_route", summary["by_domain_route"]),
         ("access_tier", summary["by_access_tier"]),
+        ("fulltext_identity_status", summary["by_fulltext_identity_status"]),
         ("route_action", summary["by_route_action"]),
         ("prompt_profile", summary["by_prompt_profile"]),
         ("schema_profile", summary["by_schema_profile"]),
@@ -1684,12 +1725,20 @@ def write_route_table(path: Path, rows: list[dict]) -> None:
     pd.DataFrame(rows).to_parquet(path, engine="pyarrow", index=False)
 
 
-def merged_extraction_metadata(candidate_df: pd.DataFrame, metadata_df: pd.DataFrame) -> pd.DataFrame:
+def merged_extraction_metadata(
+    candidate_df: pd.DataFrame,
+    metadata_df: pd.DataFrame,
+    *,
+    curated_overrides_path: Path | None = DEFAULT_CURATED_METADATA_OVERRIDES,
+) -> pd.DataFrame:
     """Return complete coverage with materialized candidate values preferred.
 
     The enrichment table remains a provider/provenance cache. It may fill a
     blank for legacy or sparse inputs, but it cannot silently replace a
-    populated value in the canonical candidate ledger.
+    populated value in the canonical candidate ledger. Curated metadata
+    decisions are applied last, with the same loader the ledger uses: a field
+    cleared because the provider value belongs to another publication stays
+    blank here instead of being refilled from the cache.
     """
     frames: list[pd.DataFrame] = []
     for frame in (candidate_df, metadata_df):
@@ -1726,8 +1775,29 @@ def merged_extraction_metadata(candidate_df: pd.DataFrame, metadata_df: pd.DataF
                 out.loc[present, column] = values.loc[present]
     if out.empty:
         return pd.DataFrame()
+    apply_curated_metadata_overrides(out, curated_overrides_path)
     out["doi"] = out.index
     return out.reset_index(drop=True)
+
+
+def apply_curated_metadata_overrides(frame: pd.DataFrame, overrides_path: Path | None) -> None:
+    """Set curated replacement values and blank curated clears, in place, by DOI index."""
+    if overrides_path is None:
+        return
+    overrides = read_curated_overrides(Path(overrides_path).resolve())
+    for raw_doi, override in overrides.items():
+        doi = normalize_doi(raw_doi)
+        if doi not in frame.index:
+            continue
+        changes = {**override.get("fields", {}), **{field: "" for field in override.get("clear_fields", ())}}
+        for field, value in changes.items():
+            if field not in frame.columns:
+                if not value:
+                    continue
+                frame[field] = ""
+            if frame[field].dtype != object:
+                frame[field] = frame[field].astype(object)
+            frame.at[doi, field] = value
 
 
 def build_extraction_routes(

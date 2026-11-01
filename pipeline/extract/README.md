@@ -24,6 +24,13 @@ that are already in the corpus but absent from enrichment. With a custom
 `--metadata-table`, pass `--candidate-table` explicitly to use that same merge;
 otherwise custom metadata inputs remain isolated.
 
+The merge (`merged_extraction_metadata`) applies the curated decisions in
+`data/curated/paper_metadata_overrides.json` last, using the same loader as
+ledger materialization. A field cleared because its provider value belongs to
+another publication stays blank, even when the enrichment cache still holds
+that value and before the ledger is materialized again. Every route, task and
+retrieval builder reads metadata through this merge.
+
 The route table joins deterministic pre-screen decisions, metadata, Luna
 paper-type and domain routing, converted full-text artifacts, valid PDFs in
 `data/raw/papers/pdfs/`, and PDF URL availability.

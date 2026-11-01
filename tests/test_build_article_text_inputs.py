@@ -174,27 +174,31 @@ def test_build_article_text_inputs_refuses_unverified_artifact() -> None:
             build_article_text_inputs(make_args(root))
 
 
-def test_source_identity_gate_refuses_stale_pdf_hash_registry() -> None:
-    import pytest
-
+def test_stale_pdf_hash_registry_withholds_only_the_dois_it_names() -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         root = Path(tmpdir)
-        artifact_path = root / "artifact.json"
-        artifact_path.write_text("{}", encoding="utf-8")
+        named = root / "named.json"
+        other = root / "other.json"
+        named.write_text("{}", encoding="utf-8")
+        other.write_text("{}", encoding="utf-8")
         audit_path, _identity_registry, registry_path = write_source_identity_audit(
             root,
             [
-                {
-                    "requested_doi": "10.1000/article",
-                    "artifact_path": str(artifact_path.resolve()),
-                    "identity_verified": True,
-                }
+                {"requested_doi": "10.1000/named", "artifact_path": str(named.resolve()), "identity_verified": True},
+                {"requested_doi": "10.1000/other", "artifact_path": str(other.resolve()), "identity_verified": True},
             ],
         )
+        registry_path.write_text(json.dumps({"records": [{"requested_doi": "10.1000/named"}]}), encoding="utf-8")
         os.utime(registry_path, (audit_path.stat().st_mtime + 5, audit_path.stat().st_mtime + 5))
 
-        with pytest.raises(RuntimeError, match="hash-attestation registry changed"):
-            enforce_source_identity_gate(
-                [route_row(fulltext_artifact_paths=str(artifact_path))],
-                audit_path,
-            )
+        eligible, rejected = enforce_source_identity_gate(
+            [
+                route_row(doi="10.1000/named", fulltext_artifact_paths=str(named)),
+                route_row(doi="10.1000/other", fulltext_artifact_paths=str(other)),
+            ],
+            audit_path,
+        )
+
+    assert [row["doi"] for row in eligible] == ["10.1000/other"]
+    assert [row["doi"] for row in rejected] == ["10.1000/named"]
+    assert "registry entry for this DOI changed after the audit" in rejected[0]["reason"]

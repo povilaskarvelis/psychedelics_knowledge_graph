@@ -11,7 +11,7 @@ from pipeline.fulltext.run_local_pdf_conversion_pipeline import (
 )
 
 
-def test_source_identity_audit_command_is_fail_closed(tmp_path) -> None:
+def test_source_identity_audit_command_does_not_stop_on_unverified_artifacts(tmp_path) -> None:
     args = SimpleNamespace(
         python="python3",
         out_dir=str(tmp_path / "articles"),
@@ -24,7 +24,7 @@ def test_source_identity_audit_command_is_fail_closed(tmp_path) -> None:
 
     command = source_identity_audit_command(args)
 
-    assert command[-1] == "--fail-on-unverified"
+    assert "--fail-on-unverified" not in command
     assert "--artifact-dir" in command
     assert str(tmp_path / "articles") in command
 

@@ -577,8 +577,11 @@ document front page. The importer can consume those audited hashes with
 Audit the canonical article store without changing artifacts:
 
 ```bash
-python pipeline/fulltext/audit_fulltext_source_identity.py --fail-on-unverified
+python pipeline/fulltext/audit_fulltext_source_identity.py
 ```
+
+Add `--fail-on-unverified` for a strict check that exits non-zero while any
+stored artifact is unverified. The normal pipeline does not use it (see below).
 
 The audit reads curated DOI relationships and parser-identifier overrides from
 `pipeline/fulltext/source_identity_registry.json`. A registry entry is not an
@@ -604,12 +607,29 @@ the operational pipeline. Durable decisions live in
 `source_identity_registry.json` and `source_identity_pdf_hash_registry.json`.
 
 This audit is part of the normal conversion path, not only a repair utility.
-`run_local_pdf_conversion_pipeline.py` runs it before rebuilding extraction
-routes and stops if any canonical artifact is unverified. Article-text packet
-building also requires a fresh passing audit. It rejects an audit older than a
-routed artifact, the DOI relationship registry, or the PDF hash-attestation
-registry, and writes no packets when a routed artifact is absent from the
-verified audit.
+`run_local_pdf_conversion_pipeline.py`, `convert_routed_local_pdfs.py` and
+`fetch_pmc_fulltext_xml.py` refresh it before rebuilding extraction routes.
+Each audit row records the artifact's SHA-256.
+
+The gate (`source_identity_audit_gate.py`) decides per artifact. An artifact is
+used only when the audit verified that exact file for that DOI and nothing it
+depends on has changed. Otherwise that artifact alone is rejected with one of
+these reasons, and the run continues:
+
+- not in the audit;
+- not verified by the audit;
+- content changed after the audit (a newer file time with an unchanged hash is
+  not a change);
+- a curated registry entry for that DOI changed after the audit.
+
+Packet building leaves rejected artifacts out and lists them with their
+reasons. Route building sends a paper whose stored text is rejected to its
+abstract (`extract_from_abstract_only`), or to `hold_until_text_available` when
+it has no abstract, instead of queueing the same PDF for conversion again. The
+route table records the gate's verdict in `fulltext_identity_status`. Rerunning
+the audit, or recording a decision, restores verified text. A writer reports
+any artifact it has just written that the refreshed audit does not verify
+(`written_unverified_artifacts`).
 
 PMC/Europe PMC XML acquisition is DOI-selective as well. For JATS collections
 containing multiple `<article>` or `<sub-article>` records, the fetcher requires

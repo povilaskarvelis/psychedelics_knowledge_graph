@@ -22,6 +22,7 @@ from pipeline.fulltext.source_identity import (  # noqa: E402
     augment_pdf_artifact_identity,
     clean,
     evaluate_artifact_identity,
+    file_sha256,
     load_pdf_hash_attestation_registry,
     normalize_doi,
     split_dois,
@@ -504,6 +505,9 @@ def audit_artifacts(
                 "fulltext_source": clean(artifact.get("fulltext_source", "") or artifact.get("source_artifact_dataset", "")),
                 "best_char_count": int(artifact.get("best_char_count", 0) or 0),
                 "artifact_path": str(path.resolve()),
+                # The gate uses this hash to tell a content change from a
+                # file-time change (for example, after a sync) per artifact.
+                "artifact_sha256": file_sha256(path),
                 "pdf_local_path": str(pdf_path) if pdf_path else "",
                 "pdf_exists": bool(pdf_path and pdf_path.exists()),
             }

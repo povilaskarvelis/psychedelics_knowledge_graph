@@ -382,6 +382,7 @@ def convert_routed_local_pdfs(
 
     counts: Counter[str] = Counter()
     records: list[dict] = []
+    written_artifacts: list[str] = []
     out_dir.mkdir(parents=True, exist_ok=True)
     print(
         "LOCAL_PDF_CONVERSION: "
@@ -432,6 +433,7 @@ def convert_routed_local_pdfs(
         if write_artifact:
             write_json(artifact_path, artifact)
             counts["written"] += 1
+            written_artifacts.append(str(artifact_path))
         else:
             counts["not_written"] += 1
         if artifact.get("best_backend"):
@@ -470,7 +472,14 @@ def convert_routed_local_pdfs(
             unverified_doi_file=source_identity_unverified_dois,
             identity_registry_path=identity_registry,
             pdf_hash_attestation_registry_path=pdf_hash_attestation_registry,
+            written_artifacts=written_artifacts,
         )
+        if source_identity_audit_refresh["written_unverified_artifacts"]:
+            print(
+                "SOURCE_IDENTITY_AUDIT: written artifacts not verified and left unused: "
+                f"{len(source_identity_audit_refresh['written_unverified_artifacts']):,}",
+                flush=True,
+            )
         route_rebuild_summary = rebuild_routes(
             route_table=route_table,
             metadata_table=metadata_table,
@@ -510,6 +519,9 @@ def convert_routed_local_pdfs(
         "source_identity_audit": {
             "refreshed": source_identity_audit_refresh is not None,
             "report_json": str(Path(source_identity_audit).resolve()),
+            "written_unverified_artifacts": list(
+                (source_identity_audit_refresh or {}).get("written_unverified_artifacts", [])
+            ),
         },
         "records": records,
     }
