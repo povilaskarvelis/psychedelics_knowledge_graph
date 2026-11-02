@@ -8,8 +8,8 @@ from pipeline.kg import build_evidence_tables as b
 from pipeline.kg.convert_meta_analysis_v2_to_evidence_rows import convert_outputs
 
 
-def converted(optional_value, *, flags=None, uncertainties=None):
-    item = {"result_id":"R1", "result_role":"primary_synthesis", "importance_in_paper":"main",
+def converted(optional_value, *, flags=None, uncertainties=None, **item_fields):
+    item = {**item_fields, "result_id":"R1", "result_role":"primary_synthesis", "importance_in_paper":"main",
             "primary_subject_area":"molecular_pathway_readout", "subject_areas":["molecular_pathway_readout"],
             "relationship_statement":"Ketamine non-responders showed no detected change in blood BDNF.",
             "intervention_or_exposure":"Ketamine", "population_or_system":"Adults with depression",
@@ -42,15 +42,48 @@ def test_flag_not_ignored_when_source_optional_field_is_not_empty_object(value):
     assert converted(value)["needs_human_review"] is True
 
 
-def test_model_uncertainty_keeps_review_hold_with_empty_optional_heterogeneity():
-    assert converted({},uncertainties=["Outcome-specific sample size is unavailable."])["needs_human_review"] is True
+@pytest.mark.parametrize("note", [
+    "Outcome-specific sample size is unavailable.",
+    "The abstract does not report the numerical effect estimate, time-specific results, or comparator for suicidality.",
+    "The abstract reports the day-1 CI as -1.15 to -0.26, whereas the full-text results report -1.15 to -0.25; the full-text value is used here.",
+])
+def test_note_about_unreported_metadata_does_not_hold_the_result(note):
+    row=converted({},uncertainties=[note])
+    assert not row.get("needs_human_review", False)
+    assert note in row["notes"]
 
 
-@pytest.mark.parametrize("other", ["empty_optional_object:R1:evidence_size", "nonverbatim_supporting_text:R1:1", "uncertain_effect_direction:R1"])
+@pytest.mark.parametrize("note", [
+    "The interval upper endpoint conflicts between the prose (-0.042) and the table (0.042); it is not resolved here.",
+    "The point estimate is 1.87, while the reported interval (-4.49 to 0.74) does not include the point estimate as written.",
+    "The abstract's stated direction is not readily reconciled with the reported OR without information about outcome coding.",
+    "The direction convention for the standardized mean difference is not explicitly defined.",
+    "The abstract does not specify the RR reference-group direction or the adverse-event assessment window.",
+    "Table 2 contains malformed point-estimate text, so subgroup estimates are not assigned.",
+])
+def test_note_reporting_a_conflict_or_unstated_direction_keeps_review_hold(note):
+    assert converted({},uncertainties=[note])["needs_human_review"] is True
+
+
+def test_empty_optional_evidence_size_and_paraphrased_quote_do_not_hold_the_result():
+    flags=["empty_optional_object:R1:evidence_size","nonverbatim_supporting_text:R1:1"]
+    row=converted({"i_squared":"0%"},flags=flags,evidence_size={})
+    assert not row.get("needs_human_review", False)
+    assert row["extraction_warnings"]==" | ".join(flags)
+    recheck=json.loads(row["statistical_validation_recheck_json"])
+    assert recheck["nonblocking_optional_metadata_flags"]==["empty_optional_object:R1:evidence_size"]
+    assert recheck["nonblocking_quote_flags"]==["nonverbatim_supporting_text:R1:1"]
+
+
+@pytest.mark.parametrize("other", ["contradictory_significance_wording:R1", "supports_with_p_above_0_05:R1", "uncertain_effect_direction:R1"])
 def test_other_result_qa_still_requires_review(other):
     row=converted({},flags=["empty_optional_object:R1:heterogeneity",other])
     assert row["needs_human_review"] is True
     assert other in row["extraction_warnings"]
+
+
+def test_flagged_optional_object_that_is_not_empty_still_requires_review():
+    assert converted({},flags=["empty_optional_object:R1:evidence_size"],evidence_size={"study_count":"4"})["needs_human_review"] is True
 
 
 def source_scale_row():

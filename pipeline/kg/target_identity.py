@@ -155,7 +155,7 @@ def unresolved_historical_pcp_site(text: str) -> bool:
     do not use a generic site name to infer either receptor.
     """
     return bool(re.search(r"\b(?:pcp|phencyclidine)(?: \(pcp\))? (?:binding |recognition )?(?:sites?|receptors?)\b", text, re.I)
-                and not re.search(r"\bnmda\b|n methyl d aspartate|\bnicotinic\b", text, re.I))
+                and not re.search(r"\bnmdars?\b|\bnmda\b|n[- ]methyl[- ]d[- ]aspartate|\bnicotinic\b", text, re.I))
 
 
 def explicit_unresolved_target(row: dict, raw_label: str) -> bool:
@@ -221,7 +221,8 @@ def recovered_target_detail_reason(row: dict) -> str:
         r"ip1 accumulation|inositol phosphate|phosphoinositide hydrolysis|"
         r"bret|trupath|thermal shift|cetsa|surface plasmon|isothermal titration|"
         r"single[- ]channel (?:current|lifetime|conductance)|end[- ]?plate current|"
-        r"(?:22na|sodium|cation|ion)\+? (?:in)?flux",
+        r"(?:22na|sodium|cation|ion)\+? (?:in)?flux|(?:agonist|antagonist) activity|"
+        r"(?:\[3h\]\s*\S+|neurotransmitter|monoamine|5-ht|serotonin|dopamine|norepinephrine|noradrenaline)\s+(?:release|outflow)",
         assay, re.I,
     ):
         return "target_mechanism_without_direct_assay"

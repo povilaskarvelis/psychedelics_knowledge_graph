@@ -113,8 +113,12 @@ def resolve_real_world_measure_subject(row: dict, registry_path: Path = DEFAULT_
     measure = normalize(row.get("public_health_measure", ""))
     if _key(exposure) in MISSING or _key(measure) in MISSING:
         return None
-    if not MEASUREMENT_RE.search(measure) or IDENTITY_MODIFIER_RE.search(measure):
+    if IDENTITY_MODIFIER_RE.search(measure):
         return None
+    # Without a use, availability or harm word ("MDMA loads in river water"),
+    # the drug must be named only in the measure: a drug predictor keeps its
+    # existing subject.
+    measurement_word = bool(MEASUREMENT_RE.search(measure))
     if BACKGROUND_ONLY_RE.search(normalize(row.get("evidence_location", ""))) and not re.search(r"\b(?:results|abstract|table|figure)\b", normalize(row.get("evidence_location", "")), re.I):
         return None
     # A named or pooled drug exposure is already a meaningful subject. This
@@ -123,6 +127,8 @@ def resolve_real_world_measure_subject(row: dict, registry_path: Path = DEFAULT_
     if MIXED_RE.search(exposure) or IDENTITY_MODIFIER_RE.search(exposure):
         return None
     exposure_hits = _identities(exposure, registry_path)
+    if not measurement_word and exposure_hits:
+        return None
     measure_hits = _identities(measure, registry_path)
     if len(measure_hits) != 1 or not measure_hits[0]["allowed"]:
         return None
@@ -150,7 +156,10 @@ def resolve_real_world_measure_subject(row: dict, registry_path: Path = DEFAULT_
         "label": subject["label"], "kind": subject["kind"],
         "source_field": "public_health_measure", "source_value": measure,
         "original_predictor": exposure,
-        "reason": "single_drug_in_measured_outcome_with_non_drug_predictor",
+        "reason": (
+            "single_drug_in_measured_outcome_with_non_drug_predictor" if measurement_word
+            else "single_drug_named_only_in_measured_outcome"
+        ),
         "version": RESOLUTION_VERSION,
     }
 

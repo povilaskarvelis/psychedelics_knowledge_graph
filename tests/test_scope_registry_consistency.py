@@ -25,6 +25,9 @@ def test_scope_compound_resolves_to_a_graph_node(name, registry):
     assert item, f"{name} is in allowed_compounds but missing from the entity registry"
     if name not in COMPARATOR_SCOPE_COMPOUNDS:
         assert b.graph_scope_blocked_compound_result(label, item) is None
+    else:
+        # The Methods page lists it as searched, not in scope; it is never a graph subject.
+        assert b.graph_scope_blocked_compound_result(label, item) is not None
 
 
 @pytest.mark.parametrize("raw,label", [

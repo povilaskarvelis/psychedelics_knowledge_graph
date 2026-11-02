@@ -62,6 +62,7 @@ try:
     from pipeline.kg.real_world_observation_identity import explicit_real_world_observation, real_world_observation_signature, real_world_observation_recovery, DETAIL_REASON as REAL_WORLD_OBSERVATION_REASON
     from pipeline.kg.cognitive_observation_identity import explicit_cognitive_observation, cognitive_observation_signature, cognitive_measurement_recovery, cognitive_context_recovery, HELD_SUBJECT_STATUSES as COGNITIVE_HELD_SUBJECT_STATUSES, SUBJECT_REASON as COGNITIVE_CONTEXT_REASON
     from pipeline.kg.recommendation_identity import explicit_recommendation, recommendation_identity_fields, ENTITY_KIND as RECOMMENDATION_KIND
+    from pipeline.kg.review_statement_attribution import statement_contrasts_drugs
     from pipeline.kg.use_contexts import (
         use_context_definition,
         use_context_label_from_text,
@@ -108,6 +109,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     from pipeline.kg.real_world_observation_identity import explicit_real_world_observation, real_world_observation_signature, real_world_observation_recovery, DETAIL_REASON as REAL_WORLD_OBSERVATION_REASON
     from pipeline.kg.cognitive_observation_identity import explicit_cognitive_observation, cognitive_observation_signature, cognitive_measurement_recovery, cognitive_context_recovery, HELD_SUBJECT_STATUSES as COGNITIVE_HELD_SUBJECT_STATUSES, SUBJECT_REASON as COGNITIVE_CONTEXT_REASON
     from pipeline.kg.recommendation_identity import explicit_recommendation, recommendation_identity_fields, ENTITY_KIND as RECOMMENDATION_KIND
+    from pipeline.kg.review_statement_attribution import statement_contrasts_drugs
     from pipeline.kg.use_contexts import (
         use_context_definition,
         use_context_label_from_text,
@@ -142,7 +144,7 @@ RETRACTED_HOLD_STATUS = "retracted_publication"
 DISPLAYED_PUBLICATION_NOTICES = {"expression_of_concern", "partially_retracted", "retracted_and_replaced"}
 PUBLICATION_NOTICE_COLUMNS = ("publication_notice", "publication_notice_date", "publication_notice_url")
 KG_TABLE_VERSION = "0.2"
-NORMALIZATION_CONTRACT_VERSION = "routed_retraction_holds_20261101_v1"
+NORMALIZATION_CONTRACT_VERSION = "routed_normalization_review_20261102_v1"
 MOLECULAR_SUBTOPIC_TAXONOMY_VERSION = "molecular_subtopics_v4_20261028_measured_readouts"
 
 ROUTED_GRAPH_SOURCES = {
@@ -2456,6 +2458,10 @@ def entity_id_for(entity_type: str, label: object) -> str:
     return f"{entity_type}:{slug(label, entity_type)}"
 
 
+# Hyphens, dashes and minus signs that ascii_fold would delete without a trace.
+UNICODE_DASH_RE = re.compile(r"[\u2010-\u2015\u2212\uFE58\uFE63\uFF0D]")
+
+
 def ascii_fold(value: object) -> str:
     text = normalize(value)
     text = "".join(GREEK_FOLD_REPLACEMENTS.get(char, char) for char in text)
@@ -2658,6 +2664,19 @@ def target_variants(label: str) -> list[str]:
     return variants
 
 
+CLINICAL_BRITISH_SPELLINGS = (
+    (r"\bgeneralised\b", "generalized"),
+    (r"\bbehaviour", "behavior"),
+    (r"\bpaediatric", "pediatric"),
+    (r"\banaesthe", "anesthe"),
+    (r"\bhaemorrhag", "hemorrhag"),
+    (r"\bischaemi", "ischemi"),
+    (r"\boedema\b", "edema"),
+    (r"\bdiarrhoea\b", "diarrhea"),
+    (r"\btumour", "tumor"),
+)
+
+
 def entity_key_variants(value: object, entity_type: str = "") -> list[tuple[str, str]]:
     text = normalize(value)
     if not text:
@@ -2671,6 +2690,18 @@ def entity_key_variants(value: object, entity_type: str = "") -> list[tuple[str,
             variants.append((inside, "parenthetical"))
     if entity_type == "mechanistic_entity":
         variants.extend((variant, "target_variant") for variant in target_variants(text))
+    if entity_type == "clinical_entity":
+        # "Alcohol use disorders" and "generalised anxiety disorder" name the
+        # registered conditions; plural and British forms rank below every
+        # exact label and alias.
+        spelling = text
+        for british, american in CLINICAL_BRITISH_SPELLINGS:
+            spelling = re.sub(british, american, spelling, flags=re.IGNORECASE)
+        if label_key(spelling) != label_key(text):
+            variants.append((spelling, "spelling_variant"))
+        singular = re.sub(r"\bdisorders$", "disorder", spelling, flags=re.IGNORECASE)
+        if label_key(singular) != label_key(spelling):
+            variants.append((singular, "singular_variant"))
 
     out: list[tuple[str, str]] = []
     seen: set[tuple[str, str]] = set()
@@ -2762,7 +2793,11 @@ def canonicalize_node_label(entity_kind: str, label: str, node_vocabulary: dict[
 
 def chemical_identity_surface(value: object) -> str:
     """Normalize established spelling variants without erasing substitutions."""
-    text = normalize(value)
+    # "5-MeO-DMT" typed with Unicode hyphens is the same name. A dash between
+    # two numbers is a range, not part of a name, and is left as it was.
+    text = re.sub(
+        rf"(?<=[A-Za-z0-9]){UNICODE_DASH_RE.pattern}(?=[A-Za-z])|(?<=[A-Za-z]){UNICODE_DASH_RE.pattern}(?=[0-9])",
+        "-", normalize(value))
     text = re.sub(r"\bN\s*[:,]\s*N['’′]?[- ](?=(?:di|methyl))", "N,N-", text, flags=re.I)
     # Typography within a stereodescriptor must not erase the descriptor or
     # make an explicitly identified stereoisomer look unspecified.
@@ -2879,6 +2914,14 @@ def compound_name_is_only_a_reference(value: object, registry: dict[tuple[str, s
                 and not CHEMICAL_RELATIVE_IDENTITY_RE.search(actual_partner)
                 and not UNREGISTERED_CHEMICAL_DERIVATIVE_RE.search(actual_partner)):
             return False
+    # A registered parent with its own isomers ("racemic ketamine and its
+    # isomers") names the parent as given. "And its metabolites" stays
+    # unresolved: the result may belong to a metabolite.
+    parent_bundle = re.fullmatch(
+        r"(.+?)\s+and\s+(?:its|their)\s+(?:isomers?|enantiomers?|stereoisomers?)", raw, re.I)
+    if parent_bundle and (registry.get(("compound", label_key(parent_bundle[1])))
+                          or registry.get(("compound", compact_key(parent_bundle[1])))):
+        return False
     # A named registered parent and a named registered metabolite are two
     # actual identities. This does not release unspecified "and metabolites"
     # bundles or an unregistered analogue merely described by its parent.
@@ -3275,6 +3318,13 @@ def receptor_identity_label(value: object) -> str:
     # Otherwise 5-HT₂A is mistaken for an unspecified 5-HT receptor family.
     text = affirmative_target_label(ascii_fold(value))
     text = re.sub(r";\s*receptor subtypes?\s+(?:not (?:specified|determined|reported)|unspecified).*$", "", text, flags=re.I)
+    if re.search(r"\b(?:receptors?|transporters?|channels?)\b", text, re.I):
+        # Grammatical equivalences only: splice and affinity-state suffixes of
+        # one receptor (D2Short, 5-HT7a) and NMDA wording. Mutations, subunits
+        # and other subtypes are kept.
+        text = re.sub(r"\b(D[1-5])(?:Short|Long|High|Low|S|L)\b", r"\1", text)
+        text = re.sub(r"\b(5[- ]?HT[-_ ]*7)[abd]\b", r"\1", text, flags=re.I)
+        text = re.sub(r"\bNMDA[- ](?:type|sensitive|preferring)(?: ionotropic)? glutamate (receptors?)\b", r"NMDA \1", text, flags=re.I)
     if re.search(r"\breceptors?\b", text, re.I):
         text = re.sub(r"5[- ]hydroxytryptamine\s*([1-7]\s*[a-f]?)?", lambda m: "5-HT" + re.sub(r"\s+", "", m[1] or "").upper(), text, flags=re.I)
         text = re.sub(r"(5[- ]?HT[-_ ]*[1-7][a-f]?)\s+serotonin\s+receptors?(?:\s+subtype)?", r"\1 receptor", text, flags=re.I)
@@ -3290,6 +3340,37 @@ def receptor_identity_label(value: object) -> str:
         if receptor and not re.search(r"\b(?:and|or|plus)\b|[,;/]", outside, re.I):
             return "5-HT" + receptor[1].upper()
     return text
+
+
+def without_abbreviation_parenthetical(label: str, registry: dict[tuple[str, str], dict]) -> str:
+    """Drop a trailing parenthetical of abbreviations or gene symbols that agree with the target name.
+
+    "Human mu-opioid receptor (OPRM/MOR)", "(hkappaOR)" and "(bNAT)" add no
+    identity. A symbol that names another registered target ("M1 muscarinic
+    receptor (CHRM2)") keeps the whole label unresolved, and a mutation such
+    as (T356M) is never dropped.
+    """
+    found = re.search(r"\b(?:receptors?|adrenoceptors?|transporters?|channels?)\s*\(([^()]*)\)\s*$", label, re.I)
+    if not found:
+        return label
+    tokens = re.split(r"\s*[/;,]\s*", found[1].strip())
+    if not all(re.fullmatch(r"[a-z]{0,6}[A-Z][A-Za-z0-9-]{0,11}", token)
+               and not re.fullmatch(r"[A-Z]\d{2,4}[A-Z]", token) for token in tokens):
+        return label
+    outside = label[:found.start(1) - 1].strip()
+    named = set()
+    for token in tokens:
+        for candidate in (token, token[1:] if re.match(r"[hrmbp][A-Z]", token) else ""):
+            _, item = canonicalize_registry_label("mechanistic_entity", candidate, registry) if candidate else ("", None)
+            if item:
+                named.add(normalize(item.get("label", "")))
+    if named:
+        _, outside_item = canonicalize_registry_label("mechanistic_entity", outside, registry)
+        outside_item = outside_item or single_registered_target(
+            label_key(outside), registry, DIRECT_TARGET_REGISTRY_STATUSES | TARGET_FAMILY_REGISTRY_STATUSES)
+        if not outside_item or named != {normalize(outside_item.get("label", ""))}:
+            return label
+    return outside
 
 
 def registry_compound_labels_in_text(value: object, registry: dict[tuple[str, str], dict]) -> set[str]:
@@ -3444,11 +3525,20 @@ OVERVIEW_SUBJECT_CLASS_RULES = (
 )
 UNRESOLVED_PSYCHEDELIC_SUBJECT_LABEL = "Psychedelics (unspecified compounds)"
 BROAD_PSYCHEDELIC_CLASS_LABEL = "Psychedelics (broad or mixed)"
+# Primary findings about psychedelics without a named compound (users versus
+# non-users, microdosing of unspecified substances) are shown on the
+# "Psychedelics (unspecified compounds)" node, as reviews' class statements are
+# shown on the broad class node. An unregistered analogue described by its
+# class is a specified chemical and stays in paper detail.
+UNREGISTERED_ANALOG_CLASS_REASON = "unregistered_psychedelic_analog_class_detail_only"
 DETAIL_ONLY_OVERVIEW_SUBJECT_REASONS = {
-    "controlled_unresolved_psychedelic_class_detail_only",
+    UNREGISTERED_ANALOG_CLASS_REASON,
     RECOVERED_FINDING_SCOPE_REASON,
 }
 GENERIC_PSYCHEDELIC_CLASS_RE = re.compile(r"\bpsychedelics?\b", re.I)
+# Class words after which named registered drugs are recovered ("PCP or other
+# hallucinogens", "ketamine or other dissociatives").
+OVERVIEW_CLASS_WORD_RE = re.compile(r"\b(?:psychedelics?|hallucinogens?|dissociatives?|entheogens?)\b", re.I)
 PSYCHEDELIC_THERAPY_RE = re.compile(
     r"\bpsychedelic[- ]assisted (?:therap(?:y|ies)|psychotherap(?:y|ies)|treatments?)\b|"
     r"\bpsychedelic therapy\b",
@@ -4153,6 +4243,16 @@ def registry_keys_for_compound_label(
     return sorted(keys, key=lambda key: (-len(key), key))
 
 
+def statement_contrasts_named_drugs(row: dict, labels: list[str], registry: dict[tuple[str, str], dict]) -> bool:
+    statement = " ".join(normalize(row.get(field, "")) for field in ("finding_summary", "support"))
+    return statement_contrasts_drugs(
+        label_key(statement),
+        [[key for key in registry_keys_for_compound_label(label, registry) if " " in key or len(key) > 2]
+         for label in labels],
+        statement,
+    )
+
+
 def primary_named_compound_labels(
     raw: str,
     labels: list[str],
@@ -4651,7 +4751,7 @@ def _overview_graph_subjects(
         # changing subject kind must not turn an analogue into its parent drug.
         if kind == "compound_class" and GENERIC_PSYCHEDELIC_CLASS_RE.search(raw.split("(", 1)[0]):
             return [{"label": UNRESOLVED_PSYCHEDELIC_SUBJECT_LABEL, "kind": "compound_class",
-                     "reason": "controlled_unresolved_psychedelic_class_detail_only"}]
+                     "reason": UNREGISTERED_ANALOG_CLASS_REASON}]
         return explicit_parallel_registered_subjects(row, registry)
     measured_class = structured_measured_class_subject(row, compound_label_for(row) or raw, kind, registry)
     if measured_class:
@@ -4709,7 +4809,7 @@ def _overview_graph_subjects(
                     "kind": "compound_class",
                     "reason": "controlled_broad_psychedelic_class"
                     if secondary_literature
-                    else "controlled_unresolved_psychedelic_class_detail_only",
+                    else "controlled_unspecified_psychedelic_class",
                 }]
             return [explicit_class_subject]
         # A preserved novel chemical or product description is not a registered
@@ -4738,9 +4838,16 @@ def _overview_graph_subjects(
                 }
                 for concrete_label in concrete_labels
             ]
-        if len(named_labels) > 1 and not secondary_literature:
+        # A subject that lists several registered drugs ("ketamine and
+        # esketamine") links each drug, for reviews as for primary studies. A
+        # review's class word with examples stays on the class node, and a
+        # review statement that contrasts the named drugs is not split.
+        review_list_not_split = secondary_literature and (
+            OVERVIEW_CLASS_WORD_RE.search(raw) or statement_contrasts_named_drugs(row, named_labels, registry)
+        )
+        if len(named_labels) > 1 and not review_list_not_split:
             projected_labels = named_labels
-            if GENERIC_PSYCHEDELIC_CLASS_RE.search(raw):
+            if secondary_literature or OVERVIEW_CLASS_WORD_RE.search(raw):
                 projected_labels = affirmatively_named_compound_labels(raw, registry)
             if projected_labels:
                 return [
@@ -4751,7 +4858,7 @@ def _overview_graph_subjects(
                     }
                     for label in projected_labels
                 ]
-        if len(named_labels) == 1 and not secondary_literature and GENERIC_PSYCHEDELIC_CLASS_RE.search(raw):
+        if len(named_labels) == 1 and not secondary_literature and OVERVIEW_CLASS_WORD_RE.search(raw):
             affirmative_labels = affirmatively_named_compound_labels(raw, registry)
             if affirmative_labels:
                 return [
@@ -4786,7 +4893,7 @@ def _overview_graph_subjects(
                     "kind": "compound_class",
                     "reason": "controlled_multiple_psychedelic_class"
                     if secondary_literature
-                    else "controlled_unresolved_psychedelic_class_detail_only",
+                    else "controlled_unspecified_psychedelic_class",
                 }]
             if PSYCHEDELIC_SEROTONERGIC_CONTEXT_RE.search(context_with_raw):
                 return [{
@@ -4801,7 +4908,7 @@ def _overview_graph_subjects(
                 "kind": "compound_class",
                 "reason": "controlled_broad_psychedelic_class"
                 if secondary_literature
-                else "controlled_unresolved_psychedelic_class_detail_only",
+                else "controlled_unspecified_psychedelic_class",
             }]
         return []
 
@@ -5650,8 +5757,16 @@ def meta_analysis_target_support_matches(
     return matches if 1 <= len(matches) <= META_ANALYSIS_TARGET_PROJECTION_MAX_ENTITIES else []
 
 
+# ascii_fold deletes en and em dashes, so "Amygdala (en dash) vmPFC
+# connectivity" became "AmygdalavmPFC connectivity". Anatomy labels treat every
+# dash as a hyphen. Other matchers keep their behaviour: there a joined name
+# such as "BDNF (en dash) VEGF-A correlation" must not resolve to one part.
+def brain_label_text(value: object) -> str:
+    return UNICODE_DASH_RE.sub("-", normalize(value))
+
+
 def brain_entity_list_parts(value: object) -> list[str]:
-    text = normalize(value)
+    text = brain_label_text(value)
     if not text or not BRAIN_LIST_SEPARATOR_RE.search(text):
         return []
     return scientific_list_parts(text)
@@ -5661,7 +5776,7 @@ def brain_entity_split_matches(
     raw_label: object,
     node_vocabulary: dict[tuple[str, str], dict],
 ) -> list[tuple[str, str]]:
-    raw = normalize(raw_label)
+    raw = brain_label_text(raw_label)
     if not raw:
         return []
     # Shared anatomical head nouns and explicit subregion descriptions do not
@@ -5710,6 +5825,7 @@ def match_brain_vocabulary_entity(
     preferred_kind: str,
     node_vocabulary: dict[tuple[str, str], dict],
 ) -> dict:
+    raw_label = brain_label_text(raw_label)
     exact_matches = exact_node_vocabulary_matches(raw_label, BRAIN_SYSTEM_ENTITY_KINDS, node_vocabulary)
     if len(exact_matches) == 1:
         kind, label = exact_matches[0]
@@ -6607,11 +6723,53 @@ def target_family_display_label(label: str, entity_kind: str) -> str:
     return TARGET_FAMILY_LABEL_OVERRIDES.get(label, label)
 
 
+# "PTSD symptoms", "symptoms of OCD", "OCD symptom severity": a condition name
+# followed or preceded only by symptom or severity words.
+SYMPTOM_ANCHOR_CONDITION_RE = re.compile(
+    r"(?:symptoms? of |severity of )?(.+?)(?:[- ]related)?"
+    r"(?: (?:symptoms?|symptom severity|symptom scores?|severity))?",
+    re.IGNORECASE,
+)
+
+
+def registered_condition_for_symptom_anchor(
+    raw_label: str,
+    registry: dict[tuple[str, str], dict],
+    row: dict | None,
+) -> dict | None:
+    """Resolve a symptom-typed outcome whose label names a registered diagnosis.
+
+    Review outcome anchors are typed as symptoms by their role, so "PTSD
+    symptoms" or "Tobacco use disorder" would otherwise never reach the
+    condition. The whole label must be the diagnosis, alone or with symptom or
+    severity words, and the condition guards apply as for a condition anchor.
+    Broad categories ("depressive symptoms") and symptom-type registry nodes
+    stay symptoms.
+    """
+    stated = normalize(raw_label)
+    named = SYMPTOM_ANCHOR_CONDITION_RE.fullmatch(stated)
+    condition_name = normalize(named.group(1)) if named else ""
+    for candidate in dict.fromkeys(value for value in (stated, condition_name) if value):
+        _, item = canonicalize_registry_label("clinical_entity", candidate, registry)
+        status = normalize((item or {}).get("status", "")).casefold()
+        if not item or "symptom_or_problem" in status or "broad_category" in status:
+            continue
+        match = match_registry_entity(candidate, "condition_indication", registry, row)
+        if not match["matched"] or match["kind"] != "condition_indication":
+            continue
+        if label_key(match["label"]) != label_key(item.get("label", "")):
+            continue
+        return {**match, "match_type": "registered_condition_named_by_symptom_anchor",
+                "notes": "symptom-typed outcome names a registered condition; condition guards applied"}
+    return None
+
+
 def match_registry_entity(
     raw_label: str,
     entity_kind: str,
     registry: dict[tuple[str, str], dict],
     row: dict | None = None,
+    abbreviation_fallback: bool = True,
 ) -> dict:
     if entity_kind in {"target", "system_family"}:
         if unresolved_historical_pcp_site(ascii_fold(raw_label)):
@@ -6619,8 +6777,19 @@ def match_registry_entity(
                     "status": "entity_normalized", "match_type": "historical_target_site_detail_only",
                     "notes": "historical PCP binding-site label retained without inferring an NMDA receptor identity"}
         raw_label = receptor_identity_label(raw_label)
+        # A trailing abbreviation is dropped only when the full label does not
+        # match, so labels that already resolve keep their match and checks.
+        shortened = without_abbreviation_parenthetical(raw_label, registry) if abbreviation_fallback else raw_label
+        if shortened != raw_label:
+            match = match_registry_entity(raw_label, entity_kind, registry, row, abbreviation_fallback=False)
+            return match if match["matched"] else match_registry_entity(
+                shortened, entity_kind, registry, row, abbreviation_fallback=False)
     entity_type = ENTITY_TYPE_BY_KIND.get(entity_kind, "")
     context_text = molecular_kind_context(row, raw_label)
+    if entity_kind == "symptom_problem":
+        condition_match = registered_condition_for_symptom_anchor(raw_label, registry, row)
+        if condition_match:
+            return condition_match
     if entity_kind == "condition_indication" and CONDITION_NON_INDICATION_CONTEXT_RE.search(normalize(raw_label)):
         return {
             "matched": False,
@@ -6797,6 +6966,35 @@ def match_registry_entity(
         "status": "entity_unmapped",
         "match_type": "",
         "notes": f"entity `{raw_label}` did not match local registry",
+    }
+
+
+# A construct is sometimes extracted under the other construct domain
+# ("Ego dissolution" as cognition, "Positive affect" as a subjective effect),
+# and a symptom-typed "Anhedonia" names the cognitive construct of that name.
+# Only an exact label or alias of the other vocabulary counts.
+PEER_CONSTRUCT_KINDS = {
+    "cognitive_behavioral_construct": "subjective_experience_construct",
+    "subjective_experience_construct": "cognitive_behavioral_construct",
+    "symptom_problem": "cognitive_behavioral_construct",
+}
+CONSTRUCT_KIND_DOMAINS = {
+    "cognitive_behavioral_construct": "cognitive_behavioral",
+    "subjective_experience_construct": "subjective_experience",
+}
+
+
+def peer_construct_match(raw_label: str, entity_kind: str, node_vocabulary: dict[tuple[str, str], dict]) -> dict | None:
+    peer_kind = PEER_CONSTRUCT_KINDS.get(entity_kind, "")
+    if not peer_kind:
+        return None
+    canonical, item = canonicalize_node_label(peer_kind, raw_label, node_vocabulary)
+    if not item:
+        return None
+    return {
+        "matched": True, "label": canonical, "kind": peer_kind, "item": item,
+        "status": "entity_normalized", "match_type": "peer_construct_vocabulary",
+        "notes": "construct named exactly by a label or alias of the other construct vocabulary",
     }
 
 
@@ -7734,6 +7932,11 @@ def graphable_entity_match(
                     "notes": "co-labelled cell phenotype retained as one measured population",
                 }
         match = match_registry_entity(raw, entity_kind, registry, row)
+        if (match["matched"] and match["kind"] == "symptom_problem"
+                and "symptom_or_problem" in normalize((match.get("item") or {}).get("status", "")).casefold()):
+            peer_match = peer_construct_match(match["label"], "symptom_problem", node_vocabulary)
+            if peer_match:
+                return peer_match
         if (
             not match["matched"]
             and entity_kind == "condition_indication"
@@ -7892,6 +8095,9 @@ def graphable_entity_match(
                     "status": "entity_normalized", "match_type": "explicit_subjective_composite_detail_only",
                     "notes": "joint subjective constructs retained as one observation without component-effect attribution"}
         match = match_vocabulary_entity(raw, entity_kind, node_vocabulary)
+        peer_match = peer_construct_match(raw, entity_kind, node_vocabulary) if not match["matched"] else None
+        if peer_match:
+            return peer_match
         if not match["matched"] and entity_kind in {"subjective_experience_construct", "cognitive_behavioral_construct"} and len(raw) <= 160:
             return {
                 "matched": True, "label": raw, "kind": entity_kind, "item": None,
@@ -7965,10 +8171,10 @@ SAFETY_ENDPOINT_PATTERNS = (
         "Psychosis risk",
     ),
     (re.compile(r"\b(tinnitus|ear ringing)\b", re.IGNORECASE), "Tinnitus/auditory symptoms"),
-    (re.compile(r"\b(flashbacks?|hppd|persisting perceptual)\b", re.IGNORECASE), "Flashbacks/HPPD"),
+    (re.compile(r"\b(flashbacks?|hppd|persisting perceptual|post[- ]?hallucinogen(?:ic)? perceptual)\b", re.IGNORECASE), "Flashbacks/HPPD"),
     (
         re.compile(
-            r"\b(blood pressure|arterial pressure|heart rate|cardiovascular|hypertension|hypotension|qt|qtc|torsade|arrhythm|"
+            r"\b(blood pressure|arterial pressure|heart rate|cardiovascular|cerebrovascular|hypertension|hypotension|qt|qtc|torsade|arrhythm|"
             r"pro[- ]?arrhythmi\w*|arrhythmi\w*|hERG|electrocardi|ecg|tachycardia|bradycardia|hemodynamic|valvulopathy|valvular heart disease|"
             r"cardiac|myocard|cardiotox\w*|contractile|atrium|atrial|hemorrhage|haemorrhage|vasculitis|stroke|"
             r"mean arterial pressure|pulse rate|vital signs?|ekg|qtcf|hemodynamics?|inotropic)\b",
@@ -8095,7 +8301,7 @@ SAFETY_ENDPOINT_PATTERNS = (
         "Developmental toxicity",
     ),
     (
-        re.compile(r"\b(urinary|cystitis|bladder|lower urinary tract|urologic|urological)\b", re.IGNORECASE),
+        re.compile(r"\b(urinary|cystitis|bladder|lower urinary tract|urologic|urological|uropath\w*)\b", re.IGNORECASE),
         "Urinary toxicity",
     ),
     (
@@ -8108,7 +8314,7 @@ SAFETY_ENDPOINT_PATTERNS = (
     ),
     (
         re.compile(
-            r"\b(neurotox\w*|cytotox\w*|genotox\w*|micronucleus|chromosomal aberrations?|cell viability|cell death|apoptosis|oxidative stress|ros|"
+            r"\b(neurotox\w*|neurological toxicity|cytotox\w*|genotox\w*|micronucleus|chromosomal aberrations?|cell viability|cell death|apoptosis|oxidative stress|ros|"
             r"dopaminergic (injury|damage|toxicity|lesions?|loss|depletion)|"
             r"serotonergic (injury|damage|toxicity|lesions?|loss|depletion|axons?)|"
             r"neurodegener\w*|serotonin depletion|5[- ]?ht depletion|5[- ]?ht loss|5[- ]?ht neurotoxicity|"
@@ -10400,6 +10606,125 @@ def is_review_row(row: dict) -> bool:
     return source_type in REVIEW_SOURCE_TYPES
 
 
+# Review conversion types an anchor by its role ("outcome" is a clinical
+# symptom). When that domain is not one Luna declared for the statement and
+# the label does not match there, the declared domains compatible with the
+# role are tried in this order.
+REVIEW_DECLARED_DOMAIN_FALLBACKS = {
+    "condition": ("safety_tolerability", "clinical_outcome"),
+    "outcome": (
+        "safety_tolerability", "cognitive_behavioral", "subjective_experience", "clinical_outcome",
+        "real_world_public_health", "brain_system", "molecular_pathway_readout",
+    ),
+    "safety_event": ("clinical_outcome", "cognitive_behavioral", "subjective_experience"),
+    "target": ("molecular_pathway_readout",),
+    "pathway_or_process": ("molecular_target", "brain_system"),
+    "brain_system": ("molecular_pathway_readout",),
+    "cognitive_or_behavioral_construct": ("subjective_experience", "clinical_outcome", "safety_tolerability"),
+    "subjective_construct": ("cognitive_behavioral", "clinical_outcome", "safety_tolerability"),
+}
+REVIEW_FALLBACK_KIND_FIELDS = {
+    "safety_tolerability": ("safety_adverse_event", "safety_event_or_measure"),
+    "cognitive_behavioral": ("cognitive_behavioral_construct", "graph_construct_label"),
+    "subjective_experience": ("subjective_experience_construct", "subjective_construct"),
+    "real_world_public_health": ("public_health_measure", "public_health_measure"),
+    "brain_system": ("brain_network", "brain_network"),
+    "molecular_pathway_readout": ("pathway_process", "pathway_or_process"),
+    "molecular_target": ("target", "target"),
+}
+REVIEW_ROLE_FIELDS = {
+    "condition": "condition_or_indication",
+    "outcome": "outcome_measure",
+    "safety_event": "safety_event_or_measure",
+    "target": "target",
+    "pathway_or_process": "pathway_or_process",
+    "brain_system": "brain_network",
+    "cognitive_or_behavioral_construct": "graph_construct_label",
+    "subjective_construct": "subjective_construct",
+}
+
+
+def review_object_anchor_is_named(row: dict, role: str, label: str) -> bool:
+    try:
+        anchors = json.loads(row.get("relationship_anchors_json") or "[]")
+    except (TypeError, ValueError):
+        return False
+    return any(
+        isinstance(anchor, dict)
+        and normalize(anchor.get("role", "")) == role
+        and label_key(anchor.get("label", "")) == label_key(label)
+        and normalize(anchor.get("anchor_type", "")) == "named_entity"
+        for anchor in anchors
+    )
+
+
+def review_declared_domain_retypings(row: dict, domain: str) -> list[tuple[str, dict]]:
+    """Copies of a review statement re-typed to compatible domains that Luna declared.
+
+    Only named-entity objects are re-typed, and only when the role-based domain
+    was not declared. The caller uses a copy only if its label matches there.
+    """
+    if normalize(row.get("source_item_type", "")) != "review_relationship":
+        return []
+    try:
+        declared = {normalize(value) for value in json.loads(row.get("relationship_domain_labels_json") or "[]")}
+    except (TypeError, ValueError):
+        return []
+    if not declared or normalize(domain) in declared:
+        return []
+    role = normalize(row.get("entity_role", ""))
+    label = normalize(row.get("graph_entity_label", ""))
+    if not label or not review_object_anchor_is_named(row, role, label):
+        return []
+    retypings = []
+    for candidate in REVIEW_DECLARED_DOMAIN_FALLBACKS.get(role, ()):
+        if candidate not in declared:
+            continue
+        if candidate == "clinical_outcome":
+            kind, field = (
+                ("condition_indication", "condition_or_indication") if role == "condition"
+                else ("symptom_problem", "outcome_measure")
+            )
+        else:
+            kind, field = REVIEW_FALLBACK_KIND_FIELDS[candidate]
+        retyped = dict(row)
+        role_field = REVIEW_ROLE_FIELDS.get(role, "")
+        if role_field and role_field != field and label_key(retyped.get(role_field, "")) == label_key(label):
+            retyped.pop(role_field, None)
+        normalization_repair(retyped, "review_statement_retyped_to_declared_domain", {
+            "domain": candidate, "domain_route": candidate, "dataset": candidate,
+            "kg_entity_kind_override": kind, field: label, "review_role_typed_domain": normalize(domain),
+        })
+        retypings.append((candidate, retyped))
+    return retypings
+
+
+# Matches that keep a literal label in paper detail rather than naming a node.
+LITERAL_DETAIL_MATCH_TYPES = {
+    "unregistered_chemical_identity_detail_only", "unmapped_safety_endpoint_detail_only",
+    "context_measure_without_canonical_parent_detail_only", "unmapped_construct_detail_only",
+    "pooled_condition_detail_only", "nondiagnostic_use_detail_only",
+}
+
+
+# Matching results that keep a review statement or meta-analysis result as a
+# literal paper-detail finding rather than dropping it: the subject resolved,
+# and the outcome was stated but is not a controlled node. Rows whose object is
+# a population, comparator, context topic, metadata or an out-of-scope entity
+# stay in the audit only.
+UNMATCHED_OUTCOME_DETAIL_ITEM_TYPES = {"review_relationship", "synthesis_result"}
+UNMATCHED_OUTCOME_DETAIL_REASONS = {
+    "entity_unmapped": "outcome_label_not_in_vocabulary",
+    "entity_combo_not_graphable": "outcome_names_several_entities",
+    "condition_broad_placeholder_not_graphable": "broad_condition_label_detail_only",
+    "condition_analog_not_graphable": "condition_model_wording_detail_only",
+    "broad_brain_system_not_graphable": "broad_brain_system_detail_only",
+    "brain_measure_not_graphable": "neural_measure_without_anatomical_anchor",
+    "molecular_effect_placeholder_not_graphable": "broad_molecular_label_detail_only",
+    "generic_behavior_not_graphable": "generic_behavior_detail_only",
+}
+
+
 def review_paper_frame(row: dict) -> dict:
     value = row.get("paper_frame_json", "")
     if isinstance(value, dict):
@@ -10730,6 +11055,35 @@ def apply_meta_analysis_context_metadata(row: dict) -> dict:
     return row
 
 
+KETAMINE_UROPATHY_KEYS = {
+    "ketamine associated uropathy", "ketamine uropathy", "ketamine induced uropathy",
+    "ketamine cystitis", "ketamine induced cystitis", "ketamine related cystitis", "ketamine related uropathy",
+}
+
+
+def apply_exposure_caused_uropathy_boundary(row: dict, domain: str) -> tuple[dict, str]:
+    """Report ketamine-associated uropathy found with ketamine as a urinary harm of ketamine.
+
+    The condition is caused by the exposure, so it is not shown as an
+    indication; a treatment studied for the condition keeps its condition edge.
+    """
+    if domain != "clinical_outcome":
+        return row, domain
+    anchor = first_endpoint_value(row, ("graph_entity_label", "condition_or_indication", "raw_entity_label", "entity_label"))
+    if label_key(anchor) not in KETAMINE_UROPATHY_KEYS:
+        return row, domain
+    subject = label_key(first_endpoint_value(row, ("compound", "graph_subject_label", "compound_or_exposure", "intervention_or_exposure")))
+    if not re.fullmatch(r"(?:(?:racemic|recreational|illicit|street|chronic) )?ketamine(?: (?:use|users?|abuse|misuse|dependence))?", subject):
+        return row, domain
+    domain = "safety_tolerability"
+    normalization_repair(row, "exposure_caused_uropathy_routed_to_safety", {
+        "domain": domain, "domain_route": domain, "dataset": domain,
+        "kg_entity_kind_override": "safety_adverse_event",
+        "safety_event_or_measure": anchor, "graph_entity_label": "Urinary toxicity",
+    })
+    return row, domain
+
+
 def apply_psychosis_family_boundary(row: dict, domain: str) -> tuple[dict, str]:
     """Separate transient psychotomimetic effects from actual psychosis risk."""
 
@@ -10961,7 +11315,11 @@ def current_field_role_boundary(row: dict, domain: str) -> str:
             reason = "pretreatment_phase_event_requires_actor_resolution"
     validation_anchor = " ".join(normalize(row.get(field, "")) for field in ("subjective_construct", "study_design", "data_source_or_study_design", "finding_summary"))
     association_text = " ".join(normalize(row.get(field, "")) for field in ("finding_summary", "support", "relationship_to_outcome", "effect_or_statistic", "statistic_or_value"))
-    dose_or_experience_association = bool(re.search(r"\b(?:dose|intensity)\b", association_text, re.I) and re.search(r"\b(?:correlat\w*|associat\w*|increased with|related)\b", association_text, re.I))
+    dose_or_experience_association = bool(
+        re.search(r"\bdose[- ](?:dependent\w*|response|related)\b", association_text, re.I)
+        or (re.search(r"\b(?:dose|intensity)\b", association_text, re.I)
+            and re.search(r"\b(?:correlat\w*|associat\w*|increased with|related)\b", association_text, re.I))
+    )
     if domain == "subjective_experience" and not dose_or_experience_association and re.search(r"\b(?:factor (?:structure|analysis)|psychometric (?:validation|properties)|scale (?:validation|structure)|measurement invariance|internal consistency|reliability)\b", validation_anchor, re.I):
         reason = "measurement_validation_not_drug_effect"
     if domain == "pharmacokinetics_exposure":
@@ -10973,7 +11331,8 @@ def current_field_role_boundary(row: dict, domain: str) -> str:
 
     exposure = first_endpoint_value(row, ("compound_or_exposure", "compound_or_intervention", "intervention_or_exposure", "graph_subject_label"))
     sequential_adjunct = bool(
-        re.search(r"\b(?:lithium|magnesium|rapamycin|MK[- ]?801|risperidone|Salix mucronata)\b", exposure, re.I)
+        # Lithium-pilocarpine is a seizure model, not a lithium adjunct.
+        re.search(r"\b(?:lithium(?!\s*[-\u2010-\u2015]?\s*pilocarpine)|magnesium|rapamycin|MK[- ]?801|risperidone|Salix mucronata)\b", exposure, re.I)
         and re.search(r"\b(?:ketamine|psilocybin|MDMA|LSD)\b", exposure, re.I)
         and re.search(r"\b(?:following|after|then|continuation|maintenance|sequential|followed by)\b", exposure, re.I)
     )
@@ -11088,6 +11447,7 @@ def normalize_claim_metadata(row: dict, domain: str) -> dict:
     out["result_direction_normalized"] = normalized_result_direction(out.get("result_direction", ""))
     out["evidence_design"] = evidence_design_for(out)
     out, domain = apply_psychosis_family_boundary(out, domain)
+    out, domain = apply_exposure_caused_uropathy_boundary(out, domain)
     safety_anchor = first_endpoint_value(out, ("safety_event_or_measure", "safety_event_or_risk", "graph_entity_label"))
     if domain == "safety_tolerability" and re.search(r"\b(?:mitochondri\w*|oxidative phosphorylation|state [34] respiration)\b", safety_anchor, re.I) and not re.search(r"\b(?:apnea|dyspnea|breathing|respiratory arrest|respiratory depression)\b", safety_anchor, re.I):
         domain = "molecular_pathway_readout"
@@ -11809,6 +12169,10 @@ def graph_admission_decision(row: dict) -> tuple[str, str]:
         return "paper_detail", normalize(row.get("graph_admission_reason", "")) or "source_marked_paper_detail"
     domain = normalize(row.get("domain", "") or row.get("domain_route", "")).casefold()
     entity_kind = normalized_entity_kind(row.get("kg_entity_kind_override", "") or row.get("entity_type", ""))
+    # A readout whose stated region did not resolve keeps that reason; it is
+    # not a measure that never had an anatomical anchor.
+    if normalize(row.get("entity_match_type", "")) == "explicit_neural_readout_detail_only":
+        return "paper_detail", "explicit_neural_readout_without_resolved_anatomy"
     if entity_kind == "brain_measure":
         return "paper_detail", "neural_measure_without_anatomical_anchor"
     if (domain == "brain_system"
@@ -11825,8 +12189,6 @@ def graph_admission_decision(row: dict) -> tuple[str, str]:
         return "paper_detail", "primary_baseline_or_control_only_brain_result"
     if domain == "general_primary" or entity_kind == "reported_measurement":
         return "paper_detail", "generic_measurement_requires_domain_mapping"
-    if normalize(row.get("entity_match_type", "")) == "explicit_neural_readout_detail_only":
-        return "paper_detail", "explicit_neural_readout_without_resolved_anatomy"
     entity_label = first_normalized_value(
         row,
         ("graph_entity_label", "canonical_entity", "entity_label", "public_health_graph_label"),
@@ -11859,8 +12221,10 @@ def graph_admission_decision(row: dict) -> tuple[str, str]:
 
     item_type = normalize(row.get("source_item_type", "")).casefold()
     location = normalize(row.get("evidence_location", "")).casefold()
-    background_only = bool(re.search(r"\b(background|introduction|references?)\b", location)) and not bool(
-        re.search(r"\b(result|discussion|conclusion|abstract|table|figure)\b", location)
+    # "Reference memory" and "reference agonist" are results wording, not a
+    # reference list; "Results" and "Fig." name result locations.
+    background_only = bool(re.search(r"\b(background|introduction|references|bibliography)\b", location)) and not bool(
+        re.search(r"\b(results?|discussion|conclusions?|abstract|tables?|fig(?:ure)?s?)\b", location)
     )
     if item_type == "primary_item" and background_only:
         return "paper_detail", "primary_claim_supported_only_by_background_location"
@@ -12763,6 +13127,50 @@ def build_tables(
                         "graph_admission_reason": observation["reason"],
                     })
             if not entity_match["matched"]:
+                # A controlled node in any declared domain is preferred to a
+                # literal detail-only label in the first one.
+                fallbacks = []
+                for fallback_domain, retyped in review_declared_domain_retypings(row, domain):
+                    retyped = normalize_claim_metadata(retyped, fallback_domain)
+                    fallback_domain = normalize(retyped.get("domain", "")) or fallback_domain
+                    fallback_kind = entity_kind_for(retyped, fallback_domain)
+                    fallback_label = entity_label_for(retyped, fallback_domain, fallback_kind)
+                    fallback_match = graphable_entity_match(
+                        row=retyped, domain=fallback_domain, entity_kind=fallback_kind,
+                        raw_label=fallback_label, registry=registry, node_vocabulary=node_vocabulary,
+                    )
+                    if fallback_match["matched"]:
+                        fallbacks.append((fallback_match.get("match_type") in LITERAL_DETAIL_MATCH_TYPES,
+                                          retyped, fallback_domain, fallback_kind, fallback_label, fallback_match))
+                if fallbacks:
+                    _, row, domain, entity_kind, raw_entity_label, entity_match = min(fallbacks, key=lambda item: item[0])
+                    dataset = domain
+                    use_context_projections = graph_use_context_projections(row, domain, overview_subjects, registry)
+            # Never drop a review or meta-analysis finding whose subject
+            # resolved only because its outcome is not a controlled node: keep
+            # the literal outcome in paper detail with the matching result as
+            # its reason. Primary rows follow their domain's saved-observation
+            # contract above, and a row already shown through the clinical
+            # endpoint projection is not kept twice.
+            if (not entity_match["matched"]
+                    and entity_match["status"] in UNMATCHED_OUTCOME_DETAIL_REASONS
+                    and normalize(row.get("source_item_type", "")) in UNMATCHED_OUTCOME_DETAIL_ITEM_TYPES
+                    and normalize(raw_entity_label)
+                    and not (has_clinical_projection_source and domain == "clinical_outcome"
+                             and clinical_endpoint_rows([dict(row)], []))):
+                normalization_repair(row, "unmatched_outcome_preserved_in_detail", {
+                    "graph_admission_status": "paper_detail",
+                    "graph_admission_reason": UNMATCHED_OUTCOME_DETAIL_REASONS[entity_match["status"]],
+                    "unmatched_entity_kind": entity_kind,
+                    "unmatched_entity_status": entity_match["status"],
+                })
+                entity_kind = "reported_measurement"
+                entity_match = {
+                    "matched": True, "label": normalize(raw_entity_label), "kind": entity_kind,
+                    "item": None, "status": "entity_normalized", "match_type": "unmatched_outcome_detail_only",
+                    "notes": f"{entity_match['notes']}; literal outcome retained in paper detail",
+                }
+            if not entity_match["matched"]:
                 audit_source_row = dict(row)
                 audit_source_row["compound"] = compound_label
                 audit_source_row["canonical_compound"] = compound_label
@@ -12816,6 +13224,13 @@ def build_tables(
                 row["domain_route"] = domain
                 row["dataset"] = domain
                 row["normalization_boundary_reason"] = "molecular_target_readout_routed_to_molecular_effects"
+            peer_construct_domain = CONSTRUCT_KIND_DOMAINS.get(entity_kind, "")
+            if entity_match.get("match_type") == "peer_construct_vocabulary" and peer_construct_domain != domain:
+                row = dict(row)
+                normalization_repair(row, "construct_named_in_peer_vocabulary", {
+                    "domain": peer_construct_domain, "domain_route": peer_construct_domain, "dataset": peer_construct_domain,
+                })
+                domain = dataset = peer_construct_domain
             if (domain == "pharmacokinetics_exposure" and entity_kind == "compound"
                     and label_key(canonical_entity_label) == label_key(compound_label)
                     and pk_observation_signature(row) in explicit_pk_sources):
@@ -12938,7 +13353,7 @@ def build_tables(
                 admission_reason = (
                     RECOVERED_FINDING_SCOPE_REASON
                     if RECOVERED_FINDING_SCOPE_REASON in detail_only_subject_reasons
-                    else "unresolved_psychedelic_class_detail_only"
+                    else UNREGISTERED_ANALOG_CLASS_REASON
                 )
             table_row["graph_admission_status"] = admission_status
             table_row["graph_admission_reason"] = admission_reason

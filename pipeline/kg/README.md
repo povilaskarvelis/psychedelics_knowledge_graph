@@ -1305,3 +1305,65 @@ registry records hold nothing. The
 manifest records the file's hash, the date and scope of the last check, whether
 that scope is this evidence run, and the held rows and paper IDs. Pass
 `--retraction-status` to use another file.
+
+## Normalization review fixes (2 November 2026)
+
+The 1 November review (`docs/normalization_review_2026-11-01.md`) found findings
+that could be shown without changing what they state but were held or dropped.
+Normalization contract: `routed_normalization_review_20261102_v1`.
+
+- **View lists.** 41 constructs the normalizer admits were on no view list,
+  including its own "Psychotomimetic effects". They are now on the Cognition or
+  Behavior list in `schema/graph_view_contract.json`; personality traits are
+  under Cognition. `tests/test_graph_view_coverage.py` fails when a vocabulary or
+  rule construct is on no list.
+- **Conditions named by symptom outcomes.** A symptom-typed outcome whose label is
+  a specific registered diagnosis, alone or with symptom or severity words ("PTSD
+  symptoms", "symptoms of OCD", "Tobacco use disorder"), resolves to that
+  condition with the usual condition guards. Broad categories ("depressive
+  symptoms") and symptom nodes stay symptoms. Plural and British spellings of
+  condition names resolve ("Alcohol use disorders", "generalised anxiety
+  disorder").
+- **Constructs in the other vocabulary.** A construct named exactly by a label or
+  alias of the other construct vocabulary is mapped there, with its domain
+  ("Ego dissolution" extracted as cognition; symptom-typed "Anhedonia").
+- **Review statements.** When a review object's role-based domain was not one Luna
+  declared and the label does not match there, the declared domains compatible
+  with the role are tried, preferring a controlled node. A statement that names
+  several in-scope drugs is linked to each drug when every drug resolves, each is
+  named in the statement, and the statement does not contrast them or relate one
+  to another (`review_statement_attribution.py`). A review subject that lists
+  registered drugs is split as a primary one is; a class word with examples stays
+  on the class node.
+- **Unmatched outcomes.** A review statement or meta-analysis result whose subject
+  resolved but whose outcome is not a controlled node is kept in paper detail
+  with its literal outcome and a reason (`outcome_label_not_in_vocabulary` and
+  similar), instead of being dropped. Primary rows keep their domain's
+  saved-observation contract, and rows already shown through the clinical
+  endpoint projection are not kept twice.
+- **Class subjects.** Primary findings about psychedelics without a named compound
+  are shown on "Psychedelics (unspecified compounds)"; an unregistered analogue
+  described by its class stays in detail. Named drugs are recovered after any
+  class word ("PCP or other hallucinogens"). "Racemic ketamine and its isomers"
+  is ketamine; "ketamine and its metabolites" stays unresolved.
+- **Text forms.** Dashes act as hyphens in anatomy labels ("Amygdala–vmPFC
+  connectivity" names two regions) and inside compound names ("5‐MeO‐DMT");
+  numeric ranges are unchanged. Target names drop a trailing parenthetical of
+  abbreviations or gene symbols that agree with the name ("(OPRM/MOR)") and
+  splice or state suffixes (D2Short, 5-HT7a); a symbol naming another target keeps
+  the label unresolved.
+- **Smaller rules.** Ketamine-associated uropathy reported for ketamine is Safety
+  "Urinary toxicity"; lithium–pilocarpine is a seizure model, not a lithium
+  adjunct; a dose-dependent scale result is a drug effect, not scale validation;
+  "Results" and "Fig." are result locations and "reference memory" is not a
+  reference list; a neural readout whose stated region did not resolve keeps that
+  reason; a few safety synonyms (stroke, HPPD wording, neurological toxicity).
+- **Conversion.** Meta-analysis results are held for review only for flags or
+  notes that report a numeric or direction conflict, corrupted text or an
+  unstated direction; empty optional objects, paraphrased quotes and notes that
+  something was not reported no longer hold a result. A real-world drug named
+  only in the measured outcome, with a non-drug predictor, is the subject
+  ("MDMA loads in wastewater" during a lockdown). "Nasal" and "spray" are
+  administration words.
+
+See `tests/test_normalization_review_fixes.py`.

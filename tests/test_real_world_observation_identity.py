@@ -93,7 +93,14 @@ def test_saved_rows_retain_whole_observations_without_atomic_or_use_context_proj
         "path": source, "domain": "routed", "dataset": "routed", "default_evidence_type": "primary_evidence", "skip_audit": True}})
     findings, edges, audit = [pd.read_parquet(tmp_path / f"tables/{name}.parquet").fillna("") for name in ["findings", "evidence_edges", "normalization_audit"]]
     recovered = findings[findings.compound_match_type.eq(MATCH_TYPE)]
-    assert len(recovered) == 8
+    # A drug named only in the measured outcome, with a non-drug predictor, is
+    # the subject (COVID-19 lockdown; wastewater MDMA loads). The predictor and
+    # the complete measure stay on the finding.
+    loads = [r for r in findings.to_dict("records")
+             if json.loads(r["raw_row_json"]).get("public_health_measure") == "Wastewater-derived population-normalized MDMA loads."]
+    assert len(loads) == 1 and loads[0]["graph_subject_label"] == "MDMA"
+    assert json.loads(loads[0]["raw_row_json"])["real_world_subject_resolution_reason"] == "single_drug_named_only_in_measured_outcome"
+    assert len(recovered) == 7
     assert recovered.graph_admission_status.eq("paper_detail").all()
     assert recovered.graph_overview_subject_label.eq("").all()
     assert recovered.graph_overview_subjects_json.eq("[]").all()

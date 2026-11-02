@@ -22,10 +22,12 @@ import pandas as pd
 try:
     from pipeline.extract.io_utils import normalize, read_jsonl, write_json
     from pipeline.kg.project_review_relationship_bundles import label_key, registry_index
+    from pipeline.kg.review_statement_attribution import statement_contrasts_drugs
 except ModuleNotFoundError:  # pragma: no cover - direct script execution
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.extract.io_utils import normalize, read_jsonl, write_json
     from pipeline.kg.project_review_relationship_bundles import label_key, registry_index
+    from pipeline.kg.review_statement_attribution import statement_contrasts_drugs
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -301,7 +303,7 @@ def registered_subject_identity(label: object, registry: dict[tuple[str, str], s
         if identity:
             return identity
     stripped = re.sub(
-        r"\b(?:oral|intravenous|intranasal|intramuscular|sublingual|subcutaneous|"
+        r"\b(?:oral|intravenous|intranasal|nasal|sprays?|intramuscular|sublingual|subcutaneous|"
         r"iv|infusions?|administration|treatments?|therapy|assisted|psychotherapy|"
         r"use|sessions?|dosing|microdosing)\b", " ", raw, flags=re.I,
     )
@@ -417,6 +419,43 @@ def explicit_class_example_subject(relationship: dict, scoped: list[tuple[int, d
         if not any(re.search(rf"\b{re.escape(key)}\b", examples) for key in keys):
             return []
     return classes
+
+
+def each_named_drug_attributable(
+    relationship: dict,
+    compound_registry: dict[tuple[str, str], str],
+    scoped_compound_keys: set[str],
+) -> bool:
+    """Whether a statement naming several in-scope drugs states the same relationship for each.
+
+    Every in-scope subject anchor must resolve to a registered drug, each drug
+    must be named in the statement, and the statement must not contrast the
+    drugs ("MDMA for PTSD and psilocybin for depression") or relate one to
+    another ("psilocybin is converted to psilocin"). The normalizer then links
+    each drug to the object, keeping the complete statement.
+    """
+    statement_key = label_key(relationship.get("relationship_statement", ""))
+    identities: dict[str, list[str]] = {}
+    for anchor in relationship.get("anchors", []):
+        if not isinstance(anchor, dict) or normalize(anchor.get("role", "")) not in SUBJECT_ROLES:
+            continue
+        label = normalize(anchor.get("label", ""))
+        if review_scope_for_relationship({}, label, scoped_compound_keys)[0] != "in_scope":
+            continue
+        identity = registered_subject_identity(label, compound_registry)
+        if not identity:
+            return False
+        identities.setdefault(identity, [
+            key for (category, key), name in compound_registry.items()
+            if category == "compounds" and name == identity and (" " in key or len(key) > 2)
+        ])
+    if len(identities) < 2:
+        return False
+    if not all(any(re.search(rf"\b{re.escape(key)}\b", statement_key) for key in keys)
+               for keys in identities.values()):
+        return False
+    return not statement_contrasts_drugs(statement_key, list(identities.values()),
+                                         normalize(relationship.get("relationship_statement", "")))
 
 
 def subject_for_relationship(
@@ -615,7 +654,12 @@ def relationship_row(
         and not fallback_object_mapping
         else "paper_detail"
     )
-    ambiguous_subject = subject["source_field"] == "anchors_scoped_multiple"
+    each_drug_attributable = (
+        subject["source_field"] == "anchors_scoped_multiple"
+        and domain not in {"general_topic_coverage", "intervention_context"}
+        and each_named_drug_attributable(relationship, compound_registry, scoped_compound_keys)
+    )
+    ambiguous_subject = subject["source_field"] == "anchors_scoped_multiple" and not each_drug_attributable
     paper_frame_only_subject = inherited_drug_target_background(subject, relationship, compound_registry)
     generic_measurement = entity_kind == "reported_measurement"
     comparison_or_population = object_role in {"comparator", "population"}
@@ -689,6 +733,7 @@ def relationship_row(
             if scope_status != "in_scope"
             else "review_relationship_paper_detail"
         ),
+        "review_subject_attribution": "each_named_drug" if each_drug_attributable else "",
         "relationship_graph_form": normalize(relationship.get("graph_form", "")),
         "relationship_anchors_json": json.dumps(anchors, ensure_ascii=False),
         "relationship_domain_labels_json": json.dumps(model_domains, ensure_ascii=False),

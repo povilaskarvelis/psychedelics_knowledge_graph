@@ -5379,7 +5379,9 @@
         "posttraumatic stress disorder",
         "post-traumatic stress disorder (PTSD)",
         "posttraumatic stress disorder (PTSD)",
-        "treatment-resistant PTSD"
+        "treatment-resistant PTSD",
+        "post-traumatic stress symptoms",
+        "posttraumatic stress symptoms"
       ],
       "ids": {
         "mondo_id": "",
@@ -5392,7 +5394,8 @@
       "label": "Hallucinogen persisting perception disorder",
       "aliases": [
         "HPPD",
-        "hallucinogen persisting perception disorder (HPPD)"
+        "hallucinogen persisting perception disorder (HPPD)",
+        "hallucinogen persisting perceptual disorder"
       ],
       "ids": {
         "mondo_id": "",

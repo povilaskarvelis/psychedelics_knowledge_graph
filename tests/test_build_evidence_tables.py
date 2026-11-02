@@ -967,7 +967,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         self.assertEqual(unspecified_microdosing["label"], "Psychedelics (unspecified compounds)")
         self.assertEqual(
             unspecified_microdosing["reason"],
-            "controlled_unresolved_psychedelic_class_detail_only",
+            "controlled_unspecified_psychedelic_class",
         )
 
         ketamine_therapy = overview_graph_subject(
@@ -1048,7 +1048,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         self.assertEqual(primary_entheogens["label"], "Psychedelics (unspecified compounds)")
         self.assertEqual(
             primary_entheogens["reason"],
-            "controlled_unresolved_psychedelic_class_detail_only",
+            "controlled_unspecified_psychedelic_class",
         )
 
         for raw_label in (
@@ -1078,7 +1078,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                     registry,
                 )
                 self.assertEqual(unresolved["label"], "Psychedelics (unspecified compounds)")
-                self.assertEqual(unresolved["reason"], "controlled_unresolved_psychedelic_class_detail_only")
+                self.assertEqual(unresolved["reason"], "controlled_unspecified_psychedelic_class")
 
         self_treatment = overview_graph_subject(
             {"support": "The group reported lower recreational ketamine use."},
@@ -1093,7 +1093,10 @@ class BuildEvidenceTablesTest(unittest.TestCase):
         self.assertFalse(looks_like_compound_list("N,N-dimethyltryptamine (DMT)"))
         self.assertFalse(looks_like_compound_list("Ketamine, intravenous infusion"))
 
-    def test_unresolved_psychedelic_class_is_searchable_detail_not_main_graph(self) -> None:
+    def test_unspecified_psychedelic_class_is_shown_on_its_own_node(self) -> None:
+        # Primary findings about psychedelics without a named compound are shown
+        # on "Psychedelics (unspecified compounds)", as reviews' class findings
+        # are shown on the broad class node (normalization review, 1 November).
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             registry_path = root / "registry.json"
@@ -1178,8 +1181,8 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             findings = pd.read_parquet(out_dir / "findings.parquet").set_index("study_doi")
             unresolved = findings.loc["10.1000/unspecified"]
             self.assertEqual(unresolved["graph_overview_subject_label"], "Psychedelics (unspecified compounds)")
-            self.assertEqual(unresolved["graph_admission_status"], "paper_detail")
-            self.assertEqual(unresolved["graph_admission_reason"], "unresolved_psychedelic_class_detail_only")
+            self.assertEqual(unresolved["graph_admission_status"], "main_graph")
+            self.assertEqual(unresolved["graph_overview_subject_reason"], "controlled_unspecified_psychedelic_class")
             classic = findings.loc["10.1000/classic"]
             self.assertEqual(classic["graph_overview_subject_label"], "Classic psychedelics")
             self.assertEqual(classic["graph_admission_status"], "main_graph")
@@ -1188,7 +1191,7 @@ class BuildEvidenceTablesTest(unittest.TestCase):
                 naturalistic_unspecified["graph_overview_subject_label"],
                 "Psychedelics (unspecified compounds)",
             )
-            self.assertEqual(naturalistic_unspecified["graph_admission_status"], "paper_detail")
+            self.assertEqual(naturalistic_unspecified["graph_admission_status"], "main_graph")
             naturalistic_class = findings.loc["10.1000/naturalistic-class"]
             self.assertEqual(naturalistic_class["graph_overview_subject_label"], "Classic psychedelics")
             self.assertEqual(naturalistic_class["graph_admission_status"], "main_graph")

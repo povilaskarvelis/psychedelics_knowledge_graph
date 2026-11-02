@@ -114,6 +114,20 @@ INTERVENTION_CONTEXT_FACTOR_RE = re.compile(
     r"treatment duration|preparation|integration|psychotherapy|support protocol|setting)\b",
     re.IGNORECASE,
 )
+NONBLOCKING_EMPTY_OPTIONAL_OBJECTS = ("evidence_size", "heterogeneity", "analysis_context")
+BLOCKING_UNCERTAINTY_RE = re.compile(
+    r"\b(?:inconsisten\w*|conflict\w*|not (?:readily )?reconcil\w*|unreconciled|contradict\w*|"
+    r"ambigu\w*|discrepan\w*|malformed|corrupt\w*|garbled|"
+    r"could not (?:safely )?be (?:assigned|interpreted|determined))\b"
+    r"|\bdoes not include the (?:point )?estimate\b"
+    r"|\bdirection\w*\b[^.;]{0,80}\b(?:not (?:explicitly |clearly )?(?:specified|stated|clear|clarified|defined|"
+    r"reported|restated)|unclear|uncertain|opposite)\b"
+    r"|\b(?:does|do|did) not (?:explicitly )?(?:specify|state|clarify|define|identify)\b[^.;]{0,50}"
+    r"\b(?:direction|coding|sign|reference(?:[- ]group| category)?)\b"
+    r"|\bwhile its stated direction\b"
+    r"|\b(?:statistical meaning|significance)\b[^.;]{0,40}\bunclear\b",
+    re.IGNORECASE,
+)
 CLINICAL_CONTEXT_RULES = (
     (re.compile(r"\b(depress\w*|major depressive disorder|mdd|treatment.resistant depression|trd)\b", re.IGNORECASE), "Depressive symptoms"),
     (re.compile(r"\b(post.traumatic stress disorder|ptsd)\b", re.IGNORECASE), "PTSD symptoms"),
@@ -659,15 +673,30 @@ def evidence_row(
         if (f":{result_id}:" in flag or flag.endswith(f":{result_id}")) and flag not in superseded_flags
     ]
 
-    # An explicitly empty optional heterogeneity object is missing metadata,
-    # not uncertainty about the reported effect. Preserve the original flag;
-    # all other QA flags and every model uncertainty still require review.
+    # An explicitly empty optional object is missing metadata, not uncertainty
+    # about the reported effect, and a paraphrased supporting quote does not
+    # change the estimate, whose numbers are checked against the source
+    # separately. Notes that only say what the source does not report are
+    # missing metadata too. Every flag and note is preserved; a result is held
+    # for review only for the remaining flags and for notes that report a
+    # numeric or direction conflict, corrupted source text or an unstated
+    # effect direction.
     nonblocking_optional_flags = [
         flag for flag in result_qa_flags
-        if flag == f"empty_optional_object:{result_id}:heterogeneity"
-        and item.get("heterogeneity") == {}
+        if any(
+            flag == f"empty_optional_object:{result_id}:{field}" and item.get(field) == {}
+            for field in NONBLOCKING_EMPTY_OPTIONAL_OBJECTS
+        )
     ]
-    blocking_result_qa_flags = [flag for flag in result_qa_flags if flag not in nonblocking_optional_flags]
+    nonblocking_quote_flags = [
+        flag for flag in result_qa_flags
+        if re.fullmatch(rf"nonverbatim_supporting_text:{re.escape(result_id)}:\d+", flag)
+    ]
+    blocking_result_qa_flags = [
+        flag for flag in result_qa_flags
+        if flag not in nonblocking_optional_flags and flag not in nonblocking_quote_flags
+    ]
+    blocking_uncertainty = [note for note in uncertainty if BLOCKING_UNCERTAINTY_RE.search(note)]
 
     row = {
         "route_output_schema_version": ROW_SCHEMA_VERSION,
@@ -784,9 +813,10 @@ def evidence_row(
             "contract_revision": "descriptive_frequency_v3" if descriptive_frequency else "role_aware_percentages_v2",
             "superseded_source_validation_flags": superseded_flags,
             "nonblocking_optional_metadata_flags": nonblocking_optional_flags,
+            **({"nonblocking_quote_flags": nonblocking_quote_flags} if nonblocking_quote_flags else {}),
             **({"boundary_resolution": "descriptive_frequency_is_not_a_zero_contrast_test"} if descriptive_frequency else {}),
-        }, ensure_ascii=False) if superseded_flags or nonblocking_optional_flags else "",
-        "needs_human_review": bool(uncertainty or blocking_result_qa_flags),
+        }, ensure_ascii=False) if superseded_flags or nonblocking_optional_flags or nonblocking_quote_flags else "",
+        "needs_human_review": bool(blocking_uncertainty or blocking_result_qa_flags),
         "coverage_focus": normalize(item.get("importance_in_paper", "")),
         "graph_admission_status": "paper_detail"
         if normalize(item.get("importance_in_paper", "")) == "additional"

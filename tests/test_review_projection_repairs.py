@@ -247,3 +247,28 @@ def test_saved_mechanistic_reviews_keep_named_views_and_indirect_qualifiers():
     salvia = [r for r in rows if r["study_doi"] == "10.3389/fnint.2014.00020"]
     assert {r["entity_role"] for r in salvia} == {"target", "brain_system"}
     assert all("not a directly demonstrated causal effect" in r["notes"] for r in salvia)
+
+
+def test_statement_naming_each_drug_for_one_relationship_is_attributable():
+    anchors = [anchor("compound", "Ketamine"), anchor("compound", "LSD"), anchor("target", "NMDAR")]
+    for permutation in itertools.permutations(anchors):
+        rows, _ = convert(list(permutation), relationship_statement="Ketamine and LSD both act at the NMDA receptor.")
+        assert rows[0]["graph_subject_label"] == "Ketamine / LSD"
+        assert rows[0]["graph_admission_status"] == "main_graph"
+        assert rows[0]["review_subject_attribution"] == "each_named_drug"
+
+
+def test_statement_that_contrasts_the_drugs_is_not_attributed_to_each():
+    anchors = [anchor("compound", "Ketamine"), anchor("compound", "LSD"), anchor("target", "NMDAR")]
+    for statement in ["Ketamine blocks the NMDA receptor, whereas LSD does not.",
+                      "Ketamine for depression and LSD for anxiety act through the NMDA receptor.",
+                      "Ketamine binds the NMDA receptor more strongly than LSD."]:
+        rows, _ = convert(anchors, relationship_statement=statement)
+        assert rows[0]["graph_admission_status"] == "paper_detail"
+        assert rows[0]["graph_admission_reason"] == "review_multiple_drug_subjects_requires_attribution"
+        assert rows[0]["review_subject_attribution"] == ""
+
+
+def test_nasal_spray_is_an_administration_descriptor():
+    registry = review.registry_index(REGISTRY)
+    assert review.registered_subject_identity("Nasal ketamine spray", registry) == "Ketamine"

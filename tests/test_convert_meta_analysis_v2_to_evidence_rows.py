@@ -482,15 +482,18 @@ def test_converter_holds_unsupported_numbers_and_direction_conflicts() -> None:
     assert report["counts"]["held:statistical_direction_conflict"] == 1
 
 
-def test_converter_marks_written_result_with_nonblocking_qa_flag_for_review() -> None:
+def test_converter_keeps_paraphrased_quote_flag_without_review_hold() -> None:
     output = output_with_result(base_item())
     output["qa_flags"] = ["nonverbatim_supporting_text:R1:1"]
 
     rows, report = convert_outputs([output], {"task-1": task()})
 
     assert report["counts"]["rows_written"] == 1
-    assert rows[0]["needs_human_review"] is True
+    assert not rows[0].get("needs_human_review", False)
     assert rows[0]["extraction_warnings"] == "nonverbatim_supporting_text:R1:1"
+    assert json.loads(rows[0]["statistical_validation_recheck_json"])["nonblocking_quote_flags"] == [
+        "nonverbatim_supporting_text:R1:1"
+    ]
 
 
 def test_generic_clinical_endpoint_uses_unambiguous_paper_objective_context() -> None:
