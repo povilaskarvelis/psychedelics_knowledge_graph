@@ -24,6 +24,7 @@ from pipeline.fulltext.fetch_pmc_fulltext_xml import (
 )
 from pipeline.extract.build_extraction_routes import merged_extraction_metadata
 from pipeline.fulltext.convert_pdfs import doi_to_slug
+from tests.identity_fixtures import write_gate_table
 
 
 @pytest.mark.parametrize("code", ["cannotDisseminateFormat", "idDoesNotExist", "badArgument"])
@@ -56,22 +57,7 @@ def test_oai_network_requests_remain_serial_with_multiple_workers():
 
 
 def write_source_identity_audit(root: Path, rows: list[dict]) -> Path:
-    identity_registry = root / "source_identity_registry.json"
-    hash_registry = root / "source_identity_pdf_hash_registry.json"
-    identity_registry.write_text("{}\n", encoding="utf-8")
-    hash_registry.write_text("{}\n", encoding="utf-8")
-    audit = root / "source_identity_audit.json"
-    audit.write_text(
-        json.dumps(
-            {
-                "identity_registry": {"path": str(identity_registry)},
-                "pdf_hash_attestation_registry": {"path": str(hash_registry)},
-                "rows": rows,
-            }
-        ),
-        encoding="utf-8",
-    )
-    return audit
+    return write_gate_table(root, rows)
 
 
 JATS_XML = """
@@ -263,7 +249,7 @@ class FetchPmcFulltextXmlTest(unittest.TestCase):
                 include_existing_fulltext=False,
                 include_local_pdf=False,
                 include_non_retained=False,
-                source_identity_audit=source_identity_audit,
+                identity_verdicts=source_identity_audit,
             )
 
         self.assertEqual([row["doi"] for row in rows], [target_doi])

@@ -36,6 +36,7 @@ try:
         should_write_artifact,
         write_json,
     )
+    from pipeline.identity.gate import DEFAULT_VERDICTS_PATH
     from pipeline.fulltext.source_identity_audit_gate import (
         DEFAULT_IDENTITY_REGISTRY,
         DEFAULT_PDF_HASH_ATTESTATION_REGISTRY,
@@ -72,6 +73,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         should_write_artifact,
         write_json,
     )
+    from pipeline.identity.gate import DEFAULT_VERDICTS_PATH
     from pipeline.fulltext.source_identity_audit_gate import (
         DEFAULT_IDENTITY_REGISTRY,
         DEFAULT_PDF_HASH_ATTESTATION_REGISTRY,
@@ -274,7 +276,7 @@ def rebuild_routes(
     summary_json: Path,
     counts_csv: Path,
     manual_route_overrides: Path | None,
-    source_identity_audit: Path,
+    identity_verdicts: Path,
 ) -> dict:
     domain_table = domain_routing_table if domain_routing_table is not None and domain_routing_table.exists() else None
     return build_extraction_routes(
@@ -284,7 +286,7 @@ def rebuild_routes(
         domain_table=domain_table,
         manual_overrides_path=manual_route_overrides if manual_route_overrides and manual_route_overrides.exists() else None,
         fulltext_dir=fulltext_dir,
-        source_identity_audit=source_identity_audit,
+        identity_verdicts=identity_verdicts,
         paper_root=paper_root,
         output_table=route_table,
         summary_json=summary_json,
@@ -337,6 +339,7 @@ def convert_routed_local_pdfs(
     only_missing_artifacts: bool = True,
     write_failed_artifacts: bool = False,
     rebuild_routes_after: bool = True,
+    identity_verdicts: Path = DEFAULT_VERDICTS_PATH,
     source_identity_audit: Path = DEFAULT_SOURCE_IDENTITY_AUDIT,
     source_identity_audit_csv: Path = DEFAULT_SOURCE_IDENTITY_AUDIT_CSV,
     source_identity_unverified_dois: Path = DEFAULT_SOURCE_IDENTITY_UNVERIFIED_DOIS,
@@ -473,6 +476,7 @@ def convert_routed_local_pdfs(
             identity_registry_path=identity_registry,
             pdf_hash_attestation_registry_path=pdf_hash_attestation_registry,
             written_artifacts=written_artifacts,
+            identity_verdicts=identity_verdicts,
         )
         if source_identity_audit_refresh["written_unverified_artifacts"]:
             print(
@@ -491,7 +495,7 @@ def convert_routed_local_pdfs(
             summary_json=summary_json,
             counts_csv=counts_csv,
             manual_route_overrides=manual_route_overrides,
-            source_identity_audit=source_identity_audit,
+            identity_verdicts=identity_verdicts,
         )
 
     report = {

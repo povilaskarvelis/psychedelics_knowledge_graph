@@ -89,9 +89,23 @@ whether extraction may read the text:
 | `unconfirmed`, `conflict`, `wrong_kind`, `not_this_work` | no |
 
 A record row with `hold` or `wrong_doi` withholds the paper. Record corrections
-change field values and have no row. `IdentityVerdicts` reads the table. The
-full-text gate and the route builder do not read it yet; until they do, an
-installed table changes nothing in the pipeline.
+change field values and have no row.
+
+A paper with no usable text of its own also gets a row for the usable text of a
+DOI the work registry merges into it (column `carried_from`), unless that text
+is a preprint. The DOI that is kept then reads the text the merged DOI holds; the
+text is not copied.
+
+`IdentityVerdicts` reads the table. The full-text gate (`gate.py`) decides from
+it: a text is read only when the table has a usable row for this paper and this
+text, and the file has not changed. Every other case rejects that text alone, and
+the paper falls back to its abstract. The route builder also holds a paper that
+a record row withholds. When the decision file or the work registry has changed
+since `apply --install`, the gate stops until the table is rebuilt.
+
+A converter or fetcher that writes a full text gets new rows for that text
+(`refresh_fulltext_rows`). The text under another DOI is carried only at the
+next `apply`.
 
 ## Commands
 
@@ -190,12 +204,15 @@ uses a pair only when both DOIs are in the corpus.
 `apply` builds the verdict table and compares, for every paper the base release
 extracted, the text the pipeline reads now with the text the table allows:
 
-- now: the full text when the current full-text gate accepts it and it holds
-  article text, otherwise the abstract; nothing for a paper the route table
-  holds;
+- now: the full text when the route table sends the paper to it, otherwise the
+  abstract; nothing for a paper the route table holds;
 - with the table: the full text when the table makes it usable and it holds
-  article text, otherwise the abstract unless a decision says it is not this
-  paper's; nothing for a paper that a `hold` or `wrong_doi` withholds.
+  article text, or the text of a DOI merged into this one; otherwise the abstract
+  unless a decision says it is not this paper's; nothing for a paper that a
+  `hold` or `wrong_doi` withholds.
+
+A DOI merged into another is not compared: it has no route, and the release keeps
+the other DOI's findings.
 
 It writes a new folder `data/processed/identity/updates/<update id>/`:
 
@@ -209,7 +226,10 @@ It writes a new folder `data/processed/identity/updates/<update id>/`:
 The base release is the active one
 unless `--outputs` and `--kg-dir` name another. With `--install`, the table is
 copied to `data/processed/identity/verdicts.parquet`, with its summary next to
-it. Without it, nothing outside the update folder changes.
+it, and record corrections and cleared unusable abstracts are written to
+`data/curated/paper_metadata_overrides.json` with the decision's id
+(`source_decision`). The route builder, the KG build and the release assembly
+read that file. Without `--install`, nothing outside the update folder changes.
 
 ### migrate
 
@@ -229,8 +249,8 @@ Migrated entries are regenerated on every run. Decisions added directly to the
 file are kept. `--check` writes nothing and exits 1 when the file no longer
 matches those sources. Run `migrate` after editing any of them.
 
-The pipeline still reads the older files, and no pipeline stage calls
-`verify.py` yet. The full-text gate and the route builder move to the verdict
-table in the rest of step 5 (§8 of the design document). Access overrides and the
+The full-text gate and the route builder read the verdict table. Retrieval paths
+do not call `verify.py` yet: they still write the older acquisition audit report,
+which no gate reads (step 6 of the design document). Access overrides and the
 DOI alias registry stay where they are: the first decides how text is
 retrieved, and the second is the work registry, read through `works.py`.

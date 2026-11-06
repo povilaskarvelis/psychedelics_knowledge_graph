@@ -23,6 +23,7 @@ FULLTEXT_DATA_DIR = ROOT / "data" / "processed" / "fulltext"
 DEFAULT_BATCH_DIR = FULLTEXT_DATA_DIR / "grobid_local_pdf_batches"
 DEFAULT_BATCH_REPORT_DIR = FULLTEXT_DATA_DIR / "grobid_local_pdf_batch_reports"
 DEFAULT_REPORT = FULLTEXT_DATA_DIR / "local_pdf_conversion_pipeline_report.json"
+DEFAULT_VERDICTS_PATH = ROOT / "data" / "processed" / "identity" / "verdicts.parquet"
 DEFAULT_SOURCE_IDENTITY_AUDIT_JSON = FULLTEXT_DATA_DIR / "source_identity_audit.json"
 DEFAULT_SOURCE_IDENTITY_AUDIT_CSV = FULLTEXT_DATA_DIR / "source_identity_audit.csv"
 DEFAULT_SOURCE_IDENTITY_UNVERIFIED_DOIS = FULLTEXT_DATA_DIR / "source_identity_unverified_dois.txt"
@@ -267,8 +268,8 @@ def rebuild_routes_command(args: argparse.Namespace) -> list[str]:
         str(Path(args.prescreen_table).resolve()),
         "--fulltext-dir",
         str(Path(args.fulltext_dir).resolve()),
-        "--source-identity-audit",
-        str(Path(args.source_identity_audit_json).resolve()),
+        "--identity-verdicts",
+        str(Path(args.identity_verdicts).resolve()),
         "--paper-root",
         str(Path(args.paper_root).resolve()),
         "--output-table",
@@ -482,6 +483,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--verbose", action="store_true")
     parser.add_argument("--skip-route-rebuild", action="store_true")
     parser.add_argument("--skip-source-identity-audit", action="store_true")
+    parser.add_argument("--identity-verdicts", default=str(DEFAULT_VERDICTS_PATH))
     parser.add_argument("--source-identity-audit-json", default=str(DEFAULT_SOURCE_IDENTITY_AUDIT_JSON))
     parser.add_argument("--source-identity-audit-csv", default=str(DEFAULT_SOURCE_IDENTITY_AUDIT_CSV))
     parser.add_argument(

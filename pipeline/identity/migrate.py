@@ -186,6 +186,9 @@ def from_metadata_overrides(path: Path) -> tuple[list[dict], list[dict]]:
     decisions, skipped = [], []
     seen: Counter[str] = Counter()
     for record in load_json(path).get("records", []):
+        # A record that `apply` wrote from a decision is already in the decision file.
+        if record.get("source_decision"):
+            continue
         doi = normalize_doi(record.get("doi", ""))
         fields = {key: value for key, value in (record.get("fields") or {}).items() if clean(value)}
         clear_fields = [clean(field) for field in record.get("clear_fields") or [] if clean(field)]

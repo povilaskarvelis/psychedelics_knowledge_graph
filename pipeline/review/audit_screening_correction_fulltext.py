@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from pipeline.fulltext.source_identity_audit_gate import SourceIdentityAuditGate
+from pipeline.identity.gate import IdentityGate
 from pipeline.review import run_screening_correction as correction
 from pipeline.review import screening_contract as contract
 
@@ -100,7 +100,7 @@ def prepare(parent: Path, root: Path) -> dict:
         return correction.read(root / "run.json")
     inputs = root / "inputs"
     inputs.mkdir(parents=True, exist_ok=True)
-    gate = SourceIdentityAuditGate()
+    gate = IdentityGate()
     source_path = parent / "source_audit/main_changes/retained_exclusions_after_retry_worklist.jsonl"
     decisions = {}
     for path in sorted((parent / "source_audit/main_changes").glob("retained_exclusion_source_review_*.json")):

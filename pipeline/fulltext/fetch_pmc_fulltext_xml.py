@@ -58,6 +58,7 @@ from pipeline.fulltext.source_identity import (  # noqa: E402
     evaluate_artifact_identity,
     select_jats_article,
 )
+from pipeline.identity.gate import DEFAULT_VERDICTS_PATH  # noqa: E402
 from pipeline.fulltext.source_identity_audit_gate import (  # noqa: E402
     DEFAULT_IDENTITY_REGISTRY,
     DEFAULT_PDF_HASH_ATTESTATION_REGISTRY,
@@ -420,7 +421,7 @@ def selected_rows(
     include_existing_fulltext: bool,
     include_local_pdf: bool,
     include_non_retained: bool,
-    source_identity_audit: Path = DEFAULT_SOURCE_IDENTITY_AUDIT,
+    identity_verdicts: Path = DEFAULT_VERDICTS_PATH,
 ) -> tuple[list[dict], Counter[str]]:
     metadata_map = metadata_by_doi(metadata_df)
     local_pdf_index = {} if include_local_pdf else build_local_pdf_index(paper_root)
@@ -445,7 +446,7 @@ def selected_rows(
         if not include_existing_fulltext and fulltext_status_for_doi(
             doi,
             fulltext_dir,
-            source_identity_audit=source_identity_audit,
+            identity_verdicts=identity_verdicts,
         ).get("has_converted_full_text"):
             skipped["existing_fulltext"] += 1
             continue
@@ -487,6 +488,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--metadata-table", default=str(DEFAULT_METADATA))
     parser.add_argument("--candidate-table", default=str(DEFAULT_CANDIDATE_TABLE))
     parser.add_argument("--fulltext-dir", default=str(DEFAULT_FULLTEXT_DIR))
+    parser.add_argument("--identity-verdicts", default=str(DEFAULT_VERDICTS_PATH))
     parser.add_argument("--source-identity-audit", default=str(DEFAULT_SOURCE_IDENTITY_AUDIT))
     parser.add_argument(
         "--source-identity-audit-csv",
@@ -557,7 +559,7 @@ def main() -> int:
         include_existing_fulltext=bool(args.include_existing_fulltext),
         include_local_pdf=bool(args.include_local_pdf),
         include_non_retained=bool(args.include_non_retained),
-        source_identity_audit=Path(args.source_identity_audit).resolve(),
+        identity_verdicts=Path(args.identity_verdicts).resolve(),
     )
     if args.limit > 0:
         skipped["deferred_by_limit"] += max(0, len(rows) - args.limit)
@@ -674,6 +676,7 @@ def main() -> int:
             written_artifacts=[
                 record["artifact_path"] for record in records if record.get("status") == "written"
             ],
+            identity_verdicts=Path(args.identity_verdicts),
         )
         if source_identity_audit_refresh["written_unverified_artifacts"]:
             print(
@@ -696,7 +699,7 @@ def main() -> int:
             prescreen_table=Path(args.prescreen_table).resolve(),
             domain_table=Path(args.domain_routing_table).resolve() if clean(args.domain_routing_table) else None,
             fulltext_dir=fulltext_dir,
-            source_identity_audit=Path(args.source_identity_audit).resolve(),
+            identity_verdicts=Path(args.identity_verdicts).resolve(),
             paper_root=Path(args.paper_root).resolve(),
             output_table=routes_table,
             summary_json=Path(args.route_summary_json).resolve(),

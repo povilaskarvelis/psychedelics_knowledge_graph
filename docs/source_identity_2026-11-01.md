@@ -1,14 +1,14 @@
 # Source identity: causes and fix design — 1 November 2026
 
-> **Status, 6 November 2026.** Steps 1–4 of §8 are implemented, and step 5 is in progress. The review queue is decided (§6.3).
+> **Status, 6 November 2026.** Steps 1–4 of §8 are implemented. In step 5 the queue is decided, the gate and the route builder read the installed verdict table, and the scoped update has not run (§6.3).
 >
 > 1. The full-text gate decides per artifact, and a paper whose stored text is rejected falls back to its abstract.
 > 2. The shared metadata merge applies curated decisions last.
 > 3. `pipeline/identity/` holds the decision file (`data/curated/source_identity_decisions.jsonl`) and the `migrate` command, which gathers 363 decisions on 352 papers from six older files.
 > 4. `python -m pipeline.identity audit` writes a review queue without changing pipeline data. On the candidate it queued 1,521 items (§6.1).
-> 5. `decide` and `apply` are implemented. The 998 full texts of decision D4 are recorded as verified. `apply` lists the papers whose text changes; the full-text gate and the route builder do not read its verdict table yet (§6.2).
+> 5. `decide` and `apply` are implemented. The 998 full texts of decision D4 are recorded as verified. `apply` lists the papers whose text changes and installs the verdict table, which the full-text gate and the route builder read (§6.3).
 >
-> The pipeline still reads the older files until the rest of step 5.
+> Retrieval paths still write the older audit report, which no gate reads, until step 6.
 
 ## Scope and method
 
@@ -357,17 +357,24 @@ Recording the suggested decisions would leave 156 papers for review. Each paper 
 
 All 521 queued items were reviewed: 335 full texts, 166 shared abstracts, 16 model statements and 4 record titles. 542 decisions were added, and the decision file has 1,903 lines. A new audit of the candidate (`20261105T223514Z`) leaves 4 items, all records already held with no main findings.
 
-`apply` was run on the candidate without `--install` (`data/processed/identity/updates/plan_20261106_d1/`). It changes 92 papers, which hold 494 of the 131,226 findings in the 3 November build:
+The verdict table is installed (`data/processed/identity/updates/plan_20261106_final/`). The full-text gate (`pipeline/identity/gate.py`) and the route builder now read it. On the candidate it changes 98 papers, which hold 503 of the 131,226 findings in the 3 November build:
 
 | Reason | Papers | Findings | Action |
 |---|---:|---:|---|
-| Preprint or draft | 61 | 458 | re-extract |
-| Wrong kind | 9 | 30 | re-extract |
-| Not this work | 1 | 4 | re-extract |
+| Preprint or draft | 60 | 451 | re-extract from the abstract |
+| Wrong kind | 7 | 22 | re-extract from the abstract |
+| Not this work | 1 | 4 | re-extract from the abstract |
+| Full text held under a merged DOI | 9 | 24 | re-extract from that full text |
 | Abstract unusable | 16 | 0 | remove |
 | Withheld | 5 | 2 | remove |
 
-The work registry gained 219 pairs. In 124 of them both DOIs have findings; about 689 duplicate rows drop at the rebuild and 113 are relabelled. In 9 pairs the DOI that is kept read only the abstract while its alias read the full text.
+A route build into a scratch folder agrees with the plan for all 98 papers, removes only DOIs that the work registry merges, and the gate rejects no route.
+
+- **Merged DOIs.** The work registry has 219 new pairs. About 689 duplicate rows drop at the rebuild and 113 are relabelled.
+- **Text under a merged DOI.** A kept DOI with no usable text reads the usable text of a DOI merged into it, unless that text is a preprint (13 kept DOIs; 7 preprints are not carried). 9 of the 13 have findings of their own and are re-extracted. The other 4 keep the merged DOI's findings.
+- **DOI kept.** The review had kept a preprint or repository DOI over the journal article in 3 pairs, and the earlier version in 1. These were reversed, and `10.31235/`, `10.17605/osf.io/`, `10.31124/` and `10.14288/` were added to the preprint and repository prefixes.
+- **Record values.** Record corrections and unusable abstracts had reached only the audit. `apply --install` now writes them to `data/curated/paper_metadata_overrides.json` (30 records), which the route builder, the KG build and the release assembly read.
+- **Access overrides.** 6 papers with a usable text stay on their abstract because an earlier access override keeps them there, for example when the stored file is a supplement.
 
 The audit and `apply` must be given the candidate's paths (`--outputs`, `--kg-dir`), because by default they read the older active release.
 

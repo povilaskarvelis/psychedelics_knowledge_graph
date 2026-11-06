@@ -9,14 +9,19 @@ whether extraction may read the text:
 | Verdict | Usable |
 |---|---|
 | ``verified`` | yes |
-| ``version_of`` | yes, except a full text that is a preprint or an accepted manuscript, which follows the version-text policy (decision D1) |
+| ``version_of`` | yes, except a preprint as the full text of a published paper (decision D1) |
 | ``unconfirmed``, ``conflict``, ``wrong_kind``, ``not_this_work`` | no |
+
+A paper with no usable text of its own also gets a row for the usable text of a
+DOI the work registry merges into it, unless that text is a preprint
+(``carried_rows``). The DOI that is kept then reads the text the merged DOI holds.
 
 A record row withholds the paper: ``hold`` until its source is resolved,
 ``wrong_doi`` when its DOI belongs to another work. Record corrections change
 field values and have no row.
 
-``apply`` writes the table, and ``IdentityVerdicts`` reads it.
+``apply`` writes the table, ``IdentityVerdicts`` reads it, and the full-text gate
+(``gate.py``) decides from it.
 """
 
 from __future__ import annotations
@@ -29,11 +34,10 @@ import pandas as pd
 from pipeline.fulltext.source_identity import file_sha256
 from pipeline.identity.audit import check_fulltext, stored_fulltexts, target_matches
 from pipeline.identity.evidence import VERSION_DOI_KINDS, doi_kind, text_sha256
+from pipeline.identity.gate import DEFAULT_VERDICTS_PATH
 from pipeline.ingest.candidate_status import clean, normalize_doi
 
 
-ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_VERDICTS_PATH = ROOT / "data" / "processed" / "identity" / "verdicts.parquet"
 # Decision D1: a published paper's full text is never a preprint of it. Accepted
 # manuscripts are peer reviewed and are used. A paper whose own DOI is a preprint
 # or repository deposit may read the published text.
@@ -53,6 +57,7 @@ TABLE_COLUMNS = (
     "related_doi",
     "usable",
     "reason",
+    "carried_from",
 )
 
 
@@ -67,6 +72,54 @@ def usable_for(target_kind: str, verdict: str, relation: str, doi: str) -> tuple
     return False, verdict
 
 
+def fulltext_row(
+    path: Path,
+    artifact: dict,
+    doi: str,
+    ledger: pd.DataFrame,
+    relations: dict[frozenset[str], str],
+    decisions: dict[str, list[dict]],
+    counts: Counter,
+    *,
+    read_pdfs: bool = True,
+) -> dict:
+    """The row of one stored full text: the decision about it, or else the computed verdict."""
+    check = check_fulltext(path, artifact, doi, ledger, relations, counts, read_pdfs=read_pdfs)
+    computed = check.verdict
+    artifact_sha = file_sha256(path)
+    text_decisions = [d for d in decisions.get(doi, []) if d["target"].get("kind") == "fulltext"]
+    covering: list[dict] = []
+    if text_decisions:
+        text_ids = {"sha256": {artifact_sha}, "document_doi": {normalize_doi(value) for value in check.header_dois}}
+        named_by_pdf = any(clean(d["target"].get("pdf_sha256", "")) for d in text_decisions)
+        if named_by_pdf and check.pdf_path and check.pdf_path.is_file():
+            text_ids["pdf_sha256"] = {file_sha256(check.pdf_path)}
+        covering = [d for d in text_decisions if target_matches(d["target"], text_ids)]
+    # The latest current decision about the text applies.
+    decision = covering[-1] if covering else None
+    verdict = decision["verdict"] if decision else computed.verdict
+    relation = clean(decision.get("relation", "")) if decision else computed.relation
+    related = normalize_doi(decision.get("related_doi", "")) if decision else computed.related_doi
+    usable, reason = usable_for("fulltext", verdict, relation, doi)
+    counts[f"{'decided' if decision else 'computed'}_{verdict}"] += 1
+    return {
+        "doi": doi,
+        "target_kind": "fulltext",
+        "artifact": path.name,
+        "artifact_sha256": artifact_sha,
+        "text_sha256": "",
+        "computed_verdict": computed.verdict,
+        "computed_rule": computed.rule,
+        "decision_ids": " ".join(d["decision_id"] for d in covering),
+        "verdict": verdict,
+        "relation": relation,
+        "related_doi": related,
+        "usable": usable,
+        "reason": reason if usable or decision else f"{reason}: {computed.rule}",
+        "carried_from": "",
+    }
+
+
 def fulltext_rows(
     ledger: pd.DataFrame,
     artifact_dir: Path,
@@ -75,46 +128,52 @@ def fulltext_rows(
     *,
     read_pdfs: bool = True,
 ) -> tuple[list[dict], Counter]:
-    """One row per stored full text: the decision about it, or else the computed verdict."""
+    """One row per stored full text."""
     counts: Counter = Counter()
-    rows = []
-    for path, artifact, doi in stored_fulltexts(artifact_dir, counts):
-        check = check_fulltext(path, artifact, doi, ledger, relations, counts, read_pdfs=read_pdfs)
-        computed = check.verdict
-        artifact_sha = file_sha256(path)
-        text_decisions = [d for d in decisions.get(doi, []) if d["target"].get("kind") == "fulltext"]
-        covering: list[dict] = []
-        if text_decisions:
-            text_ids = {"sha256": {artifact_sha}, "document_doi": {normalize_doi(value) for value in check.header_dois}}
-            named_by_pdf = any(clean(d["target"].get("pdf_sha256", "")) for d in text_decisions)
-            if named_by_pdf and check.pdf_path and check.pdf_path.is_file():
-                text_ids["pdf_sha256"] = {file_sha256(check.pdf_path)}
-            covering = [d for d in text_decisions if target_matches(d["target"], text_ids)]
-        # The latest current decision about the text applies.
-        decision = covering[-1] if covering else None
-        verdict = decision["verdict"] if decision else computed.verdict
-        relation = clean(decision.get("relation", "")) if decision else computed.relation
-        related = normalize_doi(decision.get("related_doi", "")) if decision else computed.related_doi
-        usable, reason = usable_for("fulltext", verdict, relation, doi)
-        counts[f"{'decided' if decision else 'computed'}_{verdict}"] += 1
-        rows.append(
-            {
-                "doi": doi,
-                "target_kind": "fulltext",
-                "artifact": path.name,
-                "artifact_sha256": artifact_sha,
-                "text_sha256": "",
-                "computed_verdict": computed.verdict,
-                "computed_rule": computed.rule,
-                "decision_ids": " ".join(d["decision_id"] for d in covering),
-                "verdict": verdict,
-                "relation": relation,
-                "related_doi": related,
-                "usable": usable,
-                "reason": reason if usable or decision else f"{reason}: {computed.rule}",
-            }
-        )
+    rows = [
+        fulltext_row(path, artifact, doi, ledger, relations, decisions, counts, read_pdfs=read_pdfs)
+        for path, artifact, doi in stored_fulltexts(artifact_dir, counts)
+    ]
     return rows, counts
+
+
+def carried_rows(
+    text_rows: list[dict],
+    aliases: dict[str, str],
+    relations: dict[frozenset[str], str],
+) -> tuple[list[dict], Counter]:
+    """Rows that let a kept DOI with no usable text read the text of a DOI merged into it.
+
+    Decision D1 applies: a preprint is not read as the text of the paper it became.
+    """
+    counts: Counter = Counter()
+    usable_dois = {row["doi"] for row in text_rows if row["usable"]}
+    by_doi = {row["doi"]: row for row in text_rows}
+    # Journal articles first, so a publisher's copy is preferred to a repository's.
+    ordered = sorted(aliases.items(), key=lambda item: (doi_kind(item[0]) != "article", item[0]))
+    rows: dict[str, dict] = {}
+    for alias, kept in ordered:
+        source = by_doi.get(alias)
+        if kept in usable_dois or kept in rows or source is None or not source["usable"]:
+            continue
+        relation = relations.get(frozenset({alias, kept}), "")
+        if doi_kind(alias) == "preprint" or relation in PREPRINT_RELATIONS or source["relation"] in PREPRINT_RELATIONS:
+            counts["not_carried_preprint"] += 1
+            continue
+        counts["carried"] += 1
+        rows[kept] = {
+            **source,
+            "doi": kept,
+            "computed_verdict": "",
+            "computed_rule": "",
+            "verdict": "version_of",
+            "relation": relation,
+            "related_doi": alias,
+            "usable": True,
+            "reason": f"version_of ({relation}): text held under {alias}",
+            "carried_from": alias,
+        }
+    return list(rows.values()), counts
 
 
 def decision_rows(decisions: dict[str, list[dict]]) -> tuple[list[dict], Counter]:
@@ -147,6 +206,7 @@ def decision_rows(decisions: dict[str, list[dict]]) -> tuple[list[dict], Counter
                     "related_doi": normalize_doi(decision.get("related_doi", "")),
                     "usable": usable,
                     "reason": reason,
+                    "carried_from": "",
                 }
             )
     return rows, counts
@@ -168,6 +228,7 @@ class IdentityVerdicts:
         frame = pd.read_parquet(table) if isinstance(table, (str, Path)) else table
         rows = frame.to_dict("records")
         self.fulltexts = {(row["doi"], row["artifact"]): row for row in rows if row["target_kind"] == "fulltext"}
+        self.carried_rows = {row["doi"]: row for row in rows if row["target_kind"] == "fulltext" and row["carried_from"]}
         self.abstracts: dict[str, list[dict]] = {}
         self.withholding: dict[str, dict] = {}
         for row in rows:
@@ -178,6 +239,10 @@ class IdentityVerdicts:
 
     def fulltext(self, doi: object, artifact_path: Path) -> dict | None:
         return self.fulltexts.get((normalize_doi(doi), Path(artifact_path).name))
+
+    def carried(self, doi: object) -> dict | None:
+        """The row of another DOI's text that this paper reads; ``None`` when there is none."""
+        return self.carried_rows.get(normalize_doi(doi))
 
     def abstract(self, doi: object, abstract: object) -> dict | None:
         """The decision row about this abstract, matched by its SHA-256; ``None`` when undecided."""

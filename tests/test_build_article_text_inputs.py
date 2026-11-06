@@ -10,6 +10,7 @@ from pipeline.fulltext.build_article_text_inputs import (
     build_article_text_inputs,
     enforce_source_identity_gate,
 )
+from tests.identity_fixtures import write_gate_table
 
 
 TEI = """
@@ -29,23 +30,8 @@ TEI = """
 """
 
 
-def write_source_identity_audit(root: Path, rows: list[dict]) -> tuple[Path, Path, Path]:
-    identity_registry = root / "source_identity_registry.json"
-    hash_registry = root / "source_identity_pdf_hash_registry.json"
-    identity_registry.write_text("{}\n", encoding="utf-8")
-    hash_registry.write_text("{}\n", encoding="utf-8")
-    audit_path = root / "source_identity_audit.json"
-    audit_path.write_text(
-        json.dumps(
-            {
-                "identity_registry": {"path": str(identity_registry)},
-                "pdf_hash_attestation_registry": {"path": str(hash_registry)},
-                "rows": rows,
-            }
-        ),
-        encoding="utf-8",
-    )
-    return audit_path, identity_registry, hash_registry
+def write_source_identity_audit(root: Path, rows: list[dict]) -> Path:
+    return write_gate_table(root, rows)
 
 
 def make_args(root: Path) -> SimpleNamespace:
@@ -56,7 +42,7 @@ def make_args(root: Path) -> SimpleNamespace:
         audit_csv=str(root / "audit.csv"),
         audit_md=str(root / "audit.md"),
         policy_csv="",
-        source_identity_audit=str(root / "source_identity_audit.json"),
+        identity_verdicts=str(root / "verdicts.parquet"),
         skip_source_identity_check=False,
         primary_section_selection_strategy="primary_study",
         secondary_section_selection_strategy="all_sections",
@@ -181,15 +167,13 @@ def test_stale_pdf_hash_registry_withholds_only_the_dois_it_names() -> None:
         other = root / "other.json"
         named.write_text("{}", encoding="utf-8")
         other.write_text("{}", encoding="utf-8")
-        audit_path, _identity_registry, registry_path = write_source_identity_audit(
+        audit_path = write_source_identity_audit(
             root,
             [
-                {"requested_doi": "10.1000/named", "artifact_path": str(named.resolve()), "identity_verified": True},
+                {"requested_doi": "10.1000/named", "artifact_path": str(named.resolve()), "identity_verified": False},
                 {"requested_doi": "10.1000/other", "artifact_path": str(other.resolve()), "identity_verified": True},
             ],
         )
-        registry_path.write_text(json.dumps({"records": [{"requested_doi": "10.1000/named"}]}), encoding="utf-8")
-        os.utime(registry_path, (audit_path.stat().st_mtime + 5, audit_path.stat().st_mtime + 5))
 
         eligible, rejected = enforce_source_identity_gate(
             [
@@ -201,4 +185,4 @@ def test_stale_pdf_hash_registry_withholds_only_the_dois_it_names() -> None:
 
     assert [row["doi"] for row in eligible] == ["10.1000/other"]
     assert [row["doi"] for row in rejected] == ["10.1000/named"]
-    assert "registry entry for this DOI changed after the audit" in rejected[0]["reason"]
+    assert "does not allow the artifact" in rejected[0]["reason"]

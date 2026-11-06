@@ -1610,8 +1610,8 @@
       "reviewed_at_utc": "2026-11-06"
     },
     {
-      "alias_doi": "10.1038/s41386-021-01104-4",
-      "canonical_doi": "10.17605/osf.io/8bewv",
+      "alias_doi": "10.17605/osf.io/8bewv",
+      "canonical_doi": "10.1038/s41386-021-01104-4",
       "relationship_type": "preprint",
       "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (preprint).",
       "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-7c49def80d6c39628d95",
@@ -1698,8 +1698,8 @@
       "reviewed_at_utc": "2026-11-06"
     },
     {
-      "alias_doi": "10.3390/curroncol33010007",
-      "canonical_doi": "10.14288/1.0451419",
+      "alias_doi": "10.14288/1.0451419",
+      "canonical_doi": "10.3390/curroncol33010007",
       "relationship_type": "same_publication",
       "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
       "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-1a691d264de2677d531e",
@@ -1754,8 +1754,8 @@
       "reviewed_at_utc": "2026-11-06"
     },
     {
-      "alias_doi": "10.31124/advance.175630073.36585408/v2",
-      "canonical_doi": "10.31124/advance.175630073.36585408/v1",
+      "alias_doi": "10.31124/advance.175630073.36585408/v1",
+      "canonical_doi": "10.31124/advance.175630073.36585408/v2",
       "relationship_type": "version_doi",
       "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (version_doi).",
       "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-a10ffc6e79c82fcaa695",
@@ -1906,8 +1906,8 @@
       "reviewed_at_utc": "2026-11-06"
     },
     {
-      "alias_doi": "10.1016/j.healthpol.2020.03.004",
-      "canonical_doi": "10.31235/osf.io/tk2dv",
+      "alias_doi": "10.31235/osf.io/tk2dv",
+      "canonical_doi": "10.1016/j.healthpol.2020.03.004",
       "relationship_type": "preprint",
       "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (preprint).",
       "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-d62dc8d91f04ff3d6a18",

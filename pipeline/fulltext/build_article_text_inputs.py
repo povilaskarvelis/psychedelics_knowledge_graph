@@ -32,10 +32,11 @@ try:
         write_jsonl,
     )
     from pipeline.fulltext.convert_pdfs import compact_text, normalize, normalize_doi, write_json
-    from pipeline.fulltext.source_identity_audit_gate import (
+    from pipeline.identity.gate import (
+        DEFAULT_VERDICTS_PATH,
         GATE_REJECTION_REASONS,
         GATE_VERIFIED,
-        SourceIdentityAuditGate,
+        IdentityGate,
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -58,10 +59,11 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         write_jsonl,
     )
     from pipeline.fulltext.convert_pdfs import compact_text, normalize, normalize_doi, write_json
-    from pipeline.fulltext.source_identity_audit_gate import (
+    from pipeline.identity.gate import (
+        DEFAULT_VERDICTS_PATH,
         GATE_REJECTION_REASONS,
         GATE_VERIFIED,
-        SourceIdentityAuditGate,
+        IdentityGate,
     )
 
 
@@ -71,7 +73,6 @@ DEFAULT_OUT_JSONL = ROOT / "data" / "processed" / "extraction" / "fulltext_packe
 DEFAULT_REPORT_JSON = ROOT / "data" / "processed" / "extraction" / "article_text_inputs_report.json"
 DEFAULT_AUDIT_CSV = ROOT / "data" / "processed" / "extraction" / "article_text_inputs_audit.csv"
 DEFAULT_AUDIT_MD = ROOT / "data" / "processed" / "extraction" / "article_text_inputs_audit.md"
-DEFAULT_SOURCE_IDENTITY_AUDIT = ROOT / "data" / "processed" / "fulltext" / "source_identity_audit.json"
 SCHEMA_VERSION = "article_text_inputs_v1"
 DEFAULT_ROUTE_ACTION = "extract_from_full_text"
 DEFAULT_PRIMARY_STRATEGY = "primary_study"
@@ -105,7 +106,7 @@ def resolve_artifact_path(value: object) -> str:
 
 
 def enforce_source_identity_gate(route_rows: list[dict], audit_path: Path) -> tuple[list[dict], list[dict]]:
-    gate = SourceIdentityAuditGate(audit_path)
+    gate = IdentityGate(audit_path)
     eligible: list[dict] = []
     rejected: list[dict] = []
     for row in route_rows:
@@ -235,7 +236,7 @@ def build_article_text_inputs(args: argparse.Namespace) -> tuple[dict, list[dict
     route_rows = route_df.to_dict("records")
     route_rows, identity_rejections = enforce_source_identity_gate(
         route_rows,
-        Path(getattr(args, "source_identity_audit", DEFAULT_SOURCE_IDENTITY_AUDIT)).resolve(),
+        Path(getattr(args, "identity_verdicts", DEFAULT_VERDICTS_PATH)).resolve(),
     )
     if identity_rejections:
         sample = ", ".join(row["doi"] for row in identity_rejections[:5])
@@ -262,7 +263,7 @@ def build_article_text_inputs(args: argparse.Namespace) -> tuple[dict, list[dict
         "source_identity_gate": {
             "enforced": True,
             "audit_path": str(
-                Path(getattr(args, "source_identity_audit", DEFAULT_SOURCE_IDENTITY_AUDIT)).resolve()
+                Path(getattr(args, "identity_verdicts", DEFAULT_VERDICTS_PATH)).resolve()
             ),
             "rejected": len(identity_rejections),
         },
@@ -306,7 +307,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--audit-csv", default=str(DEFAULT_AUDIT_CSV))
     parser.add_argument("--audit-md", default=str(DEFAULT_AUDIT_MD))
     parser.add_argument("--policy-csv", default="")
-    parser.add_argument("--source-identity-audit", default=str(DEFAULT_SOURCE_IDENTITY_AUDIT))
+    parser.add_argument("--identity-verdicts", default=str(DEFAULT_VERDICTS_PATH))
     parser.add_argument("--primary-section-selection-strategy", default=DEFAULT_PRIMARY_STRATEGY)
     parser.add_argument("--secondary-section-selection-strategy", default=DEFAULT_SECONDARY_STRATEGY)
     parser.add_argument("--prompt-profile", action="append", default=[])

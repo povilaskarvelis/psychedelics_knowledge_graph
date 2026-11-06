@@ -11,6 +11,7 @@ stages:
 - ``audit``: the read-only review queue of texts and records to decide;
 - ``decide``: checks reviewed decisions and appends them;
 - ``bindings``: the verdict table, which texts the pipeline may read;
+- ``gate``: whether one stored text may be read for one paper;
 - ``apply``: builds the verdict table and lists the papers whose text changes;
 - ``migrate``: gathers decisions still kept in older per-incident files.
 

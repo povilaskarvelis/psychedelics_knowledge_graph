@@ -274,7 +274,7 @@ def test_build_selects_new_eligible_unprocessed_dois_without_routes(
             manual_fulltext_access_overrides=str(access_overrides),
             pmc_report="",
             fulltext_dir=str(tmp_path / "fulltext"),
-            source_identity_audit=str(tmp_path / "identity.json"),
+            identity_verdicts=str(tmp_path / "identity.parquet"),
             paper_root=str(tmp_path / "pdfs"),
             output_selected_dois=str(selected_output),
             output_enrichment_dois=str(enrichment_output),

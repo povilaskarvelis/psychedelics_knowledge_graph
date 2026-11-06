@@ -44,9 +44,9 @@ from pipeline.extract.build_extraction_routes import (  # noqa: E402
     source_status_from_domain_rows,
 )
 from pipeline.fulltext.convert_pdfs import normalize_doi  # noqa: E402
-from pipeline.fulltext.source_identity_audit_gate import (  # noqa: E402
-    DEFAULT_SOURCE_IDENTITY_AUDIT,
-    SourceIdentityAuditGate,
+from pipeline.identity.gate import (
+    DEFAULT_VERDICTS_PATH,
+    IdentityGate,
 )
 from pipeline.ingest.metadata_utils import (  # noqa: E402
     extract_pmcid_from_url,
@@ -338,9 +338,9 @@ def build(args: argparse.Namespace) -> dict:
 
     fulltext_dir = Path(args.fulltext_dir).resolve()
     article_dir = fulltext_dir / CANONICAL_FULLTEXT_ARTICLE_DIR
-    source_identity_audit = Path(args.source_identity_audit).resolve()
+    identity_verdicts = Path(args.identity_verdicts).resolve()
     source_gate = (
-        SourceIdentityAuditGate(source_identity_audit)
+        IdentityGate(identity_verdicts)
         if article_dir.is_dir() and next(article_dir.glob("*.json"), None)
         else None
     )
@@ -355,7 +355,7 @@ def build(args: argparse.Namespace) -> dict:
             doi,
             fulltext_dir,
             source_identity_gate=source_gate,
-            source_identity_audit=source_identity_audit,
+            identity_verdicts=identity_verdicts,
         )
         local_pdf = local_pdf_status_for_doi(doi, local_pdf_index)
         pmcid = pmcid_from_metadata(access_metadata)
@@ -651,7 +651,7 @@ def parse_args() -> argparse.Namespace:
         help="Completed PMC XML report. Repeat in chronological order for incremental runs.",
     )
     parser.add_argument("--fulltext-dir", default=str(DEFAULT_FULLTEXT_DIR))
-    parser.add_argument("--source-identity-audit", default=str(DEFAULT_SOURCE_IDENTITY_AUDIT))
+    parser.add_argument("--identity-verdicts", default=str(DEFAULT_VERDICTS_PATH))
     parser.add_argument("--paper-root", default=str(DEFAULT_PAPER_ROOT))
     parser.add_argument("--output-selected-dois", default=str(DEFAULT_SELECTED_DOIS))
     parser.add_argument("--output-enrichment-dois", default=str(DEFAULT_ENRICHMENT_DOIS))

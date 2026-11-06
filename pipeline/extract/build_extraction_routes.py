@@ -34,11 +34,11 @@ from pipeline.extract.review_source_types import (
 
 try:
     from pipeline.fulltext.convert_pdfs import doi_to_slug, has_article_body, normalize_doi
-    from pipeline.fulltext.source_identity_audit_gate import (
-        DEFAULT_SOURCE_IDENTITY_AUDIT,
+    from pipeline.identity.gate import (
+        DEFAULT_VERDICTS_PATH,
         GATE_REJECTION_REASONS,
         GATE_VERIFIED,
-        SourceIdentityAuditGate,
+        IdentityGate,
     )
     from pipeline.ingest.candidate_status import apply_candidate_updates
     from pipeline.ingest.materialize_candidate_metadata import (
@@ -60,11 +60,11 @@ try:
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(ROOT))
     from pipeline.fulltext.convert_pdfs import doi_to_slug, has_article_body, normalize_doi
-    from pipeline.fulltext.source_identity_audit_gate import (
-        DEFAULT_SOURCE_IDENTITY_AUDIT,
+    from pipeline.identity.gate import (
+        DEFAULT_VERDICTS_PATH,
         GATE_REJECTION_REASONS,
         GATE_VERIFIED,
-        SourceIdentityAuditGate,
+        IdentityGate,
     )
     from pipeline.ingest.candidate_status import apply_candidate_updates
     from pipeline.ingest.materialize_candidate_metadata import (
@@ -581,7 +581,7 @@ def artifact_text_ready(path: Path) -> tuple[bool, int]:
 def artifact_ready(
     path: Path,
     doi: str,
-    source_identity_gate: SourceIdentityAuditGate,
+    source_identity_gate: IdentityGate,
 ) -> tuple[bool, int]:
     text_ready, char_count = artifact_text_ready(path)
     return text_ready and source_identity_gate.is_verified(doi, path), char_count
@@ -591,8 +591,8 @@ def fulltext_status_for_doi(
     doi: str,
     fulltext_dir: Path,
     *,
-    source_identity_gate: SourceIdentityAuditGate | None = None,
-    source_identity_audit: Path = DEFAULT_SOURCE_IDENTITY_AUDIT,
+    source_identity_gate: IdentityGate | None = None,
+    identity_verdicts: Path = DEFAULT_VERDICTS_PATH,
 ) -> dict:
     slug = doi_to_slug(doi)
     canonical_path = fulltext_dir / CANONICAL_FULLTEXT_ARTICLE_DIR / f"{slug}.json"
@@ -600,14 +600,25 @@ def fulltext_status_for_doi(
     char_counts: list[int] = []
     # Blank when no artifact holds article text; otherwise the gate's verdict.
     identity_status = ""
+    gate = source_identity_gate
+    if gate is None and canonical_path.is_file():
+        gate = IdentityGate(identity_verdicts)
     if canonical_path.is_file():
         text_ready, char_count = artifact_text_ready(canonical_path)
         if text_ready:
-            gate = source_identity_gate or SourceIdentityAuditGate(source_identity_audit)
             identity_status = gate.status(doi, canonical_path)
             if identity_status == GATE_VERIFIED:
                 ready_paths.append(str(canonical_path))
                 char_counts.append(char_count)
+    # The same work's text under another DOI, when this paper has none of its own.
+    carried = gate.carried_artifact(doi) if gate is not None and not ready_paths else ""
+    if carried:
+        carried_path = fulltext_dir / CANONICAL_FULLTEXT_ARTICLE_DIR / carried
+        text_ready, char_count = artifact_text_ready(carried_path)
+        if text_ready and gate.is_verified(doi, carried_path):
+            identity_status = GATE_VERIFIED
+            ready_paths.append(str(carried_path))
+            char_counts.append(char_count)
     return {
         "has_converted_full_text": bool(ready_paths),
         "fulltext_artifact_paths": join_values(ready_paths),
@@ -1213,7 +1224,7 @@ def build_route_rows(
     screening_overrides: dict[str, dict] | None = None,
     manual_fulltext_access_overrides: dict[str, dict] | None = None,
     paper_root: Path = DEFAULT_PAPER_ROOT,
-    source_identity_audit: Path = DEFAULT_SOURCE_IDENTITY_AUDIT,
+    identity_verdicts: Path = DEFAULT_VERDICTS_PATH,
     doi_aliases: dict[str, str] | None = None,
 ) -> list[dict]:
     prescreen = prescreen_context_by_doi(prescreen_df)
@@ -1233,7 +1244,7 @@ def build_route_rows(
     local_pdf_index = build_local_pdf_index(paper_root)
     canonical_artifact_dir = fulltext_dir / CANONICAL_FULLTEXT_ARTICLE_DIR
     source_identity_gate = (
-        SourceIdentityAuditGate(source_identity_audit)
+        IdentityGate(identity_verdicts)
         if canonical_artifact_dir.is_dir() and next(canonical_artifact_dir.glob("*.json"), None)
         else None
     )
@@ -1291,7 +1302,7 @@ def build_route_rows(
             doi,
             fulltext_dir,
             source_identity_gate=source_identity_gate,
-            source_identity_audit=source_identity_audit,
+            identity_verdicts=identity_verdicts,
         )
         local_pdf_status = local_pdf_status_for_doi(doi, local_pdf_index)
         pdf_candidates = metadata_pdf_url_candidates(access_metadata)
@@ -1317,6 +1328,9 @@ def build_route_rows(
             )
         if manual_fulltext_access_action == "abstract_only" and manual_fulltext_access_reason:
             source_text_state_reason = manual_fulltext_access_reason
+        withheld = source_identity_gate.withheld(doi) if source_identity_gate is not None else ""
+        if withheld:
+            source_text_state_reason = f"A source-identity decision withholds this paper: {withheld}"
         bridge = "bridge_clinical_mechanism" in tags
         system_hint = study_system_hint(metadata)
 
@@ -1335,7 +1349,7 @@ def build_route_rows(
             prompt_profile = prompt_profile_for(source_family, source_type, domain_route)
             schema_profile = schema_profile_for(prompt_profile)
             route_id = stable_id(doi, source_family, source_type, domain_route, access, prompt_profile)
-            if manual_action == "hold_source_review":
+            if manual_action == "hold_source_review" or withheld:
                 row_action = "hold_source_review"
             elif manual_action == "context_only":
                 row_action = "skip_or_context_only"
@@ -1811,7 +1825,7 @@ def build_extraction_routes(
     manual_fulltext_access_overrides_path: Path | None = DEFAULT_MANUAL_FULLTEXT_ACCESS_OVERRIDES,
     doi_alias_registry_path: Path | None = DEFAULT_DOI_ALIAS_REGISTRY,
     fulltext_dir: Path = DEFAULT_FULLTEXT_DIR,
-    source_identity_audit: Path = DEFAULT_SOURCE_IDENTITY_AUDIT,
+    identity_verdicts: Path = DEFAULT_VERDICTS_PATH,
     paper_root: Path = DEFAULT_PAPER_ROOT,
     output_table: Path = DEFAULT_OUTPUT_TABLE,
     summary_json: Path = DEFAULT_SUMMARY_JSON,
@@ -1839,7 +1853,7 @@ def build_extraction_routes(
         Path(doi_alias_registry_path).resolve() if doi_alias_registry_path is not None else None
     )
     fulltext_dir = Path(fulltext_dir).resolve()
-    source_identity_audit = Path(source_identity_audit).resolve()
+    identity_verdicts = Path(identity_verdicts).resolve()
     paper_root = Path(paper_root).resolve()
     output_table = Path(output_table).resolve()
     summary_json = Path(summary_json).resolve()
@@ -1880,7 +1894,7 @@ def build_extraction_routes(
         screening_overrides=screening_overrides,
         manual_fulltext_access_overrides=manual_fulltext_access_overrides,
         paper_root=paper_root,
-        source_identity_audit=source_identity_audit,
+        identity_verdicts=identity_verdicts,
         doi_aliases=doi_aliases,
     )
     if preserve_selection_outside_scope:
@@ -1928,7 +1942,7 @@ def build_extraction_routes(
             "doi_alias_registry": str(doi_alias_registry_path) if doi_alias_registry_path is not None else "",
             "suppressed_doi_aliases": len(doi_aliases),
             "fulltext_dir": str(fulltext_dir),
-            "source_identity_audit": str(source_identity_audit),
+            "identity_verdicts": str(identity_verdicts),
             "paper_root": str(paper_root),
             "doi_file": doi_file_label,
             "include_non_retained": include_non_retained,
@@ -1956,7 +1970,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="Optional model-assigned domain and paper-type routing table. If omitted, routes stay on coarse fallback routes by access.",
     )
     parser.add_argument("--fulltext-dir", default=str(DEFAULT_FULLTEXT_DIR))
-    parser.add_argument("--source-identity-audit", default=str(DEFAULT_SOURCE_IDENTITY_AUDIT))
+    parser.add_argument("--identity-verdicts", default=str(DEFAULT_VERDICTS_PATH))
     parser.add_argument("--paper-root", default=str(DEFAULT_PAPER_ROOT), help="Root directory containing local paper PDFs.")
     parser.add_argument("--output-table", default=str(DEFAULT_OUTPUT_TABLE))
     parser.add_argument("--summary-json", default=str(DEFAULT_SUMMARY_JSON))
@@ -2004,7 +2018,7 @@ def main() -> int:
     )
     doi_alias_registry_path = Path(args.doi_alias_registry).resolve() if clean(args.doi_alias_registry) else None
     fulltext_dir = Path(args.fulltext_dir).resolve()
-    source_identity_audit = Path(args.source_identity_audit).resolve()
+    identity_verdicts = Path(args.identity_verdicts).resolve()
     paper_root = Path(args.paper_root).resolve()
     scoped_dois = read_doi_file(Path(args.doi_file).resolve()) if clean(args.doi_file) else set()
     preserve_selection_outside_scope = (
@@ -2026,7 +2040,7 @@ def main() -> int:
         manual_fulltext_access_overrides_path=manual_fulltext_access_overrides_path,
         doi_alias_registry_path=doi_alias_registry_path,
         fulltext_dir=fulltext_dir,
-        source_identity_audit=source_identity_audit,
+        identity_verdicts=identity_verdicts,
         paper_root=paper_root,
         output_table=output_table,
         summary_json=summary_json,

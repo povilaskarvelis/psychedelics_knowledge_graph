@@ -456,9 +456,13 @@ class FulltextCheck:
     cover_sheet_separated: bool
 
 
-def stored_fulltexts(artifact_dir: Path, counts: Counter) -> Iterable[tuple[Path, dict, str]]:
-    """Each readable stored full text with the DOI it is stored for."""
+def stored_fulltexts(
+    artifact_dir: Path, counts: Counter, *, names: set[str] | None = None
+) -> Iterable[tuple[Path, dict, str]]:
+    """Each readable stored full text with the DOI it is stored for, optionally only the named files."""
     for path in sorted(Path(artifact_dir).glob("*.json")):
+        if names is not None and path.name not in names:
+            continue
         try:
             artifact = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, ValueError):

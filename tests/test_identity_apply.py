@@ -5,11 +5,11 @@ from pathlib import Path
 import pandas as pd
 
 from pipeline.fulltext.convert_pdfs import doi_to_slug
-from pipeline.identity.apply import run_apply
+from pipeline.identity.apply import curated_changes, refresh_fulltext_rows, run_apply, write_curated_changes
 from pipeline.identity.bindings import IdentityVerdicts, usable_for
 from pipeline.identity.decide import Texts, make_decision, record_decisions
 from pipeline.identity.evidence import text_sha256
-from tests.identity_fixtures import RECORDS, build_inputs, file_digest, write_gate_audit
+from tests.identity_fixtures import RECORDS, build_inputs, file_digest
 
 
 EXTRACTED = ("10.1000/good", "10.1000/preprinted", "10.1000/supp", "10.1000/decided", "10.1000/wrong", "10.1000/retitled")
@@ -17,14 +17,19 @@ EXTRACTED = ("10.1000/good", "10.1000/preprinted", "10.1000/supp", "10.1000/deci
 
 def apply_inputs(tmp_path: Path) -> dict:
     inputs = build_inputs(tmp_path)
-    # The current gate accepted the preprint and the supplement.
-    gate = write_gate_audit(
-        tmp_path, inputs["artifact_dir"], {"10.1000/good", "10.1000/preprinted", "10.1000/supp", "10.1000/retitled"}
-    )
+    overrides = tmp_path / "metadata_overrides.json"
+    overrides.write_text(json.dumps({"records": []}), encoding="utf-8")
     outputs = tmp_path / "base_outputs.jsonl"
     outputs.write_text("".join(json.dumps({"study_doi": doi}) + "\n" for doi in EXTRACTED), encoding="utf-8")
     routes = tmp_path / "routes.parquet"
-    pd.DataFrame([{"doi": "10.1000/owner", "route_action": "hold_source_review"}]).to_parquet(routes, index=False)
+    # The release read the full text of the preprint and the supplement.
+    pd.DataFrame(
+        [{"doi": "10.1000/owner", "route_action": "hold_source_review", "manual_fulltext_access_action": ""}]
+        + [
+            {"doi": doi, "route_action": "extract_from_full_text", "manual_fulltext_access_action": ""}
+            for doi in ("10.1000/good", "10.1000/preprinted", "10.1000/supp", "10.1000/retitled")
+        ]
+    ).to_parquet(routes, index=False)
     return {
         "outputs": [outputs],
         "kg_dir": inputs["kg_dir"],
@@ -33,7 +38,7 @@ def apply_inputs(tmp_path: Path) -> dict:
         "decisions_path": inputs["decisions_path"],
         "work_registry": inputs["work_registry"],
         "route_table": routes,
-        "source_identity_audit": gate,
+        "metadata_overrides": overrides,
     }
 
 
@@ -71,7 +76,7 @@ def test_apply_lists_papers_whose_text_changes_and_writes_only_its_folder(tmp_pa
     assert all(after[path] == digest for path, digest in before.items())
 
     changes = changes_of(update_dir)
-    # The current gate accepted both texts; the rule does not.
+    # The release read both texts; the rule does not allow them.
     assert {doi: (c["action"], c["text_now"], c["text_after"]) for doi, c in changes.items()} == {
         "10.1000/preprinted": ("re-extract", "fulltext", "abstract"),
         "10.1000/supp": ("re-extract", "fulltext", "abstract"),
@@ -156,3 +161,75 @@ def test_a_published_paper_does_not_read_a_preprint() -> None:
     assert usable_for("fulltext", "version_of", "preprint_or_repository_copy", preprint)[0] is True
     for verdict in ("unconfirmed", "conflict", "wrong_kind", "not_this_work"):
         assert usable_for("fulltext", verdict, "", published) == (False, verdict)
+
+
+def test_a_newly_written_text_gets_a_new_row_and_other_rows_stay(tmp_path: Path) -> None:
+    inputs = apply_inputs(tmp_path)
+    run_apply(update_id="u", out_root=tmp_path / "updates", install=True, verdicts_path=tmp_path / "v.parquet", **inputs)
+    before = pd.read_parquet(tmp_path / "v.parquet")
+    good = inputs["artifact_dir"] / f"{doi_to_slug('10.1000/good')}.json"
+    supp = inputs["artifact_dir"] / f"{doi_to_slug('10.1000/supp')}.json"
+
+    unusable = refresh_fulltext_rows(
+        [good, supp],
+        artifact_dir=inputs["artifact_dir"],
+        verdicts_path=tmp_path / "v.parquet",
+        ledger_path=inputs["ledger_path"],
+        decisions_path=inputs["decisions_path"],
+        work_registry=inputs["work_registry"],
+    )
+
+    after = pd.read_parquet(tmp_path / "v.parquet")
+    assert unusable == [str(supp.resolve())]
+    assert len(after) == len(before)
+    assert after.equals(before)
+
+
+def test_record_corrections_and_unusable_abstracts_reach_the_curated_overrides(tmp_path: Path) -> None:
+    decisions = {
+        "10.1000/titled": [
+            {"decision_id": "sid-1", "basis": "title", "verdict": "record_corrected", "target": {"kind": "record"}, "fields": {"study_title": "Right"}},
+        ],
+        "10.1000/wrong": [
+            {"decision_id": "sid-2", "basis": "other paper", "verdict": "not_this_work", "target": {"kind": "abstract", "sha256": text_sha256("Another paper.")}},
+        ],
+        "10.1000/replaced": [
+            {"decision_id": "sid-3", "basis": "old", "verdict": "wrong_kind", "target": {"kind": "abstract", "sha256": text_sha256("Old text.")}},
+        ],
+        "10.1000/legacy": [
+            {"decision_id": "sid-4", "basis": "file", "verdict": "record_corrected", "target": {"kind": "record"}, "fields": {"study_title": "Kept"}, "origin": {"source": "metadata_overrides"}},
+        ],
+    }
+    ledger = pd.DataFrame(
+        {"abstract": ["", "Another paper.", "The right text.", ""]},
+        index=["10.1000/titled", "10.1000/wrong", "10.1000/replaced", "10.1000/legacy"],
+    )
+    overrides = tmp_path / "overrides.json"
+    existing = {"doi": "10.1000/legacy", "evidence_basis": "file", "fields": {"study_title": "Kept"}}
+    overrides.write_text(json.dumps({"records": [existing]}), encoding="utf-8")
+
+    changes = curated_changes(decisions, ledger)
+
+    assert set(changes) == {"10.1000/titled", "10.1000/wrong"}
+    assert write_curated_changes(changes, overrides) == 2
+    records = {record["doi"]: record for record in json.loads(overrides.read_text(encoding="utf-8"))["records"]}
+    assert records["10.1000/legacy"] == existing
+    assert records["10.1000/titled"]["fields"] == {"study_title": "Right"}
+    assert records["10.1000/titled"]["source_decision"] == "sid-1"
+    assert records["10.1000/wrong"]["clear_fields"] == ["abstract"]
+    # A second run changes nothing.
+    assert write_curated_changes(changes, overrides) == 0
+
+
+def test_an_access_override_keeps_a_paper_on_its_abstract(tmp_path: Path) -> None:
+    inputs = apply_inputs(tmp_path)
+    routes = pd.read_parquet(inputs["route_table"])
+    routes.loc[routes["doi"] == "10.1000/good", ["route_action", "manual_fulltext_access_action"]] = [
+        "extract_from_abstract_only",
+        "abstract_only",
+    ]
+    routes.to_parquet(inputs["route_table"], index=False)
+
+    run_apply(update_id="u", out_root=tmp_path / "updates", **inputs)
+
+    assert "10.1000/good" not in changes_of(tmp_path / "updates" / "u")

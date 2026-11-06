@@ -611,25 +611,25 @@ This audit is part of the normal conversion path, not only a repair utility.
 `fetch_pmc_fulltext_xml.py` refresh it before rebuilding extraction routes.
 Each audit row records the artifact's SHA-256.
 
-The gate (`source_identity_audit_gate.py`) decides per artifact. An artifact is
-used only when the audit verified that exact file for that DOI and nothing it
-depends on has changed. Otherwise that artifact alone is rejected with one of
-these reasons, and the run continues:
+The gate (`pipeline/identity/gate.py`) decides per artifact from the verdict
+table (`pipeline/identity/README.md`). An artifact is used only when the table
+has a usable row for that file and that DOI and the file has not changed since.
+Otherwise that artifact alone is rejected with one of these reasons, and the run
+continues:
 
-- not in the audit;
-- not verified by the audit;
-- content changed after the audit (a newer file time with an unchanged hash is
-  not a change);
-- a curated registry entry for that DOI changed after the audit.
+- not in the table;
+- the table does not allow it;
+- content changed after the table was built (a newer file time with an unchanged
+  hash is not a change).
 
 Packet building leaves rejected artifacts out and lists them with their
 reasons. Route building sends a paper whose stored text is rejected to its
 abstract (`extract_from_abstract_only`), or to `hold_until_text_available` when
 it has no abstract, instead of queueing the same PDF for conversion again. The
-route table records the gate's verdict in `fulltext_identity_status`. Rerunning
-the audit, or recording a decision, restores verified text. A writer reports
-any artifact it has just written that the refreshed audit does not verify
-(`written_unverified_artifacts`).
+route table records the gate's verdict in `fulltext_identity_status`. Recording a
+decision and running `python -m pipeline.identity apply --install` restores
+usable text. A writer adds rows for the artifacts it has just written and reports
+any the table does not make usable (`written_unverified_artifacts`).
 
 PMC/Europe PMC XML acquisition is DOI-selective as well. For JATS collections
 containing multiple `<article>` or `<sub-article>` records, the fetcher requires

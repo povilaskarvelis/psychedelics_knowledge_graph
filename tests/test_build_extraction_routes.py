@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from tests.identity_fixtures import write_gate_table
 from pipeline.extract.build_extraction_routes import (
     build_candidate_status_updates,
     build_extraction_routes,
@@ -16,28 +17,6 @@ from pipeline.extract.build_extraction_routes import (
     prescreen_context_by_doi,
     thesis_or_dissertation_flags,
 )
-
-
-def write_source_identity_audit(
-    root: Path,
-    rows: list[dict],
-) -> Path:
-    identity_registry = root / "source_identity_registry.json"
-    hash_registry = root / "source_identity_pdf_hash_registry.json"
-    identity_registry.write_text("{}\n", encoding="utf-8")
-    hash_registry.write_text("{}\n", encoding="utf-8")
-    audit = root / "source_identity_audit.json"
-    audit.write_text(
-        json.dumps(
-            {
-                "identity_registry": {"path": str(identity_registry)},
-                "pdf_hash_attestation_registry": {"path": str(hash_registry)},
-                "rows": rows,
-            }
-        ),
-        encoding="utf-8",
-    )
-    return audit
 
 
 class BuildExtractionRoutesTests(unittest.TestCase):
@@ -260,12 +239,12 @@ class BuildExtractionRoutesTests(unittest.TestCase):
             canonical = fulltext_dir / "articles" / f"{doi_to_slug(doi)}.json"
             canonical.parent.mkdir(parents=True)
             canonical.write_text(json.dumps({"best_char_count": 2000}), encoding="utf-8")
-            audit = write_source_identity_audit(Path(tmp), [])
+            audit = write_gate_table(Path(tmp), [])
 
             status = fulltext_status_for_doi(
                 doi,
                 fulltext_dir,
-                source_identity_audit=audit,
+                identity_verdicts=audit,
             )
 
         self.assertFalse(status["has_converted_full_text"])
@@ -296,12 +275,12 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                         "text": xml,
                     }],
                 }))
-                audit = write_source_identity_audit(root, [{
+                audit = write_gate_table(root, [{
                     "requested_doi": doi,
                     "artifact_path": str(canonical.resolve()),
                     "identity_verified": True,
                 }])
-                status = fulltext_status_for_doi(doi, root, source_identity_audit=audit)
+                status = fulltext_status_for_doi(doi, root, identity_verdicts=audit)
                 self.assertEqual(status["has_converted_full_text"], expected)
                 self.assertEqual(status["fulltext_char_count"], 2000 if expected else 0)
 
@@ -320,7 +299,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-            audit = write_source_identity_audit(
+            audit = write_gate_table(
                 Path(tmp),
                 [
                     {
@@ -373,7 +352,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                 literature_df,
                 fulltext_dir=fulltext_dir,
                 generated_at_utc="2026-05-28T00:00:00+00:00",
-                source_identity_audit=audit,
+                identity_verdicts=audit,
             )
 
         self.assertEqual({row["domain_route"] for row in rows}, {"general_primary"})
@@ -1193,7 +1172,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
             artifact = fulltext_dir / "articles" / f"{doi_to_slug(doi)}.json"
             artifact.parent.mkdir(parents=True)
             artifact.write_text(json.dumps({"best_char_count": 5000}), encoding="utf-8")
-            audit = write_source_identity_audit(
+            audit = write_gate_table(
                 root,
                 [{"requested_doi": doi, "artifact_path": str(artifact.resolve()), "identity_verified": False}],
             )
@@ -1207,7 +1186,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                                "source_family": "primary_or_unclear", "literature_type_confidence": "medium"}]),
                 fulltext_dir=fulltext_dir,
                 paper_root=paper_root,
-                source_identity_audit=audit,
+                identity_verdicts=audit,
                 generated_at_utc="2026-11-01T00:00:00+00:00",
             )
         self.assertEqual(len(rows), 1)
@@ -1221,7 +1200,7 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertEqual(row["fulltext_identity_status"], "identity_unverified")
         self.assertFalse(row["has_converted_full_text"])
         self.assertTrue(row["has_local_pdf"])
-        self.assertIn("did not verify the artifact", row["source_text_state_reason"])
+        self.assertIn("does not allow the artifact", row["source_text_state_reason"])
         self.assertFalse(row["source_identity_verified"])
 
     def test_rejected_full_text_without_abstract_waits_for_text(self) -> None:

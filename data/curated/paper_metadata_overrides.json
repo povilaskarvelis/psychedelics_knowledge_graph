@@ -1661,6 +1661,248 @@
       "fields": {
         "study_title": "Acute treatment of Huntington's chorea with lisuride"
       }
+    },
+    {
+      "doi": "10.1001/jama.1963.03700200134057",
+      "evidence_basis": "the shared text is web-page text, not an abstract",
+      "source_decision": "sid-490e5de34e6754dd2d60",
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1001/jama.1963.03700230153061",
+      "evidence_basis": "the shared text is web-page text, not an abstract",
+      "source_decision": "sid-e4fdb9ebc371180a40fd",
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1001/jama.1963.03700230153063",
+      "evidence_basis": "the shared text is web-page text, not an abstract",
+      "source_decision": "sid-f6fa0f767017fe00baa4",
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1001/jama.2019.10728",
+      "evidence_basis": "the shared text is web-page text, not an abstract",
+      "source_decision": "sid-8f68d8aff570e82b7f2e",
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1001/jamapsychiatry.2022.0665",
+      "evidence_basis": "the shared text is web-page text, not an abstract",
+      "source_decision": "sid-ed74335ba7b2856dc6f8",
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1002/1522-2675(20000809)83:8<1753::aid-hlca1753>3.3.co;2-7",
+      "evidence_basis": "The record has no title; the title of the same report under 10.1002/1522-2675(20000809)83:8<1753::aid-hlca1753>3.0.co;2-g.",
+      "source_decision": "sid-56c0e5f95c289b31e67d",
+      "fields": {
+        "study_title": "Towards a New Synthetic Entry into theIboga-Alkaloid Family"
+      }
+    },
+    {
+      "doi": "10.1002/1522-2675(200209)85:9<3019::aid-hlca3019>3.0.co;2-4",
+      "evidence_basis": "The record has no title and Crossref gives none; the title is the opening of the record abstract.",
+      "source_decision": "sid-5c4ea3f07ddf0e57dd48",
+      "fields": {
+        "study_title": "Synthesis of Novel (Phenylalkyl)amines for the Investigation of Structure–Activity Relationships. Part 1. Mescalin Derivatives"
+      }
+    },
+    {
+      "doi": "10.1007/bf00171052",
+      "evidence_basis": "PubMed's title for this DOI agrees with the record's abstract; the record's title belongs to another work",
+      "source_decision": "sid-47b98989b01e6072d11e",
+      "fields": {
+        "study_title": "Pharmacological characterizations of recombinant human 5-HT1D alpha and 5-HT1D beta receptor subtypes coupled to adenylate cyclase inhibition in clonal cell lines: apparent differences in drug intrinsic efficacies between human 5-HT1D subtypes."
+      }
+    },
+    {
+      "doi": "10.1016/0006-2952(89)90480-2",
+      "evidence_basis": "the title does not agree with the abstract, which agrees with the title of 10.1016/j.pnpbp.2004.10.015",
+      "source_decision": "sid-16315bfdf62559ea4e00",
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1016/0924-9338(96)89057-2",
+      "evidence_basis": "The abstract is about the elevated T-maze as a model of anxiety (Graeff et al., 1998).",
+      "source_decision": "sid-a7644251b816d0fba6ee",
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1016/j.jasi.2015.07.290",
+      "evidence_basis": "The abstract is about Soma and the food-medicine continuum; the paper is about the vena cava.",
+      "source_decision": "sid-ab9d19e982058206c1f6",
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1016/j.rpsm.2016.05.005",
+      "evidence_basis": "PubMed's title for this DOI agrees with the record's abstract; the record's title belongs to another work",
+      "source_decision": "sid-4014cebef92091a8ede5",
+      "fields": {
+        "study_title": "Efficacy and safety of ketamine in bipolar depression: A systematic review."
+      }
+    },
+    {
+      "doi": "10.1023/a:1025019529044",
+      "evidence_basis": "The record has no title; the title of the same report under 10.17514/jnds-1997-16-1-p79-95.",
+      "source_decision": "sid-d517338b6a04f9edf492",
+      "fields": {
+        "study_title": "Response to commentaries on \"The ketamine model of the near-death experience ...\""
+      }
+    },
+    {
+      "doi": "10.1097/00000433-200306000-00003",
+      "evidence_basis": "The record has no title; the title of the same report under 10.1097/01.paf.0000064520.90683.5a.",
+      "source_decision": "sid-588c4d4958d7ed3fad86",
+      "fields": {
+        "study_title": "Sudden death during arrest and phencyclidine intoxication."
+      }
+    },
+    {
+      "doi": "10.1097/00001504-200305000-00003",
+      "evidence_basis": "The record has no title; the title of the same report under 10.1097/01.yco.0000069083.26384.03.",
+      "source_decision": "sid-277144142c7e63d9c640",
+      "fields": {
+        "study_title": "The response to club drug use"
+      }
+    },
+    {
+      "doi": "10.1097/00008506-198906000-00034",
+      "evidence_basis": "the shared text is web-page text, not an abstract",
+      "source_decision": "sid-3522c6103438dbf85794",
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1097/00008506-199109000-00020",
+      "evidence_basis": "the shared text is web-page text, not an abstract",
+      "source_decision": "sid-a95c99b013786306f592",
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1097/00008506-199109000-00027",
+      "evidence_basis": "the shared text is web-page text, not an abstract",
+      "source_decision": "sid-d526d1c777e5c5d606db",
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1097/00008506-199109000-00047",
+      "evidence_basis": "the shared text is web-page text, not an abstract",
+      "source_decision": "sid-f8a5543002beaa087e88",
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1097/00008506-199210000-00028",
+      "evidence_basis": "the shared text is web-page text, not an abstract",
+      "source_decision": "sid-e88f067af5dd1ee94f3c",
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1097/00008506-199210000-00029",
+      "evidence_basis": "the shared text is web-page text, not an abstract",
+      "source_decision": "sid-aff8548079d1f9719618",
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1097/00008506-199210000-00067",
+      "evidence_basis": "the shared text is web-page text, not an abstract",
+      "source_decision": "sid-23c2a0d7b3c61af7190d",
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1126/science.138.3545.1100",
+      "evidence_basis": "The abstract is about an Antarctic saline pond.",
+      "source_decision": "sid-81efd75e30c5915f0691",
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1136/bmj.3.5556.28",
+      "evidence_basis": "The record abstract belongs to the memorandum printed before this article.",
+      "source_decision": "sid-a44449a114fcf4431041",
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1136/emj.18.1.61",
+      "evidence_basis": "the title does not agree with the abstract, which agrees with the title of 10.2215/cjn.00360114",
+      "source_decision": "sid-d1e2a4257af0c45c5b83",
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1136/thx.39.12.956",
+      "evidence_basis": "the title does not agree with the abstract, which agrees with the title of 10.2310/6650.2005.x0004.513",
+      "source_decision": "sid-a5f796e248bb6a734650",
+      "clear_fields": [
+        "abstract"
+      ]
+    },
+    {
+      "doi": "10.1177/0897190014525754",
+      "evidence_basis": "PubMed's title for this DOI agrees with the record's abstract; the record's title belongs to another work",
+      "source_decision": "sid-7d572270468188be36cc",
+      "fields": {
+        "study_title": "Ketamine: an update on its abuse."
+      }
+    },
+    {
+      "doi": "10.1254/jjp.56.483",
+      "evidence_basis": "The authors, journal and year are from another work; these are the values of the same report under 10.1016/s0021-5198(19)39841-5.",
+      "source_decision": "sid-223746b03dba4731e41f",
+      "fields": {
+        "authors": "Kenichi Furusawa",
+        "study_journal": "The Japanese Journal of Pharmacology",
+        "study_year": "1991"
+      }
+    },
+    {
+      "doi": "10.2165/00023210-200620030-00003",
+      "evidence_basis": "PubMed 16529526 gives the full title; the record has only its first word.",
+      "source_decision": "sid-b6514570e35b4a5015f8",
+      "fields": {
+        "study_title": "Ketamine: from medicine to misuse"
+      }
+    },
+    {
+      "doi": "10.7861/clinmedicine.7-3-277",
+      "evidence_basis": "The abstract field holds a reference list.",
+      "source_decision": "sid-cba638ab551adf32751e",
+      "clear_fields": [
+        "abstract"
+      ]
     }
   ]
 }

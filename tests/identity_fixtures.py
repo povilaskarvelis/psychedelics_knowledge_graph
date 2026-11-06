@@ -10,6 +10,7 @@ import pandas as pd
 
 from pipeline.fulltext.convert_pdfs import doi_to_slug
 from pipeline.identity.register import append_decisions, decision_id
+from pipeline.ingest.candidate_status import normalize_doi
 
 
 ESKETAMINE_ABSTRACT = " ".join(
@@ -161,22 +162,23 @@ def build_inputs(root: Path) -> dict:
     }
 
 
-def write_gate_audit(root: Path, artifact_dir: Path, verified: set[str]) -> Path:
-    """An audit in the format the current full-text gate reads, verifying the given DOIs."""
-    registries = {}
-    for key in ("identity_registry", "pdf_hash_attestation_registry"):
-        path = root / f"{key}.json"
-        path.write_text(json.dumps({"records": []}), encoding="utf-8")
-        registries[key] = {"path": str(path)}
-    rows = [
-        {
-            "requested_doi": json.loads(path.read_text(encoding="utf-8"))["study_doi"],
-            "artifact_path": str(path),
-            "artifact_sha256": file_digest(path),
-            "identity_verified": json.loads(path.read_text(encoding="utf-8"))["study_doi"] in verified,
-        }
-        for path in sorted(artifact_dir.glob("*.json"))
-    ]
-    audit = root / "source_identity_audit.json"
-    audit.write_text(json.dumps({"rows": rows, **registries}), encoding="utf-8")
-    return audit
+def write_gate_table(root: Path, rows: list[dict]) -> Path:
+    """A verdict table for the full-text gate, from (requested_doi, artifact_path, identity_verified) rows."""
+    table = []
+    for row in rows:
+        path = Path(row["artifact_path"]) if row.get("artifact_path") else None
+        table.append(
+            {
+                "doi": normalize_doi(row["requested_doi"]),
+                "target_kind": "fulltext",
+                "artifact": path.name if path else "",
+                "artifact_sha256": row.get("artifact_sha256") or (file_digest(path) if path and path.is_file() else ""),
+                "usable": bool(row.get("identity_verified")),
+                "reason": row.get("reason", ""),
+                "carried_from": row.get("carried_from", ""),
+            }
+        )
+    verdicts = root / "verdicts.parquet"
+    columns = ["doi", "target_kind", "artifact", "artifact_sha256", "usable", "reason", "carried_from"]
+    pd.DataFrame(table, columns=columns).astype({"usable": bool}).to_parquet(verdicts, index=False)
+    return verdicts
