@@ -760,6 +760,1758 @@
       "relationship_type": "verified_same_report_legacy_pii",
       "evidence_basis": "Original first pages title/authors/journal volume/pages match the already retained canonical J-STAGE report; individual visual review and complete OCR. No separate experiment.",
       "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/model_runs/luna_v5_20261017/publication_cleanup_dry_run_20261021/flag_review_20261021/historical_pdf_visual_followup.json"
+    },
+    {
+      "alias_doi": "10.21203/rs.3.rs-3917930/v1",
+      "canonical_doi": "10.1016/j.intimp.2025.114382",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.21203/rs.3.rs-3917930/v1; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-618db5d1904f0dce054c",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/wfvq-kk18",
+      "canonical_doi": "10.1038/nature17998",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1038/nature17998; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-81af4cce0216c0e1cb13",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/ce6e-4888",
+      "canonical_doi": "10.1038/s41398-025-03611-0",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1038/s41398-025-03611-0; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-7b94404573f548c0c7e8",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/fdtc-c008",
+      "canonical_doi": "10.1016/j.neuron.2013.02.011",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1016/j.neuron.2013.02.011; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-59ce0bd2c1b8882db7ab",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.5070/b336161162",
+      "canonical_doi": "10.5070/b336161161",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under another DOI, 10.5070/b336161162; confirm both name the same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-f1ce0e5b1e17135b612c",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.21203/rs.3.rs-8079137/v1",
+      "canonical_doi": "10.1016/j.lanepe.2026.101719",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.21203/rs.3.rs-8079137/v1; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-72da63fcc06a4f77d9c9",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/j40k-y869",
+      "canonical_doi": "10.1124/jpet.116.235838",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1124/jpet.116.235838; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-492fbf5af4099dbc5d8d",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.2196/preprints.92647",
+      "canonical_doi": "10.2196/92647",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.2196/preprints.92647; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-5f991a7f268638517c84",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2020.04.15.043570",
+      "canonical_doi": "10.1523/jneurosci.0880-20.2020",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2020.04.15.043570; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-2d162b9d0cf999774e68",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2020.03.04.976308",
+      "canonical_doi": "10.1016/j.pbb.2020.172913",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2020.03.04.976308; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-fc01737b0ea95b739b7a",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.21203/rs.3.rs-420208/v1",
+      "canonical_doi": "10.1007/s10787-021-00891-y",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.21203/rs.3.rs-420208/v1; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-a25562c0fb1138121f20",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2025.02.10.637233",
+      "canonical_doi": "10.1016/j.biopsych.2026.09.016",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2025.02.10.637233; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-1ad7dcb63b96eb76ec5e",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1080/10915810390233410",
+      "canonical_doi": "10.1177/109158180302200503",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under another DOI, 10.1080/10915810390233410; confirm both name the same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-5ded9c31b99a8a6a1afe",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17863/cam.47537",
+      "canonical_doi": "10.1016/j.abrep.2019.100228",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1016/j.abrep.2019.100228; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-cd5c39294ad6b640b07d",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.25316/ir-20557",
+      "canonical_doi": "10.1002/ejp.2171",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1002/ejp.2171; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-fd6ab2923904f45b5df1",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17169/refubium-31346",
+      "canonical_doi": "10.1016/j.euroneuro.2019.02.008",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.17169/refubium-31346; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-7ebb233fdd394606d5fc",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2024.02.15.580421",
+      "canonical_doi": "10.1016/j.neuropharm.2024.109970",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2024.02.15.580421; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-a5fd90b6c5349196016f",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2025.11.17.688834",
+      "canonical_doi": "10.1162/netn.a.594",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2025.11.17.688834; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-780963155629d3cdb86c",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/200162",
+      "canonical_doi": "10.1523/jneurosci.0630-17.2017",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/200162; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-ba8e6dd823af13c71963",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/m1we-re08",
+      "canonical_doi": "10.1016/j.cell.2016.12.033",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1016/j.cell.2016.12.033; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-880b93c0979929087324",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.21203/rs.3.rs-3116158/v1",
+      "canonical_doi": "10.1016/j.bbr.2023.114792",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.21203/rs.3.rs-3116158/v1; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-c84bb067e15a10864b0c",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2022.02.13.480302",
+      "canonical_doi": "10.1016/j.jad.2023.04.081",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2022.02.13.480302; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-4edefba138cfc71b3ba5",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2023.05.29.23290667",
+      "canonical_doi": "10.1176/appi.ajp.20230751",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2023.05.29.23290667; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-1b2096db0670e5b38b69",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/021329",
+      "canonical_doi": "10.1177/0269881115626348",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/021329; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-48ecd4344aae6c466aba",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/5pv5-2x04",
+      "canonical_doi": "10.1124/pr.115.011478",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1124/pr.115.011478; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-287343c48d3d5c077103",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/sb9h-an57",
+      "canonical_doi": "10.1038/s41598-021-96736-3",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1038/s41598-021-96736-3; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-237945ce286e378f60c3",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/wenj-td62",
+      "canonical_doi": "10.1124/jpet.114.216820",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1124/jpet.114.216820; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-94e3d6403f7f72b6a7c6",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.18452/37159",
+      "canonical_doi": "10.3389/fpsyt.2026.1771726",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.3389/fpsyt.2026.1771726; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-4b958fb99e9aa1ca6174",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1691/ph.2011.1501",
+      "canonical_doi": "10.31083/ph.2011.1501",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under 10.1691/ph.2011.1501; the DOIs indicate same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-baeb7084ddb3e154f0d9",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.21203/rs.3.rs-2883864/v1",
+      "canonical_doi": "10.1007/s12028-023-01811-4",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.21203/rs.3.rs-2883864/v1; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-0c92626dfb6e1768df4c",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2025.05.05.652266",
+      "canonical_doi": "10.1016/j.bbi.2026.106886",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2025.05.05.652266; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-047a7d49201de529773d",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2025.02.03.636248",
+      "canonical_doi": "10.1038/s42003-026-10804-w",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2025.02.03.636248; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-c882f4fea02f36ca6c78",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.48620/94398",
+      "canonical_doi": "10.1001/jamanetworkopen.2025.54843",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1001/jamanetworkopen.2025.54843; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-131ec2a78d18d913a7a1",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2023.05.31.543142",
+      "canonical_doi": "10.1016/j.bbr.2024.115231",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2023.05.31.543142; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-84d98485ce155f07869f",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2024.08.07.606965",
+      "canonical_doi": "10.1177/02698811251338232",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2024.08.07.606965; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-5e2a44e6afb5577224d1",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.64483/jmph-116",
+      "canonical_doi": "10.64483/20251153",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under another DOI, 10.64483/jmph-116; confirm both name the same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-032d4e068fd3928a88f4",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2025.07.21.665870",
+      "canonical_doi": "10.1016/j.neubiorev.2026.106951",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2025.07.21.665870; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-28a6cf092ea5aadfcdfb",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2025.07.29.25332162",
+      "canonical_doi": "10.1038/s41398-026-04196-y",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2025.07.29.25332162; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-781343f89dbd236397e5",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2024.02.04.578811",
+      "canonical_doi": "10.1038/s41593-025-01964-9",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2024.02.04.578811; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-87082ba432929118a9da",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1177/0269881105060147",
+      "canonical_doi": "10.1177/0269881106060147",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under another DOI, 10.1177/0269881105060147; confirm both name the same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-6dc5afecc2e4586ee0d2",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.14740/jmc2023w",
+      "canonical_doi": "10.14740/jmc.v6i3.2023",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under another DOI, 10.14740/jmc2023w; confirm both name the same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-371a78de41911cfbd08a",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/a07f-v461",
+      "canonical_doi": "10.1038/s41593-022-01177-4",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1038/s41593-022-01177-4; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-b38879011465090eb064",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/gnp8-ky25",
+      "canonical_doi": "10.1124/jpet.118.255661",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1124/jpet.118.255661; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-c43f752ba7c75901bfb8",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/pynr-p256",
+      "canonical_doi": "10.1126/science.1232808",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1126/science.1232808; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-41aaffe8dc9c26ba795e",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/qr51-1n44",
+      "canonical_doi": "10.47626/1516-4446-2025-4316",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.47626/1516-4446-2025-4316; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-b8bb692ead7d97dc9d9c",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/z0v5-n177",
+      "canonical_doi": "10.1038/s41573-022-00421-7",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1038/s41573-022-00421-7; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-b0370d710a6a49208745",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.31661/gmj.v8i0.963",
+      "canonical_doi": "10.31661/gmj.v8i.963",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under another DOI, 10.31661/gmj.v8i0.963; confirm both name the same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-089e944b7bda69cb5855",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.64898/2026.02.08.704729",
+      "canonical_doi": "10.1016/j.cub.2026.08.044",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.64898/2026.02.08.704729; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-813a053cee772b51c8c7",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/532234",
+      "canonical_doi": "10.1017/s0033291719002393",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/532234; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-97338bb82e5cada766e0",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.3109/09687630902810691",
+      "canonical_doi": "10.1080/09687630902810691",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under 10.3109/09687630902810691; the DOIs indicate same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-db50572487126a13d817",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2025.06.01.25328722",
+      "canonical_doi": "10.1177/10401237261434394",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2025.06.01.25328722; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-d17bc1a315f674fc3746",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/6fva-kd70",
+      "canonical_doi": "10.1111/jnc.15540",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1111/jnc.15540; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-f77bc615afd82fd253e2",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/bkw1-d506",
+      "canonical_doi": "10.1176/appi.ajp.20230172",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1176/appi.ajp.20230172; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-c4a127eb6a3fa9e912e1",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.21203/rs.2.13243/v1",
+      "canonical_doi": "10.21873/anticanres.13654",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.21203/rs.2.13243/v1; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-dbbb25a35c15f05f6cdb",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.33899/iraqij.p.2024.147048.1086",
+      "canonical_doi": "10.33899/iraqij.p.2024.147048.01086",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under another DOI, 10.33899/iraqij.p.2024.147048.1086; confirm both name the same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-aac3c20240b1546a73d4",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2025.07.05.663289",
+      "canonical_doi": "10.1016/j.neubiorev.2026.106649",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2025.07.05.663289; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-a1d01d22b3ed508172db",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/399188",
+      "canonical_doi": "10.1016/j.neuroscience.2018.09.031",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/399188; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-b254b0b853ecfa6391c7",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.21203/rs.3.rs-2612390/v1",
+      "canonical_doi": "10.1038/s41380-023-02217-6",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.21203/rs.3.rs-2612390/v1; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-818dc0ec9d557e6b189a",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/533299",
+      "canonical_doi": "10.1111/jnc.14804",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/533299; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-6bef5c13ae1d9aaaecb4",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2021.09.23.21262316",
+      "canonical_doi": "10.1177/08850666221088220",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2021.09.23.21262316; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-1e1d852ef5b37c45ce08",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.14740/jmc2811w",
+      "canonical_doi": "10.14740/jmc.v8i6.2811",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under another DOI, 10.14740/jmc2811w; confirm both name the same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-891e0ddae15558135332",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/am70-e384",
+      "canonical_doi": "10.1177/29768357251393025",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1177/29768357251393025; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-0004cd88983b8765b0e9",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/ccp3-dw03",
+      "canonical_doi": "10.1152/ajpcell.00397.2022",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1152/ajpcell.00397.2022; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-2be47911b05bf624e700",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.22028/d291-47119",
+      "canonical_doi": "10.3390/metabo16020134",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.3390/metabo16020134; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-16ff412c7cd45a3d0f5a",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.48620/94763",
+      "canonical_doi": "10.1016/j.neuropharm.2026.110874",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1016/j.neuropharm.2026.110874; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-683c720afe9f55a037e8",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.48620/98266",
+      "canonical_doi": "10.1016/j.euroneuro.2026.112879",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1016/j.euroneuro.2026.112879; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-c28bf7afa95cd32cf614",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/793398",
+      "canonical_doi": "10.1016/j.pnpbp.2020.109878",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/793398; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-e43dc5b7f4d02f5866b8",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.21203/rs.3.rs-10403919/v1",
+      "canonical_doi": "10.1038/s41598-026-73400-2",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.21203/rs.3.rs-10403919/v1; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-aa1499d377891d1b229d",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2023.09.13.557619",
+      "canonical_doi": "10.1103/physreve.108.l052301",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2023.09.13.557619; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-c3d0dcb4a06021459d71",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1152/jn.00203.2025",
+      "canonical_doi": "10.1152/jn.00204.2026",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under another DOI, 10.1152/jn.00203.2025; confirm both name the same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-d309c4a8dfa0816af408",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.21203/rs.3.rs-10020524/v1",
+      "canonical_doi": "10.1186/s12888-026-08736-0",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.21203/rs.3.rs-10020524/v1; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-e970d519d0da6ce20977",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1375/twin.7.1.72",
+      "canonical_doi": "10.1375/13690520460741462",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under another DOI, 10.1375/twin.7.1.72; confirm both name the same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-ec3db97563f2619bc52f",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2020.01.06.896589",
+      "canonical_doi": "10.1523/jneurosci.1311-21.2021",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2020.01.06.896589; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-1ed8e0b3fd1c9f293a6f",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/6efy-d986",
+      "canonical_doi": "10.1021/cn500292d",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1021/cn500292d; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-18d79134e2fc12cf0793",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2024.10.23.619763",
+      "canonical_doi": "10.1016/j.neuropharm.2024.110202",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2024.10.23.619763; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-633360dbbb399f69ab58",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2025.07.09.663970",
+      "canonical_doi": "10.1093/chemse/bjag026",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2025.07.09.663970; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-a44fd0cdd99d7426554d",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2021.02.16.431438",
+      "canonical_doi": "10.1152/jn.00078.2021",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2021.02.16.431438; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-ffb2dfc46fcf155d9ade",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1375/twin.9.4.523",
+      "canonical_doi": "10.1375/183242706778024964",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under another DOI, 10.1375/twin.9.4.523; confirm both name the same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-2cb380ed5ba30f034912",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.22271/veterinary.2026.v11.i3b.3557",
+      "canonical_doi": "10.22271/veterinary.2026.v11.i3b.3096",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under another DOI, 10.22271/veterinary.2026.v11.i3b.3557; confirm both name the same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-9b1af4769e947e14f31c",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.25316/agw1-mv92",
+      "canonical_doi": "10.1002/dta.3520",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1002/dta.3520; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-01bb7c75457c20e2c476",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1080/10550490903077762",
+      "canonical_doi": "10.3109/10550490903077762",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under 10.1080/10550490903077762; the DOIs indicate same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-5130e4da3256a6caa097",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.31579/2692-9422/027",
+      "canonical_doi": "10.31579/2642-973x/027",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under another DOI, 10.31579/2692-9422/027; confirm both name the same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-4a496ec9d9bc17821c91",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.5281/zenodo.4120340",
+      "canonical_doi": "10.3390/data5040116",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.5281/zenodo.4120340; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-17a76e7cb6249787ba0f",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.5167/uzh-284462",
+      "canonical_doi": "10.1136/bmjph-2025-003583",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1136/bmjph-2025-003583; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-4034c2e0f48dffaf18f8",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.21203/rs.3.rs-8689963/v1",
+      "canonical_doi": "10.1016/j.phrs.2026.108246",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.21203/rs.3.rs-8689963/v1; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-31b50b8bf3b8a00a2ad3",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2022.08.09.503421",
+      "canonical_doi": "10.1038/s41386-022-01492-1",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2022.08.09.503421; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-f68de6b195122b70bba9",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2021.11.22.21266718",
+      "canonical_doi": "10.1080/02791072.2022.2133757",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2021.11.22.21266718; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-b3e5949aadb10fd13460",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2022.04.29.490019",
+      "canonical_doi": "10.1088/1741-2552/ac9257",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2022.04.29.490019; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-091214ab273f2bd03b8f",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2022.03.18.484877",
+      "canonical_doi": "10.1124/jpet.122.001217",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2022.03.18.484877; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-a18607067e8e25a85635",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.15761/fsc.1000116",
+      "canonical_doi": "10.15761/fsc.1000117",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under another DOI, 10.15761/fsc.1000116; confirm both name the same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-7f0328c8296875e13ca4",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/1q1z-wy92",
+      "canonical_doi": "10.1021/acs.jmedchem.9b00508",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1021/acs.jmedchem.9b00508; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-ed09e405457b18da0724",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/cr29-0037",
+      "canonical_doi": "10.1002/dta.2222",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1002/dta.2222; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-463c854e8354b0c5747b",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/k6wv-ee27",
+      "canonical_doi": "10.3762/bjoc.8.194",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.3762/bjoc.8.194; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-e9298f9087ad6985745b",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/qjtx-3g65",
+      "canonical_doi": "10.1371/journal.pone.0011314",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1371/journal.pone.0011314; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-45200097584e9f701d81",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.12816/amj.2020.107128",
+      "canonical_doi": "10.21608/amj.2020.107128",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under 10.12816/amj.2020.107128; the DOIs indicate same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-b4cfb67097051d96bfe1",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.33945/sami/pcbr.2019.2.3.4",
+      "canonical_doi": "10.33945/sami/pcbr.2019.2.4",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under another DOI, 10.33945/sami/pcbr.2019.2.3.4; confirm both name the same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-8d0e0eb13fa865514100",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.4172/2471-9781.10009",
+      "canonical_doi": "10.4172/2471-9781.100009",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under another DOI, 10.4172/2471-9781.10009; confirm both name the same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-b7000a6b61fdeecac848",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.21203/rs.3.rs-2386583/v1",
+      "canonical_doi": "10.1007/s11302-023-09924-3",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.21203/rs.3.rs-2386583/v1; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-5d2648614f650235f1e0",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/739425",
+      "canonical_doi": "10.1017/s0033291720000847",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/739425; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-f154fa675c3ffd923927",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1101/2024.04.17.588464",
+      "canonical_doi": "10.1177/02698811251350269",
+      "relationship_type": "preprint",
+      "evidence_basis": "the text has the paper's title under 10.1101/2024.04.17.588464; the DOIs indicate preprint",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-c96d9c325dea53394e2d",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1186/s12964-014-0075-5",
+      "canonical_doi": "10.1186/preaccept-1074437141283158",
+      "relationship_type": "same_publication",
+      "evidence_basis": "the text has the paper's title under another DOI, 10.1186/s12964-014-0075-5; confirm both name the same publication",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-a1f538afe6d9e810f861",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/aged-v972",
+      "canonical_doi": "10.1002/cmdc.201000186",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.1002/cmdc.201000186; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-4fc88c1fa6c71ddf11ae",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/rgra-zp80",
+      "canonical_doi": "10.3389/fmolb.2023.1233743",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.3389/fmolb.2023.1233743; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-8e7e3688d18a149ecd03",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.48620/98425",
+      "canonical_doi": "10.3390/molecules31111888",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "the text has the paper's title under 10.3390/molecules31111888; the DOIs indicate repository copy",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-440ed74aa0a12d931242",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.48550/arxiv.2106.05379",
+      "canonical_doi": "10.1209/0295-5075/acb5bd",
+      "relationship_type": "preprint",
+      "evidence_basis": "The text is the arXiv version (arXiv:2106.05379v2).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-cc59998e985a9aaa41a3",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.7554/elife.104006.3",
+      "canonical_doi": "10.7554/elife.104006",
+      "relationship_type": "version_doi",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (version_doi).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-42f644135e27f02f9ea6",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1038/s41386-021-01104-4",
+      "canonical_doi": "10.17605/osf.io/8bewv",
+      "relationship_type": "preprint",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (preprint).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-7c49def80d6c39628d95",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.47363/jpsrr/2025(7)204",
+      "canonical_doi": "10.31579/2578-8868/386",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-8757749d229023baffcf",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1097/00004850-199509003-00005",
+      "canonical_doi": "10.1097/00004850-199509000-00005",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-f35eaec3b21745dba071",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.61440/jcpn.2025.v3.58",
+      "canonical_doi": "10.31579/2578-8868/386",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-d1e85a6ce57ff42c3785",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1163/2211730x96x00153",
+      "canonical_doi": "10.1016/s0022-3565(25)20965-x",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-cd3e9287b0d18eb18811",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17613/hyvzz-hq310",
+      "canonical_doi": "10.17613/4jr9s-56m80",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-8f58c704628b70ae0164",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1590/s0100-879x2011007500046",
+      "canonical_doi": "10.1590/s0100-879x2011000500008",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-972ecffe3bb08f172d09",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1002/(sici)1099-1077(199705/06)12:3<221::aid-hup854>3.3.co;2-3",
+      "canonical_doi": "10.1002/(sici)1099-1077(199705/06)12:3<221::aid-hup854>3.0.co;2-c",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-8feed7b88f92d98ec14e",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.21608/ejhm.2013.15992",
+      "canonical_doi": "10.12816/0000858",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-4654152970265a6952c8",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17863/cam.124823",
+      "canonical_doi": "10.1162/jocn.a.2423",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (repository_copy).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-2629aefc728c10f8c560",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.3138/canlivj-2025-0033_tkachuk",
+      "canonical_doi": "10.3138/canlivj-2025-0033",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-2ede878406627b646dfa",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.3390/curroncol33010007",
+      "canonical_doi": "10.14288/1.0451419",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-1a691d264de2677d531e",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1001/jama.1966.03110060063015",
+      "canonical_doi": "10.1001/jama.197.6.389",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-b4e96eace45537e9439b",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1001/jama.1968.03140250001001",
+      "canonical_doi": "10.1001/jama.204.12.1021",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-cb4f8dcbb64435aafcfa",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1001/jama.1972.03210110013004",
+      "canonical_doi": "10.1001/jama.222.11.1367",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-2dddb17051e33d8db5c8",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.15835/hpm.v30i1-2.14453",
+      "canonical_doi": "10.15835/hamp14453",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-4d068eaf25378b984018",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/ammc-yx41",
+      "canonical_doi": "10.1073/pnas.0905884106",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (repository_copy).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-203672ea3ec0b0d993d9",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.3109/00048679509075930",
+      "canonical_doi": "10.1080/00048679509075930",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-962613eeaacbce76e6c1",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.31124/advance.175630073.36585408/v2",
+      "canonical_doi": "10.31124/advance.175630073.36585408/v1",
+      "relationship_type": "version_doi",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (version_doi).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-a10ffc6e79c82fcaa695",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.62839/ajfphmn/2024.v1.i1.1-14",
+      "canonical_doi": "10.62839/ajfra.2024.v1.i1.15-31",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-bb777e54799f9e1d7a78",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1001/jama.1967.03130110047012",
+      "canonical_doi": "10.1001/jama.201.11.821",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-dd3d04f719b7b00cc29c",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1016/s0021-5198(19)52595-1",
+      "canonical_doi": "10.1254/jjp.32.1059",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-c866c31e76a0ce6edccc",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1055/s-0035-1558009",
+      "canonical_doi": "10.1055/s-0035-1557946",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-222503881525102da2fa",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1055/s-0035-1558038",
+      "canonical_doi": "10.1055/s-0035-1558005",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-37880606bf59b9fc8919",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1177/02698811080220081401",
+      "canonical_doi": "10.1177/0269881107083990",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-81d67118b21365d6d74e",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1213/00000539-200210000-00071",
+      "canonical_doi": "10.1097/00000539-200210000-00071",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-6eaf1a7a6cb250324863",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.23937/ijda-2017/1710006",
+      "canonical_doi": "10.33696/dentistry.1.001",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-f05c97aad74ad5444274",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.37275/amcr.v1i2.505",
+      "canonical_doi": "10.37275/amcr.v1i2.13",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-f79a301328578514b6e0",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.5167/uzh-284111",
+      "canonical_doi": "10.1177/02698811251353256",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (repository_copy).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-c5914ab15645beef2610",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.61173/2c4pew65",
+      "canonical_doi": "10.61173/1yfwv521",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-31f415538af03f405608",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1001/archinte.1971.00310140118016",
+      "canonical_doi": "10.1001/archinte.127.2.290",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-c88f1e3f1c4c666a47bc",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1001/jama.1968.03140290017004",
+      "canonical_doi": "10.1001/jama.205.3.125",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-f18e4177e4093c920050",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1001/jama.1970.03170220039005",
+      "canonical_doi": "10.1001/jama.212.9.1483",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-a91153ab42adaf6a81ab",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1001/jama.1970.03170220044006",
+      "canonical_doi": "10.1001/jama.212.9.1488",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-b722a6b0fe339b65825e",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1001/jama.1971.03190250052018",
+      "canonical_doi": "10.1001/jama.218.12.1826",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-cc41db975f9c208d2516",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1001/jama.1979.03300070051023",
+      "canonical_doi": "10.1001/jama.242.7.655",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-b7df5aa67125f71f700d",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1016/j.expneurol.2026.11582",
+      "canonical_doi": "10.1016/j.expneurol.2026.115822",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-71fb4b2606cc4b3499b9",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1016/j.healthpol.2020.03.004",
+      "canonical_doi": "10.31235/osf.io/tk2dv",
+      "relationship_type": "preprint",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (preprint).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-d62dc8d91f04ff3d6a18",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1016/j.rpsm.2020.10.003",
+      "canonical_doi": "10.1016/j.rpsmen.2021.11.003",
+      "relationship_type": "translation",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (translation).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-b107fc7d16fde7b8a645",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1016/j.rpsm.2021.09.002",
+      "canonical_doi": "10.1016/j.rpsmen.2022.06.008",
+      "relationship_type": "translation",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (translation).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-952ae16472e2097e48b7",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1016/s0021-5198(19)52515-x",
+      "canonical_doi": "10.1254/jjp.33.319",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-230635e89bad62818dfb",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.4324/9781003531517-9",
+      "canonical_doi": "10.1080/02508281.2016.1192237",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-812e1ab8e24ae1396b88",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.11591/.v5i4.4828",
+      "canonical_doi": "10.11591/ijphs.v5i4.4828",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-83f63cea5ede17f169cc",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1176/appi.ajp.161.10.1776",
+      "canonical_doi": "10.1176/ajp.161.10.1776",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-011b91d0d69a7a592b22",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1212/01.wnl.0000399703.50264.5d",
+      "canonical_doi": "10.1212/wnl.0b013e3181c51a62",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-a8d822025542e41a550a",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.2139/ssrn.4237108",
+      "canonical_doi": "10.1016/j.jchromb.2022.123534",
+      "relationship_type": "preprint",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (preprint).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-c356607ce28691f9b664",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.4088/jcp.22m14991",
+      "canonical_doi": "10.4088/jcp.22m14491",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-90003ed0e8033bb1c3fb",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.7554/elife.97864.3",
+      "canonical_doi": "10.7554/elife.97864",
+      "relationship_type": "version_doi",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (version_doi).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-e752e4848f7b12181a0f",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1097/00006254-197505000-00014",
+      "canonical_doi": "10.1001/archopht.1974.01010010311008",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-b90eb4e6dfe7f15a8d8f",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1001/jama.1969.03160310037007",
+      "canonical_doi": "10.1001/jama.210.5.849",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-86fc674fb2126ee2fdc3",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1001/jama.1970.03170060051010",
+      "canonical_doi": "10.1001/jama.211.6.987",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-a9cc0f527ab28db37b35",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1001/jama.1971.03190110067020",
+      "canonical_doi": "10.1001/jama.217.11.1549",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-6b9b87de387b0c8798cb",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1001/jama.1973.03220060031008",
+      "canonical_doi": "10.1001/jama.223.6.657",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-73806cbf9e78fccc035a",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1001/jama.1977.03280060059027",
+      "canonical_doi": "10.1001/jama.238.6.515",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-eaeeaa73ae7a063999d2",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1001/jama.1991.03460160052028",
+      "canonical_doi": "10.1001/jama.265.16.2074",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-05c7c55ba4252ab9644d",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1002/(sici)1099-1077(199709/10)12:5<501::aid-hup913>3.3.co;2-m",
+      "canonical_doi": "10.1002/(sici)1099-1077(199709/10)12:5<501::aid-hup913>3.0.co;2-v",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-aed575a0a1dc299ce910",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1016/s0021-5198(19)39841-5",
+      "canonical_doi": "10.1254/jjp.56.483",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-e621bacbfd6eb2975b64",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1016/s0920-9964(97)82203-7",
+      "canonical_doi": "10.1016/s0091-3057(97)90014-9",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-ae74fcf13a019f3342e0",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1080/08897070309511536",
+      "canonical_doi": "10.1023/a:1023768215020",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-8f4872991182730de4e5",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1097/00003643-199807000-00015",
+      "canonical_doi": "10.1046/j.1365-2346.1998.00322.x",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-6d9dbe4a3edf0c1a1583",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1097/00003643-200503000-00010",
+      "canonical_doi": "10.1017/s0265021505000384",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-d22c5c928467e07528b1",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1097/00006254-197004000-00004",
+      "canonical_doi": "10.1001/jama.210.5.849",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-613d150a305e90938189",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1097/00132586-198604000-00011",
+      "canonical_doi": "10.1016/0024-3205(85)90403-5",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-3bb04692a500eb5bffd4",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1111/j.1553-2712.2006.tb00309.x",
+      "canonical_doi": "10.1197/j.aem.2005.10.018",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-cb23d6c194c1e31d0a4c",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.4324/9781351157803-18",
+      "canonical_doi": "10.1111/j.1745-9125.1989.tb01049.x",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-0f7bcda3372812e3ac7f",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1136/neurintsurg-2014-011248.rep",
+      "canonical_doi": "10.1136/bcr-2014-011248",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-d2af09060a6b90aca94e",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1139/y58-135",
+      "canonical_doi": "10.1139/o58-135",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-7cdd1cb510d00c140633",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1158/1078-0432.c.6525231.v1",
+      "canonical_doi": "10.1158/1078-0432.c.6525231",
+      "relationship_type": "version_doi",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (version_doi).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-e863a9de0694ebbec5a4",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1177/0361198106196900107",
+      "canonical_doi": "10.3141/1969-09",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-3f51b1efea62afa85f8a",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/3vrv-pm06",
+      "canonical_doi": "10.1371/journal.pone.0059334",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (repository_copy).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-0e67769ccb257775c53c",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17615/wh97-gq35",
+      "canonical_doi": "10.3389/fpsyt.2022.863088",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (repository_copy).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-5f38772c7a3a1148c65b",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.3109/tcic.12.2.85.87",
+      "canonical_doi": "10.1080/714028748",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-d1bd11b5db81778dc9bd",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.7554/elife.87529.3",
+      "canonical_doi": "10.7554/elife.87529",
+      "relationship_type": "version_doi",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (version_doi).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-a0e8b850e84656a0ef70",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1001/jama.1968.03140370093024",
+      "canonical_doi": "10.1001/jama.205.11.791",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-8e9c777ce48555af29e3",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1002/(sici)1099-1077(199906)14:4<225::aid-hup92>3.3.co;2-v",
+      "canonical_doi": "10.1002/(sici)1099-1077(199906)14:4<225::aid-hup92>3.0.co;2-3",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-b84fd4a888290cdeebd5",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1002/1522-2675(20000809)83:8<1753::aid-hlca1753>3.3.co;2-7",
+      "canonical_doi": "10.1002/1522-2675(20000809)83:8<1753::aid-hlca1753>3.0.co;2-g",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-86ad5f77f0948422e5f6",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1016/s0021-5198(19)36218-3",
+      "canonical_doi": "10.1254/jjp.21.293",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-2542fbc1184d3235ffe1",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1046/j.1360-0443.1997.921013178.x",
+      "canonical_doi": "10.1111/j.1360-0443.1997.tb02850.x",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-fb6af9d10252e140fa7d",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1055/s-0032-1319913",
+      "canonical_doi": "10.1055/s-0032-1318668",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-3758929a7f0e9d61f0d5",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1080/1465989031000117339",
+      "canonical_doi": "10.1080/14659890306257",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-88c1c2cdeadaea4260d8",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1097/00126334-200112010-00011",
+      "canonical_doi": "10.1097/00042560-200112010-00011",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-9a9b49a425449112eee4",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1111/j.1530-0277.2002.tb02558.x",
+      "canonical_doi": "10.1097/00000374-200204000-00001",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-adcb35808df5f609a2bc",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1139/y59-043",
+      "canonical_doi": "10.1139/o59-043",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-ab790a8aa7bac27e571f",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.5040/9781501311413.ch-006",
+      "canonical_doi": "10.12801/1947-5403.2015.07.01.03",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-ae7e5155af8e07c0acd7",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.2174/1389210204205762010",
+      "canonical_doi": "10.2174/138920110791591508",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-ba8548777faf5755415f",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.22037/emergency.v6i1.20997",
+      "canonical_doi": "10.22037/aaem.v6i1.64",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-369aa5815b542baf5a47",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.2466/pms.2002.95.3.897",
+      "canonical_doi": "10.2466/pms.95.7.897-900",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-c358fed0178d7b570133",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.2466/pr0.2001.88.1.102",
+      "canonical_doi": "10.2466/pr0.88.1.102-110",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-448224bb8a6293e2a1ed",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.3109/tcic.13.2-3.139.142",
+      "canonical_doi": "10.1080/714028808",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-bfa9b1e65d77e708e460",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.32592/ari.2023.78.5.1603",
+      "canonical_doi": "10.22092/ari.2023.78.5.1603",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-a3e2045e59faaaaf8a71",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.3390/ecmc2021-11409",
+      "canonical_doi": "10.3390/pharmaceutics13101611",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-a87183e277d041933e25",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.3929/ethz-c-000799490",
+      "canonical_doi": "10.1002/mpr.70073",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (repository_copy).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-6bba51256285b3ac11b0",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.5167/uzh-284344",
+      "canonical_doi": "10.1038/s41591-025-03685-9",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (repository_copy).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-bff6eb0379f88aa762d5",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.69849/revistaft/fa10202502070111",
+      "canonical_doi": "10.69849/revistaft/fa102025070106",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-bd027e15e8706c2980de",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.7554/elife.98920.3",
+      "canonical_doi": "10.7554/elife.98920",
+      "relationship_type": "version_doi",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (version_doi).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-9672e420e26304cca420",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1001/jama.1971.03180190096029",
+      "canonical_doi": "10.1001/jama.215.6.980",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-5b4c28e7aaff255e6915",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1001/jama.1972.03190380059025",
+      "canonical_doi": "10.1001/jama.219.12.1633",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-def8f4713f89c5c4f017",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1002/14651858.cd011315.pub2",
+      "canonical_doi": "10.1002/cl2.1026",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-015fd73fdd5130b4c5fb",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1097/00003643-200004000-00007",
+      "canonical_doi": "10.1046/j.1365-2346.2000.00641.x",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-9c837a6bdadfc5609478",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1097/00008877-199812001-00022",
+      "canonical_doi": "10.1097/00008877-199808000-00022",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-813e23aefdffdb195d79",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.4324/9781315094588-27",
+      "canonical_doi": "10.1177/1468797602002001096",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-0c3c683de015da933ea6",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1177/14697602002001096",
+      "canonical_doi": "10.1177/1468797602002001096",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-43e5376c3986d43ca1c9",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1227/00006123-199006000-00008",
+      "canonical_doi": "10.1097/00006123-199006000-00008",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-10314d815793c4ab6dde",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.48620/93049",
+      "canonical_doi": "10.1186/s13049-025-01509-w",
+      "relationship_type": "repository_copy",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (repository_copy).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-c62a35bc1845f7d9d5b4",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.5330/prsc.10.2.aq4322411252wmk5",
+      "canonical_doi": "10.1177/2156759x0601000214",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-3e591bff3c09e7be8a5d",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.5958/0974-9357.2019.00097.7",
+      "canonical_doi": "10.37506/ijone.v11i4.4005",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract is on both DOIs, and the title and authors or journal show one report (same_publication).",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-1cde0855cbd3ed5dc330",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.33140/ijp/02/02/00007",
+      "canonical_doi": "10.4172/2155-6105.1000346",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract and authors: one report under two DOIs.",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-9fc4f27c039217cd0bf2",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.52329/avanmed.38",
+      "canonical_doi": "10.46527/2582-3264.138",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract and authors: one report under two DOIs.",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-8eba028b219940f5d096",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1097/00000433-200306000-00003",
+      "canonical_doi": "10.1097/01.paf.0000064520.90683.5a",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract and authors: one report under two DOIs.",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-a1795f69e8761a4a97c3",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1097/00001504-200305000-00003",
+      "canonical_doi": "10.1097/01.yco.0000069083.26384.03",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract and authors: one report under two DOIs.",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-79a4875b655a621ad2d9",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.1023/a:1025019529044",
+      "canonical_doi": "10.17514/jnds-1997-16-1-p79-95",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract and authors: one report under two DOIs.",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-6fcc79c3a61df8a9d2f9",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17613/5qasz-fjf14",
+      "canonical_doi": "10.17613/n4tt3-dyp43",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract and title: one report; 10.17613/n4tt3-dyp43 is kept because the extraction outputs are under it.",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-cf0c55d1bb6fa2730dcf",
+      "reviewed_at_utc": "2026-11-06"
+    },
+    {
+      "alias_doi": "10.17613/tv6n9-4ag69",
+      "canonical_doi": "10.17613/n4tt3-dyp43",
+      "relationship_type": "same_publication",
+      "evidence_basis": "The same abstract and title: one report; 10.17613/n4tt3-dyp43 is kept because the extraction outputs are under it.",
+      "source_artifact": "data/curated/source_identity_decisions.jsonl#sid-f881f014749e39fd11e2",
+      "reviewed_at_utc": "2026-11-06"
     }
   ]
 }

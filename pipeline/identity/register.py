@@ -122,7 +122,8 @@ def decision_errors(decision: dict) -> list[str]:
     if verdict == "version_of":
         if clean(decision.get("relation", "")) not in WORK_RELATIONS:
             errors.append(f"version_of needs a relation from {sorted(WORK_RELATIONS)}")
-        if not normalize_doi(decision.get("related_doi", "")):
+        # An author's preprint on a personal or institutional page has no DOI of its own.
+        if not normalize_doi(decision.get("related_doi", "")) and clean(decision.get("relation", "")) != "preprint":
             errors.append("version_of needs related_doi")
     if verdict == "record_corrected":
         fields = decision.get("fields") or {}

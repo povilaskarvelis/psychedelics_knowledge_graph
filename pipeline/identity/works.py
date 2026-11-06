@@ -64,7 +64,13 @@ LEGACY_ALIAS_RELATIONS = {
 
 
 def relation_for_legacy_alias_type(value: object) -> str:
+    """The fixed relation for a registry record's ``relationship_type``.
+
+    Records added by ``decide`` already name a fixed relation.
+    """
     legacy = clean(value)
+    if legacy in WORK_RELATIONS:
+        return legacy
     if legacy not in LEGACY_ALIAS_RELATIONS:
         raise ValueError(f"Unmapped work-registry relationship_type: {legacy!r}")
     return LEGACY_ALIAS_RELATIONS[legacy]

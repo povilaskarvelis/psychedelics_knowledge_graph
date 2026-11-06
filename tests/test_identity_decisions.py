@@ -62,7 +62,7 @@ def test_appended_decisions_keep_earlier_lines_byte_for_byte(tmp_path: Path) -> 
         ({"target": {"kind": "fulltext"}}, "needs one of"),
         ({"target": {"kind": "fulltext", "sha256": "not-a-hash"}}, "SHA-256"),
         ({"verdict": "version_of"}, "needs a relation"),
-        ({"verdict": "version_of", "relation": "preprint"}, "needs related_doi"),
+        ({"verdict": "version_of", "relation": "repository_copy"}, "needs related_doi"),
         ({"decided_at": ""}, "decided_at is missing"),
         ({"decided_at": "yesterday"}, "ISO date"),
         ({"decision_id": "123"}, "decision_id"),

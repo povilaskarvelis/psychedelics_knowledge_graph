@@ -26,6 +26,7 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from collections.abc import Iterable
 import csv
+from dataclasses import dataclass
 import datetime as dt
 import hashlib
 import json
@@ -442,15 +443,21 @@ def suggest_for_text(verdict: Verdict, paper: Paper) -> dict:
     return suggestion("", "review: the text has too little identity evidence")
 
 
-def fulltext_items(
-    ledger: pd.DataFrame,
-    artifact_dir: Path,
-    relations: dict[frozenset[str], str],
-    *,
-    read_pdfs: bool = True,
-) -> tuple[list[dict], Counter]:
-    items: list[dict] = []
-    counts: Counter = Counter()
+@dataclass(frozen=True)
+class FulltextCheck:
+    """The computed verdict for one stored full text."""
+
+    path: Path
+    doi: str
+    paper: Paper
+    verdict: Verdict
+    pdf_path: Path | None
+    header_dois: tuple[str, ...]
+    cover_sheet_separated: bool
+
+
+def stored_fulltexts(artifact_dir: Path, counts: Counter) -> Iterable[tuple[Path, dict, str]]:
+    """Each readable stored full text with the DOI it is stored for."""
     for path in sorted(Path(artifact_dir).glob("*.json")):
         try:
             artifact = json.loads(path.read_text(encoding="utf-8"))
@@ -462,38 +469,79 @@ def fulltext_items(
             counts["artifacts_without_doi"] += 1
             continue
         counts["artifacts"] += 1
-        paper = paper_for(doi, ledger, clean(artifact.get("study_title", "")))
-        evidence = artifact_evidence(artifact)
-        verdict = verify(paper, fulltext_source(evidence, paper), relations)
-        pdf_value = clean(artifact.get("pdf_local_path", ""))
-        pdf_path = Path(pdf_value).expanduser() if pdf_value else None
-        cover_sheet = is_cover_sheet(evidence["opening"])
-        separated = False
-        if (cover_sheet or verdict.verdict != "verified") and read_pdfs and pdf_path is not None:
-            # Parsed texts drop page headers and footers, where the DOI is often
-            # printed, and do not mark where a cover sheet ends.
-            pages = pdf_opening_text(pdf_path, pages=4, max_chars=4 * FRONT_MATTER_CHARS).split("\f")
-            if any(page.strip() for page in pages):
-                counts["pdf_first_pages_read"] += 1
-                if len(pages) > 1 and is_cover_sheet(pages[0]):
-                    counts["cover_sheets_separated"] += 1
-                    separated = True
-                    source = after_cover_sheet_source(pages, paper)
-                else:
-                    cover_sheet = False
-                    source = fulltext_source(evidence, paper, "\f".join(pages[:2])[:FRONT_MATTER_CHARS])
-                verdict = verify(paper, source, relations)
-        if cover_sheet and not separated and verdict.verdict == "verified":
-            verdict = Verdict("unconfirmed", "cover_sheet_not_separated", evidence=verdict.evidence)
-        counts[f"verdict_{verdict.verdict}"] += 1
+        yield path, artifact, doi
+
+
+def check_fulltext(
+    path: Path,
+    artifact: dict,
+    doi: str,
+    ledger: pd.DataFrame,
+    relations: dict[frozenset[str], str],
+    counts: Counter,
+    *,
+    read_pdfs: bool = True,
+) -> FulltextCheck:
+    paper = paper_for(doi, ledger, clean(artifact.get("study_title", "")))
+    evidence = artifact_evidence(artifact)
+    verdict = verify(paper, fulltext_source(evidence, paper), relations)
+    pdf_value = clean(artifact.get("pdf_local_path", ""))
+    pdf_path = Path(pdf_value).expanduser() if pdf_value else None
+    cover_sheet = is_cover_sheet(evidence["opening"])
+    separated = False
+    if (cover_sheet or verdict.verdict != "verified") and read_pdfs and pdf_path is not None:
+        # Parsed texts drop page headers and footers, where the DOI is often
+        # printed, and do not mark where a cover sheet ends.
+        pages = pdf_opening_text(pdf_path, pages=4, max_chars=4 * FRONT_MATTER_CHARS).split("\f")
+        if any(page.strip() for page in pages):
+            counts["pdf_first_pages_read"] += 1
+            if len(pages) > 1 and is_cover_sheet(pages[0]):
+                counts["cover_sheets_separated"] += 1
+                separated = True
+                source = after_cover_sheet_source(pages, paper)
+            else:
+                cover_sheet = False
+                source = fulltext_source(evidence, paper, "\f".join(pages[:2])[:FRONT_MATTER_CHARS])
+            verdict = verify(paper, source, relations)
+    if cover_sheet and not separated and verdict.verdict == "verified":
+        verdict = Verdict("unconfirmed", "cover_sheet_not_separated", evidence=verdict.evidence)
+    counts[f"verdict_{verdict.verdict}"] += 1
+    return FulltextCheck(
+        path=path,
+        doi=doi,
+        paper=paper,
+        verdict=verdict,
+        pdf_path=pdf_path,
+        header_dois=tuple(sorted({header["doi"] for header in evidence["headers"] if header["doi"]})),
+        cover_sheet_separated=separated,
+    )
+
+
+def fulltext_target(check: FulltextCheck) -> dict:
+    """The decision target for a stored full text: its SHA-256, its PDF's, and its first header DOI."""
+    target = {"kind": "fulltext", "sha256": file_sha256(check.path)}
+    if check.pdf_path is not None and check.pdf_path.is_file():
+        target["pdf_sha256"] = file_sha256(check.pdf_path)
+    if check.header_dois:
+        target["document_doi"] = check.header_dois[0]
+    return target
+
+
+def fulltext_items(
+    ledger: pd.DataFrame,
+    artifact_dir: Path,
+    relations: dict[frozenset[str], str],
+    *,
+    read_pdfs: bool = True,
+) -> tuple[list[dict], Counter]:
+    items: list[dict] = []
+    counts: Counter = Counter()
+    for path, artifact, doi in stored_fulltexts(artifact_dir, counts):
+        check = check_fulltext(path, artifact, doi, ledger, relations, counts, read_pdfs=read_pdfs)
+        verdict = check.verdict
         if verdict.verdict in {"verified", "version_of"}:
             continue
-        target = {"kind": "fulltext", "sha256": file_sha256(path)}
-        if pdf_path is not None and pdf_path.is_file():
-            target["pdf_sha256"] = file_sha256(pdf_path)
-        header_dois = sorted({header["doi"] for header in evidence["headers"] if header["doi"]})
-        if header_dois:
-            target["document_doi"] = header_dois[0]
+        target = fulltext_target(check)
         items.append(
             queue_item(
                 check="fulltext",
@@ -504,17 +552,17 @@ def fulltext_items(
                 text_ids={
                     "sha256": {target["sha256"]},
                     "pdf_sha256": {target["pdf_sha256"]} if "pdf_sha256" in target else set(),
-                    "document_doi": set(header_dois),
+                    "document_doi": set(check.header_dois),
                 },
-                paper_title=paper.title,
+                paper_title=check.paper.title,
                 source_title=verdict.evidence.get("source_title", ""),
                 similarity=verdict.evidence.get("title_similarity"),
-                suggested=suggest_for_text(verdict, paper),
+                suggested=suggest_for_text(verdict, check.paper),
                 evidence={
                     **verdict.evidence,
                     "artifact": path.name,
                     "related_doi": verdict.related_doi,
-                    "cover_sheet_separated": separated,
+                    "cover_sheet_separated": check.cover_sheet_separated,
                 },
             )
         )

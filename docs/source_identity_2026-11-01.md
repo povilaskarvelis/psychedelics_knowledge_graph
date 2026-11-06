@@ -1,13 +1,14 @@
 # Source identity: causes and fix design — 1 November 2026
 
-> **Status, 1 November 2026.** Steps 1–4 of §8 are implemented.
+> **Status, 6 November 2026.** Steps 1–4 of §8 are implemented, and step 5 is in progress. The review queue is decided (§6.3).
 >
 > 1. The full-text gate decides per artifact, and a paper whose stored text is rejected falls back to its abstract.
 > 2. The shared metadata merge applies curated decisions last.
 > 3. `pipeline/identity/` holds the decision file (`data/curated/source_identity_decisions.jsonl`) and the `migrate` command, which gathers 363 decisions on 352 papers from six older files.
 > 4. `python -m pipeline.identity audit` writes a review queue without changing pipeline data. On the candidate it queued 1,521 items (§6.1).
+> 5. `decide` and `apply` are implemented. The 998 full texts of decision D4 are recorded as verified. `apply` lists the papers whose text changes; the full-text gate and the route builder do not read its verdict table yet (§6.2).
 >
-> The pipeline still reads the older files until step 5. Decision D4 (§7) is new.
+> The pipeline still reads the older files until the rest of step 5.
 
 ## Scope and method
 
@@ -206,7 +207,7 @@ Verdicts:
 | Verdict | Meaning | Used for extraction |
 |---|---|---|
 | `verified` | identifier and title agree | yes |
-| `version_of` | another version of the same work, per the work registry | per policy (decision D1), and flagged on findings |
+| `version_of` | another version of the same work, per the work registry | yes, except a preprint as the text of a published paper (decision D1) |
 | `unconfirmed` | only one kind of evidence | no, until decided |
 | `conflict` | identifier and title point to different works | no; if the source's DOI equals the record's DOI, the record itself is suspect |
 | `wrong_kind` | supplement only, data statement, container, peer-review report, non-paper DOI | no |
@@ -325,13 +326,59 @@ Testing on these cases changed the rule in six places (`pipeline/identity/README
 
 The audit applies the record corrections already in the decision file before checking texts. Two titles corrected on 1 November (`10.1038/s41386-023-01617-0`, `10.1080/10826084.2020.1717536`) therefore verify against their full texts.
 
+### 6.2 Decisions and their effect on the candidate, 2 November
+
+`decide` recorded the 998 full texts of decision D4 as `verified` in one batch, with the sample of 10 as the basis. The decision file grew from 363 to 1,361 lines; the earlier lines are unchanged, and `migrate --check` still matches.
+
+The audit run again (`20261102T001421Z`) queues 521 items: 461 in the release scope and 60 in the extraction scope. They are 335 full texts, 166 shared abstracts, 16 model statements and 4 record titles. Two model statements are now settled by the batch. In both, the model wrote that the record's metadata, not the text, disagrees with the article: the abstract for `10.7861/clinmedicine.7-3-277` and the bibliographic details for `10.1254/jjp.56.483`. The abstract of the first still needs a decision.
+
+`apply` was run on the candidate without `--install` (`data/processed/identity/updates/plan_20261102_versions_use/` and `…_refuse/`). Of the 16,510 stored full texts, 15,223 are usable with `--version-texts use` and 15,193 with `refuse`. Of the 25,446 papers the candidate extracted, 333 would change with `use` and 341 with `refuse`:
+
+- 331 move from the full text to the abstract and would be re-extracted. They have 1,347 main and 719 detail findings.
+- 2 are removed because a hold withholds them; the KG build already holds both.
+
+Most of these papers have queue items that are not decided yet:
+
+| Queue rule | Suggested decision | Papers | Main findings |
+|---|---|---:|---:|
+| The paper's title under another DOI | `version_of` (44 preprint, 34 repository copy, 22 same publication) | 100 | 532 |
+| Another DOI, title unclear | `version_of` (3 preprint, 2 repository copy) | 5 | 29 |
+| Identifier only | `verified` | 65 | 310 |
+| Identifier only | review | 65 | 224 |
+| No identity evidence | review | 69 | 171 |
+| Other rules | review | 22 | 57 |
+| Supplement or correction notice | `wrong_kind` | 5 | 24 |
+| Identifier and title differ | `not_this_work` | 1 | 4 |
+| Record held | — | 1 | 3 |
+
+Recording the suggested decisions would leave 156 papers for review. Each paper that stays undecided falls back to its abstract when the table is installed. Decision D1 decides the text of 55 papers: the 8 whose full texts are already registered as preprint or accepted-manuscript versions, and the 47 suggested as preprint versions.
+
+### 6.3 Review of the queue, 6 November
+
+All 521 queued items were reviewed: 335 full texts, 166 shared abstracts, 16 model statements and 4 record titles. 542 decisions were added, and the decision file has 1,903 lines. A new audit of the candidate (`20261105T223514Z`) leaves 4 items, all records already held with no main findings.
+
+`apply` was run on the candidate without `--install` (`data/processed/identity/updates/plan_20261106_d1/`). It changes 92 papers, which hold 494 of the 131,226 findings in the 3 November build:
+
+| Reason | Papers | Findings | Action |
+|---|---:|---:|---|
+| Preprint or draft | 61 | 458 | re-extract |
+| Wrong kind | 9 | 30 | re-extract |
+| Not this work | 1 | 4 | re-extract |
+| Abstract unusable | 16 | 0 | remove |
+| Withheld | 5 | 2 | remove |
+
+The work registry gained 219 pairs. In 124 of them both DOIs have findings; about 689 duplicate rows drop at the rebuild and 113 are relabelled. In 9 pairs the DOI that is kept read only the abstract while its alias read the full text.
+
+The audit and `apply` must be given the candidate's paths (`--outputs`, `--kg-dir`), because by default they read the older active release.
+
 ---
 
 ## 7. Decisions needed
 
-- **D1. Preprint or accepted-manuscript text for a published paper** (44 papers, 264 main findings).
-  - Recommended: use it, flag the findings as extracted from that version, and replace it when the published text becomes available.
-  - Alternative: require the published version.
+- **D1. Preprint or accepted-manuscript text for a published paper.** Decided on 6 November by the user.
+  - A preprint or earlier draft is not used as the text of a published paper; the paper uses its published abstract. Findings carry no flag about the version.
+  - Accepted manuscripts are peer reviewed and are used, without a flag.
+  - A paper whose own DOI is a preprint or repository deposit may read the published text.
 - **D2. Records whose screening was done on another work's abstract.**
   - Recommended: hold them from the graph. This avoids re-screening.
 - **D3. A title check against Crossref and DataCite for every DOI.** This is needed to find all record-level DOI errors: 98,135 DOIs have no PubMed record to compare against.
@@ -340,6 +387,8 @@ The audit applies the record corrections already in the decision file before che
 - **D4. Full texts that match by title alone** (1,001 in the queue: 936 papers in the candidate with 3,700 main findings, and 65 retained for extraction). Their title agrees with the paper, but no DOI, PMID or PMCID was found in the parsed text or on the PDF's first pages. Most of these PDFs print no DOI: in a sample of 120, one printed it on its first two pages and four printed it anywhere. Under the rule they are unconfirmed, so step 5 would stop using them unless they are decided. The current audit accepts them (rule R1d).
   - Recommended: check a random sample of 50 against the PDFs. If all are the right paper, record the 998 with similarity of at least 0.95 or a printed title as `verified` in one batch, with that sample as the basis.
   - Alternative: accept title-only texts by a named rule in the verifier (title similarity at least 0.95, an article, no other DOI read as the document's own).
+  - Decided on 2 November: the user checked a random sample of 10 of the 998 against the PDFs (seed 20261102). The sample and the check sheet are in `data/processed/identity/samples/d4_title_only_20261102/`. All 10 are the right paper. Several are accepted manuscripts of the paper; they count as the right paper here, and whether findings from such versions are flagged is D1. Item 1 (`10.1556/jpc.27.2014.6.13`) is a one-page PDF that holds only the title and author names.
+  - The 998 are to be recorded as `verified` in one batch, with the sample as the basis. This will be the first batch that `decide` records (step 5).
 
 ---
 

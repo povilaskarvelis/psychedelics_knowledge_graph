@@ -75,13 +75,38 @@ paper. An identifier alone or a title alone leaves it unconfirmed.
 | `conflict` | identifier and title do not point to the same work |
 | `wrong_kind` | the text or the paper's DOI is not an article |
 
+## Verdict table
+
+`bindings.py` builds one row per stored full text, and one per abstract or
+record that a current decision names. A full text's verdict is the latest
+current decision about it, and otherwise the computed verdict. `usable` says
+whether extraction may read the text:
+
+| Verdict | Usable |
+|---|---|
+| `verified` | yes |
+| `version_of` | yes, except a preprint as the full text of a published paper (decision D1). Accepted manuscripts are used. A paper whose own DOI is a preprint or repository deposit may read the published text |
+| `unconfirmed`, `conflict`, `wrong_kind`, `not_this_work` | no |
+
+A record row with `hold` or `wrong_doi` withholds the paper. Record corrections
+change field values and have no row. `IdentityVerdicts` reads the table. The
+full-text gate and the route builder do not read it yet; until they do, an
+installed table changes nothing in the pipeline.
+
 ## Commands
 
 ```bash
 python -m pipeline.identity migrate
 python -m pipeline.identity migrate --check
 python -m pipeline.identity audit
+python -m pipeline.identity decide --queue <audit folder> --where COLUMN=VALUE --accept-suggested --basis ... --reviewer ...
+python -m pipeline.identity apply
 ```
+
+The order of a correction is: `audit` lists what needs a decision, `decide`
+records the reviewed decisions, `apply` lists the papers whose text changes and
+installs the verdict table, and `pipeline/update/run_scoped_paper_update.py`
+re-extracts or removes those papers.
 
 ### audit
 
@@ -127,6 +152,67 @@ them too. Each queued item has:
 - the findings the release has for the paper, and the decisions it already
   has.
 
+### decide
+
+`decide` appends reviewed decisions. They come from one of three sources:
+
+- `--queue`: items of an audit's review queue, selected with `--where
+  COLUMN=VALUE` (or `COLUMN!=VALUE`; repeatable). `--accept-suggested` records
+  each item's suggested decision; `--verdict` records the same verdict for all.
+  Each decision cites the audit and the item in `evidence`.
+- `--csv`: rows with the decision file's fields; `target`, `fields`,
+  `clear_fields` and `evidence` hold JSON.
+- `--doi` with `--target` and `--verdict`: one decision.
+
+`--basis` and `--reviewer` are required, and `--dry-run` checks without
+writing. Before anything is written, every decision is checked:
+
+- the text it names is stored now: the full text or its PDF has the SHA-256
+  given, or the record's abstract does;
+- the verdict fits the target, a version names a relation and the DOI of a
+  work, and a basis and a reviewer are given.
+
+If any decision fails, nothing is written. A decision that says the same as a
+current one, with the same basis, is skipped, so a batch can be recorded again
+without effect. A decision about a text supersedes the current decision about
+the same text. A `hold` or `wrong_doi` supersedes the paper's current one, and a
+`record_corrected` supersedes earlier corrections of the same or fewer fields.
+
+A `version_of` under a relation that counts two DOIs as one report is also
+entered in the work registry, with the decision as its source, so that
+deduplication counts the report once. A preprint or repository DOI becomes the
+alias of the article DOI. Otherwise the paper's DOI is canonical for a full
+text, and the DOI whose abstract it is for a shared abstract. Deduplication
+uses a pair only when both DOIs are in the corpus.
+
+### apply
+
+`apply` builds the verdict table and compares, for every paper the base release
+extracted, the text the pipeline reads now with the text the table allows:
+
+- now: the full text when the current full-text gate accepts it and it holds
+  article text, otherwise the abstract; nothing for a paper the route table
+  holds;
+- with the table: the full text when the table makes it usable and it holds
+  article text, otherwise the abstract unless a decision says it is not this
+  paper's; nothing for a paper that a `hold` or `wrong_doi` withholds.
+
+It writes a new folder `data/processed/identity/updates/<update id>/`:
+
+| File | Content |
+|---|---|
+| `verdicts.parquet` | the verdict table |
+| `changes.csv` | each paper whose text changes: `re-extract` when a text remains, `remove` when none does, with the reason and the release's findings |
+| `scope_dois.txt` | those papers, for `run_scoped_paper_update.py prepare --doi-file` |
+| `apply_summary.json` | inputs with hashes, verdict counts and changes |
+
+The base release is the active one
+unless `--outputs` and `--kg-dir` name another. With `--install`, the table is
+copied to `data/processed/identity/verdicts.parquet`, with its summary next to
+it. Without it, nothing outside the update folder changes.
+
+### migrate
+
 `migrate` copies the decisions still kept in older files into the decision
 file:
 
@@ -144,7 +230,7 @@ file are kept. `--check` writes nothing and exits 1 when the file no longer
 matches those sources. Run `migrate` after editing any of them.
 
 The pipeline still reads the older files, and no pipeline stage calls
-`verify.py` yet. Readers move to the decision file and the verifier in later
-steps (`decide`, `apply`; §8 of the design document). Access overrides and the
+`verify.py` yet. The full-text gate and the route builder move to the verdict
+table in the rest of step 5 (§8 of the design document). Access overrides and the
 DOI alias registry stay where they are: the first decides how text is
 retrieved, and the second is the work registry, read through `works.py`.
