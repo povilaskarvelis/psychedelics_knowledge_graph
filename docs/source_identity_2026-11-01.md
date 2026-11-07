@@ -408,9 +408,13 @@ The audit and `apply` must be given the candidate's paths (`--outputs`, `--kg-di
 | 3 | Identity module, decision file, migration | One place for decisions; no change in outputs | none |
 | 4 | `audit` | Review queue for the candidate | none |
 | 5 | `decide` and `apply`, then scoped updates for the candidate | Corrected candidate | re-extraction of affected papers only |
-| 6 | Ingest changes: one-record assembly, abstract bindings, provenance, ID-collision check | Prevents recurrence for new records; existing abstracts are re-verified offline | none |
+| 6 | Ingest changes: one-record assembly, abstract bindings, provenance, ID-collision check | Prevents recurrence for new records; existing abstracts are re-verified offline. Provenance done 8 November (below); the other parts are open | none |
 | 7 | `source_check` in the extraction contracts | Model check for future runs | at the next contract change |
-| 8 | KG gate reads the verdict table | Replaces the curated-file holds. Done 7 November, by kind of text: findings do not record their text until step 6 adds it to tasks and outputs | none |
+| 8 | KG gate reads the verdict table | Replaces the curated-file holds. Done 7 November, by kind of text; by text since step 6 added provenance | none |
+
+Step 6, provenance (8 November). Packets record the SHA-256 of the full-text file they were built from, and every task records it with the SHA-256 of the stored abstract it sends; neither changes task IDs. Converters copy both onto finding rows when the output belongs to the task itself, and the KG build holds a row whose text the verdict table does not allow or that names no text. Runners no longer send the abstract when an article-text packet is missing, and stop a task whose packet no longer gives its fingerprint (`pipeline/extract/README.md`, "Text provenance").
+
+Releases extracted before then need their tasks backfilled and their outputs converted again before their next KG build: `python -m pipeline.extract.backfill_task_text_hashes` adds the hashes where the packet a task names reproduces its recorded fingerprint and the file is unchanged since, and where the stored abstract is the one sent. A check in scratch on the 7 November candidate (`identity_fix_20261107`), with kept copies of rebuilt packet files: all 17,287 primary, 2,739 review and 222 meta-analysis article-text tasks and all but 3 abstract tasks were named. Converted again and assembled, 130,171 rows (candidate 130,190), of which 2 name no text (one paper whose cleared abstract is held already). The KG build gave 130,286 findings and 23,818 papers (candidate 130,292 and 23,821). The 3 papers lost come from a full conversion, not from provenance: two DOI pairs whose direction was reversed on 6 November have outputs under the kept DOI and tasks under the other, and one review is no longer eligible under current selection. A full conversion must accept the route IDs of the release the outputs came from, since merged DOIs keep no route.
 
 Coordination with other sessions:
 

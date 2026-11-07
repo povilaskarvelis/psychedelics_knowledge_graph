@@ -6,6 +6,7 @@ from types import SimpleNamespace
 
 from jsonschema import Draft7Validator
 
+from pipeline.extract.build_extraction_tasks import source_fingerprint_for_task
 from pipeline.extract.route_extraction_profiles import (
     build_system_instruction,
     load_schema_for_profile,
@@ -19,6 +20,7 @@ from pipeline.extract.run_route_extraction import (
     DEFAULT_MODEL,
     DEFAULT_ROUTED_RUN_ROOT,
     OutputQualityError,
+    SourceTextMismatchError,
     build_contents,
     dry_run_report,
     inject_route_identity_fields,
@@ -37,6 +39,17 @@ from pipeline.extract.run_route_extraction import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def bind_packet(task: dict, packet: dict, packet_path: Path) -> dict:
+    """Point the task at a packet file, with the fingerprint the task builder gives it."""
+    packet_path.write_text(json.dumps(packet) + "\n", encoding="utf-8")
+    task["text_source"]["packet_source_path"] = str(packet_path)
+    task["text_source"]["packet_id"] = packet["packet_id"]
+    task["text_source"]["source_fingerprint"] = source_fingerprint_for_task(
+        text_source=task["text_source"], metadata=task["paper_metadata"], packet=packet
+    )
+    return task
 
 
 def make_task(
@@ -511,7 +524,10 @@ class RouteExtractionRunnerTest(unittest.TestCase):
         self.assertEqual(DEFAULT_MODEL, "gpt-6-luna")
 
     def test_model_payload_uses_plain_extraction_task_language(self) -> None:
-        contents = build_contents(make_task())
+        task = make_task()
+        task["text_source"].update({"mode": "abstract", "access_level": "abstract_only"})
+        task["extraction_contract"]["access_level"] = "abstract_only"
+        contents = build_contents(task)
 
         self.assertIn("OUTPUT_FIELDS_TO_COPY", contents)
         self.assertIn("PAPER_METADATA_JSON", contents)
@@ -525,64 +541,73 @@ class RouteExtractionRunnerTest(unittest.TestCase):
 
     def test_model_payload_loads_selected_fulltext_packet_text(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
-            packet_path = Path(tmpdir) / "packets.jsonl"
-            packet_path.write_text(
-                json.dumps(
-                    {
-                        "packet_id": "article:10.1000/meta",
-                        "dataset": "article",
-                        "study_doi": "10.1000/meta",
-                        "paper_metadata": {
-                            "study_title": "A meta-analysis of psilocybin trials",
-                            "abstract": "Five trials were included.",
-                        },
-                        "llm_chunks": [
-                            {
-                                "chunk_id": "C001",
-                                "heading": "Results",
-                                "text": "The article text reports a pooled estimate for psilocybin.",
-                            }
-                        ],
-                        "tables": [],
-                        "figures": [],
-                    }
-                )
-                + "\n",
-                encoding="utf-8",
+            task = bind_packet(
+                make_task(),
+                {
+                    "packet_id": "article:10.1000/meta",
+                    "dataset": "article",
+                    "study_doi": "10.1000/meta",
+                    "paper_metadata": {
+                        "study_title": "A meta-analysis of psilocybin trials",
+                        "abstract": "Five trials were included.",
+                    },
+                    "llm_chunks": [
+                        {
+                            "chunk_id": "C001",
+                            "heading": "Results",
+                            "text": "The article text reports a pooled estimate for psilocybin.",
+                        }
+                    ],
+                    "tables": [],
+                    "figures": [],
+                },
+                Path(tmpdir) / "packets.jsonl",
             )
-            task = make_task()
-            task["text_source"]["packet_source_path"] = str(packet_path)
-            task["text_source"]["packet_id"] = "article:10.1000/meta"
 
             contents = build_contents(task)
 
         self.assertIn("ARTICLE_TEXT", contents)
         self.assertIn("The article text reports a pooled estimate for psilocybin.", contents)
 
+    def test_article_text_task_is_never_sent_the_abstract_instead(self) -> None:
+        task = make_task()
+        task["text_source"]["packet_source_path"] = ""
+        with self.assertRaises(SourceTextMismatchError):
+            build_contents(task)
+
+    def test_packet_changed_after_the_task_was_built_is_not_sent(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            packet = {
+                "packet_id": "article:10.1000/meta",
+                "dataset": "article",
+                "study_doi": "10.1000/meta",
+                "llm_chunks": [{"chunk_id": "C001", "heading": "Results", "text": "Text the task was built on."}],
+            }
+            packet_path = Path(tmpdir) / "packets.jsonl"
+            task = bind_packet(make_task(), packet, packet_path)
+            packet["llm_chunks"][0]["text"] = "Text of a rebuilt packet."
+            packet_path.write_text(json.dumps(packet) + "\n", encoding="utf-8")
+            with self.assertRaises(SourceTextMismatchError):
+                build_contents(task)
+
     def test_model_payload_collapses_table_layout_whitespace(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
-            packet_path = Path(tmpdir) / "packets.jsonl"
-            packet_path.write_text(
-                json.dumps(
-                    {
-                        "packet_id": "article:10.1000/meta",
-                        "dataset": "article",
-                        "study_doi": "10.1000/meta",
-                        "llm_chunks": [
-                            {
-                                "chunk_id": "C001",
-                                "heading": "Results",
-                                "text": "p = 0.04\t\t\t\t\t\tlarge gap\n\n\n\nnext line",
-                            }
-                        ],
-                    }
-                )
-                + "\n",
-                encoding="utf-8",
+            task = bind_packet(
+                make_task(),
+                {
+                    "packet_id": "article:10.1000/meta",
+                    "dataset": "article",
+                    "study_doi": "10.1000/meta",
+                    "llm_chunks": [
+                        {
+                            "chunk_id": "C001",
+                            "heading": "Results",
+                            "text": "p = 0.04\t\t\t\t\t\tlarge gap\n\n\n\nnext line",
+                        }
+                    ],
+                },
+                Path(tmpdir) / "packets.jsonl",
             )
-            task = make_task()
-            task["text_source"]["packet_source_path"] = str(packet_path)
-            task["text_source"]["packet_id"] = "article:10.1000/meta"
 
             contents = build_contents(task)
 

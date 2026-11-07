@@ -126,6 +126,33 @@ are marked `ready_for_model` only when a compatible article text input is
 available. Otherwise they remain in the task file as `needs_fulltext_packet` or
 `needs_expected_fulltext_packet` so missing text inputs are visible.
 
+### Text provenance
+
+Every task records the texts it sends, by the hashes the verdict table
+(`pipeline/identity/README.md`) names them with:
+
+- `artifact_sha256`: the SHA-256 of the full-text file its packet was built
+  from. Each packet records it in `fulltext_provenance`. It is left out of the
+  task fingerprint, so it does not change task IDs;
+- `abstract_sha256`: the SHA-256 of the record's abstract as stored, before
+  whitespace is collapsed for the prompt.
+
+Primary tasks keep them in `text_source`, review and meta-analysis tasks in
+`source`. The converters copy them onto finding rows as `source_artifact_sha256`
+and `source_abstract_sha256` when the output belongs to the task itself: its task
+ID fixes the text that was sent. An output matched to a task by DOI and domain
+alone (`--allow-stable-task-fallback`) gets empty hashes. The KG build holds rows
+whose text the verdict table does not allow, and rows that name no text.
+
+Before sending an article-text task, the runner checks that the packet it
+loads gives the task's source fingerprint. A missing or rebuilt packet fails
+that task; the runner never sends the abstract in place of article text.
+
+Tasks built before 7 November 2026 do not record hashes.
+`python -m pipeline.extract.backfill_task_text_hashes` adds them where the text
+a task sent can be shown to be a text stored now (rules in the module), and
+leaves them empty otherwise.
+
 Route-aware extraction defaults to GPT-6 Luna for article-text and
 abstract-only tasks:
 

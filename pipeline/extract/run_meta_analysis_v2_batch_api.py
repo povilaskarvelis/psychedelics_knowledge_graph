@@ -27,7 +27,7 @@ from pipeline import llm
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from pipeline.extract.io_utils import normalize, read_jsonl, text_parts_from_packet, write_json
+from pipeline.extract.io_utils import normalize, read_jsonl, secondary_packet_text, write_json
 from pipeline.extract.route_extraction_profiles import schema_for_native
 from pipeline.extract.run_route_extraction import (
     DEFAULT_ENV,
@@ -274,9 +274,7 @@ def model_contents(task: dict, packet: dict | None) -> str:
     metadata_text = json.dumps(metadata, ensure_ascii=False, indent=2)
     text_depth = normalize(task.get("text_depth", ""))
     if text_depth == "article_text":
-        if packet is None:
-            raise ValueError(f"Missing article packet for {task.get('study_doi')}")
-        source_text = "\n\n".join(text_parts_from_packet(packet)).strip()
+        source_text = secondary_packet_text(task, packet)
         source_label = "ARTICLE_TEXT"
     elif text_depth == "abstract_only":
         title = normalize(metadata.get("study_title", ""))
@@ -292,9 +290,7 @@ def source_text_for_task(task: dict, packet: dict | None) -> str:
     metadata = task.get("paper_metadata", {}) if isinstance(task.get("paper_metadata"), dict) else {}
     text_depth = normalize(task.get("text_depth", ""))
     if text_depth == "article_text":
-        if packet is None:
-            raise ValueError(f"Missing article packet for {task.get('study_doi')}")
-        return "\n\n".join(text_parts_from_packet(packet)).strip()
+        return secondary_packet_text(task, packet)
     return f"Title: {normalize(metadata.get('study_title', ''))}\n\nAbstract: {normalize(metadata.get('abstract', ''))}".strip()
 
 

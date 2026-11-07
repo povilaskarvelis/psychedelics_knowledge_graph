@@ -14,10 +14,10 @@ import sys
 import pandas as pd
 
 try:
-    from pipeline.extract.io_utils import read_jsonl, text_parts_from_packet, write_json
+    from pipeline.extract.io_utils import read_jsonl, source_text_hashes, text_parts_from_packet, write_json
 except ModuleNotFoundError:  # pragma: no cover - direct script execution
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from pipeline.extract.io_utils import read_jsonl, text_parts_from_packet, write_json
+    from pipeline.extract.io_utils import read_jsonl, source_text_hashes, text_parts_from_packet, write_json
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -178,6 +178,7 @@ def build_task(cohort: dict, candidate: dict, packet: dict | None, packets_path:
         }
     else:
         raise ValueError(f"Unsupported text depth `{text_depth}` for {doi}")
+    source.update(source_text_hashes(candidate.get("abstract"), packet if text_depth == "article_text" else None))
 
     from pipeline.extract.task_contract_identity import secondary_contract_fingerprint
     contract_fingerprint = secondary_contract_fingerprint("meta")

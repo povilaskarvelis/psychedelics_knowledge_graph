@@ -20,12 +20,12 @@ import sys
 import pandas as pd
 
 try:
-    from pipeline.extract.io_utils import normalize, read_jsonl, write_json
+    from pipeline.extract.io_utils import normalize, read_jsonl, task_text_hashes, write_json
     from pipeline.kg.project_review_relationship_bundles import label_key, registry_index
     from pipeline.kg.review_statement_attribution import statement_contrasts_drugs
 except ModuleNotFoundError:  # pragma: no cover - direct script execution
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from pipeline.extract.io_utils import normalize, read_jsonl, write_json
+    from pipeline.extract.io_utils import normalize, read_jsonl, task_text_hashes, write_json
     from pipeline.kg.project_review_relationship_bundles import label_key, registry_index
     from pipeline.kg.review_statement_attribution import statement_contrasts_drugs
 
@@ -677,6 +677,7 @@ def relationship_row(
         "abstract": normalize(metadata.get("abstract", "")),
         "source_access_level": normalize(bundle_row.get("text_depth", "")),
         "access_level": normalize(bundle_row.get("text_depth", "")),
+        **task_text_hashes(task, bundle_row.get("task_id", "")),
         "paper_type": paper_type_for(task),
         "source_type": paper_type_for(task),
         "source_family": "secondary_literature",
@@ -757,6 +758,7 @@ def convert_bundles(
     project_secondary_named_anchors: bool = True,
 ) -> tuple[list[dict], dict]:
     tasks = {normalized_doi(row.get("study_doi", "")): row for row in task_rows}
+    tasks_by_id = {normalize(row.get("task_id", "")): row for row in task_rows if normalize(row.get("task_id", ""))}
     compound_registry = registry_index(registry_payload)
     scoped_compound_keys = in_scope_compound_keys(registry_payload)
     evidence_rows: list[dict] = []
@@ -769,7 +771,8 @@ def convert_bundles(
         if doi not in active_candidate_dois:
             skipped["inactive_candidate"] += 1
             continue
-        task = tasks.get(doi)
+        # The bundle's own task, which fixes the text it was read from; else the paper's current task.
+        task = tasks_by_id.get(normalize(bundle.get("task_id", ""))) or tasks.get(doi)
         if task is None:
             skipped[
                 "stale_bundle_not_in_current_tasks"

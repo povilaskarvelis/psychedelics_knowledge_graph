@@ -639,8 +639,26 @@ def task_lookup(tasks_jsonl: Path) -> dict[str, dict]:
             "input_fingerprint": normalize(task.get("input_fingerprint", "")),
             "expected_text_depth": expected_text_depth,
             "source_quality_flags": abstract_quality_flags(metadata.get('abstract','')) if mode=='abstract' else [],
+            "text_hashes": {
+                "source_artifact_sha256": normalize(text_source.get("artifact_sha256", "")),
+                "source_abstract_sha256": normalize(text_source.get("abstract_sha256", "")),
+            },
         }
     return lookup
+
+
+def text_hashes_for_output(output_row: dict, result: dict, tasks: dict[str, dict]) -> dict:
+    """The hashes of the texts the output was read from.
+
+    They are known only when the output belongs to the current task itself: its
+    task ID fixes the packet and abstract that were sent. An output matched to a
+    task by DOI and domain alone may have read another text, so it gets none.
+    """
+    for task_id in output_task_ids(output_row, result):
+        task = tasks.get(task_id) if task_id else None
+        if task is not None and task.get("task_id") == task_id:
+            return dict(task.get("text_hashes", {}))
+    return {"source_artifact_sha256": "", "source_abstract_sha256": ""}
 
 
 def stable_task_lookup(tasks: dict[str, dict]) -> dict[tuple[str, str], dict]:
@@ -1048,6 +1066,7 @@ def evidence_row_for_item(
             "paper_assessment_route": paper_assessment_route_for(item_kind),
             "access_level": normalize(result.get("text_depth", "")),
             "text_depth": normalize(result.get("text_depth", "")),
+            **text_hashes_for_output(output_row, result, tasks),
             "source_item_type": item_kind,
             "source_item_index": item_index,
             "source_result_status": normalize(result.get("extraction_status", "")),

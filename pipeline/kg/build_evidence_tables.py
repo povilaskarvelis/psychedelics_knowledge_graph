@@ -145,7 +145,7 @@ RETRACTED_HOLD_STATUS = "retracted_publication"
 DISPLAYED_PUBLICATION_NOTICES = {"expression_of_concern", "partially_retracted", "retracted_and_replaced"}
 PUBLICATION_NOTICE_COLUMNS = ("publication_notice", "publication_notice_date", "publication_notice_url")
 KG_TABLE_VERSION = "0.2"
-NORMALIZATION_CONTRACT_VERSION = "routed_identity_verdicts_20261107_v1"
+NORMALIZATION_CONTRACT_VERSION = "routed_text_provenance_20261107_v1"
 MOLECULAR_SUBTOPIC_TAXONOMY_VERSION = "molecular_subtopics_v4_20261028_measured_readouts"
 
 ROUTED_GRAPH_SOURCES = {
@@ -12532,13 +12532,14 @@ def write_parquet(df: pd.DataFrame, path: Path) -> None:
 
 
 def load_identity_verdicts(verdicts_path: Path, doi_aliases: dict[str, str]) -> dict[str, dict]:
-    """Read the papers the verdict table withholds and the papers it allows article text.
+    """Read which papers the verdict table withholds and which texts it allows.
 
     The table is the one ``python -m pipeline.identity apply --install`` writes
-    (``pipeline/identity/bindings.py``). A record row withholds its paper. A
-    paper may keep rows from article text when a usable full text belongs to it
-    or to a DOI the work registry merges into it, since release assembly moves
-    a merged DOI's rows to the DOI that is kept.
+    (``pipeline/identity/bindings.py``). A record row withholds its paper. Full
+    texts are named by the SHA-256 of the file and abstracts by the SHA-256 of
+    the stored text, each with the paper's DOI resolved through the work
+    registry, since release assembly moves a merged DOI's rows to the DOI that
+    is kept. An abstract that no decision names is allowed.
     """
     if not verdicts_path.is_file():
         raise FileNotFoundError(
@@ -12551,10 +12552,19 @@ def load_identity_verdicts(verdicts_path: Path, doi_aliases: dict[str, str]) -> 
         resolve_registered_doi(row["doi"], doi_aliases): normalize(row["reason"])
         for row in table.loc[table["target_kind"] == "record"].to_dict("records")
     }
-    fulltexts = table.loc[(table["target_kind"] == "fulltext") & table["usable"].astype(bool)]
+    usable = table["usable"].astype(bool)
+    fulltexts = table.loc[(table["target_kind"] == "fulltext") & usable]
+    abstracts = table.loc[(table["target_kind"] == "abstract") & ~usable]
     return {
         "withheld_papers": withheld,
-        "article_text_papers": {resolve_registered_doi(doi, doi_aliases) for doi in fulltexts["doi"]},
+        "usable_fulltexts": {
+            (resolve_registered_doi(doi, doi_aliases), normalize(sha))
+            for doi, sha in zip(fulltexts["doi"], fulltexts["artifact_sha256"])
+        },
+        "unusable_abstracts": {
+            (resolve_registered_doi(doi, doi_aliases), normalize(sha)): normalize(reason)
+            for doi, sha, reason in zip(abstracts["doi"], abstracts["text_sha256"], abstracts["reason"])
+        },
     }
 
 
@@ -12568,9 +12578,8 @@ def load_curated_paper_decisions(
 
     Extraction can predate curation. The verdict table decides which texts may
     be read for a paper (``load_identity_verdicts``): a paper it withholds keeps
-    no rows, and a paper it allows no article text keeps no rows from article
-    text. Until extraction outputs record the text each row was read from, the
-    check is by kind of text, not by file. An abstract cleared without a
+    no rows, and a row keeps only when the text it was read from is allowed. An
+    abstract cleared without a
     replacement belonged to another publication, so rows extracted from that
     abstract are held while rows from verified article text remain. Curated
     titles replace provider titles that belong to another publication; assembly
@@ -12596,7 +12605,7 @@ def load_curated_paper_decisions(
     identity = (
         load_identity_verdicts(identity_verdicts_path, doi_aliases)
         if identity_verdicts_path is not None
-        else {"withheld_papers": {}, "article_text_papers": None}
+        else {"withheld_papers": {}, "usable_fulltexts": None, "unusable_abstracts": {}}
     )
     cleared_abstracts: dict[str, str] = {}
     curated_titles: dict[str, str] = {}
@@ -12660,6 +12669,31 @@ def apply_publication_notices(
     return out
 
 
+def text_hold_reason(row: dict, doi: str, decisions: dict[str, dict]) -> str:
+    """Why the verdict table does not allow the text a row was read from, or ``""``.
+
+    Rows name their text by the hashes their extraction task recorded
+    (``source_artifact_sha256``, ``source_abstract_sha256``). A row that does not
+    name its text is held, since the text cannot be checked.
+    """
+    if decisions["usable_fulltexts"] is None:
+        return ""
+    access = normalize(row.get("access_level", "")).casefold()
+    if access == "article_text":
+        sha = normalize(row.get("source_artifact_sha256", ""))
+        if not sha:
+            return "the row does not record the full text it was read from"
+        if (doi, sha) not in decisions["usable_fulltexts"]:
+            return "the verdict table does not allow the full text the row was read from"
+    elif access == "abstract_only":
+        sha = normalize(row.get("source_abstract_sha256", ""))
+        if not sha:
+            return "the row does not record the abstract it was read from"
+        if (doi, sha) in decisions["unusable_abstracts"]:
+            return decisions["unusable_abstracts"][(doi, sha)] or "the verdict table does not allow the abstract"
+    return ""
+
+
 def split_curated_paper_holds(
     rows: list[dict],
     decisions: dict[str, dict],
@@ -12668,9 +12702,9 @@ def split_curated_paper_holds(
     """Apply curated titles and set aside rows of retracted papers and rows from text the paper may not use.
 
     Each held row comes with the audit status and the reason it was held.
-    ``article_text_papers`` is ``None`` when no verdict table was given.
+    ``usable_fulltexts`` is ``None`` when no verdict table was given, and texts
+    are then not checked.
     """
-    article_text_papers = decisions["article_text_papers"]
     kept: list[dict] = []
     held: list[tuple[dict, str, str]] = []
     for row in rows:
@@ -12678,6 +12712,7 @@ def split_curated_paper_holds(
         title = decisions["curated_titles"].get(doi, "")
         if title and normalize(row.get("study_title", "")) != title:
             row = {**row, "study_title": title}
+        text_reason = text_hold_reason(row, doi, decisions)
         if doi in decisions["retracted_papers"]:
             held.append((row, RETRACTED_HOLD_STATUS, decisions["retracted_papers"][doi] or "the publication was retracted"))
         elif doi in decisions["withheld_papers"]:
@@ -12685,9 +12720,8 @@ def split_curated_paper_holds(
                 row, SOURCE_IDENTITY_HOLD_STATUS,
                 decisions["withheld_papers"][doi] or "the verdict table withholds the paper",
             ))
-        elif (article_text_papers is not None and doi not in article_text_papers
-              and normalize(row.get("access_level", "")).casefold() == "article_text"):
-            held.append((row, SOURCE_IDENTITY_HOLD_STATUS, "the verdict table allows no article text for this paper"))
+        elif text_reason:
+            held.append((row, SOURCE_IDENTITY_HOLD_STATUS, text_reason))
         elif doi in decisions["cleared_abstracts"] and normalize(row.get("access_level", "")).casefold() == "abstract_only":
             held.append((
                 row, SOURCE_IDENTITY_HOLD_STATUS,
@@ -13768,9 +13802,10 @@ def build_tables(
             "identity_verdicts": curated_input_record(identity_verdicts_path),
             "paper_metadata_overrides": curated_input_record(paper_metadata_overrides_path),
             "withheld_papers": len(paper_decisions["withheld_papers"]),
-            "article_text_papers": (
-                len(paper_decisions["article_text_papers"]) if paper_decisions["article_text_papers"] is not None else None
+            "usable_fulltexts": (
+                len(paper_decisions["usable_fulltexts"]) if paper_decisions["usable_fulltexts"] is not None else None
             ),
+            "unusable_abstracts": len(paper_decisions["unusable_abstracts"]),
             "cleared_abstracts": len(paper_decisions["cleared_abstracts"]),
             "curated_titles": len(paper_decisions["curated_titles"]),
             "source_identity_held_rows": held_rows_by_status[SOURCE_IDENTITY_HOLD_STATUS],

@@ -397,24 +397,48 @@ def clean_text_for_model(text: str) -> str:
     return cleaned.strip()
 
 
+class SourceTextMismatchError(ValueError):
+    """The text available to send is not the text the task was built on."""
+
+
+def packet_matching_task(task: dict) -> dict:
+    """The task's packet, after checking it holds the text the task was built on."""
+    from pipeline.extract.build_extraction_tasks import source_fingerprint_for_task
+
+    packet = packet_for_task(task)
+    if not packet:
+        raise SourceTextMismatchError(f"no article-text packet for task {task.get('task_id')}")
+    text_source = task.get("text_source", {}) if isinstance(task.get("text_source"), dict) else {}
+    metadata = task.get("paper_metadata", {}) if isinstance(task.get("paper_metadata"), dict) else {}
+    expected = normalize(text_source.get("source_fingerprint", ""))
+    actual = source_fingerprint_for_task(text_source=text_source, metadata=metadata, packet=packet)
+    if not expected or actual != expected:
+        raise SourceTextMismatchError(
+            f"the packet for task {task.get('task_id')} is not the one the task was built on; rebuild the tasks"
+        )
+    return packet
+
+
 def article_or_abstract_text_for_task(task: dict) -> tuple[str, str]:
     content = task.get("content", {}) if isinstance(task.get("content"), dict) else {}
     depth = text_depth_for_task(task)
     if depth == "article_text":
-        packet = packet_for_task(task)
-        if packet:
-            text = "\n\n".join(text_parts_from_packet(packet)).strip()
-            if text:
-                # Packet metadata commonly omits the curated abstract. Keep it
-                # available to the extractor; do not silently replace it with
-                # a short selected section or supplemental table.
-                from pipeline.extract.source_text_quality import abstract_quality_flags
-                title = normalize(content.get("title", ""))
-                abstract = normalize(content.get("abstract", ""))
-                packet_abstract = normalize((packet.get("paper_metadata") or {}).get("abstract", ""))
-                if abstract and abstract != packet_abstract and not abstract_quality_flags(abstract):
-                    text = f"Title: {title}\n\nCURATED_ABSTRACT:\n{abstract}\n\nARTICLE_TEXT:\n{text}"
-                return "ARTICLE_TEXT", clean_text_for_model(text)
+        # An article-text task never falls back to the abstract: its output
+        # would be recorded as read from article text.
+        packet = packet_matching_task(task)
+        text = "\n\n".join(text_parts_from_packet(packet)).strip()
+        if not text:
+            raise SourceTextMismatchError(f"the packet for task {task.get('task_id')} holds no text")
+        # Packet metadata commonly omits the curated abstract. Keep it
+        # available to the extractor; do not silently replace it with
+        # a short selected section or supplemental table.
+        from pipeline.extract.source_text_quality import abstract_quality_flags
+        title = normalize(content.get("title", ""))
+        abstract = normalize(content.get("abstract", ""))
+        packet_abstract = normalize((packet.get("paper_metadata") or {}).get("abstract", ""))
+        if abstract and abstract != packet_abstract and not abstract_quality_flags(abstract):
+            text = f"Title: {title}\n\nCURATED_ABSTRACT:\n{abstract}\n\nARTICLE_TEXT:\n{text}"
+        return "ARTICLE_TEXT", clean_text_for_model(text)
     title = normalize(content.get("title", ""))
     abstract = normalize(content.get("abstract", ""))
     parts = []

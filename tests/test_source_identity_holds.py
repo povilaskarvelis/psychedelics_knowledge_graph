@@ -3,11 +3,13 @@
 Curation can find, after extraction, that a paper's abstract or article text
 belongs to a different publication. The KG build applies those decisions to
 evidence already extracted: a paper the verdict table withholds loses all of
-its rows, a paper the table allows no article text loses its rows from article
-text, a paper whose abstract was cleared without a replacement loses only its
-abstract-derived rows, and curated titles replace provider titles. A paper that
-the retraction check found retracted loses all of its rows.
+its rows, a row is held when the table does not allow the full text or abstract
+it was read from (named by the hashes its task recorded), a paper whose
+abstract was cleared without a replacement loses only its abstract-derived
+rows, and curated titles replace provider titles. A paper that the retraction
+check found retracted loses all of its rows.
 """
+import hashlib
 import json
 
 import pandas as pd
@@ -20,11 +22,21 @@ from pipeline.kg.update_corpus_graph_status import (
 )
 
 
-def clinical_row(doi: str, access_level: str, title: str = "Psilocybin for major depressive disorder") -> dict:
+def sha(name: str) -> str:
+    return hashlib.sha256(name.encode()).hexdigest()
+
+
+def clinical_row(
+    doi: str, access_level: str, title: str = "Psilocybin for major depressive disorder", *, text: str | None = None
+) -> dict:
+    """A finding row read from ``text``: by default the paper's own file or abstract."""
+    text = f"{doi} {access_level}" if text is None else text
     return {
         "study_doi": doi,
         "study_title": title,
         "access_level": access_level,
+        "source_artifact_sha256": sha(text) if text and access_level == "article_text" else "",
+        "source_abstract_sha256": sha(text) if text and access_level == "abstract_only" else "",
         "domain": "clinical_outcome",
         "compound": "Psilocybin",
         "condition_or_indication": "MDD",
@@ -32,9 +44,12 @@ def clinical_row(doi: str, access_level: str, title: str = "Psilocybin for major
     }
 
 
-def verdict_row(doi: str, target_kind: str, verdict: str, usable: bool, reason: str = "") -> dict:
+def verdict_row(doi: str, target_kind: str, verdict: str, usable: bool, reason: str = "", *, text: str = "") -> dict:
+    text = text or f"{doi} {'article_text' if target_kind == 'fulltext' else 'abstract_only'}"
     return {
-        "doi": doi, "target_kind": target_kind, "artifact": f"{doi}.json" if target_kind == "fulltext" else "",
+        "doi": doi, "target_kind": target_kind, "artifact": f"{text}.json" if target_kind == "fulltext" else "",
+        "artifact_sha256": sha(text) if target_kind == "fulltext" else "",
+        "text_sha256": sha(text) if target_kind == "abstract" else "",
         "verdict": verdict, "usable": usable, "reason": reason or verdict,
     }
 
@@ -46,6 +61,10 @@ def write_curation(tmp_path):
         verdict_row("10.1000/wrong-abstract", "fulltext", "verified", True),
         verdict_row("10.1000/merged", "fulltext", "version_of", True),
         verdict_row("10.1000/unverified-text", "fulltext", "unconfirmed", False),
+        verdict_row("10.1000/two-texts", "fulltext", "verified", True, text="publisher copy"),
+        verdict_row("10.1000/two-texts", "fulltext", "conflict", False, text="another report"),
+        verdict_row("10.1000/shared-abstract", "abstract", "not_this_work", False, "not_this_work",
+                    text="another paper's abstract"),
     ]).to_parquet(verdicts, index=False)
     metadata = tmp_path / "paper_metadata_overrides.json"
     metadata.write_text(json.dumps({
@@ -74,7 +93,12 @@ def test_curated_decisions_resolve_aliases_and_skip_replaced_abstracts(tmp_path)
     )
     assert decisions["withheld_papers"] == {"10.1000/wrong-text": "hold: The article text belongs to another report."}
     # A merged DOI's usable text counts for the DOI that is kept.
-    assert decisions["article_text_papers"] == {"10.1000/wrong-abstract", "10.1000/kept"}
+    assert decisions["usable_fulltexts"] == {
+        ("10.1000/wrong-abstract", sha("10.1000/wrong-abstract article_text")),
+        ("10.1000/kept", sha("10.1000/merged article_text")),
+        ("10.1000/two-texts", sha("publisher copy")),
+    }
+    assert decisions["unusable_abstracts"] == {("10.1000/shared-abstract", sha("another paper's abstract")): "not_this_work"}
     assert decisions["cleared_abstracts"] == {"10.1000/wrong-abstract": "The abstract belongs to another paper."}
     assert decisions["curated_titles"] == {"10.1000/wrong-title": "The registered title"}
 
@@ -88,7 +112,12 @@ def test_build_holds_rows_extracted_from_text_the_paper_may_not_use(tmp_path):
         clinical_row("10.1000/wrong-abstract", "article_text"),
         clinical_row("10.1000/unverified-text", "article_text"),
         clinical_row("10.1000/unverified-text", "abstract_only"),
-        clinical_row("10.1000/kept", "article_text"),
+        clinical_row("10.1000/kept", "article_text", text="10.1000/merged article_text"),
+        clinical_row("10.1000/two-texts", "article_text", text="publisher copy"),
+        clinical_row("10.1000/two-texts", "article_text", text="another report"),
+        clinical_row("10.1000/shared-abstract", "abstract_only", text="another paper's abstract"),
+        clinical_row("10.1000/shared-abstract", "abstract_only"),
+        clinical_row("10.1000/unrecorded", "article_text", text=""),
         clinical_row("10.1000/replaced-abstract", "abstract_only"),
         clinical_row("10.1000/wrong-title", "abstract_only", title="Curing agents"),
         clinical_row("10.1000/no-results", "abstract_only"),
@@ -116,22 +145,30 @@ def test_build_holds_rows_extracted_from_text_the_paper_may_not_use(tmp_path):
     assert findings.loc[findings.study_doi.eq("10.1000/unverified-text"), "access_level"].tolist() == ["abstract_only"]
     # A replaced abstract was re-extracted, and a merged DOI's text counts for the kept DOI.
     assert {"10.1000/replaced-abstract", "10.1000/no-results", "10.1000/wrong-title", "10.1000/kept"} <= set(findings.study_doi)
+    # Of two full texts of one paper, only the rows from the allowed one stay; likewise for abstracts.
+    assert findings.study_doi.eq("10.1000/two-texts").sum() == 1
+    assert findings.study_doi.eq("10.1000/shared-abstract").sum() == 1
+    assert "10.1000/unrecorded" not in set(findings.study_doi)
     assert papers.loc[papers.study_doi.eq("10.1000/wrong-title"), "title"].tolist() == ["The registered title"]
 
     held = audit[audit.normalization_status.eq(b.SOURCE_IDENTITY_HOLD_STATUS)].sort_values("study_doi")
-    assert held.study_doi.tolist() == ["10.1000/unverified-text", "10.1000/wrong-abstract", "10.1000/wrong-text"]
+    assert held.study_doi.tolist() == [
+        "10.1000/shared-abstract", "10.1000/two-texts", "10.1000/unrecorded",
+        "10.1000/unverified-text", "10.1000/wrong-abstract", "10.1000/wrong-text",
+    ]
     assert held.normalization_notes.tolist() == [
-        "the verdict table allows no article text for this paper",
+        "not_this_work",
+        "the verdict table does not allow the full text the row was read from",
+        "the row does not record the full text it was read from",
+        "the verdict table does not allow the full text the row was read from",
         "The abstract belongs to another paper.",
         "hold: The article text belongs to another report.",
     ]
     decisions = manifest["curated_paper_decisions"]
-    assert decisions["source_identity_held_rows"] == {"routed_extractions": 3}
-    assert decisions["source_identity_held_paper_ids"] == [
-        "paper:10.1000/unverified-text", "paper:10.1000/wrong-abstract", "paper:10.1000/wrong-text",
-    ]
+    assert decisions["source_identity_held_rows"] == {"routed_extractions": 6}
     assert decisions["withheld_papers"] == 1
-    assert decisions["article_text_papers"] == 2
+    assert decisions["usable_fulltexts"] == 3
+    assert decisions["unusable_abstracts"] == 1
     assert len(decisions["identity_verdicts"]["sha256"]) == 64
     assert len(decisions["paper_metadata_overrides"]["sha256"]) == 64
 

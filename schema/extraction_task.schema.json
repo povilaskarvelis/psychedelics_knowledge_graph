@@ -311,6 +311,16 @@
           "items": {
             "type": "string"
           }
+        },
+        "artifact_sha256": {
+          "type": "string",
+          "pattern": "^([0-9a-f]{64})?$",
+          "description": "SHA-256 of the full-text file the packet was built from; empty when the task reads no full text."
+        },
+        "abstract_sha256": {
+          "type": "string",
+          "pattern": "^([0-9a-f]{64})?$",
+          "description": "SHA-256 of the record's abstract as stored, the hash identity decisions use; empty when there is none."
         }
       }
     },

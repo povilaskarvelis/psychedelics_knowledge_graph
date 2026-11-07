@@ -20,11 +20,11 @@ from pathlib import Path
 import pandas as pd
 
 try:
-    from pipeline.extract.io_utils import normalize, read_jsonl, text_parts_from_packet, write_json
+    from pipeline.extract.io_utils import normalize, read_jsonl, source_text_hashes, text_parts_from_packet, write_json
     from pipeline.extract.review_source_types import REVIEW_PATH_TYPES, SCHOLARLY_ANALYSIS_TYPES, is_accepted_scholarly_analysis
 except ModuleNotFoundError:  # pragma: no cover - direct script execution
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from pipeline.extract.io_utils import normalize, read_jsonl, text_parts_from_packet, write_json
+    from pipeline.extract.io_utils import normalize, read_jsonl, source_text_hashes, text_parts_from_packet, write_json
     from pipeline.extract.review_source_types import REVIEW_PATH_TYPES, SCHOLARLY_ANALYSIS_TYPES, is_accepted_scholarly_analysis
 
 
@@ -179,6 +179,7 @@ def build_task(cohort: dict, candidate: dict, packet: dict | None, packets_path:
         }
     else:
         raise ValueError(f"Unsupported text depth `{depth}` for {doi}")
+    source.update(source_text_hashes(candidate.get("abstract"), packet if depth == "article_text" else None))
 
     from pipeline.extract.task_contract_identity import secondary_contract_fingerprint
     contract_fingerprint = secondary_contract_fingerprint("review")

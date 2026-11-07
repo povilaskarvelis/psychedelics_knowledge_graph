@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
+import math
 from pathlib import Path
 
 
@@ -22,6 +24,48 @@ def normalize(value: object) -> str:
     if value is None:
         return ""
     return str(value).strip()
+
+
+def source_text_hashes(stored_abstract: object, packet: dict | None) -> dict:
+    """The texts a task sends, by the hashes the verdict table names them with.
+
+    ``artifact_sha256`` is the full-text file the packet was built from, empty
+    when the task reads no packet. ``abstract_sha256`` is the record's abstract
+    as stored, before whitespace is collapsed for the prompt; identity decisions
+    name abstracts by this hash.
+    """
+    provenance = (packet or {}).get("fulltext_provenance", {})
+    missing = stored_abstract is None or (isinstance(stored_abstract, float) and math.isnan(stored_abstract))
+    abstract = "" if missing else normalize(stored_abstract)
+    return {
+        "artifact_sha256": normalize(provenance.get("artifact_sha256", "")) if isinstance(provenance, dict) else "",
+        "abstract_sha256": hashlib.sha256(abstract.encode("utf-8")).hexdigest() if abstract else "",
+    }
+
+
+def task_text_hashes(task: dict, output_task_id: object) -> dict:
+    """Finding-row fields naming the texts a secondary-literature output was read from.
+
+    They are filled only when the output belongs to this task: the task ID fixes
+    the text that was sent. Otherwise the text is unknown and they stay empty.
+    """
+    source = task.get("source", {}) if isinstance(task.get("source"), dict) else {}
+    same_task = bool(normalize(output_task_id)) and normalize(task.get("task_id", "")) == normalize(output_task_id)
+    return {
+        "source_artifact_sha256": normalize(source.get("artifact_sha256", "")) if same_task else "",
+        "source_abstract_sha256": normalize(source.get("abstract_sha256", "")) if same_task else "",
+    }
+
+
+def secondary_packet_text(task: dict, packet: dict | None) -> str:
+    """The article text of a review or meta-analysis task, after checking it is the text the task was built on."""
+    if packet is None:
+        raise ValueError(f"Missing article packet for {task.get('study_doi')}")
+    text = "\n\n".join(text_parts_from_packet(packet)).strip()
+    source = task.get("source", {}) if isinstance(task.get("source"), dict) else {}
+    if hashlib.sha256(text.encode("utf-8")).hexdigest() != normalize(source.get("source_fingerprint", "")):
+        raise ValueError(f"The article packet for {task.get('study_doi')} is not the one the task was built on; rebuild the tasks")
+    return text
 
 
 def read_jsonl(path: Path) -> list[dict]:

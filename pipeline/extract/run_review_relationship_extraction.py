@@ -20,7 +20,7 @@ import sys
 from jsonschema import Draft7Validator
 
 try:
-    from pipeline.extract.io_utils import normalize, read_jsonl, text_parts_from_packet, write_json
+    from pipeline.extract.io_utils import normalize, read_jsonl, secondary_packet_text, write_json
     from pipeline.extract.route_extraction_profiles import schema_for_native
     from pipeline.extract.run_route_extraction import (
         DEFAULT_ENV,
@@ -34,7 +34,7 @@ try:
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from pipeline.extract.io_utils import normalize, read_jsonl, text_parts_from_packet, write_json
+    from pipeline.extract.io_utils import normalize, read_jsonl, secondary_packet_text, write_json
     from pipeline.extract.route_extraction_profiles import schema_for_native
     from pipeline.extract.run_route_extraction import (
         DEFAULT_ENV,
@@ -161,9 +161,7 @@ def source_text_for_task(task: dict, packet: dict | None) -> str:
     depth = normalize(task.get("text_depth", ""))
     metadata = task.get("paper_metadata", {}) if isinstance(task.get("paper_metadata"), dict) else {}
     if depth == "article_text":
-        if not packet:
-            raise ValueError(f"Missing article packet for {task.get('study_doi')}")
-        return "\n\n".join(text_parts_from_packet(packet)).strip()
+        return secondary_packet_text(task, packet)
     title = normalize(metadata.get("study_title", ""))
     abstract = normalize(metadata.get("abstract", ""))
     return f"Title: {title}\n\nAbstract: {abstract}".strip()

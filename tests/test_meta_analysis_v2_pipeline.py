@@ -2,7 +2,7 @@ import argparse
 import json
 from pathlib import Path
 
-from pipeline.extract.build_meta_analysis_v2_tasks import build_tasks, production_cohort
+from pipeline.extract.build_meta_analysis_v2_tasks import build_tasks, packet_text_fingerprint, production_cohort
 from pipeline.extract import run_meta_analysis_v2_batch_api as batch_api
 
 
@@ -74,7 +74,8 @@ def test_missing_required_source_is_not_ready() -> None:
 def task(doi: str, text_depth: str, packet_path: Path | None = None) -> dict:
     source = {
         "status": "ready",
-        "source_fingerprint": f"fingerprint-{doi}",
+        # An article-text task carries its packet's text fingerprint, which the runner checks.
+        "source_fingerprint": packet_text_fingerprint(article_packet(doi))[0] if text_depth == "article_text" else f"fingerprint-{doi}",
         "packet_id": f"article:{doi}" if text_depth == "article_text" else "",
         "packet_path": str(packet_path) if packet_path else "",
     }

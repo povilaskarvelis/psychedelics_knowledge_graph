@@ -12,10 +12,10 @@ import re
 import sys
 
 try:
-    from pipeline.extract.io_utils import normalize, read_jsonl, write_json
+    from pipeline.extract.io_utils import normalize, read_jsonl, task_text_hashes, write_json
 except ModuleNotFoundError:  # pragma: no cover - direct script execution
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from pipeline.extract.io_utils import normalize, read_jsonl, write_json
+    from pipeline.extract.io_utils import normalize, read_jsonl, task_text_hashes, write_json
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -715,6 +715,7 @@ def evidence_row(
         "paper_assessment_route": "secondary_literature",
         "access_level": normalize(output.get("source_depth", "")),
         "text_depth": normalize(output.get("source_depth", "")),
+        **task_text_hashes(task, output.get("task_id", "")),
         "source_item_type": "synthesis_result",
         "source_item_index": item_index,
         "source_item_id": result_id,

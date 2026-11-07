@@ -1081,6 +1081,10 @@ def build_packet(
         "source_hints": hints,
         "fulltext_provenance": {
             "artifact_path": str(artifact_path),
+            # The file the packet was built from, as the verdict table names it.
+            "artifact_sha256": hashlib.sha256(Path(artifact_path).read_bytes()).hexdigest()
+            if Path(artifact_path).is_file()
+            else "",
             "pdf_local_path": normalize(artifact.get("pdf_local_path", "")) or normalize(metadata.get("pdf_local_path", "")),
             "best_backend": normalize(artifact.get("best_backend", "")),
             "best_char_count": int(artifact.get("best_char_count", 0) or 0),

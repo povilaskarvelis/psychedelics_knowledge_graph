@@ -24,6 +24,7 @@ import pandas as pd
 try:
     from pipeline.fulltext.convert_pdfs import compact_text, normalize, normalize_doi
     from pipeline.extract.extraction_profile_matrix import text_depth_from_access
+    from pipeline.extract.io_utils import source_text_hashes
     from pipeline.extract.route_extraction_profiles import (
         domain_prompt_path,
         is_legacy_v1_secondary_profile,
@@ -36,6 +37,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.fulltext.convert_pdfs import compact_text, normalize, normalize_doi
     from pipeline.extract.extraction_profile_matrix import text_depth_from_access
+    from pipeline.extract.io_utils import source_text_hashes
     from pipeline.extract.route_extraction_profiles import (
         domain_prompt_path,
         is_legacy_v1_secondary_profile,
@@ -189,15 +191,20 @@ def canonical_sha256(payload: object) -> str:
     return hashlib.sha256(body).hexdigest()
 
 
-def stable_packet_payload(value: object) -> object:
+# Packet keys that describe how or from which file a packet was made, not the
+# text it holds. They do not change a task's fingerprint.
+PACKET_PROVENANCE_KEYS = frozenset({"_packet_source_path", "generated_at_utc", "created_at_utc", "artifact_sha256"})
+
+
+def stable_packet_payload(value: object, excluded: frozenset[str] = PACKET_PROVENANCE_KEYS) -> object:
     if isinstance(value, dict):
         return {
-            key: stable_packet_payload(item)
+            key: stable_packet_payload(item, excluded)
             for key, item in sorted(value.items())
-            if key not in {"_packet_source_path", "generated_at_utc", "created_at_utc"}
+            if key not in excluded
         }
     if isinstance(value, list):
-        return [stable_packet_payload(item) for item in value]
+        return [stable_packet_payload(item, excluded) for item in value]
     return value
 
 
@@ -635,6 +642,12 @@ def task_from_route(
     from pipeline.extract.source_text_quality import abstract_quality_flags
     source_quality = abstract_quality_flags(metadata.get("abstract", "")) if normalize(route_row.get("route_action", "")) == "extract_from_abstract_only" else []
     text_source = text_source_for_task(route_row, metadata, packet, packet_basis)
+    text_source.update(
+        source_text_hashes(
+            metadata_by_doi.get(normalize_doi(route_row.get("doi", "")), {}).get("abstract"),
+            packet if text_source["mode"] == "full_text_packet" else None,
+        )
+    )
     text_source["source_quality_flags"] = source_quality
     if source_quality and normalize(route_row.get("route_action", "")) == "extract_from_abstract_only" and abstract_quality_flags(metadata.get("abstract", "")):
         text_source["status"] = "needs_source_review"
