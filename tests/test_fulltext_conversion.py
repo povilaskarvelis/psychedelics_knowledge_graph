@@ -9,7 +9,6 @@ from pipeline.fulltext.convert_pdfs import (
     grobid_alive_url,
     multipart_body,
     pdf_filename_prefix_for_doi,
-    should_write_artifact,
     sections_from_markdown,
     sections_from_tei,
     select_best_extraction,
@@ -110,37 +109,8 @@ class FulltextConversionTest(unittest.TestCase):
 
         self.assertEqual(artifact["best_backend"], "grobid")
         self.assertEqual(artifact["best_char_count"], len(tei))
-        self.assertEqual(artifact["source_identity"]["status"], "verified_exact_doi")
-
-    def test_failed_artifact_does_not_overwrite_successful_existing_artifact(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            path = Path(tmpdir) / "artifact.json"
-            path.write_text('{"best_backend": "docling"}\n', encoding="utf-8")
-
-            write, reason = should_write_artifact(path, {"best_backend": ""}, write_failed_artifacts=False)
-
-        self.assertFalse(write)
-        self.assertIn("preserved existing successful", reason)
-
-    def test_successful_artifact_is_written(self) -> None:
-        write, reason = should_write_artifact(
-            Path("/tmp/missing-artifact.json"),
-            {"best_backend": "grobid", "source_identity": {"status": "verified_exact_doi"}},
-            False,
-        )
-
-        self.assertTrue(write)
-        self.assertIn("successful", reason)
-
-    def test_successful_extraction_with_wrong_identity_is_not_written(self) -> None:
-        write, reason = should_write_artifact(
-            Path("/tmp/wrong-artifact.json"),
-            {"best_backend": "grobid", "source_identity": {"status": "identity_mismatch"}},
-            False,
-        )
-
-        self.assertFalse(write)
-        self.assertIn("identity", reason)
+        # Whether the text is the paper is decided by the identity intake (tests/test_identity_intake.py).
+        self.assertNotIn("source_identity", artifact)
 
 if __name__ == "__main__":
     unittest.main()

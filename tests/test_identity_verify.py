@@ -87,10 +87,20 @@ def test_paper_doi_run_on_into_a_link_counts_as_the_identifier() -> None:
     assert verdict.verdict == "verified"
 
 
+def test_an_article_whose_title_alone_agrees_closely_is_verified() -> None:
+    verdict = verify(PAPER, Source(titles=(PAPER.title,)))
+    assert (verdict.verdict, verdict.rule) == ("verified", "title_only_close_match")
+    # Not when the text gives another DOI as its own, or is not an article.
+    assert verify(PAPER, Source(titles=(PAPER.title,), own_dois=("10.1000/other",))).verdict == "conflict"
+    assert verify(PAPER, Source(titles=(PAPER.title,), document_kind="supplement")).verdict == "wrong_kind"
+
+
 @pytest.mark.parametrize(
     ("source", "rule"),
     [
-        (Source(titles=(PAPER.title,)), "title_only"),
+        # A title that agrees less closely, or one printed in the text but not parsed as its title.
+        (Source(titles=("Psilocybin therapy for resistant depression: randomized trial",)), "title_only"),
+        (Source(opening_text=f"Original article\n{PAPER.title}\nA. Author"), "title_only"),
         (Source(own_dois=(PAPER.doi,)), "identifier_only"),
         (Source(), "no_identity_evidence"),
     ],

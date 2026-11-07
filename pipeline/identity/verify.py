@@ -2,15 +2,17 @@
 
 A text is verified for a paper when an identifier taken from the source itself
 (a DOI, PMID or PMCID in the document header or provider record) and the
-source's title both agree with the paper. An identifier alone or a title alone
-leaves the text unconfirmed. The same rule applies to full texts and to
+source's title both agree with the paper. An identifier alone leaves the text
+unconfirmed, and so does a title alone, unless the source is an article whose
+parsed title agrees with the paper's at ``TITLE_ONLY_VERIFIED`` or above and
+which gives no other DOI as its own. The same rule applies to full texts and to
 provider records; ``evidence.py`` reads the evidence.
 
 Computed verdicts:
 
 | Verdict | Meaning |
 |---|---|
-| ``verified`` | identifier and title agree |
+| ``verified`` | identifier and title agree, or the title alone agrees closely (decision of 8 November) |
 | ``version_of`` | the source names another DOI of the same work, registered in the work registry |
 | ``unconfirmed`` | only one kind of evidence, or none |
 | ``conflict`` | identifier and title do not point to the same work |
@@ -42,6 +44,11 @@ from pipeline.ingest.candidate_status import clean, normalize_doi
 
 
 COMPUTED_VERDICTS = ("verified", "version_of", "unconfirmed", "conflict", "wrong_kind")
+# Decision of 8 November 2026, from decision D4: an article whose parsed title
+# agrees with the paper's at this similarity or above, and which gives no other
+# DOI as its own, is the paper even when it prints no identifier. Most PDFs do
+# not print their DOI on the pages the parser reads.
+TITLE_ONLY_VERIFIED = 0.95
 # The paper's title counts as printed only near the start of the text, where a
 # document prints its own title rather than titles it cites.
 OPENING_TITLE_CHARS = 5000
@@ -201,6 +208,8 @@ def verify(
         return Verdict("conflict", "identifier_differs_title_unclear", related_doi=related, evidence=evidence)
 
     if state == "agrees":
+        if heading_agrees and (similarity or 0) >= TITLE_ONLY_VERIFIED:
+            return Verdict("verified", "title_only_close_match", evidence=evidence)
         return Verdict("unconfirmed", "title_only", evidence=evidence)
     if state == "differs":
         return Verdict("unconfirmed", "title_differs_no_identifier", evidence=evidence)

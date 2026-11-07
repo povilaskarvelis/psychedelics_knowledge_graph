@@ -24,13 +24,11 @@ DEFAULT_BATCH_DIR = FULLTEXT_DATA_DIR / "grobid_local_pdf_batches"
 DEFAULT_BATCH_REPORT_DIR = FULLTEXT_DATA_DIR / "grobid_local_pdf_batch_reports"
 DEFAULT_REPORT = FULLTEXT_DATA_DIR / "local_pdf_conversion_pipeline_report.json"
 DEFAULT_VERDICTS_PATH = ROOT / "data" / "processed" / "identity" / "verdicts.parquet"
-DEFAULT_SOURCE_IDENTITY_AUDIT_JSON = FULLTEXT_DATA_DIR / "source_identity_audit.json"
-DEFAULT_SOURCE_IDENTITY_AUDIT_CSV = FULLTEXT_DATA_DIR / "source_identity_audit.csv"
-DEFAULT_SOURCE_IDENTITY_UNVERIFIED_DOIS = FULLTEXT_DATA_DIR / "source_identity_unverified_dois.txt"
 
 try:
     from pipeline.fulltext.convert_pdfs import DEFAULT_GROBID_URL, doi_to_slug, grobid_is_available, normalize_doi
-    from pipeline.fulltext.source_identity import identity_is_verified
+    from pipeline.identity.bindings import IdentityVerdicts
+    from pipeline.identity.intake import KEPT_USABLE_TEXT, STORED_FOR_REVIEW, STORED_VERIFIED
     from pipeline.fulltext.convert_routed_local_pdfs import (
         DEFAULT_DOMAIN_ROUTING_TABLE,
         DEFAULT_OUT_DIR,
@@ -56,7 +54,8 @@ try:
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(ROOT))
     from pipeline.fulltext.convert_pdfs import DEFAULT_GROBID_URL, doi_to_slug, grobid_is_available, normalize_doi
-    from pipeline.fulltext.source_identity import identity_is_verified
+    from pipeline.identity.bindings import IdentityVerdicts
+    from pipeline.identity.intake import KEPT_USABLE_TEXT, STORED_FOR_REVIEW, STORED_VERIFIED
     from pipeline.fulltext.convert_routed_local_pdfs import (
         DEFAULT_DOMAIN_ROUTING_TABLE,
         DEFAULT_OUT_DIR,
@@ -79,6 +78,12 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         DEFAULT_CONTAINER as DEFAULT_GROBID_CONTAINER,
         DEFAULT_IMAGE as DEFAULT_GROBID_IMAGE,
     )
+
+
+# Conversion outcomes that are not failures; the verdict table decides whether a stored text is read.
+CONVERTED_WRITE_STATUSES = frozenset(
+    {STORED_VERIFIED, STORED_FOR_REVIEW, KEPT_USABLE_TEXT, "preserved existing successful artifact"}
+)
 
 
 def now_utc() -> str:
@@ -237,6 +242,8 @@ def convert_batch_command(args: argparse.Namespace, doi_file: Path, report_path:
         args.grobid_consolidate_citations,
         "--timeout-sec",
         str(args.grobid_timeout_sec),
+        "--identity-verdicts",
+        str(Path(args.identity_verdicts).resolve()),
         "--no-rebuild-routes-after",
     ]
     if args.selection_table.strip():
@@ -290,28 +297,9 @@ def rebuild_routes_command(args: argparse.Namespace) -> list[str]:
     return cmd
 
 
-def source_identity_audit_command(args: argparse.Namespace) -> list[str]:
-    # Unverified artifacts are recorded per artifact and left unused by the
-    # gate; they do not stop the route rebuild for the rest of the store.
-    return [
-        args.python,
-        str(FULLTEXT_DIR / "audit_fulltext_source_identity.py"),
-        "--artifact-dir",
-        str(Path(args.out_dir).resolve()),
-        "--candidate-table",
-        str(Path(args.candidate_table).resolve()),
-        "--metadata-table",
-        str(Path(args.metadata_table).resolve()),
-        "--report-json",
-        str(Path(args.source_identity_audit_json).resolve()),
-        "--report-csv",
-        str(Path(args.source_identity_audit_csv).resolve()),
-        "--unverified-doi-file",
-        str(Path(args.source_identity_unverified_dois).resolve()),
-    ]
-
-
 def failed_dois_from_report(report_path: Path) -> list[str]:
+    """DOIs a conversion batch did not convert. A converted text that was stored, or
+    not stored because the verdict table allows the stored one, is not a failure."""
     if not report_path.exists():
         return []
     try:
@@ -323,12 +311,8 @@ def failed_dois_from_report(report_path: Path) -> list[str]:
         if not isinstance(record, dict):
             continue
         doi = normalize_doi(record.get("study_doi", ""))
-        write_status = str(record.get("write_status", "")).strip().lower()
-        successful = write_status in {
-            "successful extraction with verified source identity",
-            "preserved existing successful artifact",
-        }
-        if doi and not successful:
+        write_status = str(record.get("write_status", "")).strip()
+        if doi and write_status not in CONVERTED_WRITE_STATUSES:
             failed.append(doi)
     return failed
 
@@ -336,10 +320,13 @@ def failed_dois_from_report(report_path: Path) -> list[str]:
 def failed_dois_from_artifacts(
     dois: list[str],
     out_dir: Path,
-) -> list[str]:
-    """Reconcile final failures against canonical, identity-verified artifacts."""
+    verdicts_path: Path,
+) -> tuple[list[str], list[str]]:
+    """DOIs with no converted text stored, and DOIs whose stored text the verdict table does not allow."""
 
+    verdicts = IdentityVerdicts(verdicts_path)
     failed: list[str] = []
+    not_usable: list[str] = []
     for raw_doi in dois:
         doi = normalize_doi(raw_doi)
         artifact_path = out_dir / f"{doi_to_slug(doi)}.json"
@@ -348,12 +335,13 @@ def failed_dois_from_artifacts(
         except Exception:
             failed.append(doi)
             continue
-        if (
-            not str(artifact.get("best_backend", "")).strip()
-            or not identity_is_verified(artifact.get("source_identity", {}))
-        ):
+        if not str(artifact.get("best_backend", "")).strip():
             failed.append(doi)
-    return failed
+            continue
+        row = verdicts.fulltext(doi, artifact_path)
+        if row is None or not row["usable"]:
+            not_usable.append(doi)
+    return failed, not_usable
 
 
 def run_batch(args: argparse.Namespace, batch: list[str], batch_index: int, batch_dir: Path, report_dir: Path) -> dict:
@@ -482,14 +470,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--plan-only", action="store_true")
     parser.add_argument("--verbose", action="store_true")
     parser.add_argument("--skip-route-rebuild", action="store_true")
-    parser.add_argument("--skip-source-identity-audit", action="store_true")
     parser.add_argument("--identity-verdicts", default=str(DEFAULT_VERDICTS_PATH))
-    parser.add_argument("--source-identity-audit-json", default=str(DEFAULT_SOURCE_IDENTITY_AUDIT_JSON))
-    parser.add_argument("--source-identity-audit-csv", default=str(DEFAULT_SOURCE_IDENTITY_AUDIT_CSV))
-    parser.add_argument(
-        "--source-identity-unverified-dois",
-        default=str(DEFAULT_SOURCE_IDENTITY_UNVERIFIED_DOIS),
-    )
     parser.add_argument("--retry-failures-single", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--grobid-url", default=DEFAULT_GROBID_URL)
     parser.add_argument("--grobid-timeout-sec", type=int, default=120)
@@ -533,8 +514,6 @@ def main() -> int:
             sample_report = report_dir / "local_pdf_grobid_batch_0001.json"
             print(f"[grobid_start] {shell_join(start_grobid_command(args))}", flush=True)
             print(f"[convert_batch] {shell_join(convert_batch_command(args, sample_file, sample_report))}", flush=True)
-        if not args.skip_source_identity_audit:
-            print(f"[source_identity_audit] {shell_join(source_identity_audit_command(args))}", flush=True)
         print(f"Run report: {report_path}", flush=True)
         return 0
 
@@ -570,25 +549,13 @@ def main() -> int:
         if command_failed and not args.continue_on_error:
             break
 
-    # Report rows can contain a successful parser backend even when identity
-    # validation correctly rejected the artifact. Reconcile against the actual
-    # canonical output state so the terminal failure count cannot under-report.
-    final_failed = set(
-        failed_dois_from_artifacts(queue, Path(args.out_dir).resolve())
+    # Reconcile against the stored texts and their verdict-table rows, which the
+    # conversion batches wrote, so the final counts cannot under-report.
+    final_failed, stored_not_usable = failed_dois_from_artifacts(
+        queue, Path(args.out_dir).resolve(), Path(args.identity_verdicts).resolve()
     )
     if final_failed and overall_status == "ok":
         overall_status = "completed_with_pdf_failures"
-
-    source_identity_audit = None
-    if not args.skip_source_identity_audit:
-        source_identity_audit = run_command(
-            source_identity_audit_command(args),
-            label="source_identity_audit",
-            cwd=Path(args.child_cwd).resolve(),
-            verbose=args.verbose,
-        )
-        if source_identity_audit["returncode"] != 0:
-            overall_status = "failed"
 
     route_rebuild = None
     if not args.skip_route_rebuild and overall_status != "failed":
@@ -611,7 +578,7 @@ def main() -> int:
         "batch_size": batch_size,
         "batch_count": len(batches),
         "final_failed_dois": sorted(final_failed),
-        "source_identity_audit": source_identity_audit,
+        "stored_not_usable_dois": sorted(stored_not_usable),
         "route_rebuild": route_rebuild,
         "results": results,
     }

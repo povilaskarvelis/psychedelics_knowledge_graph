@@ -16,19 +16,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import List
 
-from pipeline.fulltext.source_identity import (
-    DEFAULT_PDF_HASH_ATTESTATION_REGISTRY,
-    augment_pdf_artifact_identity,
-    evaluate_artifact_identity,
-    identity_is_verified,
-    load_pdf_hash_attestation_registry,
-    split_dois,
-)
-
 DEFAULT_GROBID_URL = "http://localhost:8070/api/processFulltextDocument"
-PDF_HASH_ATTESTATIONS = load_pdf_hash_attestation_registry(
-    DEFAULT_PDF_HASH_ATTESTATION_REGISTRY
-)["records"]
 
 def now_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
@@ -405,29 +393,20 @@ def build_artifact(dataset: str, row: dict, pdf_path: Path, extractions: List[di
         "best_section_count": int(best.get("section_count", 0) or 0) if best else 0,
         "extractions": extractions,
     }
-    artifact["source_identity"] = augment_pdf_artifact_identity(
-        evaluate_artifact_identity(
-            artifact,
-            requested_doi=row.get("study_doi", ""),
-            requested_title=row.get("study_title", ""),
-            related_dois=split_dois(
-                row.get("related_dois", ""),
-                row.get("publication_relations", ""),
-                row.get("published_version_doi", ""),
-            ),
-        ),
-        artifact,
-        requested_title=row.get("study_title", ""),
-        pdf_hash_attestations=PDF_HASH_ATTESTATIONS,
-    )
     return artifact
 
 
-def should_write_artifact(artifact_path: Path, artifact: dict, write_failed_artifacts: bool) -> tuple[bool, str]:
+def should_write_artifact(
+    artifact_path: Path, artifact: dict, write_failed_artifacts: bool, intake
+) -> tuple[bool, str]:
+    """Whether to write a converted text. ``intake`` is a ``pipeline.identity.intake.FulltextIntake``.
+
+    A successful extraction is written as the identity intake decides; the
+    verdict table then decides whether it is read.
+    """
     if artifact.get("best_backend"):
-        if identity_is_verified(artifact.get("source_identity", {})):
-            return True, "successful extraction with verified source identity"
-        return False, "successful extraction rejected because source identity was not verified"
+        store, reason, _ = intake.may_store(artifact_path, artifact)
+        return store, reason
     if write_failed_artifacts:
         return True, "failed artifacts explicitly enabled"
 

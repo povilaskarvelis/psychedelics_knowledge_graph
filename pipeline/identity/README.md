@@ -39,7 +39,11 @@ Rules:
 `verify.py` decides whether a text belongs to a paper. A text is verified
 when an identifier taken from the source itself (a DOI, PMID or PMCID in the
 document header or provider record) and the source's title both agree with the
-paper. An identifier alone or a title alone leaves it unconfirmed.
+paper. An identifier alone leaves it unconfirmed. A title alone does too,
+unless the text is an article whose parsed title agrees with the paper's at a
+similarity of 0.95 or more and which gives no other DOI as its own (rule
+`title_only_close_match`, decided on 8 November from decision D4): most PDFs do
+not print their DOI on the pages the parser reads.
 
 `evidence.py` reads and compares the evidence:
 
@@ -69,7 +73,7 @@ paper. An identifier alone or a title alone leaves it unconfirmed.
 
 | Verdict | Meaning |
 |---|---|
-| `verified` | identifier and title agree |
+| `verified` | identifier and title agree, or the title alone agrees closely |
 | `version_of` | the source names another DOI of the same work, registered in the work registry |
 | `unconfirmed` | only one kind of evidence, or none |
 | `conflict` | identifier and title do not point to the same work |
@@ -115,9 +119,25 @@ recorded (`pipeline/extract/README.md`, "Text provenance"), and a finding is hel
 when the table does not allow that full text or abstract for the paper, or when
 it names no text.
 
-A converter or fetcher that writes a full text gets new rows for that text
-(`refresh_fulltext_rows`). The text under another DOI is carried only at the
-next `apply`.
+## Storing full texts
+
+Every path that stores a full text goes through `intake.py`
+(`FulltextIntake`): the PMC and Europe PMC XML fetcher, the routed PDF converter
+and the managed conversion that runs it in batches. Before writing, it checks the
+text with the audit's check (`check_fulltext`, which calls `verify.py`):
+
+| Result | Stored | Read |
+|---|---|---|
+| verified | yes | yes |
+| not verified, and the table allows the text stored for the paper | no; the stored text stays | the stored text |
+| not verified otherwise | yes, for review | no, until decided |
+
+After writing, every written text gets its rows in the verdict table
+(`refresh_fulltext_rows`), whatever options the run was given, so the gate reads
+the new text at the next route build. A text stored for review appears in the
+next `audit`. The text under another DOI is carried only at the next `apply`.
+PDF downloads keep their own title check, which decides which file to convert;
+whether the converted text is the paper is decided here.
 
 ## Commands
 
@@ -261,8 +281,9 @@ Migrated entries are regenerated on every run. Decisions added directly to the
 file are kept. `--check` writes nothing and exits 1 when the file no longer
 matches those sources. Run `migrate` after editing any of them.
 
-The full-text gate and the route builder read the verdict table. Retrieval paths
-do not call `verify.py` yet: they still write the older acquisition audit report,
-which no gate reads (step 6 of the design document). Access overrides and the
-DOI alias registry stay where they are: the first decides how text is
-retrieved, and the second is the work registry, read through `works.py`.
+The full-text gate, the route builder and the KG build read the verdict table,
+and the paths that store full texts check them with `verify.py` (`intake.py`).
+The older acquisition audit (`audit_fulltext_source_identity.py`) was removed on
+8 November. Access overrides and the DOI alias registry stay where they are: the
+first decides how text is retrieved, and the second is the work registry, read
+through `works.py`.

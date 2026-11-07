@@ -1,3 +1,4 @@
+import json
 from types import SimpleNamespace
 
 import pandas as pd
@@ -7,80 +8,39 @@ from pipeline.fulltext.run_local_pdf_conversion_pipeline import (
     failed_dois_from_artifacts,
     failed_dois_from_report,
     local_pdf_conversion_queue,
-    source_identity_audit_command,
 )
+from pipeline.identity.bindings import verdict_table
+from pipeline.identity.intake import KEPT_USABLE_TEXT, NO_EXTRACTION, STORED_FOR_REVIEW, STORED_VERIFIED
 
 
-def test_source_identity_audit_command_does_not_stop_on_unverified_artifacts(tmp_path) -> None:
-    args = SimpleNamespace(
-        python="python3",
-        out_dir=str(tmp_path / "articles"),
-        candidate_table=str(tmp_path / "candidate.parquet"),
-        metadata_table=str(tmp_path / "metadata.parquet"),
-        source_identity_audit_json=str(tmp_path / "audit.json"),
-        source_identity_audit_csv=str(tmp_path / "audit.csv"),
-        source_identity_unverified_dois=str(tmp_path / "unverified.txt"),
-    )
-
-    command = source_identity_audit_command(args)
-
-    assert "--fail-on-unverified" not in command
-    assert "--artifact-dir" in command
-    assert str(tmp_path / "articles") in command
-
-
-def test_failed_dois_include_identity_rejected_extractions(tmp_path) -> None:
+def test_a_converted_text_is_a_failure_only_when_it_was_not_converted(tmp_path) -> None:
     report = tmp_path / "conversion.json"
-    report.write_text(
-        """{
-          "records": [
-            {
-              "study_doi": "10.1000/verified",
-              "best_backend": "grobid",
-              "write_status": "successful extraction with verified source identity"
-            },
-            {
-              "study_doi": "10.1000/mismatch",
-              "best_backend": "grobid",
-              "write_status": "successful extraction rejected because source identity was not verified"
-            },
-            {
-              "study_doi": "10.1000/parser-failure",
-              "best_backend": "",
-              "write_status": "no successful extraction; artifact not written"
-            },
-            {
-              "study_doi": "10.1000/existing",
-              "best_backend": "",
-              "write_status": "preserved existing successful artifact"
-            }
-          ]
-        }""",
-        encoding="utf-8",
-    )
+    report.write_text(json.dumps({"records": [
+        {"study_doi": "10.1000/verified", "write_status": STORED_VERIFIED},
+        # Stored for review: converting it again would give the same text.
+        {"study_doi": "10.1000/mismatch", "write_status": STORED_FOR_REVIEW},
+        {"study_doi": "10.1000/kept", "write_status": KEPT_USABLE_TEXT},
+        {"study_doi": "10.1000/parser-failure", "write_status": NO_EXTRACTION},
+    ]}), encoding="utf-8")
 
-    assert failed_dois_from_report(report) == [
-        "10.1000/mismatch",
-        "10.1000/parser-failure",
-    ]
+    assert failed_dois_from_report(report) == ["10.1000/parser-failure"]
 
 
-def test_final_failure_reconciliation_requires_verified_artifact(tmp_path) -> None:
+def test_final_reconciliation_reads_the_verdict_table(tmp_path) -> None:
     article_dir = tmp_path / "articles"
     article_dir.mkdir()
-    (article_dir / "10_1000_verified.json").write_text(
-        '{"best_backend":"grobid","source_identity":{"status":"verified_exact_doi"}}\n',
-        encoding="utf-8",
-    )
-    (article_dir / "10_1000_mismatch.json").write_text(
-        '{"best_backend":"grobid","source_identity":{"status":"identity_mismatch"}}\n',
-        encoding="utf-8",
-    )
+    for slug in ("10_1000_verified", "10_1000_mismatch"):
+        (article_dir / f"{slug}.json").write_text('{"best_backend":"grobid"}\n', encoding="utf-8")
+    table = tmp_path / "verdicts.parquet"
+    verdict_table([
+        {"doi": doi, "target_kind": "fulltext", "artifact": f"{doi.replace('.', '_').replace('/', '_')}.json",
+         "verdict": verdict, "usable": usable}
+        for doi, verdict, usable in (("10.1000/verified", "verified", True), ("10.1000/mismatch", "conflict", False))
+    ]).to_parquet(table, index=False)
 
     assert failed_dois_from_artifacts(
-        ["10.1000/verified", "10.1000/mismatch", "10.1000/missing"],
-        article_dir,
-    ) == ["10.1000/mismatch", "10.1000/missing"]
+        ["10.1000/verified", "10.1000/mismatch", "10.1000/missing"], article_dir, table
+    ) == (["10.1000/missing"], ["10.1000/mismatch"])
 
 def test_managed_conversion_queue_accepts_route_independent_worklist(tmp_path) -> None:
     pdf = tmp_path / "paper.pdf"

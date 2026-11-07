@@ -572,44 +572,23 @@ wrapper DOI aliases require a matching title and a published DOI on the
 document front page. The importer can consume those audited hashes with
 `--validated-document-audit` and never silently overwrite an existing PDF.
 
-## Source-Identity Audit
+## Source identity of stored texts
 
-Audit the canonical article store without changing artifacts:
+Every path that stores a full text (`fetch_pmc_fulltext_xml.py`,
+`convert_routed_local_pdfs.py` and `run_local_pdf_conversion_pipeline.py`, which
+runs it in batches) checks the text with the identity module before writing it
+(`pipeline/identity/intake.py`; rule in `pipeline/identity/README.md`). A
+verified text is stored and used. A text that is not verified is stored for
+review and left unused until it is decided, but never replaces a stored text
+that the verdict table allows. Every written text then gets its rows in the
+verdict table, so the next route build reads it. `python -m pipeline.identity
+audit` lists the texts awaiting a decision.
 
-```bash
-python pipeline/fulltext/audit_fulltext_source_identity.py
-```
-
-Add `--fail-on-unverified` for a strict check that exits non-zero while any
-stored artifact is unverified. The normal pipeline does not use it (see below).
-
-The audit reads curated DOI relationships and parser-identifier overrides from
-`pipeline/fulltext/source_identity_registry.json`. A registry entry is not an
-unconditional alias: the recorded document DOI must be observed in the
-artifact and the requested paper title must independently match the extracted
-front-matter title (or occur as a normalized title phrase in front matter).
-Token coverage elsewhere in the article is not sufficient. Exact artifact DOI
-matches always take precedence over older registry relationships. Correction
-relationships are accepted only when the requested record's own title says it
-is a correction, corrigendum, or erratum; a main-article DOI whose artifact is
-only the correction remains unverified. Uncurated metadata relations such as
-`CommentOn` are reported as candidates but cannot verify an artifact.
-Title-only verification is likewise limited to parsed header/front-matter
-evidence; a target title found in the article body, references, or a neighbouring
-conference contribution is not accepted. The audit also rechecks any PDF hash
-attestation against the current file bytes.
-
-The completed July 2026 source-identity repair campaign is retained only as a
-compact provenance record in
-`pipeline/fulltext/attestations/source_identity_repair_20260710.json`. Its
-one-off repair drivers, scratch reports, workbooks, and backups are not part of
-the operational pipeline. Durable decisions live in
-`source_identity_registry.json` and `source_identity_pdf_hash_registry.json`.
-
-This audit is part of the normal conversion path, not only a repair utility.
-`run_local_pdf_conversion_pipeline.py`, `convert_routed_local_pdfs.py` and
-`fetch_pmc_fulltext_xml.py` refresh it before rebuilding extraction routes.
-Each audit row records the artifact's SHA-256.
+The older acquisition audit (`audit_fulltext_source_identity.py` and its report
+`source_identity_audit.json`) was removed on 8 November 2026; its decisions were
+migrated into the identity decision file. The completed July 2026 repair
+campaign is retained as a provenance record in
+`pipeline/fulltext/attestations/source_identity_repair_20260710.json`.
 
 The gate (`pipeline/identity/gate.py`) decides per artifact from the verdict
 table (`pipeline/identity/README.md`). An artifact is used only when the table
@@ -629,7 +608,7 @@ it has no abstract, instead of queueing the same PDF for conversion again. The
 route table records the gate's verdict in `fulltext_identity_status`. Recording a
 decision and running `python -m pipeline.identity apply --install` restores
 usable text. A writer adds rows for the artifacts it has just written and reports
-any the table does not make usable (`written_unverified_artifacts`).
+any the table does not make usable (`written_not_usable`).
 
 PMC/Europe PMC XML acquisition is DOI-selective as well. For JATS collections
 containing multiple `<article>` or `<sub-article>` records, the fetcher requires

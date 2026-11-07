@@ -62,7 +62,7 @@ from pipeline.identity.evidence import (
 )
 from pipeline.identity.model_reports import classify, iter_strings
 from pipeline.identity.register import DEFAULT_DECISIONS_PATH, current_decisions, read_decisions
-from pipeline.identity.verify import Paper, Source, Verdict, verify
+from pipeline.identity.verify import TITLE_ONLY_VERIFIED, Paper, Source, Verdict, verify
 from pipeline.identity.works import DEFAULT_WORK_REGISTRY, work_relation_index
 from pipeline.ingest.candidate_status import clean, normalize_doi
 
@@ -117,8 +117,8 @@ OWNER_AGREEMENT_MIN = 0.3
 OWNER_MARGIN = 0.2
 # Titles this similar on one shared abstract name the same work.
 SAME_WORK_TITLE = 0.8
-# A title-only text is suggested for acceptance only at this similarity.
-TITLE_ONLY_ACCEPT = 0.95
+# A title-only text is suggested for acceptance at the similarity verify() accepts it.
+TITLE_ONLY_ACCEPT = TITLE_ONLY_VERIFIED
 # OpenAlex created works below this ID from PubMed records, reusing the PMID.
 OPENALEX_LEGACY_ID_MAX = 45_000_000
 # Words without which a statement cannot say that text and paper differ.

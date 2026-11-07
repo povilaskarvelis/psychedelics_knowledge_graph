@@ -141,7 +141,8 @@ class FetchPmcFulltextXmlTest(unittest.TestCase):
         self.assertGreater(artifact["best_char_count"], 0)
         self.assertEqual(artifact["extractions"][0]["metadata"]["format"], "jats_xml")
         self.assertEqual(artifact["retrieval_trace"][0]["source"], "pmc_oai_xml")
-        self.assertEqual(artifact["source_identity"]["status"], "verified_exact_doi")
+        # Whether the text is the paper is decided by the identity intake (tests/test_identity_intake.py).
+        self.assertNotIn("source_identity", artifact)
 
     def test_build_xml_artifact_rejects_xml_for_another_doi(self) -> None:
         with self.assertRaisesRegex(ValueError, "JATS identity mismatch"):
