@@ -28,6 +28,7 @@ try:
         overview_graph_subjects,
         ui_source_key_for_finding,
     )
+    from pipeline.extract.review_source_types import SCHOLARLY_ANALYSIS_TYPES
     from pipeline.kg.graph_view_contract import (
         GRAPH_VIEW_CONTRACT_SCHEMA_VERSION,
         public_graph_view_facets,
@@ -42,6 +43,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         overview_graph_subjects,
         ui_source_key_for_finding,
     )
+    from pipeline.extract.review_source_types import SCHOLARLY_ANALYSIS_TYPES
     from pipeline.kg.graph_view_contract import (
         GRAPH_VIEW_CONTRACT_SCHEMA_VERSION,
         public_graph_view_facets,
@@ -248,6 +250,7 @@ PUBLIC_PAPER_SUBTYPES = {
     "umbrella_review",
     "guideline",
     "consensus_statement",
+    *SCHOLARLY_ANALYSIS_TYPES,
 }
 
 REQUIRED_NONEMPTY_FIELDS = {

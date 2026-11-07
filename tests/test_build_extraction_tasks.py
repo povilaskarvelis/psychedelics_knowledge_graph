@@ -11,6 +11,7 @@ from pipeline.extract.build_extraction_tasks import (
     TASK_SCHEMA_VERSION,
     build_tasks,
     input_fingerprint_for_task,
+    source_fingerprint_for_task,
 )
 
 
@@ -84,6 +85,21 @@ def route_row(**overrides: object) -> dict:
 
 
 class BuildExtractionTasksTest(unittest.TestCase):
+    def test_rebuilding_a_packet_with_the_same_text_keeps_the_source_fingerprint(self) -> None:
+        def fingerprint(**packet: object) -> str:
+            return source_fingerprint_for_task(
+                text_source={"mode": "full_text_packet"},
+                metadata={"study_title": "A paper", "abstract": "An abstract."},
+                packet={"sections": [{"text": "Body."}], **packet},
+            )
+
+        first = fingerprint(created_at_utc="2026-11-06T08:41:29+00:00")
+        self.assertEqual(first, fingerprint(created_at_utc="2026-11-07T02:21:03+00:00"))
+        self.assertNotEqual(
+            first,
+            fingerprint(created_at_utc="2026-11-06T08:41:29+00:00", tables=[{"text": "New."}]),
+        )
+
     def test_candidate_abstracts_survive_sparse_enrichment_without_erasing_cache_values(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)

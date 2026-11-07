@@ -6,7 +6,9 @@ from pathlib import Path
 import duckdb
 import pandas as pd
 
+from pipeline.extract.review_source_types import REVIEW_PATH_TYPES
 from pipeline.publish.export_query_api import (
+    PUBLIC_PAPER_SUBTYPES,
     PUBLIC_QUERY_MANIFEST_VERSION,
     materialize_query_artifacts,
     validate_query_artifact,
@@ -111,6 +113,9 @@ class ExportQueryApiTest(unittest.TestCase):
                 run_id="test_run",
             )
             self.assertEqual(checked["row_counts"]["relationships"], 2)
+
+    def test_public_subtypes_cover_the_review_path_types(self) -> None:
+        self.assertEqual(REVIEW_PATH_TYPES - PUBLIC_PAPER_SUBTYPES, frozenset())
 
     def test_refuses_to_publish_name_only_author_tables(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

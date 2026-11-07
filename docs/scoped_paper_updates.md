@@ -200,6 +200,12 @@ candidate outputs = active outputs outside DOI scope + validated outputs from al
 candidate evidence = active evidence outside DOI scope + family-specific converted evidence
 ```
 
+Finalize then runs the release assembly (`pipeline/kg/assemble_combined_release.py`)
+on that candidate. DOIs merged in the work registry resolve to the kept DOI: when
+the kept DOI has its own rows only those stay, and otherwise the merged DOI's rows
+move to it. Rows of papers that current eligibility excludes are removed. The
+counts are in `finalize_report.json` under `release_assembly`.
+
 The active KG still has not changed at this point. Inspect
 `data/processed/paper_updates/$UPDATE_ID/finalize_report.json` if desired.
 

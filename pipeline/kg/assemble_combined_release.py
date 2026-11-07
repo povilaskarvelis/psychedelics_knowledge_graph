@@ -610,8 +610,8 @@ def check_required_outputs(outputs: list[dict], required: set[str], aliases: dic
     return {"required_reports": len(expected), "completed_required_reports": len(expected & completed)}
 
 
-def main() -> int:
-    args = parse_args()
+def assemble_release(args: argparse.Namespace) -> dict:
+    """Write the release's evidence and outputs to ``args.out_dir`` and return the report."""
     aliases = read_aliases(args.doi_alias_registry)
     evidence_replacement_cohorts = replacement_cohorts(
         args.evidence_replacement_cohort, aliases
@@ -699,6 +699,11 @@ def main() -> int:
         ),
     }
     write_json(report_path, report)
+    return report
+
+
+def main() -> int:
+    report = assemble_release(parse_args())
     print(json.dumps(report, indent=2, ensure_ascii=False))
     return 0
 

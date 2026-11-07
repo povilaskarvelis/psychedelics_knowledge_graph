@@ -262,7 +262,7 @@ All corrections use four commands plus the scoped updater that already exists.
 | `python -m pipeline.identity audit` | Recomputes verdicts from stored evidence. Adds model warnings (the investigation's detector: 93% precision on 43 hand-read warnings), shared-text groups, ID collisions and DOI–title disagreements. Lists everything that feeds the current release with its evidence and a suggested decision. | only `review_queue.csv` in a run folder |
 | `python -m pipeline.identity decide` | Appends reviewed decisions, from a CSV or one at a time. Checks that the text hash exists, the verdict and relation are valid, the related DOI exists, and a basis and reviewer are given. Never edits earlier entries; it supersedes them. | `data/curated/source_identity_decisions.jsonl` and the work registry |
 | `python -m pipeline.identity apply --update-id …` | Recomputes verdicts with the decisions. Projects them into the ledger and route table. Writes `scope_dois.txt` with every DOI whose usable text changed, and states for each whether it will be re-extracted or only removed. | ledger and route projections; the update folder |
-| `run_scoped_paper_update.py prepare / finalize / promote` | Unchanged. Re-extracts or removes exactly the listed DOIs. | as today |
+| `run_scoped_paper_update.py prepare / finalize / promote` | Re-extracts or removes exactly the listed DOIs. `finalize` then runs the release assembly, which resolves merged DOIs and applies current eligibility. | as today |
 | `python -m pipeline.identity migrate` (once) | Converts the existing identity files (§2.5) and today's curated holds into the decision file and the widened registry. | the same two files |
 
 The commands give these guarantees:

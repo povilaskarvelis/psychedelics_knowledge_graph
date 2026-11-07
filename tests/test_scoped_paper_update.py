@@ -107,6 +107,15 @@ class ScopedPaperUpdateTest(unittest.TestCase):
         pd.DataFrame(
             [
                 {
+                    "doi": "10.1000/keep",
+                    "study_title": "",
+                    "abstract": "",
+                    "prescreen_decisions": "retain",
+                    "retained_for_extraction_candidate": True,
+                    "primary_secondary_source_type": "primary_study",
+                    "extraction_route_status": "ready_for_abstract_extraction",
+                },
+                {
                     "doi": "10.1000/update",
                     "study_title": "Primary paper",
                     "abstract": "A public abstract.",
@@ -353,6 +362,68 @@ class ScopedPaperUpdateTest(unittest.TestCase):
         self.assertEqual({row["study_doi"] for row in candidate_evidence}, {"10.1000/keep", "10.1000/update"})
         self.assertEqual(candidate_evidence[1]["task_id"], self.current_task["task_id"])
 
+    def test_finalize_applies_doi_merges_and_current_eligibility(self) -> None:
+        registry = self.root / "registry.json"
+        registry.write_text(
+            json.dumps(
+                {
+                    "records": [
+                        {"alias_doi": "10.1000/keep-alias", "canonical_doi": "10.1000/keep"},
+                        {"alias_doi": "10.1000/lone-alias", "canonical_doi": "10.1000/update-other"},
+                    ]
+                }
+            ),
+            encoding="utf-8",
+        )
+        candidates = pd.read_parquet(self.candidates_path)
+        extra = candidates.iloc[[0]].assign(doi="10.1000/update-other")
+        pd.concat([candidates, extra]).to_parquet(self.candidates_path, index=False)
+        write_jsonl(
+            self.base_outputs,
+            [
+                self.unaffected_output,
+                old_output("10.1000/keep-alias", "keep-alias"),
+                old_output("10.1000/lone-alias", "lone-alias"),
+                old_output("10.1000/not-retained", "not-retained"),
+                old_output("10.1000/update", "update-old"),
+            ],
+        )
+        self.base_evidence.write_text(
+            json.dumps(
+                [
+                    self.unaffected_evidence,
+                    {"study_doi": "10.1000/keep-alias", "compound": "duplicate"},
+                    {"study_doi": "10.1000/lone-alias", "compound": "moved"},
+                    {"study_doi": "10.1000/not-retained", "compound": "old"},
+                    {"study_doi": "10.1000/update", "compound": "old"},
+                ]
+            ),
+            encoding="utf-8",
+        )
+        patch_output = self.root / "patch.jsonl"
+        write_jsonl(patch_output, [successful_output(self.current_task)])
+        with (
+            patch.object(updater, "UPDATE_ROOT", self.update_root),
+            patch.object(updater, "ROUTED_RUNS_DIR", self.runs_root),
+            patch.object(updater, "DEFAULT_DOI_ALIAS_REGISTRY", registry),
+        ):
+            updater.prepare(self.prepare_args())
+            updater.finalize(self.finalize_args(patch_output))
+
+        run_dir = self.runs_root / "test_update"
+        evidence = json.loads((run_dir / "routed_evidence_rows.json").read_text(encoding="utf-8"))
+        self.assertEqual(
+            sorted((row["study_doi"], row["compound"]) for row in evidence if row["study_doi"] != "10.1000/update"),
+            [("10.1000/keep", "ketamine"), ("10.1000/update-other", "moved")],
+        )
+        outputs = {updater.doi_for_output(row) for row in updater.read_jsonl(run_dir / "route_extraction_outputs.jsonl")}
+        self.assertEqual(outputs, {"10.1000/keep", "10.1000/update", "10.1000/update-other"})
+        report = json.loads((self.update_root / "test_update" / "finalize_report.json").read_text(encoding="utf-8"))
+        self.assertEqual(report["release_assembly"]["evidence"]["base_doi_alias_collision_rows_removed"], 1)
+        self.assertEqual(report["release_assembly"]["evidence"]["base_rows_removed_by_current_eligibility"], 1)
+        self.assertEqual(report["evidence"]["candidate_rows"], len(evidence))
+        updater.verify_snapshot(report["candidate_run"]["evidence"], "Candidate evidence")
+
     def test_finalize_refuses_incomplete_patch(self) -> None:
         patch_output = self.root / "patch.jsonl"
         write_jsonl(
@@ -435,6 +506,15 @@ class ScopedPaperUpdateTest(unittest.TestCase):
             ]
         ).to_parquet(self.routes_path, index=False)
         candidates = [
+            {
+                "doi": "10.1000/keep",
+                "study_title": "",
+                "abstract": "",
+                "prescreen_decisions": "retain",
+                "retained_for_extraction_candidate": True,
+                "primary_secondary_source_type": "primary_study",
+                "extraction_route_status": "ready_for_abstract_extraction",
+            },
             {
                 "doi": "10.1000/update",
                 "study_title": "Primary paper",

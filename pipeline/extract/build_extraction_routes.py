@@ -552,6 +552,45 @@ def domain_routing_by_doi(df: pd.DataFrame) -> dict[str, list[dict]]:
     return dict(out)
 
 
+def carry_screening_from_merged_dois(
+    doi_aliases: dict[str, str],
+    *,
+    prescreen: dict[str, dict],
+    prescreen_dois: set[str],
+    literature_by_doi: dict[str, dict],
+    domain_by_doi: dict[str, list[dict]],
+    screening_overrides: dict[str, dict],
+) -> dict[str, str]:
+    """Give a kept DOI the screening result of a merged DOI that was included.
+
+    Two DOIs of one work can receive different screening results. The work is
+    included when any of its DOIs was included, so no paper needs re-screening.
+    A curated exclusion of the kept DOI still applies, in ``domain_plan_for``.
+    Returns the merged DOI each changed kept DOI now takes its result from.
+    """
+
+    def included(doi: str) -> bool:
+        if clean(screening_overrides.get(doi, {}).get("decision", "")) == "exclude_out_of_scope":
+            return False
+        if doi in prescreen_dois and not prescreen.get(doi, {}).get("retained"):
+            return False
+        rows = domain_by_doi.get(doi, [])
+        return bool(rows) and clean(rows[0].get("screening_decision", "")) != "exclude_out_of_scope"
+
+    carried: dict[str, str] = {}
+    for merged, kept in sorted(doi_aliases.items()):
+        if kept not in carried and not included(kept) and included(merged):
+            carried[kept] = merged
+    for kept, merged in carried.items():
+        domain_by_doi[kept] = domain_by_doi[merged]
+        if merged in literature_by_doi:
+            literature_by_doi[kept] = literature_by_doi[merged]
+        if merged in prescreen_dois:
+            prescreen[kept] = prescreen[merged]
+            prescreen_dois.add(kept)
+    return carried
+
+
 def artifact_text_ready(path: Path) -> tuple[bool, int]:
     """Return whether a stored artifact holds article text, and its size."""
     try:
@@ -1241,6 +1280,14 @@ def build_route_rows(
     screening_overrides = screening_overrides or {}
     manual_fulltext_access_overrides = manual_fulltext_access_overrides or {}
     doi_aliases = doi_aliases or {}
+    carry_screening_from_merged_dois(
+        doi_aliases,
+        prescreen=prescreen,
+        prescreen_dois=prescreen_dois,
+        literature_by_doi=literature_by_doi,
+        domain_by_doi=domain_by_doi,
+        screening_overrides=screening_overrides,
+    )
     local_pdf_index = build_local_pdf_index(paper_root)
     canonical_artifact_dir = fulltext_dir / CANONICAL_FULLTEXT_ARTICLE_DIR
     source_identity_gate = (

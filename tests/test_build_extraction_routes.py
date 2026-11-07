@@ -10,6 +10,7 @@ from pipeline.extract.build_extraction_routes import (
     build_candidate_status_updates,
     build_extraction_routes,
     build_route_rows,
+    carry_screening_from_merged_dois,
     doi_to_slug,
     fulltext_status_for_doi,
     merged_extraction_metadata,
@@ -48,6 +49,70 @@ class BuildExtractionRoutesTests(unittest.TestCase):
                 self.assertEqual(status, "hold_source_review")
                 self.assertFalse(retained)
                 pd.testing.assert_frame_equal(domain, original)
+
+    def screening_inputs(self) -> dict:
+        def domain(decision: str, route: str = "molecular_target") -> list[dict]:
+            return [{"screening_decision": decision, "domain_route": route}]
+
+        return {
+            "prescreen": {
+                "10.1000/in": {"retained": True},
+                "10.1000/out": {"retained": True},
+                "10.1000/no-prescreen-kept": {"retained": False},
+                "10.1000/in-2": {"retained": True},
+                "10.1000/both-in": {"retained": True},
+                "10.1000/both-in-merged": {"retained": True},
+            },
+            "prescreen_dois": {
+                "10.1000/in",
+                "10.1000/out",
+                "10.1000/no-prescreen-kept",
+                "10.1000/in-2",
+                "10.1000/both-in",
+                "10.1000/both-in-merged",
+            },
+            "literature_by_doi": {"10.1000/in": {"source_family": "primary"}},
+            "domain_by_doi": {
+                "10.1000/in": domain("include_in_scope"),
+                "10.1000/out": domain("exclude_out_of_scope", ""),
+                "10.1000/in-2": domain("include_in_scope", "brain_system"),
+                "10.1000/both-in": domain("include_in_scope", "clinical_outcome"),
+                "10.1000/both-in-merged": domain("include_in_scope", "safety_tolerability"),
+            },
+            "screening_overrides": {},
+        }
+
+    def test_kept_doi_takes_screening_result_of_included_merged_doi(self) -> None:
+        inputs = self.screening_inputs()
+        carried = carry_screening_from_merged_dois(
+            {
+                "10.1000/in": "10.1000/out",
+                "10.1000/in-2": "10.1000/no-prescreen-kept",
+                "10.1000/both-in-merged": "10.1000/both-in",
+            },
+            **inputs,
+        )
+        self.assertEqual(
+            carried,
+            {"10.1000/out": "10.1000/in", "10.1000/no-prescreen-kept": "10.1000/in-2"},
+        )
+        self.assertEqual(inputs["domain_by_doi"]["10.1000/out"][0]["screening_decision"], "include_in_scope")
+        self.assertEqual(inputs["literature_by_doi"]["10.1000/out"], {"source_family": "primary"})
+        self.assertTrue(inputs["prescreen"]["10.1000/no-prescreen-kept"]["retained"])
+        self.assertEqual(inputs["domain_by_doi"]["10.1000/both-in"][0]["domain_route"], "clinical_outcome")
+
+    def test_excluded_merged_doi_and_curated_exclusion_carry_nothing(self) -> None:
+        inputs = self.screening_inputs()
+        self.assertEqual(
+            carry_screening_from_merged_dois({"10.1000/out": "10.1000/in"}, **inputs),
+            {},
+        )
+        inputs = self.screening_inputs()
+        inputs["screening_overrides"] = {"10.1000/in": {"decision": "exclude_out_of_scope", "reason": "reviewed"}}
+        self.assertEqual(
+            carry_screening_from_merged_dois({"10.1000/in": "10.1000/out"}, **inputs),
+            {},
+        )
 
     def test_scoped_full_rebuild_preserves_out_of_scope_selection_state(self) -> None:
         candidates = pd.DataFrame(

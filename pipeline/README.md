@@ -106,7 +106,9 @@ The active graph changes only during the publication phase. Preparation builds
 the primary/consensus, review, and meta-analysis task families from one routed
 DOI scope. Finalization applies each family's validator and converter, replaces
 previous extraction outputs for the selected DOIs, and requires a complete,
-current set of replacement outputs. Omit an output flag when its prepared task
+current set of replacement outputs. It then runs the release assembly
+(`pipeline/kg/assemble_combined_release.py`), so merged DOIs resolve to the kept
+DOI and current eligibility applies. Omit an output flag when its prepared task
 file is empty. See
 [`docs/scoped_paper_updates.md`](../docs/scoped_paper_updates.md) for batch API
 commands, exclusion-only updates, audits, and rollback behavior.

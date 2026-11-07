@@ -194,7 +194,7 @@ def stable_packet_payload(value: object) -> object:
         return {
             key: stable_packet_payload(item)
             for key, item in sorted(value.items())
-            if key not in {"_packet_source_path", "generated_at_utc"}
+            if key not in {"_packet_source_path", "generated_at_utc", "created_at_utc"}
         }
     if isinstance(value, list):
         return [stable_packet_payload(item) for item in value]

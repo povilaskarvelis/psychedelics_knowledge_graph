@@ -45,6 +45,7 @@ try:
         build_tasks as build_review_tasks,
         production_cohort as review_production_cohort,
     )
+    from pipeline.kg.assemble_combined_release import DEFAULT_METADATA_OVERRIDES, assemble_release
     from pipeline.kg.convert_meta_analysis_v2_to_evidence_rows import (
         convert_outputs as convert_meta_analysis_outputs,
     )
@@ -64,6 +65,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         build_tasks as build_review_tasks,
         production_cohort as review_production_cohort,
     )
+    from pipeline.kg.assemble_combined_release import DEFAULT_METADATA_OVERRIDES, assemble_release
     from pipeline.kg.convert_meta_analysis_v2_to_evidence_rows import (
         convert_outputs as convert_meta_analysis_outputs,
     )
@@ -86,6 +88,7 @@ DEFAULT_ROUTES = PROCESSED_DIR / "corpus" / "paper_extraction_routes.parquet"
 DEFAULT_CANDIDATES = PROCESSED_DIR / "corpus" / "candidate_papers.parquet"
 DEFAULT_PACKETS = EXTRACTION_DIR / "fulltext_packets.jsonl"
 DEFAULT_ENTITY_REGISTRY = ROOT / "data" / "curated" / "entity_registry.json"
+DEFAULT_DOI_ALIAS_REGISTRY = ROOT / "pipeline" / "validate" / "doi_alias_registry.json"
 
 DOI_RE = re.compile(r"^10\.\d{4,9}/\S+$", re.IGNORECASE)
 RUN_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
@@ -645,7 +648,7 @@ def prepare(args: argparse.Namespace) -> int:
         task_group(task) in {"reviews", "meta_analyses"} for task in ready_tasks
     )
     has_review_ready_tasks = any(task_group(task) == "reviews" for task in ready_tasks)
-    candidate_snapshot = file_snapshot(candidate_path) if has_dedicated_ready_tasks else None
+    candidate_snapshot = file_snapshot(candidate_path)
     packets_snapshot = file_snapshot(packets_path) if has_dedicated_ready_tasks else None
     entity_registry_snapshot = (
         file_snapshot(entity_registry_path) if has_review_ready_tasks else None
@@ -1112,10 +1115,9 @@ def finalize(args: argparse.Namespace) -> int:
         family_outputs[group] = rows
         family_output_reports[group] = report
 
-    candidate_snapshot = manifest["current_inputs"].get("candidate_table")
     packets_snapshot = manifest["current_inputs"].get("packets")
     registry_snapshot = manifest["current_inputs"].get("entity_registry")
-    candidate_path = verify_snapshot(candidate_snapshot, "Candidate table") if candidate_snapshot else None
+    candidate_path = verify_snapshot(manifest["current_inputs"]["candidate_table"], "Candidate table")
     if packets_snapshot:
         verify_snapshot(packets_snapshot, "Full-text packets")
     entity_registry_path = (
@@ -1168,7 +1170,7 @@ def finalize(args: argparse.Namespace) -> int:
     conversion_reports["primary"] = primary_report
 
     if family_tasks["reviews"]:
-        assert candidate_path is not None and entity_registry_path is not None
+        assert entity_registry_path is not None
         candidate_rows = pd.read_parquet(candidate_path).to_dict("records")
         review_evidence, review_report = convert_review_bundles(
             family_outputs["reviews"],
@@ -1244,6 +1246,26 @@ def finalize(args: argparse.Namespace) -> int:
             + ", ".join(stale_scope_dois[:10])
         )
 
+    # The safety checks above compare the update with its base DOI by DOI. The candidate
+    # now becomes a release: merged DOIs resolve to the kept DOI and current eligibility applies.
+    assembly_report = assemble_release(
+        argparse.Namespace(
+            run_id=update_id,
+            base_evidence=candidate_evidence,
+            evidence_overlay=[],
+            evidence_replacement_cohort=[],
+            base_outputs=candidate_outputs,
+            output_overlay=[],
+            output_replacement_cohort=[],
+            required_output_dois=None,
+            candidate_table=candidate_path,
+            metadata_overrides=DEFAULT_METADATA_OVERRIDES,
+            eligibility_field="retained_for_extraction_candidate",
+            doi_alias_registry=DEFAULT_DOI_ALIAS_REGISTRY,
+            out_dir=candidate_run_dir,
+        )
+    )
+
     family_report = {
         group: {
             "ready_tasks": len(family_tasks[group]),
@@ -1268,7 +1290,8 @@ def finalize(args: argparse.Namespace) -> int:
             "base_rows": manifest["base"]["output_rows"],
             "base_scope_rows_removed": manifest["base"]["scope_output_rows_to_replace"],
             "patch_rows_added": len(all_output_rows),
-            "candidate_rows": combined_output_count,
+            "candidate_rows_before_assembly": combined_output_count,
+            "candidate_rows": assembly_report["outputs"]["combined_rows"],
             "out_of_scope_rows_base": base_unaffected_count,
             "out_of_scope_rows_candidate": candidate_unaffected_count,
             "out_of_scope_digest_base": base_digest,
@@ -1278,9 +1301,11 @@ def finalize(args: argparse.Namespace) -> int:
             "base_rows": len(base_evidence_rows),
             "base_scope_rows_removed": len(base_evidence_rows) - len(unaffected_evidence),
             "patch_rows_added": len(patch_evidence),
-            "candidate_rows": len(candidate_evidence_rows),
+            "candidate_rows_before_assembly": len(candidate_evidence_rows),
+            "candidate_rows": assembly_report["evidence"]["combined_rows"],
             "patch_conversion": conversion_reports,
         },
+        "release_assembly": assembly_report,
         "candidate_run": {
             "run_dir": str(candidate_run_dir.resolve()),
             "outputs": file_snapshot(candidate_outputs),
@@ -1313,7 +1338,7 @@ def finalize(args: argparse.Namespace) -> int:
             for group in ("primary", "reviews", "meta_analyses")
         )
     )
-    print(f"Candidate evidence rows: {len(candidate_evidence_rows)}")
+    print(f"Candidate evidence rows: {assembly_report['evidence']['combined_rows']}")
     print("The active KG has not changed. Run the promote subcommand after reviewing this report.")
     return 0
 
