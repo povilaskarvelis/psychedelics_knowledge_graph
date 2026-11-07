@@ -63,6 +63,7 @@ try:
     from pipeline.kg.cognitive_observation_identity import explicit_cognitive_observation, cognitive_observation_signature, cognitive_measurement_recovery, cognitive_context_recovery, HELD_SUBJECT_STATUSES as COGNITIVE_HELD_SUBJECT_STATUSES, SUBJECT_REASON as COGNITIVE_CONTEXT_REASON
     from pipeline.kg.recommendation_identity import explicit_recommendation, recommendation_identity_fields, ENTITY_KIND as RECOMMENDATION_KIND
     from pipeline.kg.review_statement_attribution import statement_contrasts_drugs
+    from pipeline.identity.gate import DEFAULT_VERDICTS_PATH, require_current_inputs
     from pipeline.kg.use_contexts import (
         use_context_definition,
         use_context_label_from_text,
@@ -110,6 +111,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     from pipeline.kg.cognitive_observation_identity import explicit_cognitive_observation, cognitive_observation_signature, cognitive_measurement_recovery, cognitive_context_recovery, HELD_SUBJECT_STATUSES as COGNITIVE_HELD_SUBJECT_STATUSES, SUBJECT_REASON as COGNITIVE_CONTEXT_REASON
     from pipeline.kg.recommendation_identity import explicit_recommendation, recommendation_identity_fields, ENTITY_KIND as RECOMMENDATION_KIND
     from pipeline.kg.review_statement_attribution import statement_contrasts_drugs
+    from pipeline.identity.gate import DEFAULT_VERDICTS_PATH, require_current_inputs
     from pipeline.kg.use_contexts import (
         use_context_definition,
         use_context_label_from_text,
@@ -133,7 +135,6 @@ DEFAULT_OPEN_SCIENCE_FEATURES_PATH = (
 DEFAULT_OPEN_SCIENCE_ASSERTIONS_PATH = (
     ROOT / "data" / "processed" / "corpus" / "paper_open_science_assertions.parquet"
 )
-DEFAULT_GRAPH_DISPOSITION_OVERRIDES = ROOT / "data" / "curated" / "graph_inclusion_disposition_overrides.json"
 DEFAULT_PAPER_METADATA_OVERRIDES = ROOT / "data" / "curated" / "paper_metadata_overrides.json"
 DEFAULT_RETRACTION_STATUS = ROOT / "data" / "curated" / "retraction_status.json"
 SOURCE_IDENTITY_HOLD_STATUS = "source_identity_not_verified"
@@ -144,7 +145,7 @@ RETRACTED_HOLD_STATUS = "retracted_publication"
 DISPLAYED_PUBLICATION_NOTICES = {"expression_of_concern", "partially_retracted", "retracted_and_replaced"}
 PUBLICATION_NOTICE_COLUMNS = ("publication_notice", "publication_notice_date", "publication_notice_url")
 KG_TABLE_VERSION = "0.2"
-NORMALIZATION_CONTRACT_VERSION = "routed_normalization_review_20261102_v1"
+NORMALIZATION_CONTRACT_VERSION = "routed_identity_verdicts_20261107_v1"
 MOLECULAR_SUBTOPIC_TAXONOMY_VERSION = "molecular_subtopics_v4_20261028_measured_readouts"
 
 ROUTED_GRAPH_SOURCES = {
@@ -12530,17 +12531,46 @@ def write_parquet(df: pd.DataFrame, path: Path) -> None:
     df.to_parquet(path, engine="pyarrow", index=False)
 
 
+def load_identity_verdicts(verdicts_path: Path, doi_aliases: dict[str, str]) -> dict[str, dict]:
+    """Read the papers the verdict table withholds and the papers it allows article text.
+
+    The table is the one ``python -m pipeline.identity apply --install`` writes
+    (``pipeline/identity/bindings.py``). A record row withholds its paper. A
+    paper may keep rows from article text when a usable full text belongs to it
+    or to a DOI the work registry merges into it, since release assembly moves
+    a merged DOI's rows to the DOI that is kept.
+    """
+    if not verdicts_path.is_file():
+        raise FileNotFoundError(
+            f"The verdict table is required for the KG build: {verdicts_path}. "
+            "Run `python -m pipeline.identity apply --install`."
+        )
+    require_current_inputs(verdicts_path)
+    table = pd.read_parquet(verdicts_path)
+    withheld = {
+        resolve_registered_doi(row["doi"], doi_aliases): normalize(row["reason"])
+        for row in table.loc[table["target_kind"] == "record"].to_dict("records")
+    }
+    fulltexts = table.loc[(table["target_kind"] == "fulltext") & table["usable"].astype(bool)]
+    return {
+        "withheld_papers": withheld,
+        "article_text_papers": {resolve_registered_doi(doi, doi_aliases) for doi in fulltexts["doi"]},
+    }
+
+
 def load_curated_paper_decisions(
-    disposition_overrides_path: Path | None,
+    identity_verdicts_path: Path | None,
     metadata_overrides_path: Path | None,
     doi_aliases: dict[str, str],
     retraction_status_path: Path | None = None,
 ) -> dict[str, dict]:
     """Load reviewed paper decisions that must also reach evidence already extracted.
 
-    Extraction can predate curation. A paper whose final disposition is
-    ``source_not_verified`` was extracted from text that belongs to another
-    publication, so none of its rows are graphed. An abstract cleared without a
+    Extraction can predate curation. The verdict table decides which texts may
+    be read for a paper (``load_identity_verdicts``): a paper it withholds keeps
+    no rows, and a paper it allows no article text keeps no rows from article
+    text. Until extraction outputs record the text each row was read from, the
+    check is by kind of text, not by file. An abstract cleared without a
     replacement belonged to another publication, so rows extracted from that
     abstract are held while rows from verified article text remain. Curated
     titles replace provider titles that belong to another publication; assembly
@@ -12563,15 +12593,11 @@ def load_curated_paper_decisions(
                 retracted_papers[canonical] = normalize(record.get("reason", ""))
             elif canonical and status in DISPLAYED_PUBLICATION_NOTICES:
                 paper_notices[canonical] = publication_notice_fields(record)
-    held_papers: dict[str, str] = {}
-    if disposition_overrides_path is not None and disposition_overrides_path.is_file():
-        for group in load_json_object(disposition_overrides_path).get("overrides", []):
-            if normalize(group.get("disposition", "")) != "source_not_verified":
-                continue
-            for doi in group.get("dois", []):
-                canonical = resolve_registered_doi(doi, doi_aliases)
-                if canonical:
-                    held_papers[canonical] = normalize(group.get("reason", ""))
+    identity = (
+        load_identity_verdicts(identity_verdicts_path, doi_aliases)
+        if identity_verdicts_path is not None
+        else {"withheld_papers": {}, "article_text_papers": None}
+    )
     cleared_abstracts: dict[str, str] = {}
     curated_titles: dict[str, str] = {}
     if metadata_overrides_path is not None and metadata_overrides_path.is_file():
@@ -12585,7 +12611,7 @@ def load_curated_paper_decisions(
             if normalize(fields.get("study_title", "")):
                 curated_titles[canonical] = normalize(fields["study_title"])
     return {
-        "held_papers": held_papers,
+        **identity,
         "cleared_abstracts": cleared_abstracts,
         "curated_titles": curated_titles,
         "retracted_papers": retracted_papers,
@@ -12639,10 +12665,12 @@ def split_curated_paper_holds(
     decisions: dict[str, dict],
     doi_aliases: dict[str, str],
 ) -> tuple[list[dict], list[tuple[dict, str, str]]]:
-    """Apply curated titles and set aside rows of retracted papers and rows from another publication's text.
+    """Apply curated titles and set aside rows of retracted papers and rows from text the paper may not use.
 
     Each held row comes with the audit status and the reason it was held.
+    ``article_text_papers`` is ``None`` when no verdict table was given.
     """
+    article_text_papers = decisions["article_text_papers"]
     kept: list[dict] = []
     held: list[tuple[dict, str, str]] = []
     for row in rows:
@@ -12652,11 +12680,14 @@ def split_curated_paper_holds(
             row = {**row, "study_title": title}
         if doi in decisions["retracted_papers"]:
             held.append((row, RETRACTED_HOLD_STATUS, decisions["retracted_papers"][doi] or "the publication was retracted"))
-        elif doi in decisions["held_papers"]:
+        elif doi in decisions["withheld_papers"]:
             held.append((
                 row, SOURCE_IDENTITY_HOLD_STATUS,
-                decisions["held_papers"][doi] or "the extracted text belongs to another publication",
+                decisions["withheld_papers"][doi] or "the verdict table withholds the paper",
             ))
+        elif (article_text_papers is not None and doi not in article_text_papers
+              and normalize(row.get("access_level", "")).casefold() == "article_text"):
+            held.append((row, SOURCE_IDENTITY_HOLD_STATUS, "the verdict table allows no article text for this paper"))
         elif doi in decisions["cleared_abstracts"] and normalize(row.get("access_level", "")).casefold() == "abstract_only":
             held.append((
                 row, SOURCE_IDENTITY_HOLD_STATUS,
@@ -12685,7 +12716,7 @@ def build_tables(
     open_science_features_path: Path | None = None,
     open_science_assertions_path: Path | None = None,
     doi_alias_registry_path: Path | None = DEFAULT_DOI_ALIAS_REGISTRY,
-    graph_disposition_overrides_path: Path | None = DEFAULT_GRAPH_DISPOSITION_OVERRIDES,
+    identity_verdicts_path: Path | None = None,
     paper_metadata_overrides_path: Path | None = DEFAULT_PAPER_METADATA_OVERRIDES,
     retraction_status_path: Path | None = DEFAULT_RETRACTION_STATUS,
     out_dir: Path = DEFAULT_OUT_DIR,
@@ -12713,7 +12744,7 @@ def build_tables(
     source_counts: dict[str, int] = {}
     doi_aliases = load_doi_aliases(doi_alias_registry_path)
     paper_decisions = load_curated_paper_decisions(
-        graph_disposition_overrides_path, paper_metadata_overrides_path, doi_aliases, retraction_status_path
+        identity_verdicts_path, paper_metadata_overrides_path, doi_aliases, retraction_status_path
     )
     held_rows_by_status: dict[str, dict[str, int]] = {SOURCE_IDENTITY_HOLD_STATUS: {}, RETRACTED_HOLD_STATUS: {}}
     held_papers_by_status: dict[str, set[str]] = {SOURCE_IDENTITY_HOLD_STATUS: set(), RETRACTED_HOLD_STATUS: set()}
@@ -13734,9 +13765,12 @@ def build_tables(
         "node_vocabulary_path": str(node_vocabulary_path),
         "source_counts": source_counts,
         "curated_paper_decisions": {
-            "graph_disposition_overrides": curated_input_record(graph_disposition_overrides_path),
+            "identity_verdicts": curated_input_record(identity_verdicts_path),
             "paper_metadata_overrides": curated_input_record(paper_metadata_overrides_path),
-            "held_papers": len(paper_decisions["held_papers"]),
+            "withheld_papers": len(paper_decisions["withheld_papers"]),
+            "article_text_papers": (
+                len(paper_decisions["article_text_papers"]) if paper_decisions["article_text_papers"] is not None else None
+            ),
             "cleared_abstracts": len(paper_decisions["cleared_abstracts"]),
             "curated_titles": len(paper_decisions["curated_titles"]),
             "source_identity_held_rows": held_rows_by_status[SOURCE_IDENTITY_HOLD_STATUS],
@@ -13875,10 +13909,10 @@ def parse_args() -> argparse.Namespace:
         help="Registered DOI aliases applied to paper and funding identities.",
     )
     parser.add_argument(
-        "--graph-disposition-overrides",
+        "--identity-verdicts",
         type=Path,
-        default=DEFAULT_GRAPH_DISPOSITION_OVERRIDES,
-        help="Curated final dispositions; papers marked source_not_verified are held from the graph.",
+        default=DEFAULT_VERDICTS_PATH,
+        help="Verdict table from `python -m pipeline.identity apply --install`; rows from text it does not allow are held.",
     )
     parser.add_argument(
         "--paper-metadata-overrides",
@@ -13926,7 +13960,7 @@ def main() -> None:
         open_science_features_path=args.open_science_features,
         open_science_assertions_path=args.open_science_assertions,
         doi_alias_registry_path=args.doi_alias_registry,
-        graph_disposition_overrides_path=args.graph_disposition_overrides,
+        identity_verdicts_path=args.identity_verdicts,
         paper_metadata_overrides_path=args.paper_metadata_overrides,
         retraction_status_path=args.retraction_status,
         out_dir=out_dir,

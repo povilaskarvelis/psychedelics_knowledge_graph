@@ -108,6 +108,12 @@ included when any of its DOIs was included: the route builder gives the kept DOI
 the screening result of an included merged DOI (`carry_screening_from_merged_dois`).
 A curated exclusion still applies, and no paper is re-screened.
 
+The KG build reads the table too (`pipeline/kg/README.md`, "Source-identity
+holds"). It holds every finding of a paper that a record row withholds, and the
+findings from article text of a paper with no usable full text of its own or of
+a DOI the work registry merges into it. Findings do not yet record the text they
+were read from, so this check is by kind of text, not by file.
+
 A converter or fetcher that writes a full text gets new rows for that text
 (`refresh_fulltext_rows`). The text under another DOI is carried only at the
 next `apply`.

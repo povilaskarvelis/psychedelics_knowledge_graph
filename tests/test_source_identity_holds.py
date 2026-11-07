@@ -1,11 +1,12 @@
-"""Findings of retracted papers, or extracted from another publication's text, are held from the graph.
+"""Findings of retracted papers, or extracted from text the paper may not use, are held from the graph.
 
 Curation can find, after extraction, that a paper's abstract or article text
 belongs to a different publication. The KG build applies those decisions to
-evidence already extracted: a paper marked ``source_not_verified`` loses all of
-its rows, a paper whose abstract was cleared without a replacement loses only
-its abstract-derived rows, and curated titles replace provider titles. A paper
-that the retraction check found retracted loses all of its rows.
+evidence already extracted: a paper the verdict table withholds loses all of
+its rows, a paper the table allows no article text loses its rows from article
+text, a paper whose abstract was cleared without a replacement loses only its
+abstract-derived rows, and curated titles replace provider titles. A paper that
+the retraction check found retracted loses all of its rows.
 """
 import json
 
@@ -13,7 +14,10 @@ import pandas as pd
 
 from pipeline.ingest.materialize_candidate_metadata import read_curated_overrides
 from pipeline.kg import build_evidence_tables as b
-from pipeline.kg.update_corpus_graph_status import build_updated_corpus, decision_from_audit, load_disposition_overrides
+from pipeline.identity.bindings import verdict_table
+from pipeline.kg.update_corpus_graph_status import (
+    DEFAULT_DISPOSITION_OVERRIDES, build_updated_corpus, decision_from_audit, load_disposition_overrides,
+)
 
 
 def clinical_row(doi: str, access_level: str, title: str = "Psilocybin for major depressive disorder") -> dict:
@@ -28,17 +32,21 @@ def clinical_row(doi: str, access_level: str, title: str = "Psilocybin for major
     }
 
 
+def verdict_row(doi: str, target_kind: str, verdict: str, usable: bool, reason: str = "") -> dict:
+    return {
+        "doi": doi, "target_kind": target_kind, "artifact": f"{doi}.json" if target_kind == "fulltext" else "",
+        "verdict": verdict, "usable": usable, "reason": reason or verdict,
+    }
+
+
 def write_curation(tmp_path):
-    dispositions = tmp_path / "graph_inclusion_disposition_overrides.json"
-    dispositions.write_text(json.dumps({
-        "schema_version": "graph_inclusion_disposition_overrides_v1",
-        "overrides": [
-            {"dois": ["10.1000/wrong-text-alias"], "disposition": "source_not_verified",
-             "reason": "The article text belongs to another report.", "next_action": "Revisit if verified."},
-            {"dois": ["10.1000/no-results"], "disposition": "insufficient_source_text",
-             "reason": "The text stops before the results.", "next_action": "Revisit if verified."},
-        ],
-    }))
+    verdicts = tmp_path / "verdicts.parquet"
+    verdict_table([
+        verdict_row("10.1000/wrong-text-alias", "record", "hold", False, "hold: The article text belongs to another report."),
+        verdict_row("10.1000/wrong-abstract", "fulltext", "verified", True),
+        verdict_row("10.1000/merged", "fulltext", "version_of", True),
+        verdict_row("10.1000/unverified-text", "fulltext", "unconfirmed", False),
+    ]).to_parquet(verdicts, index=False)
     metadata = tmp_path / "paper_metadata_overrides.json"
     metadata.write_text(json.dumps({
         "schema_version": "paper_metadata_overrides_v2",
@@ -54,27 +62,33 @@ def write_curation(tmp_path):
     aliases = tmp_path / "doi_alias_registry.json"
     aliases.write_text(json.dumps({"records": [
         {"alias_doi": "10.1000/wrong-text-alias", "canonical_doi": "10.1000/wrong-text"},
+        {"alias_doi": "10.1000/merged", "canonical_doi": "10.1000/kept"},
     ]}))
-    return dispositions, metadata, aliases
+    return verdicts, metadata, aliases
 
 
 def test_curated_decisions_resolve_aliases_and_skip_replaced_abstracts(tmp_path):
-    dispositions, metadata, _ = write_curation(tmp_path)
+    verdicts, metadata, _ = write_curation(tmp_path)
     decisions = b.load_curated_paper_decisions(
-        dispositions, metadata, {"10.1000/wrong-text-alias": "10.1000/wrong-text"}
+        verdicts, metadata, {"10.1000/wrong-text-alias": "10.1000/wrong-text", "10.1000/merged": "10.1000/kept"}
     )
-    assert decisions["held_papers"] == {"10.1000/wrong-text": "The article text belongs to another report."}
+    assert decisions["withheld_papers"] == {"10.1000/wrong-text": "hold: The article text belongs to another report."}
+    # A merged DOI's usable text counts for the DOI that is kept.
+    assert decisions["article_text_papers"] == {"10.1000/wrong-abstract", "10.1000/kept"}
     assert decisions["cleared_abstracts"] == {"10.1000/wrong-abstract": "The abstract belongs to another paper."}
     assert decisions["curated_titles"] == {"10.1000/wrong-title": "The registered title"}
 
 
-def test_build_holds_rows_extracted_from_another_publications_text(tmp_path):
-    dispositions, metadata, aliases = write_curation(tmp_path)
+def test_build_holds_rows_extracted_from_text_the_paper_may_not_use(tmp_path):
+    verdicts, metadata, aliases = write_curation(tmp_path)
     source = tmp_path / "routed_evidence_rows.json"
     source.write_text(json.dumps([
         clinical_row("10.1000/wrong-text", "article_text"),
         clinical_row("10.1000/wrong-abstract", "abstract_only"),
         clinical_row("10.1000/wrong-abstract", "article_text"),
+        clinical_row("10.1000/unverified-text", "article_text"),
+        clinical_row("10.1000/unverified-text", "abstract_only"),
+        clinical_row("10.1000/kept", "article_text"),
         clinical_row("10.1000/replaced-abstract", "abstract_only"),
         clinical_row("10.1000/wrong-title", "abstract_only", title="Curing agents"),
         clinical_row("10.1000/no-results", "abstract_only"),
@@ -84,7 +98,7 @@ def test_build_holds_rows_extracted_from_another_publications_text(tmp_path):
         out_dir=out_dir,
         write_duckdb=False,
         doi_alias_registry_path=aliases,
-        graph_disposition_overrides_path=dispositions,
+        identity_verdicts_path=verdicts,
         paper_metadata_overrides_path=metadata,
         retraction_status_path=None,
         graph_sources={"routed_extractions": {
@@ -98,24 +112,47 @@ def test_build_holds_rows_extracted_from_another_publications_text(tmp_path):
 
     assert "10.1000/wrong-text" not in set(findings.study_doi)
     assert findings.loc[findings.study_doi.eq("10.1000/wrong-abstract"), "access_level"].tolist() == ["article_text"]
-    # A replaced abstract was re-extracted; other final dispositions do not hold rows.
-    assert {"10.1000/replaced-abstract", "10.1000/no-results", "10.1000/wrong-title"} <= set(findings.study_doi)
+    # Rows from text the table does not allow are held; the abstract rows of that paper stay.
+    assert findings.loc[findings.study_doi.eq("10.1000/unverified-text"), "access_level"].tolist() == ["abstract_only"]
+    # A replaced abstract was re-extracted, and a merged DOI's text counts for the kept DOI.
+    assert {"10.1000/replaced-abstract", "10.1000/no-results", "10.1000/wrong-title", "10.1000/kept"} <= set(findings.study_doi)
     assert papers.loc[papers.study_doi.eq("10.1000/wrong-title"), "title"].tolist() == ["The registered title"]
 
     held = audit[audit.normalization_status.eq(b.SOURCE_IDENTITY_HOLD_STATUS)].sort_values("study_doi")
-    assert held.study_doi.tolist() == ["10.1000/wrong-abstract", "10.1000/wrong-text"]
+    assert held.study_doi.tolist() == ["10.1000/unverified-text", "10.1000/wrong-abstract", "10.1000/wrong-text"]
     assert held.normalization_notes.tolist() == [
+        "the verdict table allows no article text for this paper",
         "The abstract belongs to another paper.",
-        "The article text belongs to another report.",
+        "hold: The article text belongs to another report.",
     ]
     decisions = manifest["curated_paper_decisions"]
-    assert decisions["source_identity_held_rows"] == {"routed_extractions": 2}
-    assert decisions["source_identity_held_paper_ids"] == ["paper:10.1000/wrong-abstract", "paper:10.1000/wrong-text"]
+    assert decisions["source_identity_held_rows"] == {"routed_extractions": 3}
+    assert decisions["source_identity_held_paper_ids"] == [
+        "paper:10.1000/unverified-text", "paper:10.1000/wrong-abstract", "paper:10.1000/wrong-text",
+    ]
+    assert decisions["withheld_papers"] == 1
+    assert decisions["article_text_papers"] == 2
+    assert len(decisions["identity_verdicts"]["sha256"]) == 64
     assert len(decisions["paper_metadata_overrides"]["sha256"]) == 64
 
 
+def test_build_stops_when_decisions_changed_after_the_table_was_installed(tmp_path):
+    verdicts, metadata, aliases = write_curation(tmp_path)
+    decision_file = tmp_path / "decisions.jsonl"
+    decision_file.write_text("{}\n")
+    verdicts.with_suffix(".json").write_text(json.dumps({"inputs": {
+        "decisions": str(decision_file), "decisions_sha256": "0" * 64,
+    }}))
+    try:
+        b.load_curated_paper_decisions(verdicts, metadata, {})
+    except RuntimeError as error:
+        assert "apply --install" in str(error)
+    else:
+        raise AssertionError("a stale verdict table was read")
+
+
 def test_build_holds_every_row_of_a_retracted_paper(tmp_path):
-    dispositions, metadata, aliases = write_curation(tmp_path)
+    _, metadata, aliases = write_curation(tmp_path)
     status = tmp_path / "retraction_status.json"
     status.write_text(json.dumps({
         "schema_version": "retraction_status_v1",
@@ -145,7 +182,7 @@ def test_build_holds_every_row_of_a_retracted_paper(tmp_path):
         out_dir=out_dir,
         write_duckdb=False,
         doi_alias_registry_path=aliases,
-        graph_disposition_overrides_path=dispositions,
+        identity_verdicts_path=None,
         paper_metadata_overrides_path=metadata,
         retraction_status_path=status,
         graph_sources={"routed_extractions": {
@@ -228,5 +265,5 @@ def test_curated_identity_decisions_load():
     for doi in ("10.1136/adc.2006.094854", "10.1136/bmj.3.5722.81", "10.1016/0306-3747(94)90197-x"):
         assert overrides[doi]["clear_fields"] == {"abstract"}
     assert overrides["10.1016/0014-2999(93)90482-w"]["fields"]["study_title"].startswith("Ketamine relaxes rabbit femoral arteries")
-    dispositions = load_disposition_overrides(b.DEFAULT_GRAPH_DISPOSITION_OVERRIDES)
+    dispositions = load_disposition_overrides(DEFAULT_DISPOSITION_OVERRIDES)
     assert dispositions["10.26190/98dq-9g49"]["disposition"] == "source_not_verified"

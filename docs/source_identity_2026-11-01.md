@@ -410,7 +410,7 @@ The audit and `apply` must be given the candidate's paths (`--outputs`, `--kg-di
 | 5 | `decide` and `apply`, then scoped updates for the candidate | Corrected candidate | re-extraction of affected papers only |
 | 6 | Ingest changes: one-record assembly, abstract bindings, provenance, ID-collision check | Prevents recurrence for new records; existing abstracts are re-verified offline | none |
 | 7 | `source_check` in the extraction contracts | Model check for future runs | at the next contract change |
-| 8 | KG gate reads the verdict table | Replaces the curated-file holds | none |
+| 8 | KG gate reads the verdict table | Replaces the curated-file holds. Done 7 November, by kind of text: findings do not record their text until step 6 adds it to tasks and outputs | none |
 
 Coordination with other sessions:
 

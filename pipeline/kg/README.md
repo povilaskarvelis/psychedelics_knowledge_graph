@@ -1263,25 +1263,43 @@ while "(R,S)-ketamine" next to S-ketamine keeps racemic ketamine. "Bolus followe
 by infusion" is one drug's dosing schedule, not a sequence of two drugs.
 See `tests/test_subject_resolution_repairs.py`.
 
-## Curated source-identity holds (1 November 2026)
+## Source-identity holds
 
 Curation can find, after extraction, that the text a paper was extracted from
-belongs to another publication. The KG build applies two curated files to the
-evidence rows it reads, before normalization:
+belongs to another publication. The KG build applies the installed identity
+decisions to the evidence rows it reads, before normalization:
 
-- `data/curated/graph_inclusion_disposition_overrides.json`: every row of a paper
-  whose final disposition is `source_not_verified` is held;
+- the verdict table (`data/processed/identity/verdicts.parquet`, written by
+  `python -m pipeline.identity apply --install`; see
+  [`pipeline/identity/README.md`](../identity/README.md)):
+  - every row of a paper that a record row withholds (`hold` or `wrong_doi`) is
+    held;
+  - rows with access level `article_text` are held for a paper that has no
+    usable full text, of its own or of a DOI the work registry merges into it;
 - `data/curated/paper_metadata_overrides.json`: rows with access level
   `abstract_only` are held for a paper whose abstract was cleared without a
-  replacement, while its rows from verified article text remain. Curated titles
+  replacement, while its rows from article text remain. `apply --install` writes
+  the record corrections and cleared abstracts to this file. Curated titles
   replace provider titles in the rows.
 
+Extraction outputs do not yet record which file or abstract each row was read
+from, so the check is by kind of text: a paper with one usable and one unusable
+full text keeps its article-text rows. The build stops when the verdict table is
+missing, or when the decision file or the work registry changed after it was
+installed.
+
 Held rows are written to `normalization_audit` with status
-`source_identity_not_verified` and the curated reason, and the corpus ledger
-reports a paper with no remaining rows as `source_not_verified`. The manifest
-records both files' hashes, the held row counts per source and the held paper IDs.
-Pass `--graph-disposition-overrides` or `--paper-metadata-overrides` to use other
-files. See `tests/test_source_identity_holds.py`.
+`source_identity_not_verified` and the reason, and the corpus ledger reports a
+paper with no remaining rows as `source_not_verified`. The manifest records the
+inputs' hashes, the held row counts per source and the held paper IDs. Pass
+`--identity-verdicts` or `--paper-metadata-overrides` to use other files.
+Normalization contract: `routed_identity_verdicts_20261107_v1`. See
+`tests/test_source_identity_holds.py`.
+
+Until 7 November the build read whole-paper holds from the `source_not_verified`
+groups of `data/curated/graph_inclusion_disposition_overrides.json`. Those groups
+are decisions in the decision file now (`python -m pipeline.identity migrate`),
+and the verdict table withholds the same papers.
 
 The decisions added on 1 November came from checking three signals against each
 DOI's Crossref record (and PubMed where Crossref was wrong): extraction warnings

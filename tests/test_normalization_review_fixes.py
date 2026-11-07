@@ -216,7 +216,7 @@ def source_rows(tmp_path, rows):
     path.write_text(json.dumps(rows))
     out_dir = tmp_path / "kg"
     b.build_tables(out_dir=out_dir, write_duckdb=False, retraction_status_path=None,
-                   graph_disposition_overrides_path=None, paper_metadata_overrides_path=None,
+                   identity_verdicts_path=None, paper_metadata_overrides_path=None,
                    graph_sources={"routed_extractions": {"path": path, "domain": "routed", "dataset": "routed",
                                                          "default_evidence_type": "primary_evidence", "skip_audit": True}})
     return pd.read_parquet(out_dir / "findings.parquet"), pd.read_parquet(out_dir / "normalization_audit.parquet")
