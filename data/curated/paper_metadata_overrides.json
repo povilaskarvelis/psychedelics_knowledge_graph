@@ -1903,6 +1903,14 @@
       "clear_fields": [
         "abstract"
       ]
+    },
+    {
+      "doi": "10.1017/neu.2025.10039",
+      "evidence_basis": "Crossref, PubMed (PMID 40899152) and the stored full text give this title; the ledger title is another one.",
+      "source_decision": "sid-a686e3de9f0f24b0478b",
+      "fields": {
+        "study_title": "Therapeutic Use of Psilocybin in Depression: a Systematic Review of Clinical Evidence"
+      }
     }
   ]
 }

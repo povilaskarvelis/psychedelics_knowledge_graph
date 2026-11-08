@@ -380,6 +380,10 @@ The audit and `apply` must be given the candidate's paths (`--outputs`, `--kg-di
 
 ---
 
+### 6.4 Review of the abstract queue, 8 November
+
+The provider-abstract check (decision D5) queued 144 abstracts on `text_provenance_20261108`: 135 papers in the release (354 main-graph and 151 paper-detail findings; 110 read from the abstract) and 9 retained papers without findings. In 97 the provider record that gave the abstract has another title, and in 47 it matches by identifier only. Each stored abstract was compared with the paper's own PubMed and Crossref abstracts (`data/processed/identity/samples/abstract_review_20261108/compare.py`, `comparison.csv`). In 139 a median of 100% (minimum 79%) of the stored abstract's 5-word sequences are in the PubMed abstract of the paper; the other 5 have no abstract to compare and were read: each agrees with its paper's title and subject. No stored abstract belongs to another work. The differing titles are the provider records': OpenAlex records that pair the paper's DOI with an unrelated work's title, and original-language or ChemInform titles. The 144 were recorded as `verified` (reviewer Claude, `decisions_20261108.csv`), with one record correction: the ledger title of `10.1017/neu.2025.10039` differs from the title Crossref, PubMed and its full text give. Run again, the audit queues no items. The table was then installed (update `abstract_review_20261108`; one paper, `10.17613/n4tt3-dyp43`, with 5 paper-detail findings, can now read the full text held under its merged DOI and needs extraction again), the retraction check was run on the papers of `text_provenance_20261108` (2 retracted, 4 expressions of concern, 1 withdrawn, as on 2 November), and the run was rebuilt: KG counts and finding content unchanged, with the corrected title.
+
 ## 7. Decisions needed
 
 - **D1. Preprint or accepted-manuscript text for a published paper.** Decided on 6 November by the user.
