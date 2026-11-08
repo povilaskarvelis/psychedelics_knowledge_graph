@@ -101,6 +101,24 @@ class BuildExtractionRoutesTests(unittest.TestCase):
         self.assertTrue(inputs["prescreen"]["10.1000/no-prescreen-kept"]["retained"])
         self.assertEqual(inputs["domain_by_doi"]["10.1000/both-in"][0]["domain_route"], "clinical_outcome")
 
+    def test_ledger_records_the_screening_result_a_kept_doi_was_selected_on(self) -> None:
+        kept, merged = "10.1097/00000539-200210000-00071", "10.1213/00000539-200210000-00071"
+        prescreen_df = pd.DataFrame([
+            {"doi": kept, "prescreen_decision": "exclude", "prescreen_action": "exclude_non_evidence_artifact"},
+            {"doi": merged, "prescreen_decision": "retain", "prescreen_action": "retain_for_extraction"},
+        ])
+        route = {"doi": kept, "retained_for_extraction_candidate": True, "route_action": "extract_from_abstract_only",
+                 "domain_route": "safety_tolerability", "domain_screening_decision": "include_in_scope"}
+        updates = build_candidate_status_updates(
+            candidate_df=pd.DataFrame([{"doi": kept}, {"doi": merged}]), prescreen_df=prescreen_df,
+            route_rows=[route], generated_at_utc="2026-11-08T00:00:00+00:00", doi_aliases={merged: kept},
+        )
+        row = updates.set_index("doi").loc[kept]
+        self.assertTrue(row["retained_for_extraction_candidate"])
+        self.assertTrue(row["prescreen_retained_for_extraction_candidate"])
+        self.assertEqual(row["prescreen_actions"], "retain_for_extraction")
+        self.assertIn(f"Screening result of {merged}", row["prescreen_reasons"])
+
     def test_excluded_merged_doi_and_curated_exclusion_carry_nothing(self) -> None:
         inputs = self.screening_inputs()
         self.assertEqual(

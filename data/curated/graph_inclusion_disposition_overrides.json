@@ -4,7 +4,6 @@
     {
       "dois": [
         "10.1001/archneur.1963.00460070079008",
-        "10.1001/jama.1968.03140090195028",
         "10.1016/j.jad.2020.01.120",
         "10.1016/s0968-0896(02)00209-2",
         "10.1021/np50052a030",
@@ -14,7 +13,6 @@
         "10.1001/archneurpsyc.1957.02330340026002",
         "10.1055/s-0032-1307601",
         "10.1055/s-0033-1336486",
-        "10.1093/oxfordjournals.bmb.a070352",
         "10.1097/yct.0000000000000878",
         "10.1210/jcem-17-5-608",
         "10.2399/ana.15.027"
@@ -25,44 +23,11 @@
     },
     {
       "dois": [
-        "10.1111/j.2042-7158.1976.tb02779.x"
-      ],
-      "disposition": "source_not_verified",
-      "reason": "The bibliographic record is correct, but the supplied abstract belongs to an unrelated UK Labour Force Survey record and PubMed does not provide a replacement abstract.",
-      "next_action": "Revisit only if the correct article text or abstract can be verified."
-    },
-    {
-      "dois": [
-        "10.1016/j.jad.2025.119866",
         "10.1177/00048674251333577"
       ],
       "disposition": "no_extractable_finding",
       "reason": "The available abstract describes guideline development or the existence of guidance but does not state a concrete recommendation that can be represented reliably.",
       "next_action": "Retain the report and revisit if recommendation-bearing full text becomes available."
-    },
-    {
-      "dois": [
-        "10.3109/10409238.2010.516741"
-      ],
-      "disposition": "extraction_failed",
-      "reason": "Gemini V2 review extraction failed twice from verified article text and once from the abstract because the model generated pathological repeated Unicode combining marks until truncation.",
-      "next_action": "Retain the selected report and retry only with a materially different model or extraction implementation."
-    },
-    {
-      "dois": [
-        "10.26190/98dq-9g49"
-      ],
-      "disposition": "source_not_verified",
-      "reason": "The DOI identifies the South Australian Drug Trends 2020 EDRS report, but the retrieved article text carries a different document DOI (10.26190/unsworks/31806) and describes 2025 interviews; the extraction model reported the mismatch.",
-      "next_action": "Revisit only if the 2020 report text can be retrieved and verified."
-    },
-    {
-      "dois": [
-        "10.1111/jnc.15896"
-      ],
-      "disposition": "source_not_verified",
-      "reason": "Crossref identifies this DOI as a poster-session collection (Journal of Neurochemistry 2023, 'Poster Sessions A'). The attached abstract is one poster within it, so its findings cannot be attributed to this record.",
-      "next_action": "Revisit only if the poster's own record can be identified."
     }
   ]
 }

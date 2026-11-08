@@ -55,6 +55,9 @@ FINAL_DISPOSITIONS = {
 
 AUDIT_NOT_GRAPHABLE_SUFFIXES = ("_not_graphable",)
 AUDIT_UNMAPPED_SUFFIXES = ("_unmapped",)
+# The route builder holds a selected report whose abstract and article text were
+# both set aside by the source-identity verdicts (pipeline/identity).
+TEXT_HOLD_ROUTE_STATUS = "hold_until_text_available"
 # Written by build_evidence_tables for rows extracted from text that curation
 # attributed to another publication, and for rows of retracted papers.
 AUDIT_SOURCE_IDENTITY_STATUS = "source_identity_not_verified"
@@ -396,6 +399,17 @@ def build_updated_corpus(
                 "status": "not_represented",
                 **decision_from_extraction_outcome(extraction_outcomes[doi]),
                 "source": "completed_extraction_outcome",
+            }
+        elif clean(row.get("extraction_route_status")) == TEXT_HOLD_ROUTE_STATUS:
+            decision = {
+                "status": "not_represented",
+                "disposition": "source_not_verified",
+                "reason": (
+                    "No verified abstract or article text: the stored text was found to belong "
+                    "to another work or not to be this report's text."
+                ),
+                "next_action": "Extract when a verified abstract or article text is obtained.",
+                "source": "extraction_route_text_hold",
             }
         else:
             unresolved_selected.append(raw_doi)

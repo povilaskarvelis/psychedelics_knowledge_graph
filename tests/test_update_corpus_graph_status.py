@@ -66,6 +66,13 @@ class UpdateCorpusGraphStatusTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "no completed extraction"):
             self.build([candidate("10.1000/missing")])
 
+    def test_report_held_for_lack_of_verified_text_is_not_verified(self) -> None:
+        held = {**candidate("10.1001/jama.1963.03700200134057"), "extraction_route_status": "hold_until_text_available"}
+        out = self.build([held]).set_index("doi")
+        row = out.loc["10.1001/jama.1963.03700200134057"]
+        self.assertEqual(row["graph_inclusion_disposition"], "source_not_verified")
+        self.assertEqual(row["graph_inclusion_decision_source"], "extraction_route_text_hold")
+
     def test_curated_extraction_failure_is_a_final_auditable_decision(self) -> None:
         out = self.build(
             [candidate("10.1000/model-failure")],

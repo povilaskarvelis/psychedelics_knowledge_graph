@@ -303,4 +303,5 @@ def test_curated_identity_decisions_load():
         assert overrides[doi]["clear_fields"] == {"abstract"}
     assert overrides["10.1016/0014-2999(93)90482-w"]["fields"]["study_title"].startswith("Ketamine relaxes rabbit femoral arteries")
     dispositions = load_disposition_overrides(DEFAULT_DISPOSITION_OVERRIDES)
-    assert dispositions["10.26190/98dq-9g49"]["disposition"] == "source_not_verified"
+    # Withheld by its record verdict since 6 November, so no longer a selected paper.
+    assert "10.26190/98dq-9g49" not in dispositions

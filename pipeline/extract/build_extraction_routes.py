@@ -1638,6 +1638,20 @@ def build_candidate_status_updates(
     routes_by_doi = route_rows_by_doi(route_rows)
     records: list[dict] = []
     doi_aliases = doi_aliases or {}
+    # A kept DOI selected on a merged DOI's screening result
+    # (carry_screening_from_merged_dois) records that result as its own.
+    for merged, kept in sorted(doi_aliases.items()):
+        own = prescreen_by_doi.get(kept, {})
+        carried = prescreen_by_doi.get(merged, {})
+        if own.get("prescreen_retained_for_extraction_candidate") or not carried.get(
+            "prescreen_retained_for_extraction_candidate"
+        ):
+            continue
+        if any(truthy(row.get("retained_for_extraction_candidate", False)) for row in routes_by_doi.get(kept, [])):
+            prescreen_by_doi[kept] = {
+                **carried,
+                "prescreen_reasons": [*carried.get("prescreen_reasons", []), f"Screening result of {merged}, the same work."],
+            }
 
     for candidate in candidate_df.to_dict("records"):
         doi = normalize_doi(candidate.get("doi", ""))
