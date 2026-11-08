@@ -77,6 +77,7 @@ class Texts:
         self.decisions_path = Path(decisions_path)
         self._fulltexts: dict[str, dict[str, set[str]]] = {}
         self._ledger = None
+        self._kept_abstracts: dict[str, set[str]] | None = None
 
     def fulltext_ids(self, doi: str) -> dict[str, set[str]]:
         """SHA-256 of the stored full text and of its PDF."""
@@ -104,10 +105,17 @@ class Texts:
         return self._ledger
 
     def abstract_ids(self, doi: str) -> dict[str, set[str]]:
+        """SHA-256 of the record's abstract, and of the abstracts kept provider records give for it."""
         if doi not in self.ledger.index:
             return {}
+        if self._kept_abstracts is None:
+            # Imported here: provider records are read only for abstract decisions.
+            from pipeline.identity.abstracts import kept_abstracts
+
+            self._kept_abstracts = {key: set(texts) for key, texts in kept_abstracts().items()}
         abstract = clean(self.ledger.at[doi, "abstract"])
-        return {"sha256": {text_sha256(abstract)}} if abstract else {}
+        found = ({text_sha256(abstract)} if abstract else set()) | self._kept_abstracts.get(doi, set())
+        return {"sha256": found} if found else {}
 
     def has_record(self, doi: str) -> bool:
         return doi in self.ledger.index

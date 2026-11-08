@@ -41,6 +41,7 @@ from pipeline.fulltext.convert_pdfs import doi_to_slug
 from pipeline.fulltext.source_identity import file_sha256
 from pipeline.identity.evidence import (
     NOT_A_WORK_DOI_KINDS,
+    OPENALEX_LEGACY_ID_MAX,
     artifact_evidence,
     doi_kind,
     doi_part_relation,
@@ -50,6 +51,7 @@ from pipeline.identity.evidence import (
     is_cover_sheet,
     is_not_a_title,
     is_web_page_text,
+    openalex_number,
     pdf_opening_text,
     printed_dois,
     text_group_key,
@@ -59,6 +61,13 @@ from pipeline.identity.evidence import (
     title_state,
     version_relation,
     word_count,
+)
+from pipeline.identity.abstracts import (
+    DEFAULT_PROVIDER_RECORDS_DIR,
+    PASSING_VERDICTS,
+    AbstractChecker,
+    read_provider_records,
+    record_source,
 )
 from pipeline.identity.model_reports import classify, iter_strings
 from pipeline.identity.register import DEFAULT_DECISIONS_PATH, current_decisions, read_decisions
@@ -119,8 +128,6 @@ OWNER_MARGIN = 0.2
 SAME_WORK_TITLE = 0.8
 # A title-only text is suggested for acceptance at the similarity verify() accepts it.
 TITLE_ONLY_ACCEPT = TITLE_ONLY_VERIFIED
-# OpenAlex created works below this ID from PubMed records, reusing the PMID.
-OPENALEX_LEGACY_ID_MAX = 45_000_000
 # Words without which a statement cannot say that text and paper differ.
 STATEMENT_TRIGGER_RE = re.compile(
     r"match|unrelated|incongruent|inconsistent|correspond|identity|different|attribut|titled|identified|"
@@ -634,6 +641,99 @@ def web_page_abstract_items(ledger: pd.DataFrame) -> tuple[list[dict], Counter]:
     return items, counts
 
 
+def provider_abstract_items(
+    ledger: pd.DataFrame,
+    records: pd.DataFrame,
+    relations: dict[frozenset[str], str],
+    decisions: dict[str, list[dict]],
+) -> tuple[list[dict], Counter]:
+    """Items for abstracts whose provider record is not the paper (decision D5).
+
+    An abstract in the ledger is traced to the kept provider records that give
+    the same text for its DOI. It is queued when none of them verifies for the
+    paper; an abstract no kept record gives is counted, not queued. A record
+    without an abstract is queued with each kept abstract that did not pass the
+    check, so that a reviewer can accept one; a record whose abstract a decision
+    cleared is left out.
+    """
+    counts: Counter = Counter()
+    items: list[dict] = []
+    checker = AbstractChecker.from_ledger(ledger, relations)
+    with_abstract = records[records["abstract"].map(clean) != ""]
+    by_doi: dict[str, list[dict]] = defaultdict(list)
+    for record in with_abstract.to_dict("records"):
+        if record["doi"] in ledger.index:
+            by_doi[record["doi"]].append(record)
+    for doi, ledger_abstract in zip(ledger["doi"], ledger["abstract"]):
+        ledger_abstract = clean(ledger_abstract)
+        kept = by_doi.get(doi, [])
+        paper = checker.papers[doi]
+        if ledger_abstract:
+            same = [record for record in kept if text_group_key(record["abstract"]) == text_group_key(ledger_abstract)]
+            if not same:
+                counts["ledger_abstract_without_kept_record"] += 1
+                continue
+            verdicts = [verify(paper, record_source(record), relations) for record in same]
+            if any(verdict.verdict in PASSING_VERDICTS for verdict in verdicts):
+                counts["ledger_abstract_record_verified"] += 1
+                continue
+            counts[f"ledger_abstract_record_{verdicts[0].verdict}"] += 1
+            record, verdict = same[0], verdicts[0]
+            sha = text_sha256(ledger_abstract)
+            items.append(
+                queue_item(
+                    check="provider_abstract",
+                    doi=doi,
+                    verdict=verdict.verdict,
+                    rule=f"record_{verdict.rule}",
+                    target={"kind": "abstract", "sha256": sha},
+                    text_ids={"sha256": {sha}},
+                    paper_title=paper.title,
+                    source_title=clean(record["record_title"]),
+                    similarity=verdict.evidence.get("title_similarity"),
+                    suggested=suggestion(
+                        "", f"review: the {record['provider']} record that gives this abstract does not verify for the paper"
+                    ),
+                    evidence={key: clean(record[key]) for key in ("provider", "provider_record_id", "record_doi", "run_id")},
+                )
+            )
+            continue
+        cleared = any("abstract" in (decision.get("clear_fields") or []) for decision in decisions.get(doi, []))
+        if not kept or cleared:
+            continue
+        seen: set[str] = set()
+        for record in kept:
+            sha = text_sha256(clean(record["abstract"]))
+            if sha in seen:
+                continue
+            seen.add(sha)
+            result = checker.check(doi, record)
+            counts[f"unfilled_{'passes' if result.passes else result.rule}"] += 1
+            if result.passes:
+                continue
+            items.append(
+                queue_item(
+                    check="provider_abstract",
+                    doi=doi,
+                    verdict=result.verdict or "unconfirmed",
+                    rule=f"not_used:{result.rule}",
+                    target={"kind": "abstract", "sha256": sha},
+                    text_ids={"sha256": {sha}},
+                    paper_title=paper.title,
+                    source_title=clean(record["record_title"]),
+                    suggested=suggestion(
+                        "", f"review: the record has no abstract; the {record['provider']} abstract did not pass ({result.rule})",
+                        related_doi=result.related_doi,
+                    ),
+                    evidence={
+                        **{key: clean(record[key]) for key in ("provider", "provider_record_id", "record_doi", "run_id")},
+                        "abstract_start": clean(record["abstract"])[:240],
+                    },
+                )
+            )
+    return items, counts
+
+
 def anchor_doi(dois: Iterable[str]) -> str:
     """The member other DOIs of one work are registered against: an article DOI first."""
     return sorted(dois, key=lambda doi: (doi_kind(doi) != "article", len(doi), doi))[0]
@@ -801,11 +901,6 @@ def shared_group_items(
 
 
 # --- Records --------------------------------------------------------------
-
-
-def openalex_number(value: object) -> int | None:
-    match = re.search(r"W(\d+)$", clean(value), flags=re.IGNORECASE)
-    return int(match.group(1)) if match else None
 
 
 def record_items(
@@ -1011,6 +1106,7 @@ def run_audit(
     ledger_path: Path = DEFAULT_LEDGER,
     artifact_dir: Path = DEFAULT_ARTIFACT_DIR,
     discovery_runs: Path = DEFAULT_DISCOVERY_RUNS,
+    provider_records_dir: Path = DEFAULT_PROVIDER_RECORDS_DIR,
     outputs: list[Path] | None = None,
     kg_dir: Path | None = None,
     decisions_path: Path = DEFAULT_DECISIONS_PATH,
@@ -1047,6 +1143,7 @@ def run_audit(
         ("fulltext", fulltext_items(ledger, Path(artifact_dir), relations, read_pdfs=read_pdfs)),
         ("shared_abstract", shared_abstract_items(ledger, relations)),
         ("abstract_text", web_page_abstract_items(ledger)),
+        ("provider_abstract", provider_abstract_items(ledger, read_provider_records(provider_records_dir, Path(discovery_runs)), relations, decisions)),
         ("records", record_items(ledger, pubmed_by_doi, pubmed_by_pmid, relations)),
         ("model_report", model_report_items(outputs, impact, ledger, Path(artifact_dir))),
     ):

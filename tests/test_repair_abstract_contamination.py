@@ -3,6 +3,8 @@ from pathlib import Path
 import pandas as pd
 
 from pipeline.ingest.enrich_paper_metadata import read_table, write_table
+from pipeline.identity.abstracts import AbstractChecker
+from pipeline.identity.verify import Paper
 from pipeline.ingest.repair_abstract_contamination import (
     apply_repairs,
     build_contamination_scope,
@@ -80,28 +82,33 @@ def test_scope_is_idempotent_after_candidate_matches_trusted_metadata(tmp_path: 
 
 
 def test_recovered_openalex_fulltext_is_rejected_but_pubmed_is_accepted() -> None:
-    scope = pd.DataFrame([{"doi": "10.1000/one", "study_title": "Paper"}])
+    doi, title = "10.1016/j.jad.2020.01.001", "Psilocybin therapy for treatment-resistant depression"
+    scope = pd.DataFrame([{"doi": doi, "study_title": title}])
+    checker = AbstractChecker({doi: Paper(doi, title, "111")}, {}, {})
+
+    def recovered(provider: str, abstract: str, **record: str) -> dict:
+        return {"doi": doi, "provider": provider, "status": "recovered", "abstract": abstract, **record}
 
     selected, rejected = valid_recovered_rows(
         [
-            {
-                "doi": "10.1000/one",
-                "provider": "openalex",
-                "status": "recovered",
-                "abstract": contaminated_text(),
-            },
-            {
-                "doi": "10.1000/one",
-                "provider": "pubmed",
-                "status": "recovered",
-                "abstract": "Valid abstract.",
-            },
+            recovered("openalex", contaminated_text()),
+            recovered("pubmed", "Valid abstract.", record_pmid="111", record_title=title),
         ],
         scope,
+        checker,
     )
 
-    assert selected["10.1000/one"]["provider"] == "pubmed"
+    assert selected[doi]["provider"] == "pubmed"
     assert len(rejected) == 1
+
+    # A usable abstract whose record is another work is not a replacement.
+    selected, rejected = valid_recovered_rows(
+        [recovered("pubmed", "Valid abstract.", record_pmid="111", record_title="Cost of CAR-T therapy in myeloma")],
+        scope,
+        checker,
+    )
+    assert selected == {}
+    assert rejected[0]["reasons"] == "identity:record_identifier_matches_title_differs"
 
 
 def test_apply_repairs_replaces_recovered_and_blanks_unresolved(tmp_path: Path) -> None:

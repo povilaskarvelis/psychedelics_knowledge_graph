@@ -166,6 +166,16 @@ def doi_kind(value: object) -> str:
     return "article"
 
 
+# OpenAlex created works below this ID from PubMed records, reusing the PMID as
+# the number. Such a work can carry another article's title or abstract (§2.1).
+OPENALEX_LEGACY_ID_MAX = 45_000_000
+
+
+def openalex_number(value: object) -> int | None:
+    match = re.search(r"W(\d+)$", clean(value), flags=re.IGNORECASE)
+    return int(match.group(1)) if match else None
+
+
 def set_aside_reason(found: object, paper_doi: object) -> str:
     """Why a DOI found in a source says nothing about the paper, or ``""``.
 

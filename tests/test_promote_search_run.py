@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 
 from pipeline.discovery.promote_search_run import canonicalize_records, promote
+from pipeline.identity.abstracts import AbstractChecker
 from pipeline.discovery import promote_search_run as promotion
 
 
@@ -13,7 +14,7 @@ def test_canonical_language_prefers_pubmed_over_longer_inferred_label():
         {"provider": "openalex", "doi": "10.1000/language", "title": "Research on the claustrum", "language": "English"},
         {"provider": "pubmed", "doi": "10.1000/language", "title": "Research on the claustrum", "language": "chi"},
     ])
-    assert canonicalize_records(records)[0]["language"] == "chi"
+    assert canonicalize_records(records, AbstractChecker({}, {}, {}))[0]["language"] == "chi"
 
 
 def write_complete_run(run_dir: Path, *, complete: bool = True) -> None:
@@ -287,7 +288,7 @@ def test_canonicalization_prefers_pubmed_abstract_over_long_openalex_text() -> N
         ]
     )
 
-    canonical = canonicalize_records(records)
+    canonical = canonicalize_records(records, AbstractChecker({}, {}, {}))
 
     assert len(canonical) == 1
     assert canonical[0]["abstract"] == "The actual bibliographic abstract."
@@ -307,7 +308,7 @@ def test_canonicalization_drops_contaminated_openalex_only_abstract() -> None:
         ]
     )
 
-    canonical = canonicalize_records(records)
+    canonical = canonicalize_records(records, AbstractChecker({}, {}, {}))
 
     assert canonical[0]["abstract"] == ""
 
@@ -345,7 +346,7 @@ def test_canonicalization_rejects_wrong_openalex_work_joined_by_corrupt_doi() ->
         ]
     )
 
-    canonical = canonicalize_records(records)
+    canonical = canonicalize_records(records, AbstractChecker({}, {}, {}))
 
     assert len(canonical) == 1
     assert canonical[0]["title"].startswith("The effect of ketamine")
@@ -353,3 +354,52 @@ def test_canonicalization_rejects_wrong_openalex_work_joined_by_corrupt_doi() ->
     assert canonical[0]["publication_date"] == "2023-01-01"
     assert canonical[0]["openalex_id"] == "W4309412689"
     assert canonical[0]["pmid"] == "36401646"
+
+
+ABSTRACT_WORDS = " ".join(f"term{index}" for index in range(60))
+
+
+def test_fields_come_from_one_record_and_another_works_abstract_is_not_used() -> None:
+    # OpenAlex built work W37597153 from PubMed record 37597153 and attached another article's title and abstract.
+    doi = "10.1007/s12325-023-02623-w"
+    records = pd.DataFrame([
+        {"provider": "openalex", "provider_record_id": "openalex:W37597153", "doi": doi, "openalex_id": "W37597153",
+         "title": "Ketamine and resting-state connectivity", "publication_year": "2011", "authors": "Ketamine A",
+         "abstract": "Ketamine altered connectivity. " + ABSTRACT_WORDS},
+        {"provider": "pubmed", "provider_record_id": "pmid:37597153", "doi": doi, "pmid": "37597153",
+         "title": "Cost of CAR-T cell therapy in multiple myeloma", "publication_year": "2023", "authors": "Myeloma B"},
+    ])
+    [row] = canonicalize_records(records, AbstractChecker({}, {}, {}))
+    assert (row["title"], row["publication_year"], row["authors"]) == (
+        "Cost of CAR-T cell therapy in multiple myeloma", "2023", "Myeloma B",
+    )
+    assert row["abstract"] == ""
+
+
+def test_a_legacy_openalex_record_alone_supplies_no_abstract() -> None:
+    def record(work: str) -> dict:
+        return {"provider": "openalex", "provider_record_id": f"openalex:{work}", "doi": "10.1016/j.jad.2020.01.001",
+                "openalex_id": work, "title": "Psilocybin for depression", "abstract": ABSTRACT_WORDS}
+
+    legacy = canonicalize_records(pd.DataFrame([record("W37597153")]), AbstractChecker({}, {}, {}))
+    current = canonicalize_records(pd.DataFrame([record("W4309412689")]), AbstractChecker({}, {}, {}))
+    assert legacy[0]["abstract"] == "" and legacy[0]["title"] == "Psilocybin for depression"
+    assert current[0]["abstract"] == ABSTRACT_WORDS
+
+
+def test_a_doi_that_names_no_work_is_not_promoted() -> None:
+    records = pd.DataFrame([{"provider": "openalex", "provider_record_id": "openalex:W1", "doi": "10.13039/501100000780",
+                             "openalex_id": "W1", "title": "Ketamine and dorsal raphe stimulation"}])
+    [row] = canonicalize_records(records, AbstractChecker({}, {}, {}))
+    assert row["doi"] == "" and row["resolution_status"] == "doi_names_no_work:funder:10.13039/501100000780"
+
+
+def test_rediscovery_fills_blank_fields_only_from_the_same_work() -> None:
+    candidates = pd.DataFrame([{"doi": "10.1016/j.jad.2020.01.001", "study_title": "Psilocybin for depression",
+                                "authors": "", "source_types": "", "abstract": ""}])
+    other_work = {"doi": "10.1016/j.jad.2020.01.001", "title": "Cost of CAR-T cell therapy", "authors": "Other A"}
+    same_work = {**other_work, "title": "Psilocybin for depression", "authors": "Same B"}
+    merged, _, _ = promotion.merge_candidates(candidates, [other_work], run_id="r", protocol_id="p", promoted_at="t")
+    assert merged.loc[0, "authors"] == ""
+    merged, _, _ = promotion.merge_candidates(candidates, [same_work], run_id="r", protocol_id="p", promoted_at="t")
+    assert merged.loc[0, "authors"] == "Same B"

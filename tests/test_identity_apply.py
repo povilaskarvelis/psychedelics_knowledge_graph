@@ -37,6 +37,8 @@ def apply_inputs(tmp_path: Path) -> dict:
         "artifact_dir": inputs["artifact_dir"],
         "decisions_path": inputs["decisions_path"],
         "work_registry": inputs["work_registry"],
+        "discovery_runs": inputs["discovery_runs"],
+        "provider_records_dir": inputs["provider_records_dir"],
         "route_table": routes,
         "metadata_overrides": overrides,
     }

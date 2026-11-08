@@ -8,6 +8,8 @@ from urllib.error import HTTPError
 import pandas as pd
 
 from pipeline.ingest.enrich_paper_metadata import read_table, write_table
+from pipeline.identity.abstracts import AbstractChecker
+from pipeline.identity.verify import Paper
 from pipeline.ingest.run_batch_abstract_enrichment import (
     BatchHttpClient,
     best_recovered_rows,
@@ -396,25 +398,36 @@ class BatchAbstractEnrichmentTest(unittest.TestCase):
             report["candidate_materialization"]["changed_candidate_rows"], 1
         )
 
-    def test_best_recovered_rows_prefers_pmc(self) -> None:
+    def test_highest_priority_provider_whose_record_passes_supplies_the_abstract(self) -> None:
+        title = "Psilocybin therapy for treatment-resistant depression"
+        checker = AbstractChecker({"10.1000/one": Paper("10.1000/one", title, "111")}, {}, {})
+
+        def row(provider: str, abstract: str, **record: str) -> dict:
+            return {"doi": "10.1000/one", "provider": provider, "status": "recovered", "abstract": abstract,
+                    "provider_doi": "", "record_pmid": "", "record_pmcid": "", "record_title": title, **record}
+
         selected = best_recovered_rows(
             [
-                {"doi": "10.1000/one", "provider": "semantic_scholar", "status": "recovered", "abstract": "S2"},
-                {"doi": "10.1000/one", "provider": "pmc", "status": "recovered", "abstract": "PMC"},
-            ]
+                row("semantic_scholar", "S2", provider_doi="10.1000/one"),
+                row("pmc", "PMC", provider_doi="10.1000/one"),
+                row("pubmed", "PubMed", record_pmid="111"),
+            ],
+            checker,
         )
-
-        self.assertEqual(selected["10.1000/one"]["abstract"], "PMC")
-
-    def test_best_recovered_rows_prefers_pubmed_over_pmc(self) -> None:
-        selected = best_recovered_rows(
-            [
-                {"doi": "10.1000/one", "provider": "pmc", "status": "recovered", "abstract": "PMC"},
-                {"doi": "10.1000/one", "provider": "pubmed", "status": "recovered", "abstract": "PubMed"},
-            ]
-        )
-
         self.assertEqual(selected["10.1000/one"]["abstract"], "PubMed")
+
+        # A higher-priority record of another work is not used; the next provider's is.
+        results = [
+            row("pubmed", "Another work.", record_pmid="111", record_title="Cost of CAR-T therapy in myeloma"),
+            row("pmc", "PMC", provider_doi="10.1000/one"),
+        ]
+        selected = best_recovered_rows(results, checker)
+        self.assertEqual(selected["10.1000/one"]["abstract"], "PMC")
+        self.assertEqual(results[0]["identity_rule"], "not_used:record_identifier_matches_title_differs")
+        # A record with no identifier of its own verifies only when its title agrees closely.
+        self.assertEqual(best_recovered_rows([row("crossref", "Crossref")], checker)["10.1000/one"]["abstract"], "Crossref")
+        looser = row("crossref", "Crossref", record_title="Psilocybin for resistant depression")
+        self.assertEqual(best_recovered_rows([looser], checker), {})
 
 
 if __name__ == "__main__":

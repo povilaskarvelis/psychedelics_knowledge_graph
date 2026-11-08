@@ -270,6 +270,8 @@ def fetch_metadata_row(
     unpaywall_email: str,
     semantic_scholar_api_key: str,
     run_id: str,
+    abstract_checker,
+    provider_records: list[dict] | None = None,
     replace_identity_fields: bool = False,
 ) -> tuple[dict, list[dict], list[str]]:
     paper = {
@@ -296,6 +298,8 @@ def fetch_metadata_row(
         unpaywall_email=unpaywall_email,
         semantic_scholar_api_key=semantic_scholar_api_key,
         initial_metadata=None,
+        abstract_checker=abstract_checker,
+        provider_records=provider_records,
     )
 
     metadata_error = ""
@@ -310,6 +314,9 @@ def fetch_metadata_row(
         for field in IDENTITY_METADATA_FIELDS:
             merge_base[field] = ""
     merged_metadata = merge_metadata_values(metadata, merge_base)
+    if not clean(metadata.get("abstract", "")) and clean(merge_base.get("abstract", "")):
+        # The abstract is the one the record already had; so is its provider.
+        merged_metadata["metadata_provider"] = clean(merge_base.get("metadata_provider", ""))
     metadata_missing_reason = clean(merged_metadata.get("metadata_missing_reason", ""))
     if metadata_error and not clean(merged_metadata.get("abstract", "")):
         metadata_missing_reason = metadata_missing_reason or "metadata_lookup_unresolved"
@@ -587,6 +594,11 @@ def main() -> int:
     carried_from_candidate = 0
     unresolved = 0
     skipped_complete_abstract = 0
+    # A provider's abstract is used only when its record passes the identity check (decision D5).
+    from pipeline.identity.abstracts import load_abstract_checker, write_provider_records
+
+    abstract_checker = load_abstract_checker(papers_table)
+    provider_records: list[dict] = []
 
     print(
         "START: metadata enrichment "
@@ -628,6 +640,8 @@ def main() -> int:
                 unpaywall_email=provider_settings["unpaywall_email"],
                 semantic_scholar_api_key=provider_settings["semantic_scholar_api_key"],
                 run_id=run_id,
+                abstract_checker=abstract_checker,
+                provider_records=provider_records,
                 replace_identity_fields=bool(args.replace_identity_fields),
             )
             for provider in provider_chain(row):
@@ -667,6 +681,10 @@ def main() -> int:
 
     final_rows = merged_output_rows(output_by_doi, existing_by_doi)
     write_table(output_table, final_rows)
+    if provider_records:
+        write_provider_records(
+            [{**record, "run_id": run_id} for record in provider_records], f"metadata_enrichment_{run_id}"
+        )
 
     candidate_materialization: dict = {}
     if not args.no_update_candidate_table:

@@ -22,7 +22,10 @@ from pipeline.discovery.artifacts import contexts_from_hits_parquet
 from pipeline.discovery.providers import normalize_doi, utc_now
 from pipeline.discovery.runner import atomic_write_json, read_json
 from pipeline.discovery.strategy import DEFAULT_HISTORY_PATH, clean, normalized_key
-from pipeline.ingest.abstract_quality import best_valid_abstract
+from pipeline.identity.abstracts import AbstractChecker, load_abstract_checker
+from pipeline.identity.evidence import NOT_A_WORK_DOI_KINDS, OPENALEX_LEGACY_ID_MAX, doi_kind, openalex_number
+from pipeline.identity.verify import Paper
+from pipeline.ingest.abstract_quality import valid_abstract_rows
 
 
 DEFAULT_RUN_ROOT = ROOT / "data" / "processed" / "discovery" / "runs"
@@ -120,33 +123,6 @@ def titles_are_coherent(left: object, right: object) -> bool:
     return SequenceMatcher(None, left_key, right_key).ratio() >= 0.90
 
 
-def coherent_bibliographic_rows(rows: list[dict]) -> tuple[object, list[dict]]:
-    """Choose a title anchor and reject same-identifier rows for other works."""
-
-    titled_rows = [row for row in rows if clean(row.get("title"))]
-    if not titled_rows:
-        return "", rows
-    anchor = max(
-        titled_rows,
-        key=lambda row: (
-            sum(
-                titles_are_coherent(row.get("title"), other.get("title"))
-                for other in titled_rows
-            ),
-            -provider_priority(row),
-            len(clean(row.get("title"))),
-        ),
-    )
-    title = anchor.get("title")
-    coherent = [row for row in rows if titles_are_coherent(row.get("title"), title)]
-    return title, coherent or rows
-
-
-def publication_year_from_date(value: object) -> str:
-    match = re.search(r"(?<!\d)(1[5-9]\d{2}|20\d{2}|21\d{2})(?!\d)", clean(value))
-    return match.group(1) if match else ""
-
-
 def provider_priority(row: dict) -> int:
     return {
         "pubmed": 0,
@@ -156,31 +132,55 @@ def provider_priority(row: dict) -> int:
     }.get(clean(row.get("provider")).casefold(), 10)
 
 
-def preferred_value(rows: list[dict], field: str) -> tuple[object, int]:
-    candidates = [row for row in rows if clean(row.get(field))]
-    if not candidates:
-        return "", 99
-    row = min(candidates, key=lambda item: (provider_priority(item), -len(clean(item.get(field)))))
-    return row.get(field), provider_priority(row)
+def legacy_openalex_record(row: dict) -> bool:
+    """An OpenAlex record whose work ID is a PMID number (§2.1 of the source-identity design)."""
+    number = openalex_number(row.get("openalex_id"))
+    return clean(row.get("provider")).casefold() == "openalex" and number is not None and number < OPENALEX_LEGACY_ID_MAX
 
 
-def coherent_publication_timing(rows: list[dict]) -> tuple[object, object]:
-    """Select timing fields coherently and prevent extreme year/date chimeras."""
-
-    publication_year, year_priority = preferred_value(rows, "publication_year")
-    publication_date, date_priority = preferred_value(rows, "publication_date")
-    year_text = publication_year_from_date(publication_year)
-    date_year = publication_year_from_date(publication_date)
-    if year_text and date_year and abs(int(year_text) - int(date_year)) > 1:
-        if date_priority < year_priority:
-            publication_year = date_year
-        else:
-            publication_date = ""
-    return publication_year, publication_date
+def corroborated(row: dict, rows: list[dict]) -> bool:
+    """Another provider's record in the group gives an agreeing title."""
+    return any(
+        clean(other.get("provider")) != clean(row.get("provider"))
+        and titles_are_coherent(other.get("title"), row.get("title"))
+        for other in rows
+    )
 
 
-def canonicalize_records(records: pd.DataFrame) -> list[dict]:
-    rows = records.to_dict("records")
+def anchor_record(rows: list[dict]) -> tuple[dict, list[dict]]:
+    """The record the paper's bibliographic fields come from, and the records whose title agrees with it.
+
+    The anchor is the record whose title agrees with most others, then the one
+    from the most authoritative provider. A legacy OpenAlex record that no other
+    provider corroborates is the anchor only when nothing else is available.
+    """
+    trusted = [row for row in rows if not legacy_openalex_record(row) or corroborated(row, rows)] or rows
+    titled = [row for row in trusted if clean(row.get("title"))] or trusted
+    anchor = max(
+        titled,
+        key=lambda row: (
+            sum(titles_are_coherent(row.get("title"), other.get("title")) for other in titled),
+            -provider_priority(row),
+            len(clean(row.get("title"))),
+        ),
+    )
+    agreeing = [row for row in rows if row is anchor or titles_are_coherent(row.get("title"), anchor.get("title"))]
+    return anchor, agreeing
+
+
+def canonicalize_records(records: pd.DataFrame, abstract_checker: AbstractChecker) -> list[dict]:
+    """One candidate row per work found by the run.
+
+    Records that share an identifier form a group. The paper's bibliographic
+    fields (DOI, title, authors, journal, type, language, year and date) come
+    together from one record (``anchor_record``), never field by field across
+    records; identifiers may also come from records whose title agrees with it.
+    The abstract is the first usable one whose provider record passes the
+    identity check (``pipeline/identity/abstracts.py``, decision D5); without
+    one the row has no abstract. A DOI that names no work (a funder, ISSN, issue
+    or placeholder DOI) is not promoted as a paper.
+    """
+    rows = records.astype(object).where(records.notna(), "").to_dict("records")
     disjoint = DisjointSet()
     row_identifiers: list[list[str]] = []
     for row in rows:
@@ -194,33 +194,40 @@ def canonicalize_records(records: pd.DataFrame) -> list[dict]:
         groups[root].append(row)
 
     canonical: list[dict] = []
-    scalar_fields = (
-        "doi",
-        "pmid",
-        "pmcid",
-        "openalex_id",
-        "semantic_scholar_id",
-        "authors",
-        "journal",
-        "publication_type",
-        "language",
-    )
     for group_rows in groups.values():
-        title, bibliographic_rows = coherent_bibliographic_rows(group_rows)
+        anchor, agreeing = anchor_record(group_rows)
         row = {
-            field: first_best(group_rows if field == "doi" else bibliographic_rows, field)
-            for field in scalar_fields
+            field: anchor.get(field, "")
+            for field in ("title", "authors", "journal", "publication_type", "language", "publication_year", "publication_date")
         }
-        row["title"] = title
-        # Language is categorical: a longer provider label is not better
-        # evidence than PubMed's explicit article-language metadata.
-        row["language"], _ = preferred_value(bibliographic_rows, "language")
-        row["publication_year"], row["publication_date"] = coherent_publication_timing(
-            bibliographic_rows
-        )
-        abstract_row = best_valid_abstract(bibliographic_rows)
-        row["abstract"] = clean(abstract_row.get("abstract", "")) if abstract_row else ""
+        for field in ("doi", "pmid", "pmcid", "openalex_id", "semantic_scholar_id"):
+            row[field] = anchor.get(field) if clean(anchor.get(field)) else first_best(agreeing, field)
         row["doi"] = normalize_doi(row["doi"])
+        kind = doi_kind(row["doi"])
+        if kind in NOT_A_WORK_DOI_KINDS:
+            row["resolution_status"] = f"doi_names_no_work:{kind}:{row['doi']}"
+            row["doi"] = ""
+        # A DOI already in the ledger keeps its record: its abstract must belong to that paper.
+        paper = abstract_checker.papers.get(row["doi"]) or Paper(
+            row["doi"], clean(row["title"]), clean(row["pmid"]), clean(row["pmcid"]), clean(row["journal"])
+        )
+        row["abstract"] = ""
+        row["abstract_provider_record_id"] = ""
+        for candidate in valid_abstract_rows(group_rows):
+            if legacy_openalex_record(candidate) and not corroborated(candidate, group_rows):
+                continue
+            record = {
+                "record_doi": candidate.get("doi", ""),
+                "record_pmid": candidate.get("pmid", ""),
+                "record_pmcid": candidate.get("pmcid", ""),
+                "record_title": candidate.get("title", ""),
+                "abstract": candidate.get("abstract", ""),
+            }
+            if row["doi"] and abstract_checker.check(row["doi"], record, paper).passes:
+                row["abstract"] = clean(candidate.get("abstract", ""))
+                row["abstract_provider_record_id"] = clean(candidate.get("provider_record_id", ""))
+                abstract_checker.add(row["doi"], row["abstract"])
+                break
         row["providers"] = join_values({item.get("provider", "") for item in group_rows})
         row["provider_record_ids"] = join_values({item.get("provider_record_id", "") for item in group_rows})
         row["search_ids"] = join_values({item.get("discovery_search_ids", "") for item in group_rows})
@@ -319,11 +326,15 @@ def merge_candidates(
             if "source_count" in candidates:
                 candidates.at[index, "source_count"] = int(candidates.at[index, "source_count"] or 0) + 1
         candidates.at[index, "source_types"] = " | ".join(source_types)
+        # Blank cells are filled from this run's record only when it describes the
+        # ledger's paper; the abstract was checked against that paper already.
+        same_work = titles_are_coherent(candidates.at[index, "study_title"], record.get("title")) if "study_title" in candidates else False
+        if clean(record.get("abstract")) and "abstract" in candidates and not clean(candidates.at[index, "abstract"]):
+            candidates.at[index, "abstract"] = clean(record.get("abstract"))
         for field, source in (
             ("study_title", "title"),
             ("study_year", "publication_year"),
             ("authors", "authors"),
-            ("abstract", "abstract"),
             ("study_journal", "journal"),
             ("publication_type", "publication_type"),
             ("publication_date", "publication_date"),
@@ -333,7 +344,7 @@ def merge_candidates(
             ("semantic_scholar_id", "semantic_scholar_id"),
             ("language", "language"),
         ):
-            if field in candidates and not clean(candidates.at[index, field]) and clean(record.get(source)):
+            if (same_work or field == "study_title") and field in candidates and not clean(candidates.at[index, field]) and clean(record.get(source)):
                 candidates.at[index, field] = clean(record.get(source))
         for flag in ("flag_in_discovery_ledger", "flag_in_discovery_queue", "flag_in_discovery_report"):
             if flag in candidates:
@@ -467,7 +478,7 @@ def merge_unresolved(
                     "first_seen_at_utc": observed_at,
                     "last_seen_at_utc": observed_at,
                     "discovery_run_ids": run_id,
-                    "resolution_status": "needs_identifier_resolution",
+                    "resolution_status": clean(record.get("resolution_status")) or "needs_identifier_resolution",
                 }
             )
             new_rows.append(row)
@@ -581,7 +592,7 @@ def promote(
     candidates = pd.read_parquet(candidates_path)
     contexts = pd.read_parquet(contexts_path) if Path(contexts_path).exists() else pd.DataFrame()
     unresolved_existing = pd.read_parquet(unresolved_path) if Path(unresolved_path).exists() else pd.DataFrame()
-    canonical = canonicalize_records(records) if not records.empty else []
+    canonical = canonicalize_records(records, load_abstract_checker(candidates_path)) if not records.empty else []
     unresolved = [row for row in canonical if not normalize_doi(row.get("doi"))]
     abstracts = candidates["abstract"] if "abstract" in candidates else pd.Series("", index=candidates.index)
     missing_abstract_dois = set(candidates.loc[abstracts.map(clean).eq(""), "doi"].map(normalize_doi))

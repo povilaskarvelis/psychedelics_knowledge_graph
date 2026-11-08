@@ -52,6 +52,12 @@ from pipeline.identity.audit import (
     release_impact,
     stored_fulltexts,
 )
+from pipeline.identity.abstracts import (
+    DEFAULT_DISCOVERY_RUNS,
+    DEFAULT_PROVIDER_RECORDS_DIR,
+    kept_abstracts,
+    read_provider_records,
+)
 from pipeline.identity.bindings import (
     DEFAULT_VERDICTS_PATH,
     PREPRINT_RELATIONS,
@@ -60,6 +66,7 @@ from pipeline.identity.bindings import (
     decision_rows,
     fulltext_row,
     fulltext_rows,
+    usable_for,
     verdict_table,
 )
 from pipeline.identity.evidence import text_sha256
@@ -204,11 +211,16 @@ def compare_texts(
     return changes, counts
 
 
-def curated_changes(decisions: dict[str, list[dict]], ledger: pd.DataFrame) -> dict[str, dict]:
-    """The metadata values each paper's decisions change: its corrected fields, and a cleared unusable abstract.
+def curated_changes(
+    decisions: dict[str, list[dict]], ledger: pd.DataFrame, kept: dict[str, dict[str, str]] | None = None
+) -> dict[str, dict]:
+    """The metadata values each paper's decisions change.
 
-    Decisions migrated from the overrides file are already in it. An abstract is
-    cleared only while the record still holds the abstract the decision is about.
+    These are its corrected fields, a cleared unusable abstract, and an abstract
+    a reviewer accepted from a kept provider record (``kept``: abstracts by DOI
+    and SHA-256) for a record that has none. Decisions migrated from the
+    overrides file are already in it. An abstract is cleared only while the
+    record still holds the abstract the decision is about.
     """
     changes: dict[str, dict] = {}
     for doi, doi_decisions in decisions.items():
@@ -227,6 +239,12 @@ def curated_changes(decisions: dict[str, list[dict]], ledger: pd.DataFrame) -> d
                 if not abstract or text_sha256(abstract) != clean(decision["target"].get("sha256", "")):
                     continue
                 change["clear_fields"].add("abstract")
+            elif kind == "abstract" and usable_for("abstract", verdict, clean(decision.get("relation", "")), doi)[0]:
+                accepted = (kept or {}).get(doi, {}).get(clean(decision["target"].get("sha256", "")), "")
+                if not accepted or (doi in ledger.index and clean(ledger.at[doi, "abstract"])):
+                    continue
+                change["fields"]["abstract"] = accepted
+                change["clear_fields"].discard("abstract")
             else:
                 continue
             change["decision_id"], change["basis"] = decision["decision_id"], decision["basis"]
@@ -288,6 +306,8 @@ def run_apply(
     out_root: Path = DEFAULT_UPDATE_ROOT,
     verdicts_path: Path = DEFAULT_VERDICTS_PATH,
     metadata_overrides: Path = DEFAULT_METADATA_OVERRIDES,
+    discovery_runs: Path = DEFAULT_DISCOVERY_RUNS,
+    provider_records_dir: Path = DEFAULT_PROVIDER_RECORDS_DIR,
     read_pdfs: bool = True,
     install: bool = False,
 ) -> dict:
@@ -303,7 +323,9 @@ def run_apply(
 
     ledger = load_ledger(Path(ledger_path))
     decisions = decisions_by_doi(Path(decisions_path))
-    record_changes = curated_changes(decisions, ledger)
+    record_changes = curated_changes(
+        decisions, ledger, kept_abstracts(read_provider_records(Path(provider_records_dir), Path(discovery_runs)))
+    )
     corrections = apply_record_corrections(ledger, decisions)
     relations = work_relation_index(Path(work_registry))
     text_rows, text_counts = fulltext_rows(ledger, Path(artifact_dir), relations, decisions, read_pdfs=read_pdfs)

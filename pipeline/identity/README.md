@@ -139,6 +139,38 @@ next `audit`. The text under another DOI is carried only at the next `apply`.
 PDF downloads keep their own title check, which decides which file to convert;
 whether the converted text is the paper is decided here.
 
+## Abstracts
+
+`abstracts.py` decides whether an abstract may fill a record (decision D5). An
+abstract comes with the provider record it was read from: the provider, the
+record's ID, and the DOI, PMID, PMCID and title the record gives as its own. It
+passes when
+
+- `verify.py` verifies the record for the paper, or the record is a registered
+  version of it;
+- the same text is not on a record whose DOI the work registry does not link to
+  the paper's (texts of fewer than 50 words are not compared); and
+- it is not web-page text.
+
+Discovery promotion, batch abstract enrichment, per-record enrichment and the
+abstract contamination repair fill an abstract only when it passes; a provider whose abstract does not pass is skipped
+and the next one is tried. A record without a passing abstract stays without
+one. Abstracts already in the ledger are not replaced.
+
+Every provider record that gave an abstract is kept, so the abstract can be
+checked again: enrichment writes `data/processed/identity/provider_records/<run>.parquet`,
+and discovery keeps `retrieved_records.parquet` in each run. `audit` (check
+`provider_abstract`) lists ledger abstracts whose kept record does not verify for
+the paper, and, for records without an abstract, the kept abstracts that did not
+pass. A `verified` decision on such an abstract makes `apply --install` write it
+to the curated overrides, which fill the record.
+
+Discovery promotion also takes a paper's title, authors, journal, type,
+language, year and date from one provider record, does not promote a funder,
+ISSN, issue or placeholder DOI as a paper, and does not take the abstract of an
+OpenAlex record whose work ID is a PMID number (below 45 million) unless
+another provider's record gives an agreeing title (`pipeline/discovery/README.md`).
+
 ## Commands
 
 ```bash
@@ -168,6 +200,7 @@ folder under `data/processed/identity/audits/`.
 | `record_doi` | a record | a DOI that names no work, or a part of another item |
 | `openalex_pmid_collision` | a record | an OpenAlex work ID equal to the PMID of another work |
 | `model_report` | the text the release used | the extraction model wrote that the text and the paper differ (`model_reports.py`) |
+| `provider_abstract` | an abstract | the kept provider record that gives it (`abstracts.py`) |
 
 It reads the candidate ledger, the stored full texts and PDFs, the PubMed
 records kept from discovery, the work registry and the decision file, and the

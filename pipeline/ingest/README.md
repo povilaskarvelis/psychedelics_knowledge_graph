@@ -37,6 +37,13 @@ The command:
   workers, with checkpoints every `--crossref-batch-size` records;
 - checkpoints each successful provider batch and automatically reuses the
   checkpoint when the same run command is resumed;
+- uses an abstract only when its provider record passes the identity check
+  (`pipeline/identity/README.md`, "Abstracts"): the record's identifier and
+  title agree with the paper, and the text is not another record's. A provider
+  whose abstract does not pass is skipped and the next one is asked. The same
+  check applies in per-record enrichment (`enrich_paper_metadata.py`);
+- keeps every provider record that gave an abstract in
+  `data/processed/identity/provider_records/`;
 - never overwrites an existing abstract;
 - backs up `paper_metadata_enrichment.parquet` before an atomic merge;
 - materializes every recovered abstract and its provider/run provenance into
@@ -49,7 +56,11 @@ Use `--dry-run` to inspect the eligible scope without network requests, or
 `--no-merge` for a retrieval-only pilot. Reusing a run ID with different
 inputs or batch settings is refused; choose a new run ID instead. Records that
 remain abstractless are handled by the following deterministic pre-screen as
-`exclude_no_usable_abstract` rather than being sent to model screening.
+`exclude_no_usable_abstract` rather than being sent to model screening. Records
+left without an abstract because none passed the identity check appear in the
+next `python -m pipeline.identity audit` (check `provider_abstract`); an
+abstract a reviewer accepts is written by `apply --install`, and the record is
+then screened like one whose abstract was restored.
 
 To run a measured Crossref recovery stage after the default providers, use a
 new run ID. The command freezes only records still missing abstracts at the

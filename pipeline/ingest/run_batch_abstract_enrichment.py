@@ -34,6 +34,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from pipeline.identity.abstracts import AbstractChecker, load_abstract_checker, write_provider_records  # noqa: E402
 from pipeline.ingest.enrich_paper_metadata import (  # noqa: E402
     OUTPUT_COLUMNS,
     candidate_metadata_row,
@@ -66,10 +67,14 @@ RESULT_COLUMNS = (
     "doi",
     "provider_record_id",
     "provider_doi",
+    "record_pmid",
+    "record_pmcid",
+    "record_title",
     "status",
     "abstract",
     "retrieved_at_utc",
     "error",
+    "identity_rule",
 )
 CHECKPOINT_SCHEMA = "batch_abstract_checkpoint_v1"
 MANIFEST_SCHEMA = "batch_abstract_enrichment_run_v1"
@@ -258,6 +263,16 @@ def element_identifiers(article: ET.Element) -> dict[str, str]:
     return identifiers
 
 
+def article_title(article: ET.Element) -> str:
+    """The article's own title, from its front matter rather than from cited works."""
+    for element in article.iter():
+        if local_name(element.tag) == "article-meta":
+            for child in element.iter():
+                if local_name(child.tag) == "article-title":
+                    return element_text(child)
+    return ""
+
+
 def longest_article_abstract(article: ET.Element) -> str:
     candidates: list[str] = []
     for element in article.iter():
@@ -277,6 +292,7 @@ def parse_pmc_batch(body: bytes, requested: Sequence[dict], *, run_id: str, batc
         if local_name(article.tag) != "article":
             continue
         identifiers = element_identifiers(article)
+        identifiers["title"] = article_title(article)
         abstract = longest_article_abstract(article)
         pmcid = normalized_pmcid(identifiers.get("pmcid") or identifiers.get("pmc"))
         doi = normalized_doi(identifiers.get("doi"))
@@ -297,13 +313,20 @@ def parse_pmc_batch(body: bytes, requested: Sequence[dict], *, run_id: str, batc
         identifiers, abstract = match
         provider_doi = normalized_doi(identifiers.get("doi"))
         status = "recovered" if abstract else "no_abstract"
-        rows.append(result_row(run_id, "pmc", batch_id, doi, pmcid, provider_doi, status, abstract, timestamp))
+        rows.append(
+            result_row(
+                run_id, "pmc", batch_id, doi, pmcid, provider_doi, status, abstract, timestamp,
+                record_pmid=identifiers.get("pmid", ""),
+                record_pmcid=normalized_pmcid(identifiers.get("pmcid") or identifiers.get("pmc")),
+                record_title=identifiers["title"],
+            )
+        )
     return rows
 
 
 def parse_pubmed_batch(body: bytes, requested: Sequence[dict], *, run_id: str, batch_id: str) -> list[dict]:
     root = ET.fromstring(body)
-    articles_by_pmid: dict[str, tuple[str, str]] = {}
+    articles_by_pmid: dict[str, tuple[str, str, dict]] = {}
     for article in root.findall(".//PubmedArticle"):
         pmid = clean(article.findtext(".//MedlineCitation/PMID"))
         if not pmid:
@@ -312,6 +335,11 @@ def parse_pubmed_batch(body: bytes, requested: Sequence[dict], *, run_id: str, b
         articles_by_pmid[pmid] = (
             normalized_doi(pubmed_article_id(article, "doi")),
             normalized_text(metadata.get("abstract", "")),
+            {
+                "record_pmid": pmid,
+                "record_pmcid": clean(metadata.get("pmcid", "")),
+                "record_title": clean(metadata.get("study_title", "")),
+            },
         )
 
     timestamp = now_utc()
@@ -323,7 +351,7 @@ def parse_pubmed_batch(body: bytes, requested: Sequence[dict], *, run_id: str, b
         if not match:
             rows.append(result_row(run_id, "pubmed", batch_id, doi, pmid, "", "not_found", "", timestamp))
             continue
-        provider_doi, abstract = match
+        provider_doi, abstract, record = match
         if provider_doi and provider_doi != doi:
             rows.append(
                 result_row(
@@ -351,6 +379,7 @@ def parse_pubmed_batch(body: bytes, requested: Sequence[dict], *, run_id: str, b
                 "recovered" if abstract else "no_abstract",
                 abstract,
                 timestamp,
+                **record,
             )
         )
     return rows
@@ -419,6 +448,9 @@ def parse_semantic_scholar_batch(
                 "recovered" if abstract else "no_abstract",
                 abstract,
                 timestamp,
+                record_pmid=clean(external.get("PubMed", "")),
+                record_pmcid=normalized_pmcid(external.get("PubMedCentral", "")),
+                record_title=clean(response.get("title", "")),
             )
         )
     return rows
@@ -450,6 +482,7 @@ def parse_crossref_work(
             error=f"requested={doi};returned={provider_doi}",
         )
     abstract = normalized_text(strip_markup(message.get("abstract", "")))
+    titles = message.get("title") if isinstance(message.get("title"), list) else [message.get("title", "")]
     return result_row(
         run_id,
         "crossref",
@@ -460,6 +493,7 @@ def parse_crossref_work(
         "recovered" if abstract else "no_abstract",
         abstract,
         now_utc(),
+        record_title=strip_markup(clean(titles[0] if titles else "")),
     )
 
 
@@ -475,7 +509,11 @@ def result_row(
     retrieved_at_utc: str,
     *,
     error: str = "",
+    record_pmid: str = "",
+    record_pmcid: str = "",
+    record_title: str = "",
 ) -> dict:
+    """One provider's answer for one DOI, with the identifiers and title its record gives as its own."""
     return {
         "run_id": run_id,
         "provider": provider,
@@ -483,10 +521,14 @@ def result_row(
         "doi": normalized_doi(doi),
         "provider_record_id": clean(provider_record_id),
         "provider_doi": normalized_doi(provider_doi),
+        "record_pmid": clean(record_pmid),
+        "record_pmcid": clean(record_pmcid),
+        "record_title": normalized_text(record_title),
         "status": clean(status),
         "abstract": normalized_text(abstract),
         "retrieved_at_utc": clean(retrieved_at_utc),
         "error": clean(error),
+        "identity_rule": "",
     }
 
 
@@ -1084,7 +1126,28 @@ def update_live_manifest(
     atomic_write_json(manifest_path, manifest)
 
 
-def best_recovered_rows(results: Sequence[dict]) -> dict[str, dict]:
+def provider_record(row: dict) -> dict:
+    """A result row in the form of the identity module's provider records."""
+    return {
+        "doi": normalized_doi(row.get("doi")),
+        "provider": clean(row.get("provider", "")),
+        "provider_record_id": clean(row.get("provider_record_id", "")),
+        "record_doi": normalized_doi(row.get("provider_doi")),
+        "record_pmid": clean(row.get("record_pmid", "")),
+        "record_pmcid": clean(row.get("record_pmcid", "")),
+        "record_title": clean(row.get("record_title", "")),
+        "abstract": normalized_text(row.get("abstract", "")),
+        "retrieved_at_utc": clean(row.get("retrieved_at_utc", "")),
+        "run_id": clean(row.get("run_id", "")),
+    }
+
+
+def best_recovered_rows(results: Sequence[dict], checker: AbstractChecker) -> dict[str, dict]:
+    """For each DOI, the recovered abstract of the highest-priority provider that passes the identity check.
+
+    Each recovered row's ``identity_rule`` records the check's result. A DOI with
+    no passing abstract is left out, so the next provider is asked for it.
+    """
     priority = {"pubmed": 0, "pmc": 1, "crossref": 2, "semantic_scholar": 3}
     recovered = [
         row
@@ -1095,8 +1158,13 @@ def best_recovered_rows(results: Sequence[dict]) -> dict[str, dict]:
     out: dict[str, dict] = {}
     for row in recovered:
         doi = normalized_doi(row.get("doi"))
-        if doi and doi not in out:
+        if not doi or doi in out:
+            continue
+        check = checker.check(doi, provider_record(row))
+        row["identity_rule"] = check.rule if check.passes else f"not_used:{check.rule}"
+        if check.passes:
             out[doi] = row
+            checker.add(doi, row.get("abstract", ""))
     return out
 
 
@@ -1336,6 +1404,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     max_retries = args.max_retries if args.max_retries is not None else read_int(semantic_config.get("max_retries"), 4)
     scope_rows = scope.to_dict("records")
     results: list[dict] = []
+    # An abstract fills a record only when its provider record passes the identity check (decision D5).
+    checker = load_abstract_checker(candidates_path)
 
     try:
         if "pubmed" in providers:
@@ -1363,7 +1433,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     manifest_path=manifest_path,
                 )
             )
-        recovered_dois = set(best_recovered_rows(results))
+        recovered_dois = set(best_recovered_rows(results, checker))
         pmc_scope = [row for row in scope_rows if normalized_doi(row.get("doi")) not in recovered_dois]
         if "pmc" in providers:
             pmc_client = BatchHttpClient(
@@ -1386,7 +1456,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     manifest_path=manifest_path,
                 )
             )
-        recovered_dois = set(best_recovered_rows(results))
+        recovered_dois = set(best_recovered_rows(results, checker))
         semantic_scope = [row for row in scope_rows if normalized_doi(row.get("doi")) not in recovered_dois]
         if "semantic_scholar" in providers:
             semantic_client = BatchHttpClient(
@@ -1413,7 +1483,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 )
             )
 
-        recovered_dois = set(best_recovered_rows(results))
+        recovered_dois = set(best_recovered_rows(results, checker))
         crossref_scope = [row for row in scope_rows if normalized_doi(row.get("doi")) not in recovered_dois]
         if "crossref" in providers:
             crossref_client = BatchHttpClient(
@@ -1441,10 +1511,14 @@ def main(argv: Sequence[str] | None = None) -> int:
                 )
             )
 
+        recovered = best_recovered_rows(results, checker)
         result_frame = pd.DataFrame(results, columns=list(RESULT_COLUMNS))
         results_path = run_dir / "abstract_enrichment_results.parquet"
         atomic_write_parquet(results_path, result_frame)
-        recovered = best_recovered_rows(results)
+        write_provider_records(
+            [provider_record(row) for row in results if clean(row.get("status", "")) == "recovered"],
+            f"batch_abstracts_{args.run_id}",
+        )
         summary = {
             "schema_version": "batch_abstract_enrichment_summary_v1",
             "run_id": args.run_id,
@@ -1452,6 +1526,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             "scope_records": len(scope),
             "provider_attempt_rows": len(results),
             "unique_abstracts_recovered": len(recovered),
+            "abstracts_not_used_by_identity_rule": dict(
+                Counter(row["identity_rule"] for row in results if row["identity_rule"].startswith("not_used:"))
+            ),
             "recovery_pct": round(100.0 * len(recovered) / len(scope), 3) if len(scope) else 0.0,
             "status_counts_by_provider": {
                 provider: dict(Counter(row["status"] for row in results if row["provider"] == provider))

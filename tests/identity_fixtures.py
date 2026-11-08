@@ -155,6 +155,7 @@ def build_inputs(root: Path) -> dict:
         "ledger_path": ledger,
         "artifact_dir": artifacts,
         "discovery_runs": root / "discovery",
+        "provider_records_dir": root / "provider_records",
         "outputs": [outputs],
         "kg_dir": kg_dir,
         "decisions_path": decisions,

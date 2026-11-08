@@ -879,6 +879,9 @@ def metadata_from_openalex_work(work: dict, paper: dict) -> dict:
         "pmid": normalize(ids.get("pmid", "")).removeprefix("https://pubmed.ncbi.nlm.nih.gov/") if isinstance(ids, dict) else "",
         "pmcid": normalize(ids.get("pmcid", "")) if isinstance(ids, dict) else "",
         "study_title": title,
+        # The record's own title and DOI, without fallbacks, for the identity check of its abstract.
+        "record_title": normalize(work.get("display_name", "")),
+        "record_doi": normalize_doi(work.get("doi", "")),
         "study_year": normalize(work.get("publication_year", "")) or normalize(paper.get("study_year", "")),
         "authors": authors_from_openalex(work.get("authorships", []) or []) or normalize(paper.get("authors", "")),
         "study_journal": journal_from_openalex_work(work) or normalize(paper.get("study_journal", "")),
@@ -978,6 +981,8 @@ def metadata_from_pubmed_article(article: ET.Element, paper: dict) -> dict:
         "pmid": normalize(article.findtext(".//MedlineCitation/PMID")),
         "pmcid": pubmed_article_id(article, "pmc"),
         "study_title": title,
+        "record_title": strip_markup("".join(article.find(".//ArticleTitle").itertext())) if article.find(".//ArticleTitle") is not None else "",
+        "record_doi": normalize_doi(pubmed_article_id(article, "doi")),
         "study_year": year_from_pubmed_article(article) or normalize(paper.get("study_year", "")),
         "authors": authors_from_pubmed_article(article) or normalize(paper.get("authors", "")),
         "study_journal": journal or normalize(paper.get("study_journal", "")),
@@ -1202,6 +1207,8 @@ def lookup_pmc_metadata(
         "pmid": normalize(record.get("pmid", "")),
         "pmcid": pmcid,
         "study_title": title or normalize(paper.get("study_title", "")),
+        "record_title": title,
+        "record_doi": normalize_doi((record or {}).get("doi", "")),
         "study_year": normalize(paper.get("study_year", "")),
         "authors": normalize(paper.get("authors", "")),
         "study_journal": normalize(paper.get("study_journal", "")),
@@ -1340,6 +1347,8 @@ def lookup_crossref_metadata(
         "pmid": "",
         "pmcid": "",
         "study_title": title,
+        "record_title": crossref_title_with_subtitle(item, ""),
+        "record_doi": normalize_doi(item.get("DOI", "")),
         "study_year": year_from_crossref_date(
             item.get("published", {}),
             item.get("published-online", {}),
@@ -1471,6 +1480,8 @@ def lookup_semantic_scholar_metadata(
         "pmid": normalize(external_ids.get("PubMed", "")),
         "pmcid": normalize(external_ids.get("PubMedCentral", "")),
         "study_title": title,
+        "record_title": normalize(payload.get("title", "")),
+        "record_doi": normalize_doi(external_ids.get("DOI", "")),
         "study_year": normalize(payload.get("year", "")) or normalize(paper.get("study_year", "")),
         "authors": authors_from_semantic_scholar(payload.get("authors", []) or []) or normalize(paper.get("authors", "")),
         "study_journal": normalize(journal.get("name", ""))
@@ -2070,6 +2081,16 @@ def parse_provider_order(raw: str) -> List[str]:
     return out or list(DEFAULT_METADATA_PROVIDER_ORDER)
 
 
+# The field that holds a provider's own ID for a record.
+PROVIDER_RECORD_ID_FIELDS = {
+    "openalex": "openalex_id",
+    "semantic_scholar": "semantic_scholar_id",
+    "pubmed": "record_pmid",
+    "pmc": "record_pmcid",
+    "crossref": "record_doi",
+}
+
+
 def fetch_metadata_with_fallbacks(
     doi: str,
     paper: dict,
@@ -2083,7 +2104,17 @@ def fetch_metadata_with_fallbacks(
     unpaywall_email: str,
     semantic_scholar_api_key: str = "",
     initial_metadata: Optional[dict] = None,
+    *,
+    abstract_checker,
+    provider_records: Optional[List[dict]] = None,
 ) -> Tuple[dict, List[dict], List[str]]:
+    """Merge provider metadata in priority order.
+
+    A provider's abstract is merged only when ``abstract_checker``
+    (``pipeline.identity.abstracts.AbstractChecker``) passes it for this DOI:
+    its record is the paper and the text is not another record's (decision D5).
+    Each provider record that gave an abstract is appended to ``provider_records``.
+    """
     metadata: dict = dict(initial_metadata or {})
     errors: List[dict] = []
     queried: List[str] = []
@@ -2149,6 +2180,30 @@ def fetch_metadata_with_fallbacks(
 
         if not current or not metadata_has_useful_fields(current):
             continue
+        current = dict(current)
+        record = {
+            "doi": normalize_doi(doi),
+            "provider": provider,
+            "record_doi": normalize_doi(current.pop("record_doi", "")),
+            "record_pmid": normalize(current.get("pmid", "")),
+            "record_pmcid": normalize(current.get("pmcid", "")),
+            "record_title": normalize(current.pop("record_title", "")),
+            "abstract": normalize(current.get("abstract", "")),
+        }
+        record["provider_record_id"] = record.get(PROVIDER_RECORD_ID_FIELDS.get(provider, ""), "") or normalize(
+            current.get(PROVIDER_RECORD_ID_FIELDS.get(provider, ""), "")
+        )
+        if record["abstract"]:
+            if provider_records is not None:
+                provider_records.append(record)
+            check = abstract_checker.check(doi, record)
+            if not check.passes:
+                current["abstract"] = ""
+                metadata["abstract_identity_rejections"] = "|".join(
+                    filter(None, [normalize(metadata.get("abstract_identity_rejections", "")), f"{provider}:{check.rule}"])
+                )
+            elif not normalize(metadata.get("abstract", "")):
+                abstract_checker.add(doi, record["abstract"])
         previous_chain = [
             value
             for value in normalize(metadata.get("metadata_provider_chain", "")).split("|")

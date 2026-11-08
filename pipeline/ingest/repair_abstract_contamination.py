@@ -25,12 +25,14 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from pipeline.identity.abstracts import AbstractChecker, load_abstract_checker  # noqa: E402
 from pipeline.ingest.abstract_quality import (  # noqa: E402
     assess_abstract,
     best_valid_abstract,
     clean_text,
     extract_embedded_abstract,
     normalize_provider,
+    valid_abstract_rows,
 )
 from pipeline.ingest.enrich_paper_metadata import (  # noqa: E402
     OUTPUT_COLUMNS,
@@ -53,6 +55,7 @@ from pipeline.ingest.run_batch_abstract_enrichment import (  # noqa: E402
     atomic_write_json,
     atomic_write_parquet,
     now_utc,
+    provider_record,
     run_crossref_batches,
     run_pmc_batches,
     run_pubmed_batches,
@@ -238,7 +241,10 @@ def build_contamination_scope(
     )
 
 
-def valid_recovered_rows(results: Sequence[dict], scope: pd.DataFrame) -> tuple[dict[str, dict], list[dict]]:
+def valid_recovered_rows(
+    results: Sequence[dict], scope: pd.DataFrame, checker: AbstractChecker
+) -> tuple[dict[str, dict], list[dict]]:
+    """For each DOI, the best recovered abstract that is usable in form and whose provider record passes the identity check."""
     title_by_doi = dict(zip(scope["doi"], scope["study_title"])) if not scope.empty else {}
     accepted_candidates: list[dict] = []
     rejected: list[dict] = []
@@ -272,9 +278,19 @@ def valid_recovered_rows(results: Sequence[dict], scope: pd.DataFrame) -> tuple[
         grouped.setdefault(normalized_doi(row.get("doi")), []).append(row)
     selected: dict[str, dict] = {}
     for doi, rows in grouped.items():
-        choice = best_valid_abstract(rows)
-        if choice is not None:
-            selected[doi] = choice
+        for row in valid_abstract_rows(rows):
+            check = checker.check(doi, provider_record(row))
+            if check.passes:
+                selected[doi] = row
+                break
+            rejected.append(
+                {
+                    "doi": doi,
+                    "provider": clean(row.get("provider", "")),
+                    "char_count": len(row["abstract"]),
+                    "reasons": f"identity:{check.rule}",
+                }
+            )
     return selected, rejected
 
 
@@ -581,6 +597,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     print(f"Provider recovery required: {summary['recovery_required']:,}", flush=True)
     if args.audit_only or scope.empty:
         return 0
+    # A recovered abstract replaces a contaminated one only when its provider record passes (decision D5).
+    checker = load_abstract_checker(candidates_path)
 
     if args.apply_existing_results:
         results_path = run_dir / "abstract_recovery_results.parquet"
@@ -588,7 +606,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             raise FileNotFoundError(f"Existing recovery results not found: {results_path}")
         results = pd.read_parquet(results_path).to_dict("records")
         recovery_scope = scope[scope["recovery_required"].astype(bool)].copy()
-        recovered, rejected = valid_recovered_rows(results, recovery_scope)
+        recovered, rejected = valid_recovered_rows(results, recovery_scope, checker)
         apply_report = apply_repairs(
             candidates_path=candidates_path,
             metadata_path=metadata_path,
@@ -640,7 +658,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 )
             )
 
-        recovered, _ = valid_recovered_rows(results, recovery_scope)
+        recovered, _ = valid_recovered_rows(results, recovery_scope, checker)
         remaining = [row for row in scope_rows if normalized_doi(row.get("doi")) not in recovered]
         if "pmc" in providers:
             client = BatchHttpClient(
@@ -664,7 +682,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 )
             )
 
-        recovered, _ = valid_recovered_rows(results, recovery_scope)
+        recovered, _ = valid_recovered_rows(results, recovery_scope, checker)
         remaining = [row for row in scope_rows if normalized_doi(row.get("doi")) not in recovered]
         if "semantic_scholar" in providers:
             client = BatchHttpClient(
@@ -691,7 +709,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 )
             )
 
-        recovered, _ = valid_recovered_rows(results, recovery_scope)
+        recovered, _ = valid_recovered_rows(results, recovery_scope, checker)
         remaining = [row for row in scope_rows if normalized_doi(row.get("doi")) not in recovered]
         if "crossref" in providers:
             client = BatchHttpClient(
@@ -717,7 +735,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         results_path = run_dir / "abstract_recovery_results.parquet"
         atomic_write_parquet(results_path, pd.DataFrame(results, columns=list(RESULT_COLUMNS)))
-        recovered, rejected = valid_recovered_rows(results, recovery_scope)
+        recovered, rejected = valid_recovered_rows(results, recovery_scope, checker)
         rejected_path = run_dir / "rejected_recovery_abstracts.parquet"
         atomic_write_parquet(rejected_path, pd.DataFrame(rejected))
         recovery_summary = {

@@ -26,7 +26,8 @@ def intake_for(tmp_path: Path) -> tuple[FulltextIntake, Path]:
         outputs=[outputs], kg_dir=inputs["kg_dir"], ledger_path=inputs["ledger_path"], artifact_dir=inputs["artifact_dir"],
         decisions_path=inputs["decisions_path"], work_registry=inputs["work_registry"], update_id="u",
         out_root=tmp_path / "updates", install=True, verdicts_path=verdicts, read_pdfs=False,
-        metadata_overrides=tmp_path / "overrides.json",
+        metadata_overrides=tmp_path / "overrides.json", discovery_runs=inputs["discovery_runs"],
+        provider_records_dir=inputs["provider_records_dir"],
     )
     intake = FulltextIntake(
         verdicts_path=verdicts, artifact_dir=inputs["artifact_dir"], ledger_path=inputs["ledger_path"],

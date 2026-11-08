@@ -271,6 +271,20 @@ python pipeline/discovery/promote_search_run.py \
   --run-id living_update_v3_YYYYMMDD
 ```
 
+Records that share a DOI, PMID, PMCID, OpenAlex or Semantic Scholar ID form one
+work. Its title, authors, journal, type, language, year and date come together
+from one provider record: the one whose title agrees with most of the others,
+then PubMed before Crossref, OpenAlex and Semantic Scholar. They are never
+combined field by field across records. The abstract is the first usable one
+whose provider record passes the identity check (`pipeline/identity/README.md`,
+"Abstracts"); without one the record has no abstract. An OpenAlex record whose
+work ID is a PMID number (below 45 million) supplies no abstract, and is the
+title record only when no other record is available, unless another provider's
+record gives an agreeing title. A funder, ISSN, issue or placeholder DOI is not
+promoted as a paper; the record is kept for identifier resolution with the
+reason. On rediscovery, blank fields of a record are filled only from a record
+whose title agrees with it.
+
 Promotion backs up the canonical tables, appends new DOI-bearing records,
 updates rediscovery provenance, retains no-DOI records for identifier
 resolution, and writes `new_candidate_dois.txt`. The downstream handoff is

@@ -241,8 +241,8 @@ def extract_embedded_abstract(value: object, *, title: object = "") -> EmbeddedA
     return None
 
 
-def best_valid_abstract(rows: Iterable[dict]) -> dict | None:
-    """Choose the highest-provenance usable abstract, never the longest text."""
+def valid_abstract_rows(rows: Iterable[dict]) -> list[dict]:
+    """Rows with a usable abstract, highest provenance first, never longest first."""
 
     candidates: list[tuple[tuple[int, int, str], dict]] = []
     for row in rows:
@@ -256,6 +256,11 @@ def best_valid_abstract(rows: Iterable[dict]) -> dict | None:
         # complete than a short summary.
         key = (PROVIDER_PRIORITY.get(provider, 50), -len(abstract), abstract)
         candidates.append((key, row))
-    if not candidates:
-        return None
-    return min(candidates, key=lambda item: item[0])[1]
+    return [row for _, row in sorted(candidates, key=lambda item: item[0])]
+
+
+def best_valid_abstract(rows: Iterable[dict]) -> dict | None:
+    """Choose the highest-provenance usable abstract, never the longest text."""
+
+    valid = valid_abstract_rows(rows)
+    return valid[0] if valid else None

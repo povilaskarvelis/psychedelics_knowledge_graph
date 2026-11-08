@@ -4,6 +4,8 @@ from tempfile import TemporaryDirectory
 from pathlib import Path
 from unittest.mock import patch
 
+from pipeline.identity.abstracts import AbstractCheck, AbstractChecker
+from pipeline.identity.verify import Paper
 from pipeline.ingest.metadata_utils import (
     PAPER_METADATA_SCHEMA_VERSION,
     crossref_title_with_subtitle,
@@ -42,6 +44,20 @@ def test_url_candidates_ignore_missing_cells_and_serialized_nulls():
     assert rank_pdf_candidates(iter(values)) == ["https://example.org/paper.pdf"]
     assert join_candidates(iter(values)) == "https://example.org/paper.pdf"
 
+
+
+
+class PassingChecker:
+    """Lets every abstract through; these tests are about merging fields, not identity."""
+
+    def check(self, doi, record):
+        return AbstractCheck(True, "verified", "test")
+
+    def add(self, doi, abstract):
+        pass
+
+
+PASSING = PassingChecker()
 
 class FakeClient:
     def __init__(self, json_responses=None, bytes_responses=None):
@@ -330,6 +346,7 @@ class MetadataUtilsTest(unittest.TestCase):
             ncbi_api_key="",
             crossref_email="curator@example.org",
             unpaywall_email="curator@example.org",
+            abstract_checker=PASSING,
         )
 
         self.assertEqual(errors, [])
@@ -392,6 +409,7 @@ class MetadataUtilsTest(unittest.TestCase):
             ncbi_api_key="",
             crossref_email="curator@example.org",
             unpaywall_email="curator@example.org",
+            abstract_checker=PASSING,
         )
 
         self.assertEqual(errors, [])
@@ -448,6 +466,7 @@ class MetadataUtilsTest(unittest.TestCase):
             ncbi_api_key="",
             crossref_email="curator@example.org",
             unpaywall_email="curator@example.org",
+            abstract_checker=PASSING,
         )
 
         self.assertEqual(errors, [])
@@ -459,6 +478,35 @@ class MetadataUtilsTest(unittest.TestCase):
         self.assertEqual(metadata["study_journal"], "Journal supplied by OpenAlex")
         self.assertEqual(metadata["openalex_id"], "https://openalex.org/W1")
         self.assertEqual(metadata["oa_status"], "green")
+
+    @patch("pipeline.ingest.metadata_utils.metadata_from_openalex_work")
+    @patch("pipeline.ingest.metadata_utils.lookup_openalex_work")
+    @patch("pipeline.ingest.metadata_utils.lookup_pubmed_metadata")
+    def test_an_abstract_whose_record_is_another_work_is_not_merged(
+        self, mock_pubmed, mock_openalex_lookup, mock_openalex_metadata
+    ) -> None:
+        doi = "10.1016/j.jad.2020.01.001"
+        title = "Psilocybin therapy for treatment-resistant depression"
+        mock_pubmed.return_value = {
+            "study_title": "Cost of CAR-T therapy in multiple myeloma", "abstract": "Another work's abstract.",
+            "record_title": "Cost of CAR-T therapy in multiple myeloma", "record_doi": doi, "pmid": "111",
+        }
+        mock_openalex_lookup.return_value = {"id": "W1"}
+        mock_openalex_metadata.return_value = {
+            "study_title": title, "abstract": "This paper's abstract.", "record_title": title, "record_doi": doi,
+            "openalex_id": "https://openalex.org/W1",
+        }
+        records: list[dict] = []
+        metadata, _errors, _queried = fetch_metadata_with_fallbacks(
+            doi=doi, paper={"study_doi": doi}, provider_order=["pubmed", "openalex"],
+            clients={"pubmed": FakeClient(), "openalex": FakeClient()},
+            openalex_email="", openalex_api_key="", ncbi_email="", ncbi_api_key="", crossref_email="", unpaywall_email="",
+            abstract_checker=AbstractChecker({doi: Paper(doi, title)}, {}, {}), provider_records=records,
+        )
+        self.assertEqual(metadata["abstract"], "This paper's abstract.")
+        self.assertEqual(metadata["metadata_provider"], "openalex")
+        self.assertEqual(metadata["abstract_identity_rejections"], "pubmed:record_identifier_matches_title_differs")
+        self.assertEqual([(r["provider"], r["provider_record_id"]) for r in records], [("pubmed", "111"), ("openalex", "https://openalex.org/W1")])
 
     def test_openalex_lookup_uses_current_select_fields(self) -> None:
         doi = "10.1000/example"
