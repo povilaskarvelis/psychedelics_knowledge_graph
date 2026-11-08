@@ -96,6 +96,15 @@ pass `--evidence-replacement-cohort LABEL=PATH`. The cohort declares every DOI
 whose complete prior contribution must be replaced, so a valid zero-result
 extraction deletes stale evidence instead of silently leaving it behind.
 
+The assembled outputs carry canonical DOIs, with the DOI each output was
+produced for kept as `study_doi_alias`. The converters follow the same order
+when a release is converted again from its outputs: the primary converter
+matches an output to its task on that recorded DOI, and the review converter
+treats a DOI registered as an alias of an eligible review paper as eligible.
+The assembly then keeps the canonical DOI's own rows where both have them. An
+alias's review output is not used for a kept DOI routed to primary extraction,
+because the review overlay would replace that paper's own primary rows.
+
 ```bash
 python pipeline/kg/assemble_combined_release.py \
   --run-id "$RUN_ID" \

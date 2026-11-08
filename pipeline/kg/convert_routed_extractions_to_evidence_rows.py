@@ -748,7 +748,10 @@ def output_matches_current_task(
 
     expected_doi = normalize(task.get("study_doi", ""))
     actual_doi = normalize(result.get("study_doi", ""))
-    if expected_doi and actual_doi != expected_doi:
+    # The release assembly replaces an output's DOI with its registered canonical
+    # DOI and keeps the DOI the output was produced for as study_doi_alias.
+    produced_for = normalize(output_row.get("study_doi_alias", ""))
+    if expected_doi and actual_doi != expected_doi and produced_for.casefold() != expected_doi.casefold():
         return False, "study_doi_mismatch"
 
     expected_domain = normalize(task.get("domain_route", ""))

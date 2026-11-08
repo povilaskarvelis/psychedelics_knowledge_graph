@@ -54,6 +54,7 @@ try:
         convert_bundles as convert_review_bundles,
         enrich_canonical_metadata,
     )
+    from pipeline.validate.doi_aliases import load_doi_aliases
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.kg.convert_routed_extractions_to_evidence_rows import convert_outputs
@@ -74,6 +75,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         convert_bundles as convert_review_bundles,
         enrich_canonical_metadata,
     )
+    from pipeline.validate.doi_aliases import load_doi_aliases
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -1176,7 +1178,9 @@ def finalize(args: argparse.Namespace) -> int:
             family_outputs["reviews"],
             family_tasks["reviews"],
             read_json_object(entity_registry_path),
-            active_candidate_dois=active_review_candidate_dois(candidate_rows),
+            active_candidate_dois=active_review_candidate_dois(
+                candidate_rows, load_doi_aliases(DEFAULT_DOI_ALIAS_REGISTRY)
+            ),
         )
         review_report["canonical_metadata_papers_enriched"] = enrich_canonical_metadata(
             review_evidence, candidate_rows

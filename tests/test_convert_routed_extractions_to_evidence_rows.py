@@ -15,6 +15,7 @@ from pipeline.kg.convert_routed_extractions_to_evidence_rows import (
     evidence_design_for,
     normalize_primary_controlled_categories,
     normalized_result_direction,
+    output_matches_current_task,
     resolve_output_paths,
 )
 
@@ -320,6 +321,14 @@ class ConvertRoutedExtractionsToEvidenceRowsTest(unittest.TestCase):
         self.assertEqual([row["study_doi"] for row in rows], ["10.1000/active"])
         self.assertEqual(report["rows_written"], 1)
         self.assertEqual(report["skipped"]["inactive_current_route"], 1)
+
+    def test_output_whose_doi_the_assembly_resolved_matches_its_task(self) -> None:
+        task = {"task_id": "t1", "route_id": "r1", "study_doi": "10.1001/jama.1980.03310040016010"}
+        output = {"task_id": "t1", "route_id": "r1", "study_doi_alias": "10.1001/jama.1980.03310040016010"}
+        result = {"task_id": "t1", "route_id": "r1", "study_doi": "10.1001/jama.244.4.332c"}
+        self.assertEqual(output_matches_current_task(output, result, task), (True, ""))
+        unresolved = {"task_id": "t1", "route_id": "r1"}
+        self.assertEqual(output_matches_current_task(unresolved, result, task), (False, "study_doi_mismatch"))
 
     def test_same_doi_and_domain_do_not_rescue_changed_route_or_source(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

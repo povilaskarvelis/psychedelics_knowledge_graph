@@ -269,3 +269,27 @@ def test_active_candidate_gate_requires_current_retain_and_ready_status() -> Non
     ]
 
     assert active_review_candidate_dois(candidates) == {"10.1/active"}
+
+
+def test_alias_of_an_active_review_is_active() -> None:
+    ready = {
+        "prescreen_decisions": "retain",
+        "retained_for_extraction_candidate": True,
+        "extraction_route_status": "ready_for_article_text_extraction",
+    }
+    candidates = [
+        {"doi": "10.37506/ijone.v11i4.4005", "primary_secondary_source_type": "narrative_review", **ready},
+        {"doi": "10.1001/jama.219.12.1633", "primary_secondary_source_type": "primary", **ready},
+    ]
+    aliases = {
+        "10.5958/0974-9357.2019.00097.7": "10.37506/ijone.v11i4.4005",
+        # A primary paper keeps its own rows; its alias's review output is not used.
+        "10.1001/jama.1972.03190380059025": "10.1001/jama.219.12.1633",
+        "10.1000/alias-of-excluded": "10.1000/excluded",
+    }
+
+    assert active_review_candidate_dois(candidates, aliases) == {
+        "10.37506/ijone.v11i4.4005",
+        "10.1001/jama.219.12.1633",
+        "10.5958/0974-9357.2019.00097.7",
+    }

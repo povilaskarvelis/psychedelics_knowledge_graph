@@ -23,11 +23,15 @@ try:
     from pipeline.extract.io_utils import normalize, read_jsonl, task_text_hashes, write_json
     from pipeline.kg.project_review_relationship_bundles import label_key, registry_index
     from pipeline.kg.review_statement_attribution import statement_contrasts_drugs
+    from pipeline.extract.build_review_relationship_tasks import production_cohort
+    from pipeline.validate.doi_aliases import DEFAULT_DOI_ALIAS_REGISTRY, load_doi_aliases
 except ModuleNotFoundError:  # pragma: no cover - direct script execution
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.extract.io_utils import normalize, read_jsonl, task_text_hashes, write_json
     from pipeline.kg.project_review_relationship_bundles import label_key, registry_index
     from pipeline.kg.review_statement_attribution import statement_contrasts_drugs
+    from pipeline.extract.build_review_relationship_tasks import production_cohort
+    from pipeline.validate.doi_aliases import DEFAULT_DOI_ALIAS_REGISTRY, load_doi_aliases
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -190,13 +194,19 @@ def truthy(value: object) -> bool:
     return normalize(value).lower() in {"1", "true", "yes", "y"}
 
 
-def active_review_candidate_dois(candidate_rows: list[dict]) -> set[str]:
+def active_review_candidate_dois(candidate_rows: list[dict], aliases: dict[str, str] | None = None) -> set[str]:
     """Return candidates that remain eligible for review evidence conversion.
 
     This gate deliberately uses the current canonical corpus rather than the
     historical task files associated with a completed model run. Missing
     eligibility fields are an error so an incomplete table cannot silently
     admit stale review outputs.
+
+    A DOI registered as an alias is eligible when the DOI it resolves to is an
+    eligible paper of the review cohort: the release assembly resolves aliases
+    before it applies eligibility and keeps the canonical DOI's own rows when
+    both have them. A kept DOI routed to primary extraction keeps its own rows,
+    which an alias's review output would otherwise replace.
     """
 
     available_fields = {
@@ -212,7 +222,7 @@ def active_review_candidate_dois(candidate_rows: list[dict]) -> set[str]:
             + ", ".join(sorted(missing_fields))
         )
 
-    return {
+    active = {
         doi
         for row in candidate_rows
         if (doi := normalized_doi(row.get("doi", "")))
@@ -221,6 +231,18 @@ def active_review_candidate_dois(candidate_rows: list[dict]) -> set[str]:
         and normalize(row.get("extraction_route_status", ""))
         in READY_REVIEW_ROUTE_STATUSES
     }
+    if not aliases:
+        return active
+    reviews = active & {row["doi"] for row in production_cohort(candidate_rows)[0]}
+    return active | {alias for alias in aliases if resolve_alias(alias, aliases) in reviews}
+
+
+def resolve_alias(doi: str, aliases: dict[str, str]) -> str:
+    seen = set()
+    while doi in aliases and doi not in seen:
+        seen.add(doi)
+        doi = aliases[doi]
+    return doi
 
 
 def json_array(path: Path) -> list[dict]:
@@ -891,6 +913,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--registry-json", type=Path, default=DEFAULT_REGISTRY)
     parser.add_argument("--candidate-parquet", type=Path, default=DEFAULT_CANDIDATES)
+    parser.add_argument("--doi-alias-registry", type=Path, default=DEFAULT_DOI_ALIAS_REGISTRY)
     parser.add_argument("--base-evidence-json", type=Path, default=None)
     parser.add_argument(
         "--allow-stale-bundles",
@@ -916,7 +939,7 @@ def main() -> int:
     tasks = [task for path in task_paths for task in read_jsonl(path)]
     registry_payload = json.loads(args.registry_json.read_text(encoding="utf-8"))
     candidate_rows = pd.read_parquet(args.candidate_parquet).to_dict("records")
-    active_candidate_dois = active_review_candidate_dois(candidate_rows)
+    active_candidate_dois = active_review_candidate_dois(candidate_rows, load_doi_aliases(args.doi_alias_registry))
     review_rows, report = convert_bundles(
         bundles,
         tasks,
@@ -933,6 +956,7 @@ def main() -> int:
         "bundles_jsonl": str(args.bundles_jsonl.resolve()),
         "task_jsonl_files": [str(path.resolve()) for path in task_paths],
         "candidate_parquet": str(args.candidate_parquet.resolve()),
+        "doi_alias_registry": str(args.doi_alias_registry.resolve()),
     }
     report["counts"]["active_candidate_dois"] = len(active_candidate_dois)
     report["counts"]["papers_with_canonical_metadata"] = enrich_canonical_metadata(review_rows, candidate_rows)
