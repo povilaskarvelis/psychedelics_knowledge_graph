@@ -206,9 +206,12 @@ David B. Yaden 9 → 2 (second ORCID); Johannes G. Ramaekers 8 → 3.
 - People with two ORCIDs (Yaden, M. W. Johnson, D. E. Nichols) and older
   variant profiles OpenAlex has not merged ("Jan G. Ramaekers", "D.J. Nutt",
   "Kenner C. Rice" 12 authorships) — ranked in the review queue.
-- A rule joining an exact full-name OpenAlex profile to the single ORCID
-  identity with that name when they share two or more coauthors and never
-  appear on the same paper would join a further 233 identities (372
-  authorships). This extends the existing name-only rule and is a decision
-  for the project, since the README states name/coauthor similarity never
-  merges structured identities.
+- Added 9 Nov after review: an OpenAlex profile without an ORCID joins the
+  single ORCID identity with the same full name (written-out given name) when
+  they never share a paper and share at least 2 coauthors (3 for two-word
+  names). On `text_provenance_20261108` this joins 129 profiles (237
+  authorships); 35 two-word names with only 2 shared coauthors stay in the
+  review queue. Check of all 129 against OpenAlex affiliations: 90 share an
+  institution; the other 39 were checked by their papers and coauthor teams
+  (same topic and research group in every case). No wrong join was found.
+  Profiles whose bylines are initials ("K C Rice") are not joined.

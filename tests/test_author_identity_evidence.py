@@ -13,6 +13,7 @@ from pipeline.kg.author_identity_evidence import (
     parse_orcid_record,
 )
 from pipeline.kg.build_author_tables import (
+    apply_coauthor_profile_aliases,
     apply_display_names,
     apply_openalex_profile_merges,
     apply_orcid_record_evidence,
@@ -344,3 +345,62 @@ def test_person_names_with_record_numbers_or_the_prefix_are_people():
     assert not is_non_person_byline(clean_person_name("Peng Liu (120506)"))
     assert not is_non_person_byline("The-Vinh Tran")
     assert is_non_person_byline("(on behalf of the Euro-DEN Plus Research Group)")
+
+
+RICE = "0000-0002-0000-0001"
+
+
+def _coauthor_case(name, profile_coauthors, orcid_coauthors, *, profile_name=None):
+    """An ORCID identity and an OpenAlex-only profile, each with their own papers and coauthors."""
+    rows = []
+    for paper, others in [("o1", orcid_coauthors), ("f1", profile_coauthors)]:
+        if paper == "o1":
+            rows.append(_row(paper, 1, name, openalex="A1", orcid=RICE))
+        else:
+            rows.append(_row(paper, 1, profile_name or name, openalex="A2"))
+        for position, coauthor in enumerate(others, start=2):
+            rows.append(_row(paper, position, coauthor, openalex=f"C{coauthor[-1]}"))
+    return pd.DataFrame(rows)
+
+
+def test_coauthor_alias_joins_profile_with_same_full_name():
+    rows = _coauthor_case("Kenner C. Rice", ["Coauthor 1", "Coauthor 2"], ["Coauthor 1", "Coauthor 2"])
+    out, stats = apply_coauthor_profile_aliases(rows)
+    profile_rows = out[out["paper_id"].eq("paper:f1") & out["author_position"].eq(1)]
+    assert profile_rows["author_id"].tolist() == [f"orcid:{RICE}"]
+    assert profile_rows["identity_confidence"].tolist() == ["coauthor_alias_to_orcid"]
+    assert stats["coauthor_alias_profiles"] == 1
+
+
+def test_coauthor_alias_requires_three_shared_coauthors_for_two_word_names():
+    two = _coauthor_case("Tingting Lin", ["Coauthor 1", "Coauthor 2"], ["Coauthor 1", "Coauthor 2"])
+    out, stats = apply_coauthor_profile_aliases(two)
+    assert stats["coauthor_alias_profiles"] == 0
+    assert stats["coauthor_alias_skipped_too_few_shared_coauthors"] == 1
+    three = _coauthor_case("Tingting Lin", ["Coauthor 1", "Coauthor 2", "Coauthor 3"],
+                           ["Coauthor 1", "Coauthor 2", "Coauthor 3"])
+    assert apply_coauthor_profile_aliases(three)[1]["coauthor_alias_profiles"] == 1
+
+
+@pytest.mark.parametrize("name", ["K. C. Rice", "KC Rice"])
+def test_coauthor_alias_skips_initials(name):
+    rows = _coauthor_case(name, ["Coauthor 1", "Coauthor 2", "Coauthor 3"], ["Coauthor 1", "Coauthor 2", "Coauthor 3"])
+    assert apply_coauthor_profile_aliases(rows)[1]["coauthor_alias_profiles"] == 0
+
+
+def test_coauthor_alias_skips_one_shared_coauthor_and_same_paper():
+    one = _coauthor_case("Kenner C. Rice", ["Coauthor 1", "Coauthor 2"], ["Coauthor 1", "Coauthor 3"])
+    assert apply_coauthor_profile_aliases(one)[1]["coauthor_alias_profiles"] == 0
+    rows = _coauthor_case("Kenner C. Rice", ["Coauthor 1", "Coauthor 2"], ["Coauthor 1", "Coauthor 2"])
+    rows = pd.concat([rows, pd.DataFrame([_row("o1", 9, "Kenner C. Rice", openalex="A2")])], ignore_index=True)
+    assert apply_coauthor_profile_aliases(rows)[1]["coauthor_alias_profiles"] == 0
+
+
+def test_coauthor_alias_skips_two_orcid_identities_and_reviewed_decisions():
+    rows = _coauthor_case("Kenner C. Rice", ["Coauthor 1", "Coauthor 2"], ["Coauthor 1", "Coauthor 2"])
+    other = pd.DataFrame([_row("x1", 1, "Kenner C. Rice", openalex="A9", orcid="0000-0002-0000-0009")])
+    assert apply_coauthor_profile_aliases(pd.concat([rows, other], ignore_index=True))[1]["coauthor_alias_profiles"] == 0
+    distinct = {"distinct_identity_reviews": [{"identity_ids": ["openalex:A2", f"orcid:{RICE}"]}]}
+    assert apply_coauthor_profile_aliases(rows, distinct)[1]["coauthor_alias_profiles"] == 0
+    reviewed_profile = {"openalex_to_orcid": {"https://openalex.org/A2": "0000-0002-0000-0009"}}
+    assert apply_coauthor_profile_aliases(rows, reviewed_profile)[1]["coauthor_alias_profiles"] == 0

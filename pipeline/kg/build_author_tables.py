@@ -824,6 +824,116 @@ def apply_exact_name_aliases(paper_authors: pd.DataFrame) -> tuple[pd.DataFrame,
     }
 
 
+COAUTHOR_ALIAS_MIN_SHARED = 2
+COAUTHOR_ALIAS_MIN_SHARED_TWO_WORD_NAME = 3
+
+
+def _full_given_name(display_name: str) -> bool:
+    """True when the byline starts with a written-out given name, not initials."""
+    words = normalize(display_name).split()
+    if len(words) < 2:
+        return False
+    first = words[0]
+    letters = re.sub(r"[^\w]", "", first)
+    if first.endswith(".") or len(letters) < 2:
+        return False
+    # "KC Rice", "JD Smith": all-capital short first words are initials.
+    return not (first.isupper() and len(letters) <= 3)
+
+
+def apply_coauthor_profile_aliases(
+    paper_authors: pd.DataFrame,
+    identity_overrides: dict[str, Any] | None = None,
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    """Join an OpenAlex-only profile to the one ORCID identity with the same full name.
+
+    Requires: exactly the same full name (written-out given name) on every
+    authorship of the profile; exactly one ORCID identity with that name; no
+    paper with both; and shared coauthors (2, or 3 for two-word names such as
+    "Tingting Lin", which are more often shared by different researchers).
+    Reviewed rows, reviewed profiles and reviewed "different people" decisions
+    are never changed.
+    """
+    stats: dict[str, Any] = {
+        "coauthor_alias_authorship_rows": 0,
+        "coauthor_alias_profiles": 0,
+        "coauthor_alias_skipped_too_few_shared_coauthors": 0,
+        "coauthor_alias_joins": [],
+    }
+    if paper_authors.empty:
+        return paper_authors, stats
+    out = paper_authors.copy()
+    overrides = identity_overrides or {}
+    reviewed_profiles = set(overrides.get("openalex_to_orcid", {})) | set(overrides.get("openalex_to_openalex", {}))
+    distinct_pairs: set[frozenset[str]] = set()
+    for record in overrides.get("distinct_identity_reviews", []):
+        ids = [normalize(value) for value in record.get("identity_ids", [])]
+        distinct_pairs.update(frozenset((a, b)) for a in ids for b in ids if a != b)
+
+    ids = out["author_id"].astype(str)
+    names = out["canonical_name"].astype(str)
+    orcid_ids_by_name = out[ids.str.startswith("orcid:")].groupby("canonical_name")["author_id"].agg(set)
+    single_orcid_name = {name: next(iter(found)) for name, found in orcid_ids_by_name.items() if len(found) == 1}
+
+    reviewed = _reviewed_rows(out)
+    profile_mask = ids.str.startswith("openalex:") & names.isin(single_orcid_name.keys())
+    if not profile_mask.any():
+        return out, stats
+
+    authors_by_paper = out.groupby("paper_id")["author_id"].agg(set).to_dict()
+    papers_by_author = out.groupby("author_id")["paper_id"].agg(set).to_dict()
+
+    def coauthors(author_id: str) -> set[str]:
+        found: set[str] = set()
+        for paper_id in papers_by_author.get(author_id, set()):
+            found.update(authors_by_paper.get(paper_id, set()))
+        found.discard(author_id)
+        return found
+
+    targets: dict[str, str] = {}
+    for profile_id, group in out[profile_mask].groupby("author_id"):
+        profile_id = str(profile_id)
+        if reviewed.loc[group.index].any():
+            continue
+        if normalize_openalex_id(profile_id.removeprefix("openalex:")) in reviewed_profiles:
+            continue
+        if group["canonical_name"].nunique() != 1:
+            continue
+        display_names = set(group["display_name"].astype(str))
+        if not all(_full_given_name(name) for name in display_names):
+            continue
+        name = str(group["canonical_name"].iloc[0])
+        target = single_orcid_name[name]
+        if frozenset((profile_id, target)) in distinct_pairs:
+            continue
+        if papers_by_author.get(profile_id, set()) & papers_by_author.get(target, set()):
+            continue
+        shared = (coauthors(profile_id) & coauthors(target)) - {profile_id, target}
+        required = COAUTHOR_ALIAS_MIN_SHARED_TWO_WORD_NAME if len(name.split()) == 2 else COAUTHOR_ALIAS_MIN_SHARED
+        if len(shared) < required:
+            if len(shared) >= COAUTHOR_ALIAS_MIN_SHARED:
+                stats["coauthor_alias_skipped_too_few_shared_coauthors"] += 1
+            continue
+        targets[profile_id] = target
+        stats["coauthor_alias_joins"].append(
+            {"name": name, "profile": profile_id, "orcid_identity": target,
+             "authorships": int(len(group)), "shared_coauthors": len(shared)}
+        )
+
+    if not targets:
+        return out, stats
+    mask = out["author_id"].astype(str).isin(targets) & ~reviewed
+    for idx in out.index[mask]:
+        target = targets[str(out.at[idx, "author_id"])]
+        out.at[idx, "author_id"] = target
+        out.at[idx, "orcid"] = target.removeprefix("orcid:")
+        out.at[idx, "identity_confidence"] = "coauthor_alias_to_orcid"
+    stats["coauthor_alias_authorship_rows"] = int(mask.sum())
+    stats["coauthor_alias_profiles"] = len(targets)
+    stats["coauthor_alias_joins"].sort(key=lambda row: (-row["authorships"], row["name"]))
+    return out, stats
+
+
 def apply_orcid_identities(
     paper_authors: pd.DataFrame,
     identity_overrides: dict[str, Any] | None = None,
@@ -1462,6 +1572,7 @@ def build_tables(
         if evidence is not None:
             paper_authors, orcid_record_stats, orcid_records = apply_orcid_record_evidence(paper_authors, evidence)
         paper_authors, alias_stats = apply_exact_name_aliases(paper_authors)
+        paper_authors, coauthor_alias_stats = apply_coauthor_profile_aliases(paper_authors, identity_overrides)
         if evidence is not None:
             paper_authors, reverted = revert_same_paper_collisions(paper_authors, before_evidence)
             orcid_record_stats["authorship_rows_reverted_same_paper_collision"] = len(reverted)
@@ -1494,6 +1605,7 @@ def build_tables(
     else:
         orcid_stats = apply_orcid_identities(paper_authors, identity_overrides)[1]
         alias_stats = {"name_alias_authorship_rows": 0, "name_alias_author_ids": 0, "name_alias_names": 0}
+        coauthor_alias_stats = apply_coauthor_profile_aliases(paper_authors)[1]
     authors = build_authors_from_authorships(paper_authors, orcid_records)
 
     report = build_report(papers, cache, authors, paper_authors, paper_status_counts)
@@ -1503,6 +1615,7 @@ def build_tables(
     report["display_name_counts"] = display_stats
     report["orcid_identity_resolution_counts"] = orcid_stats
     report["name_alias_resolution_counts"] = alias_stats
+    report["coauthor_alias_counts"] = coauthor_alias_stats
     report["authorship_review_counts"] = authorship_review_stats
     report["author_list_reviews"] = author_list_review_stats
 
@@ -1691,7 +1804,8 @@ def main() -> int:
         "Identity evidence: "
         f"{merge_counts.get('openalex_profiles_merged', 0)} merged OpenAlex profiles, "
         f"{record_counts.get('authorship_rows_assigned_by_orcid_record', 0)} authorships assigned by ORCID records, "
-        f"{record_counts.get('authorship_rows_orcid_removed', 0)} wrong ORCIDs removed"
+        f"{record_counts.get('authorship_rows_orcid_removed', 0)} wrong ORCIDs removed, "
+        f"{report.get('coauthor_alias_counts', {}).get('coauthor_alias_profiles', 0)} profiles joined by name and coauthors"
     )
     print(f"Authors table: {out_dir / 'authors.parquet'}")
     print(f"Paper authors table: {out_dir / 'paper_authors.parquet'}")

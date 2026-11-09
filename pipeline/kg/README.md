@@ -458,13 +458,23 @@ payloads. When `REVIEW_BASELINE_DIR` is set, it also writes focused
 one identity attached to different names on a paper, or orphan authorships stop
 the build. Repeated publication-supplied bylines with the same name remain in
 the review artifacts without blocking the build.
-Name/coauthor similarity remains a review signal and never merges identities
-automatically.
+Name/coauthor similarity merges identities automatically only under the two
+rules below; everything else is a review signal. Exact name alone is
+deliberately insufficient for common names.
 
 Name-only authorships are joined to a unique structured identity only when the
 exact name has at least two shared coauthors, the identities never co-occur on a
-paper, and the name-only row is not protected by a source review. Exact name
-alone is deliberately insufficient for common names.
+paper, and the name-only row is not protected by a source review.
+
+An OpenAlex profile without an ORCID is joined to an ORCID identity
+(`identity_confidence = coauthor_alias_to_orcid`) only when every authorship of
+the profile has the same full name with a written-out given name (not initials),
+exactly one ORCID identity has that name, the two never appear on the same
+paper, and they share at least two coauthors, or three for two-word names such
+as "Tingting Lin". Reviewed rows, profiles with a reviewed mapping and pairs
+recorded in `distinct_identity_reviews` are left unchanged; a wrong join is
+corrected by adding the pair there. Every join is listed in the report under
+`coauthor_alias_counts.coauthor_alias_joins`.
 
 To generate the same review artifacts directly:
 
