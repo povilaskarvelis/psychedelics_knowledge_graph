@@ -368,6 +368,45 @@ This writes:
 - `author_resolution_report.json`: structured identity coverage and unresolved-row counts.
 - `openalex_author_cache.json`: cached OpenAlex authorship lookups for rebuilds.
 
+Two provider-evidence layers run on every build (`--evidence-mode online`, the
+default; `cache` uses stored records only, `off` skips both for comparison).
+They are independent of `--offline`, which applies to the works cache:
+
+1. **OpenAlex profile merges.** OpenAlex first gives a new work's authors new
+   single-work profiles and merges them into established profiles later, so
+   IDs in the works cache go out of date. Every cached author ID is looked up
+   with `GET /authors/{id}`, which returns the surviving profile for a merged
+   ID. These single-record requests are free (10 req/s without a key, 30 with
+   `OPENALEX_API_KEY`). An online build stops if fewer than 98% of profiles
+   could be checked.
+2. **ORCID public records.** For authorships whose byline does not match their
+   ORCID identity's commonest byline, the ORCID record is read. The ORCID is
+   removed (`orcid_removed_name_mismatch`) when the byline matches none of the
+   record's names and the record does not list the DOI. For authorships
+   without an ORCID, the records of ORCID identities with the same surname and
+   first initial are read. The authorship is assigned (`orcid_record_lists_doi`)
+   only when exactly one record lists the DOI, its names match the byline, and
+   that ORCID is not already on the paper. ORCID works lists are incomplete, so
+   a missing DOI is never used as evidence on its own.
+
+Crossref author ORCIDs are not used: they are sparse and publisher-entered
+without verification, and the wrong ORCIDs found in the 8 Nov 2026 review came
+from Crossref deposits.
+
+Both caches are shared across runs in `data/processed/author_identity_sources/`
+and records older than `--evidence-max-age-days` (60) are queried again, so a
+build only queries new or stale records. Reviewed rows and IDs named in reviewed
+decisions are never changed by either layer. The resolution report records the
+counts, every removed ORCID and examples of assignments.
+
+Display names are cleaned for output only (`raw_author_name` and `source_*`
+keep the source strings): Unicode hyphens and look-alike letters from other
+scripts, decomposed accents, titles and degrees, stray trailing initials, all
+capitals and "Surname, Given" order. An identity's name is its commonest full,
+Latin-script byline, falling back to its ORCID record name. Consortium,
+address and other non-person bylines without an ORCID get a `group:` ID, which
+public author facets exclude.
+
 Reviewed identity corrections live in `author_identity_overrides.json`. Profile
 merges use the existing `overrides` records; `authorship_overrides` correct a
 specific DOI and author position before ORCID propagation. Each scoped record
@@ -429,7 +468,13 @@ python pipeline/validate/audit_author_identities.py \
 ```
 
 This standalone audit distinguishes possible name splits, repeated identities
-within papers, and conflicting ORCIDs. Candidate counts are not confirmed-error
+within papers, and conflicting ORCIDs. `split_identity_review_queue.csv` ranks
+same-name identity groups that remain after the evidence layers (groups with
+two or more shared coauthors first) and names the override record each decision
+belongs in; `identity_name_mismatches.csv` lists authorships whose byline cannot
+name the identity they are attached to. The summary reports split counts for the
+candidate and, when available, the baseline. `build_routed_kg_payload.sh` uses
+the active release as the audit baseline when `REVIEW_BASELINE_DIR` is not set. Candidate counts are not confirmed-error
 counts. Confirm corrections against independent author/publication records and
 rebuild into a staging directory before promoting new graph payloads.
 

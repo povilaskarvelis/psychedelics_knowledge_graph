@@ -17,6 +17,14 @@ from typing import Any
 
 import pandas as pd
 
+try:
+    from pipeline.kg.author_identity_evidence import names_compatible
+except ModuleNotFoundError:  # pragma: no cover - direct script execution path
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    from pipeline.kg.author_identity_evidence import names_compatible
+
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_IDENTITY_OVERRIDES = ROOT / "pipeline" / "kg" / "author_identity_overrides.json"
@@ -166,6 +174,77 @@ def _new_exact_name_candidates(
     )
 
 
+def active_release_kg_dir(exclude: Path | None = None) -> Path | None:
+    pointer = ROOT / "data" / "processed" / "extraction" / "active_routed_run.json"
+    if not pointer.is_file():
+        return None
+    kg_dir = json.loads(pointer.read_text()).get("kg_dir", "")
+    if not kg_dir:
+        return None
+    path = (ROOT / kg_dir).resolve()
+    if not (path / "authors.parquet").is_file() or (exclude and path == exclude.resolve()):
+        return None
+    return path
+
+
+def _split_identity_queue(groups: dict, links: pd.DataFrame, collaborators) -> list[dict[str, Any]]:
+    """Rank same-name identity groups by the authorships outside the main identity.
+
+    The main identity is the ORCID identity with most authorships (or the largest
+    identity when no ORCID is present). Rows are review prompts for
+    profile_alias_reviews / orcid_alias_reviews / distinct_identity_reviews, not
+    verified duplicates.
+    """
+    authorships = links.groupby("author_id").size().to_dict()
+    rows: list[dict[str, Any]] = []
+    for key, members in groups.items():
+        ids = sorted({member["author_id"] for member in members})
+        if len(ids) < 2:
+            continue
+        orcid_ids = [i for i in ids if i.startswith("orcid:")]
+        pool = orcid_ids or ids
+        main = max(pool, key=lambda i: (authorships.get(i, 0), i))
+        others = [i for i in ids if i != main]
+        shared = max(len((collaborators(main) & collaborators(i)) - set(ids)) for i in others)
+        if len(orcid_ids) > 1:
+            kind, record = "multiple_orcids", "orcid_alias_reviews or distinct_identity_reviews"
+        elif orcid_ids:
+            kind, record = "one_orcid_plus_profiles", "overrides (openalex_author_ids) or distinct_identity_reviews"
+        else:
+            kind, record = "no_orcid", "profile_alias_reviews or distinct_identity_reviews"
+        names = {m["author_id"]: m["display_name"] for m in members}
+        rows.append({
+            "name_key": " ".join(key),
+            "kind": kind,
+            "main_author_id": main,
+            "main_display_name": names.get(main, ""),
+            "main_authorships": authorships.get(main, 0),
+            "other_author_ids": ";".join(others),
+            "other_display_names": ";".join(sorted({names[i] for i in others})),
+            "other_authorships": sum(authorships.get(i, 0) for i in others),
+            "orcid_count": len(orcid_ids),
+            "max_shared_coauthors_with_main": shared,
+            "record_decision_as": record,
+        })
+    rows.sort(key=lambda r: (-(r["max_shared_coauthors_with_main"] >= 2), -(r["main_authorships"] + r["other_authorships"]), r["name_key"]))
+    return rows
+
+
+def _identity_name_mismatches(authors: pd.DataFrame, links: pd.DataFrame) -> pd.DataFrame:
+    """Authorships whose byline cannot name the identity they are attached to."""
+    display = authors.set_index("author_id")["display_name"].to_dict()
+    structured = links[links["author_id"].astype(str).str.startswith(("orcid:", "openalex:"))].copy()
+    if structured.empty:
+        return structured
+    structured["identity_display_name"] = structured["author_id"].map(display).fillna("")
+    byline = structured["raw_author_name"].where(structured["raw_author_name"].astype(str).ne(""), structured["display_name"])
+    mask = [
+        not (names_compatible(b, d) or names_compatible(n, d))
+        for b, n, d in zip(byline, structured["display_name"], structured["identity_display_name"])
+    ]
+    return structured[mask]
+
+
 def _frame_issue_keys(frame: pd.DataFrame, columns: list[str]) -> set[tuple[str, ...]]:
     if frame.empty:
         return set()
@@ -235,6 +314,9 @@ def audit(
             }
         )
     rows.sort(key=lambda row: (-row["paper_count"], row["name_key"]))
+    split_queue = _split_identity_queue(groups, links, collaborators)
+    name_mismatches = _identity_name_mismatches(authors, links)
+    non_person_rows = int(links["author_id"].astype(str).str.startswith("group:").sum())
 
     duplicate_positions = links[links.duplicated(["paper_id", "author_position"], keep=False)]
     duplicate_identities = links[links.duplicated(["paper_id", "author_id"], keep=False)]
@@ -256,8 +338,22 @@ def audit(
     new_orphan_rows = 0
     new_paper_count = 0
     new_authorship_rows = 0
+    baseline_split: dict[str, int] = {}
     if baseline_dir is not None:
         baseline_authors, baseline_links, baseline_papers = _load_tables(baseline_dir)
+        baseline_groups = defaultdict(list)
+        for row in baseline_authors.to_dict("records"):
+            parts = name_parts(row["display_name"])
+            if len(parts) >= 2 and len(parts[0]) > 2:
+                baseline_groups[(parts[0], parts[-1])].append(row)
+        baseline_collaborators, _ = _collaborator_lookup(baseline_links)
+        baseline_queue = _split_identity_queue(baseline_groups, baseline_links, baseline_collaborators)
+        baseline_split = {
+            "one_orcid_groups": sum(r["kind"] == "one_orcid_plus_profiles" for r in baseline_queue),
+            "authorships_outside_main_identity": sum(
+                r["other_authorships"] for r in baseline_queue if r["kind"] == "one_orcid_plus_profiles"
+            ),
+        }
         new_paper_ids = set(links["paper_id"]) - set(baseline_links["paper_id"])
         new_paper_count = len(new_paper_ids)
         new_authorship_rows = int(links["paper_id"].isin(new_paper_ids).sum())
@@ -389,6 +485,16 @@ def audit(
             new_repeated_identity_groups_with_different_names
         ),
         "new_orphan_authorship_rows": new_orphan_rows,
+        "split_groups_with_one_orcid": sum(r["kind"] == "one_orcid_plus_profiles" for r in split_queue),
+        "split_authorships_outside_orcid_identity": sum(
+            r["other_authorships"] for r in split_queue if r["kind"] == "one_orcid_plus_profiles"
+        ),
+        "split_groups_with_multiple_orcids": sum(r["kind"] == "multiple_orcids" for r in split_queue),
+        "split_groups_with_two_shared_coauthors": sum(r["max_shared_coauthors_with_main"] >= 2 for r in split_queue),
+        "baseline_split_groups_with_one_orcid": baseline_split.get("one_orcid_groups"),
+        "baseline_split_authorships_outside_orcid_identity": baseline_split.get("authorships_outside_main_identity"),
+        "identity_name_mismatch_rows": len(name_mismatches),
+        "non_person_byline_rows": non_person_rows,
         "limitations": (
             "Candidate groups are not verified duplicates. Common names, different middle "
             "names, and multiple ORCIDs require source review. Shared coauthors only "
@@ -416,6 +522,8 @@ def audit(
     (out_dir / "new_same_paper_name_collisions.json").write_text(
         json.dumps(new_same_paper_collisions, indent=2, ensure_ascii=False) + "\n"
     )
+    pd.DataFrame(split_queue).to_csv(out_dir / "split_identity_review_queue.csv", index=False)
+    name_mismatches.to_csv(out_dir / "identity_name_mismatches.csv", index=False)
     for name, frame in [
         ("repeated_authors", duplicate_identities),
         ("possible_false_merges", differing_names),
@@ -449,9 +557,16 @@ if __name__ == "__main__":
     parser.add_argument("--kg-dir", required=True, type=Path)
     parser.add_argument("--out-dir", required=True, type=Path)
     parser.add_argument("--baseline-dir", type=Path)
+    parser.add_argument(
+        "--baseline-active",
+        action="store_true",
+        help="Use the active release as baseline when --baseline-dir is not given",
+    )
     parser.add_argument("--fail-on-new-integrity-errors", action="store_true")
     parser.add_argument("--identity-overrides", type=Path, default=DEFAULT_IDENTITY_OVERRIDES)
     args = parser.parse_args()
+    if args.baseline_dir is None and args.baseline_active:
+        args.baseline_dir = active_release_kg_dir(exclude=args.kg_dir)
     print(
         json.dumps(
             audit(

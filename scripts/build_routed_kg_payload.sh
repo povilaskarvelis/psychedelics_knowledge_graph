@@ -26,6 +26,7 @@ Environment overrides:
   AUTHOR_CACHE_SEED=/path/to/cache  # optional override; EVIDENCE_RUN_ID caches are inherited automatically
   REVIEW_BASELINE_DIR=/path/to/reviewed-kg-run  # carry unchanged reviewed decisions before exports
   AUTHOR_AUDIT_DIR=/path/to/audit  # defaults to KG_DIR/author_identity_audit
+  OPENALEX_API_KEY=...  # optional; author profile merge checks are free but run 3x faster with a key
   RETRACTION_CHECK=0  # reuse data/curated/retraction_status.json instead of re-checking (--offline also skips the check)
   ACTIVATE_DEFAULT=1  # explicitly promote this run after the versioned build succeeds
   PUBLISH_QUERY_API_R2=1  # publish the promoted browser/API release and trigger the API deploy hook
@@ -172,6 +173,10 @@ if [[ -n "${REVIEW_BASELINE_DIR:-}" ]]; then
     --baseline-dir "${REVIEW_BASELINE_DIR}"
     --fail-on-new-integrity-errors
   )
+else
+  # Without a review baseline, still compare split-identity counts with the
+  # active release so a regression is visible in the audit summary.
+  AUTHOR_AUDIT_ARGS+=(--baseline-active)
 fi
 "${PYTHON_BIN}" "${ROOT_DIR}/pipeline/validate/audit_author_identities.py" \
   "${AUTHOR_AUDIT_ARGS[@]}"

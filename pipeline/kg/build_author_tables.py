@@ -39,6 +39,7 @@ try:
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from pipeline.extract.io_utils import normalize, write_json
+from pipeline.kg import author_identity_evidence as evidence_lib
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -50,6 +51,7 @@ DEFAULT_IDENTITY_OVERRIDES = ROOT / "pipeline" / "kg" / "author_identity_overrid
 KG_AUTHOR_TABLE_VERSION = "0.3"
 MIN_STRUCTURED_AUTHORSHIP_RATE = 0.95
 MIN_OFFLINE_CACHE_COVERAGE = 0.95
+MIN_OPENALEX_PROFILE_CHECK_RATE = 0.98
 
 UNKNOWN_AUTHOR_VALUES = {
     "",
@@ -447,6 +449,18 @@ def require_structured_authorship_coverage(paper_authors: pd.DataFrame) -> tuple
             "Existing author tables were not changed."
         )
     return structured, total, rate
+
+
+def require_openalex_profile_checks(report: dict[str, Any]) -> None:
+    counts = report.get("openalex_profile_merge_counts", {})
+    checked = int(counts.get("openalex_profiles_checked", 0))
+    total = checked + int(counts.get("openalex_profiles_unchecked", 0))
+    if total and checked / total < MIN_OPENALEX_PROFILE_CHECK_RATE:
+        raise SystemExit(
+            f"Only {checked}/{total} OpenAlex author profiles could be checked for merges; "
+            f"at least {MIN_OPENALEX_PROFILE_CHECK_RATE:.0%} is required. Rerun to retry the "
+            "failed lookups. Existing author tables were not changed."
+        )
 
 
 def write_cache(path: Path, cache: dict[str, Any]) -> None:
@@ -947,6 +961,319 @@ def apply_orcid_identities(
     }
 
 
+def _reviewed_rows(paper_authors: pd.DataFrame) -> pd.Series:
+    reviewed = pd.Series(False, index=paper_authors.index)
+    for column in ("identity_review_id", "author_list_review_id"):
+        if column in paper_authors:
+            reviewed |= paper_authors[column].fillna("").astype(str).str.strip().ne("")
+    return reviewed
+
+
+def apply_openalex_profile_merges(
+    paper_authors: pd.DataFrame,
+    profiles: dict[str, Any],
+    identity_overrides: dict[str, Any] | None = None,
+) -> tuple[pd.DataFrame, dict[str, int]]:
+    """Replace cached OpenAlex author IDs with the profiles they were merged into.
+
+    The works cache keeps the author IDs OpenAlex assigned when each work was
+    fetched. OpenAlex later merges new single-work profiles into established
+    ones; a profile request for the old ID returns the surviving profile. That
+    is provider evidence, not name similarity. Reviewed rows and IDs named in
+    reviewed profile decisions keep their recorded IDs.
+    """
+    out = paper_authors.copy()
+    overrides = identity_overrides or {}
+    reviewed_profiles = set(overrides.get("openalex_to_orcid", {})) | set(overrides.get("openalex_to_openalex", {}))
+    reviewed = _reviewed_rows(out)
+    stats = {
+        "openalex_profiles_checked": 0,
+        "openalex_profiles_merged": 0,
+        "openalex_profiles_deleted": 0,
+        "openalex_profiles_unchecked": 0,
+        "authorship_rows_moved_to_surviving_profile": 0,
+        "authorship_rows_merge_rejected_name_mismatch": 0,
+    }
+    seen: set[str] = set()
+    for index in out.index:
+        profile = normalize_openalex_id(out.at[index, "openalex_author_id"])
+        short = openalex_short_id(profile)
+        if not short or short in NON_IDENTITY_OPENALEX_AUTHOR_IDS:
+            continue
+        entry = profiles.get(short)
+        if short not in seen:
+            seen.add(short)
+            if not entry or entry.get("status") == "error":
+                stats["openalex_profiles_unchecked"] += 1
+            else:
+                stats["openalex_profiles_checked"] += 1
+                if entry.get("status") == "not_found":
+                    stats["openalex_profiles_deleted"] += 1
+                elif entry.get("resolved_id") and entry["resolved_id"] != short:
+                    stats["openalex_profiles_merged"] += 1
+        if reviewed.at[index] or profile in reviewed_profiles:
+            continue
+        if not entry or entry.get("status") != "ok":
+            continue
+        surviving = normalize(entry.get("resolved_id", ""))
+        if not surviving or surviving == short:
+            continue
+        # OpenAlex merges are not always right (coauthors of one paper have been
+        # merged). Follow a merge only when the byline can name the surviving
+        # profile's researcher.
+        if not evidence_lib.names_compatible(_row_name(out.loc[index]), entry.get("display_name", "")):
+            stats["authorship_rows_merge_rejected_name_mismatch"] += 1
+            continue
+        out.at[index, "openalex_author_id"] = f"https://openalex.org/{surviving}"
+        stats["authorship_rows_moved_to_surviving_profile"] += 1
+        if normalize_orcid(out.at[index, "orcid"]):
+            continue
+        out.at[index, "author_id"] = f"openalex:{surviving}"
+        out.at[index, "identity_confidence"] = "openalex_merged_profile"
+
+    # The ORCID on a cached authorship is the profile's ORCID when the work was
+    # fetched. After merges, one surviving profile can carry several stale
+    # ORCIDs, which apply_orcid_identities would withhold as a conflict. The
+    # profile's current ORCID supersedes them; the ORCID-record name check that
+    # runs later still removes it from bylines that do not match the record.
+    current_orcid: dict[str, tuple[str, str]] = {}
+    for entry in profiles.values():
+        surviving = normalize(entry.get("resolved_id", "")) if entry.get("status") == "ok" else ""
+        orcid = normalize_orcid(entry.get("orcid", ""))
+        if surviving and orcid:
+            current_orcid[surviving] = (orcid, normalize(entry.get("display_name", "")))
+    stats["authorship_rows_given_current_profile_orcid"] = 0
+    stats["authorship_rows_stale_orcid_replaced"] = 0
+    for index in out.index:
+        if reviewed.at[index]:
+            continue
+        profile = normalize_openalex_id(out.at[index, "openalex_author_id"])
+        if profile in reviewed_profiles:
+            continue
+        orcid, profile_name = current_orcid.get(openalex_short_id(profile), ("", ""))
+        observed = normalize_orcid(out.at[index, "orcid"])
+        if not orcid or orcid == observed:
+            continue
+        if not evidence_lib.names_compatible(_row_name(out.loc[index]), profile_name):
+            continue
+        if observed:
+            stats["authorship_rows_stale_orcid_replaced"] += 1
+        else:
+            stats["authorship_rows_given_current_profile_orcid"] += 1
+        out.at[index, "orcid"] = orcid
+    return out, stats
+
+
+def _row_name(row: pd.Series) -> str:
+    return normalize(row.get("display_name", "")) or normalize(row.get("raw_author_name", ""))
+
+
+def _name_keys(name: str) -> set[tuple[str, str]]:
+    tokens = evidence_lib.name_tokens(name)
+    if len(tokens) < 2:
+        return set()
+    return {(tokens[-1], tokens[0][0]), (tokens[0], tokens[-1][0])}
+
+
+def apply_orcid_record_evidence(
+    paper_authors: pd.DataFrame, evidence: Any, *, max_candidates: int = 10,
+) -> tuple[pd.DataFrame, dict[str, Any], dict[str, Any]]:
+    """Use ORCID public records to remove wrong ORCIDs and assign listed works.
+
+    Removal: an authorship keeps an ORCID unless its byline matches none of the
+    ORCID record's names and the record does not list the DOI.
+    Assignment: an authorship without an ORCID is assigned to an ORCID identity
+    already in the graph only when that ORCID's record lists the DOI, the byline
+    matches one of the record's names, exactly one candidate qualifies, and the
+    ORCID is not already on the paper.
+    Reviewed and curated rows are left unchanged. Returns the records used.
+    """
+    out = paper_authors.copy()
+    protected = _reviewed_rows(out) | out["identity_confidence"].fillna("").astype(str).str.startswith("curated_")
+    is_orcid = out["author_id"].fillna("").astype(str).str.startswith("orcid:")
+    names = out.apply(_row_name, axis=1)
+
+    # Rows whose byline conflicts with another byline on the same ORCID. Both
+    # sides are checked: when one wrong ORCID covers several rows, the commonest
+    # byline can be the wrong person.
+    suspicious: list[int] = []
+    for author_id, group in out[is_orcid].groupby("author_id"):
+        unique = sorted(set(names.loc[group.index]))
+        if len(unique) < 2:
+            continue
+        conflicting = {
+            left
+            for left in unique
+            if any(not evidence_lib.names_compatible(left, right) for right in unique if right != left)
+        }
+        suspicious.extend(i for i in group.index if names.at[i] in conflicting and not protected.at[i])
+
+    orcid_keys: dict[tuple[str, str], set[str]] = {}
+    for index in out.index[is_orcid]:
+        orcid = out.at[index, "author_id"].removeprefix("orcid:")
+        for key in _name_keys(names.at[index]):
+            orcid_keys.setdefault(key, set()).add(orcid)
+    claim_rows: dict[int, set[str]] = {}
+    candidate_mask = ~is_orcid & ~protected & out["author_id"].fillna("").astype(str).str.startswith(("openalex:", "local_author:"))
+    for index in out.index[candidate_mask]:
+        candidates: set[str] = set()
+        for key in _name_keys(names.at[index]):
+            candidates |= orcid_keys.get(key, set())
+        if 0 < len(candidates) <= max_candidates:
+            claim_rows[index] = candidates
+
+    wanted = {out.at[i, "author_id"].removeprefix("orcid:") for i in suspicious}
+    for candidates in claim_rows.values():
+        wanted |= candidates
+    records = evidence.orcid_records(wanted) if wanted else {}
+
+    def usable(record: dict[str, Any] | None) -> bool:
+        return bool(record) and record.get("status") == "ok"
+
+    removed: list[dict[str, Any]] = []
+    for index in suspicious:
+        orcid = out.at[index, "author_id"].removeprefix("orcid:")
+        record = records.get(orcid)
+        if not usable(record) or not evidence_lib.has_latin_name(names.at[index]):
+            # A byline in another script cannot be compared with Latin record names.
+            continue
+        record_names = [n for n in evidence_lib.orcid_record_names(record) if evidence_lib.has_latin_name(n)]
+        if not record_names:
+            continue
+        if any(evidence_lib.names_compatible(names.at[index], n) for n in record_names):
+            continue
+        coauthors = out.index[out["paper_id"].eq(out.at[index, "paper_id"]) & (out.index != index)]
+        owner_is_coauthor = any(
+            evidence_lib.names_compatible(names.at[other], n) for other in coauthors for n in record_names
+        )
+        # Without the record owner among the coauthors, remove only on a surname
+        # mismatch with an unlisted DOI: a shared surname with another given
+        # name (a nickname, "Toni" / "Antonia") and a listed DOI (a changed
+        # surname) are left for review.
+        if not owner_is_coauthor and (
+            any(evidence_lib.share_surname(names.at[index], n) for n in record_names)
+            or normalize_doi(out.at[index, "doi"]) in set(record.get("dois", []))
+        ):
+            continue
+        profile = openalex_short_id(out.at[index, "openalex_author_id"])
+        out.at[index, "orcid"] = ""
+        out.at[index, "author_id"] = f"openalex:{profile}" if profile else local_author_id(names.at[index])
+        out.at[index, "identity_confidence"] = "orcid_removed_name_mismatch"
+        removed.append({"doi": out.at[index, "doi"], "author_position": int(out.at[index, "author_position"]),
+                        "byline": names.at[index], "removed_orcid": orcid, "orcid_record_name": record_names[0]})
+
+    orcids_by_paper = out[out["author_id"].astype(str).str.startswith("orcid:")].groupby("paper_id")["author_id"].agg(set).to_dict()
+    assigned: list[dict[str, Any]] = []
+    for index, candidates in claim_rows.items():
+        doi = normalize_doi(out.at[index, "doi"])
+        on_paper = orcids_by_paper.get(out.at[index, "paper_id"], set())
+        matches = []
+        for orcid in candidates:
+            record = records.get(orcid)
+            if not usable(record) or doi not in set(record.get("dois", [])) or f"orcid:{orcid}" in on_paper:
+                continue
+            record_names = evidence_lib.orcid_record_names(record)
+            if any(evidence_lib.names_compatible(names.at[index], n) for n in record_names):
+                matches.append(orcid)
+        if len(matches) != 1:
+            continue
+        orcid = matches[0]
+        assigned.append({"doi": doi, "author_position": int(out.at[index, "author_position"]),
+                         "byline": names.at[index], "from_author_id": out.at[index, "author_id"], "orcid": orcid})
+        out.at[index, "orcid"] = orcid
+        out.at[index, "author_id"] = f"orcid:{orcid}"
+        out.at[index, "identity_confidence"] = "orcid_record_lists_doi"
+        orcids_by_paper.setdefault(out.at[index, "paper_id"], set()).add(f"orcid:{orcid}")
+
+    stats = {
+        "orcid_records_requested": len(wanted),
+        "orcid_records_available": sum(1 for r in records.values() if usable(r)),
+        "authorship_rows_checked_for_wrong_orcid": len(suspicious),
+        "authorship_rows_orcid_removed": len(removed),
+        "authorship_rows_checked_for_listed_doi": len(claim_rows),
+        "authorship_rows_assigned_by_orcid_record": len(assigned),
+        "orcid_removals": removed,
+        "orcid_assignments_examples": assigned[:200],
+    }
+    return out, stats, records
+
+
+IDENTITY_COLUMNS = ("author_id", "orcid", "openalex_author_id", "identity_confidence")
+
+
+def revert_same_paper_collisions(
+    paper_authors: pd.DataFrame, before: pd.DataFrame,
+) -> tuple[pd.DataFrame, list[dict[str, Any]]]:
+    """Undo evidence changes that put one identity on two positions of a paper.
+
+    One person cannot hold two author positions with different names, so such
+    a collision shows that a provider merge or ORCID was wrong for that row.
+    Only rows whose identity changed since `before` are reverted, and only for
+    collisions that did not exist in `before`.
+    """
+    out = paper_authors.copy()
+    reverted: list[dict[str, Any]] = []
+    before_counts = Counter(zip(before["paper_id"], before["author_id"]))
+    while True:
+        changed = pd.Series(False, index=out.index)
+        for column in IDENTITY_COLUMNS:
+            changed |= out[column].fillna("").astype(str) != before[column].fillna("").astype(str)
+        now_counts = Counter(zip(out["paper_id"], out["author_id"]))
+        to_revert = []
+        rows_by_pair: dict[tuple[str, str], list[int]] = {}
+        for index in out.index:
+            rows_by_pair.setdefault((out.at[index, "paper_id"], out.at[index, "author_id"]), []).append(index)
+        for index in out.index[changed]:
+            pair = (out.at[index, "paper_id"], out.at[index, "author_id"])
+            if now_counts[pair] < 2 or now_counts[pair] <= before_counts[pair]:
+                continue
+            # Some bylines list a person twice; only disagreeing names show an error.
+            name = _row_name(out.loc[index])
+            if any(
+                not evidence_lib.bylines_consistent(name, _row_name(out.loc[other]))
+                for other in rows_by_pair[pair]
+                if other != index
+            ):
+                to_revert.append(index)
+        if not to_revert:
+            return out, reverted
+        for index in to_revert:
+            reverted.append({"doi": out.at[index, "doi"], "author_position": int(out.at[index, "author_position"]),
+                             "byline": _row_name(out.loc[index]), "rejected_author_id": out.at[index, "author_id"]})
+            for column in IDENTITY_COLUMNS:
+                out.at[index, column] = before.at[index, column]
+
+
+def apply_display_names(paper_authors: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, int]]:
+    """Clean byline display forms and separate group or non-person bylines.
+
+    `raw_author_name` and `source_display_name` keep the source strings.
+    Non-person bylines (consortia, addresses) without an ORCID get a `group:`
+    ID, which public author facets exclude.
+    """
+    out = paper_authors.copy()
+    before = out["display_name"].fillna("").astype(str)
+    out["display_name"] = before.map(evidence_lib.clean_person_name)
+    empty = out["display_name"].eq("")
+    out.loc[empty, "display_name"] = before[empty]
+    out["canonical_name"] = out["display_name"].map(canonical_name)
+    non_person = (
+        out["display_name"].map(evidence_lib.is_non_person_byline)
+        & ~out["author_id"].fillna("").astype(str).str.startswith("orcid:")
+        & ~_reviewed_rows(out)
+    )
+    for index in out.index[non_person]:
+        digest = hashlib.sha1(canonical_name(out.at[index, "display_name"]).encode("utf-8")).hexdigest()[:16]
+        out.at[index, "author_id"] = f"group:{digest}"
+        out.at[index, "openalex_author_id"] = ""
+        out.at[index, "orcid"] = ""
+        out.at[index, "identity_confidence"] = "non_person_byline"
+    return out, {
+        "authorship_display_names_cleaned": int((out["display_name"] != before).sum()),
+        "non_person_bylines": int(non_person.sum()),
+    }
+
+
 def first_nonempty(values: Iterable[object]) -> str:
     for value in values:
         text = normalize(value)
@@ -968,6 +1295,8 @@ def best_author_identity_confidence(author_id: str, values: Iterable[object]) ->
     items = [normalize(value) for value in values if normalize(value)]
     if "openalex_author_id_orcid_conflict" in items:
         return "openalex_author_id_orcid_conflict"
+    if author_id.startswith("group:"):
+        return "non_person_byline"
     if author_id.startswith("orcid:"):
         return "orcid"
     if author_id.startswith("openalex:"):
@@ -978,14 +1307,45 @@ def best_author_identity_confidence(author_id: str, values: Iterable[object]) ->
     return items[0] if items else ""
 
 
-def build_authors_from_authorships(paper_authors: pd.DataFrame) -> pd.DataFrame:
+def choose_display_name(names: Counter, orcid_record: dict[str, Any] | None = None) -> str:
+    """Prefer full, Latin-script bylines; then the commonest; then the ORCID record name.
+
+    Abbreviated or non-Latin bylines are used only when no full Latin-script
+    byline exists, so "A. Roig" does not replace "Antoni F. Roig-Navarro".
+    """
+    if not names:
+        return ""
+
+    def key(item: tuple[str, int]) -> tuple:
+        name, count = item
+        latin, readable, full_given, not_upper, _, length = evidence_lib.display_name_score(name)
+        return (latin, readable, full_given, not_upper, count, length, name)
+
+    best = max(names.items(), key=key)[0]
+    latin, readable, full_given, not_upper, _, _ = evidence_lib.display_name_score(best)
+    if orcid_record and not (latin and readable and full_given):
+        for candidate in evidence_lib.orcid_record_names(orcid_record):
+            candidate = evidence_lib.clean_person_name(candidate)
+            if candidate.islower():
+                candidate = candidate.title()
+            score = evidence_lib.display_name_score(candidate)
+            if score[0] and score[2] and evidence_lib.names_compatible(candidate, best):
+                return candidate
+    return best
+
+
+def build_authors_from_authorships(
+    paper_authors: pd.DataFrame, orcid_records: dict[str, Any] | None = None,
+) -> pd.DataFrame:
     if paper_authors.empty:
         return pd.DataFrame()
 
+    orcid_records = orcid_records or {}
     author_rows = []
     for author_id, group in paper_authors.groupby("author_id", sort=False):
         names = Counter(normalize(value) for value in group["display_name"] if normalize(value))
-        display_name = sorted(names.items(), key=lambda item: (-item[1], item[0]))[0][0] if names else ""
+        record = orcid_records.get(author_id.removeprefix("orcid:")) if author_id.startswith("orcid:") else None
+        display_name = choose_display_name(names, record if record and record.get("status") == "ok" else None)
         author_rows.append(
             {
                 "author_id": author_id,
@@ -1026,7 +1386,10 @@ def build_tables(
     papers: pd.DataFrame,
     cache: dict[str, Any],
     identity_overrides: dict[str, Any] | None = None,
+    evidence: Any = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
+    """Build author tables. `evidence` supplies OpenAlex profile merges and
+    ORCID records (see author_identity_evidence); None skips both layers."""
     authorship_rows: list[dict[str, Any]] = []
     paper_status_counts: Counter = Counter()
     reviewed_lists = {
@@ -1086,9 +1449,23 @@ def build_tables(
     paper_authors = pd.DataFrame(authorship_rows)
     paper_authors, authorship_review_stats = apply_authorship_overrides(paper_authors, identity_overrides)
     paper_authors, author_list_review_stats = apply_author_list_reviews(paper_authors, cache, identity_overrides)
+    merge_stats: dict[str, Any] = {}
+    orcid_record_stats: dict[str, Any] = {}
+    display_stats: dict[str, Any] = {}
+    orcid_records: dict[str, Any] = {}
     if not paper_authors.empty:
+        before_evidence = paper_authors.copy()
+        if evidence is not None:
+            profiles = evidence.openalex_profiles(paper_authors["openalex_author_id"].fillna("").astype(str))
+            paper_authors, merge_stats = apply_openalex_profile_merges(paper_authors, profiles, identity_overrides)
         paper_authors, orcid_stats = apply_orcid_identities(paper_authors, identity_overrides)
+        if evidence is not None:
+            paper_authors, orcid_record_stats, orcid_records = apply_orcid_record_evidence(paper_authors, evidence)
         paper_authors, alias_stats = apply_exact_name_aliases(paper_authors)
+        if evidence is not None:
+            paper_authors, reverted = revert_same_paper_collisions(paper_authors, before_evidence)
+            orcid_record_stats["authorship_rows_reverted_same_paper_collision"] = len(reverted)
+            orcid_record_stats["same_paper_collision_reverts"] = reverted
         for record in (identity_overrides or {}).get("authorship_overrides", []):
             reviewed = paper_authors[paper_authors["identity_review_id"].eq(record["review_id"])]
             if reviewed.empty:
@@ -1112,13 +1489,18 @@ def build_tables(
                 ]
                 if contradictory_profile_mapping or not contradictory_rows.empty:
                     raise ValueError(f"Identity propagation conflicts with review {record['review_id']}")
+        paper_authors, display_stats = apply_display_names(paper_authors)
         paper_authors = paper_authors.sort_values(["paper_id", "author_position", "display_name"]).reset_index(drop=True)
     else:
         orcid_stats = apply_orcid_identities(paper_authors, identity_overrides)[1]
         alias_stats = {"name_alias_authorship_rows": 0, "name_alias_author_ids": 0, "name_alias_names": 0}
-    authors = build_authors_from_authorships(paper_authors)
+    authors = build_authors_from_authorships(paper_authors, orcid_records)
 
     report = build_report(papers, cache, authors, paper_authors, paper_status_counts)
+    report["identity_evidence"] = evidence.describe() if evidence is not None else {"used": False}
+    report["openalex_profile_merge_counts"] = merge_stats
+    report["orcid_record_evidence_counts"] = orcid_record_stats
+    report["display_name_counts"] = display_stats
     report["orcid_identity_resolution_counts"] = orcid_stats
     report["name_alias_resolution_counts"] = alias_stats
     report["authorship_review_counts"] = authorship_review_stats
@@ -1219,6 +1601,28 @@ def main() -> int:
     parser.add_argument("--checkpoint-every", type=int, default=20)
     parser.add_argument("--refresh", action="store_true", help="Refresh cached OpenAlex lookups")
     parser.add_argument(
+        "--evidence-dir",
+        default=str(evidence_lib.DEFAULT_EVIDENCE_DIR),
+        help="Shared cache of OpenAlex profile merges and ORCID records",
+    )
+    parser.add_argument(
+        "--evidence-max-age-days",
+        type=float,
+        default=evidence_lib.DEFAULT_MAX_AGE_DAYS,
+        help="Re-query cached OpenAlex profiles and ORCID records older than this",
+    )
+    parser.add_argument("--orcid-rps", type=float, default=12.0, help="ORCID public API request rate")
+    parser.add_argument(
+        "--evidence-mode",
+        choices=("online", "cache", "off"),
+        default="online",
+        help=(
+            "OpenAlex profile merges and ORCID records: query new or stale records (online), "
+            "use the shared cache only (cache), or skip both layers (off, for comparison). "
+            "Independent of --offline, which applies to the works cache."
+        ),
+    )
+    parser.add_argument(
         "--offline",
         action="store_true",
         help=(
@@ -1258,8 +1662,19 @@ def main() -> int:
         )
         write_cache(cache_path, cache)
 
-    authors, paper_authors, report = build_tables(papers, cache, identity_overrides)
+    evidence = None
+    if args.evidence_mode != "off":
+        evidence = evidence_lib.AuthorEvidence(
+            Path(args.evidence_dir),
+            openalex_api_key=api_key,
+            orcid_rps=args.orcid_rps,
+            max_age_days=args.evidence_max_age_days,
+            offline=args.evidence_mode == "cache",
+        )
+    authors, paper_authors, report = build_tables(papers, cache, identity_overrides, evidence)
     require_structured_authorship_coverage(paper_authors)
+    if args.evidence_mode == "online":
+        require_openalex_profile_checks(report)
     out_dir.mkdir(parents=True, exist_ok=True)
     authors.to_parquet(out_dir / "authors.parquet", index=False)
     paper_authors.to_parquet(out_dir / "paper_authors.parquet", index=False)
@@ -1270,6 +1685,14 @@ def main() -> int:
     print(f"Unique authors: {report['unique_authors']}")
     print(f"Paper status counts: {report['paper_status_counts']}")
     print(f"Authorship confidence: {report['authorship_identity_confidence_counts']}")
+    merge_counts = report.get("openalex_profile_merge_counts", {})
+    record_counts = report.get("orcid_record_evidence_counts", {})
+    print(
+        "Identity evidence: "
+        f"{merge_counts.get('openalex_profiles_merged', 0)} merged OpenAlex profiles, "
+        f"{record_counts.get('authorship_rows_assigned_by_orcid_record', 0)} authorships assigned by ORCID records, "
+        f"{record_counts.get('authorship_rows_orcid_removed', 0)} wrong ORCIDs removed"
+    )
     print(f"Authors table: {out_dir / 'authors.parquet'}")
     print(f"Paper authors table: {out_dir / 'paper_authors.parquet'}")
     print(f"Report: {out_dir / 'author_resolution_report.json'}")
