@@ -12415,6 +12415,58 @@ def finding_row(
     return out
 
 
+def finding_content_key(source_name: str, row: dict, compound_label: str, entity_kind: str, entity_label: str) -> str:
+    """Return the text a finding ID is computed from: the finding's content, not its row position."""
+    return "|".join(
+        normalize(part)
+        for part in (
+            source_name,
+            row.get("study_doi", ""),
+            compound_label,
+            entity_kind,
+            entity_label,
+            row.get("support", ""),
+            row.get("evidence_locator", ""),
+            row.get("supporting_quote", ""),
+        )
+    )
+
+
+def assign_finding_ids(pending: list[dict], prefix: str, id_field: str) -> None:
+    """Set finding and evidence IDs from content.
+
+    Findings with the same content key are numbered in the order of their
+    published fields, so the IDs do not depend on the order of the input rows.
+    Findings whose fields are all identical receive distinct IDs; which one
+    receives which ID does not matter.
+    """
+    by_key: dict[str, list[dict]] = {}
+    for entry in pending:
+        by_key.setdefault(entry["key"], []).append(entry)
+    for key, entries in by_key.items():
+        entries.sort(
+            key=lambda entry: json.dumps(
+                {k: v for k, v in entry["finding"].items() if k not in {id_field, "raw_row_json"}},
+                sort_keys=True,
+                ensure_ascii=False,
+                default=str,
+            )
+        )
+        for occurrence, entry in enumerate(entries):
+            finding_id = stable_id(prefix, key, occurrence)
+            entry["finding"][id_field] = finding_id
+            for edge, evidence_prefix, evidence_parts in entry["edges"]:
+                edge[id_field] = finding_id
+                edge["evidence_id"] = stable_id(evidence_prefix, finding_id, *evidence_parts)
+
+
+def require_unique_ids(rows: list[dict], field: str) -> None:
+    counts = Counter(row[field] for row in rows)
+    duplicated = sorted(value for value, count in counts.items() if count > 1)
+    if duplicated:
+        raise ValueError(f"{len(duplicated)} duplicate {field} values, for example {duplicated[:3]}")
+
+
 def evidence_edge_row(
     row: dict,
     source_name: str,
@@ -12832,7 +12884,8 @@ def build_tables(
             for condition_row in condition_expanded_rows(normalized_source_row, normalized_source_domain, registry):
                 rows.extend(entity_expanded_rows(condition_row, normalized_source_domain, registry, node_vocabulary))
 
-        for index, row in enumerate(rows):
+        pending_findings: list[dict] = []
+        for row in rows:
             domain = normalize(row.get("domain", "")) or normalize(row.get("domain_route", "")) or source_domain
             dataset = normalize(row.get("dataset", "")) or domain or source_dataset
             row = normalize_claim_metadata(row, domain)
@@ -13461,45 +13514,37 @@ def build_tables(
                 )
 
             evidence_type = evidence_type_for(row, default_evidence_type)
-            finding_id = stable_id(
-                finding_id_prefix,
+            # IDs are set by assign_finding_ids once every row of the source is known.
+            finding = finding_row(
+                table_row,
                 source_name,
-                index,
-                row.get("study_doi", ""),
-                compound_label,
-                entity_label,
-                table_row.get("evidence_locator", ""),
-                table_row.get("supporting_quote", ""),
+                domain,
+                dataset,
+                evidence_type,
+                "",
+                paper_id,
+                id_field=finding_id_field,
             )
-            evidence_id = stable_id("evidence", finding_id, evidence_type, entity_kind)
-            findings.append(
-                finding_row(
-                    table_row,
-                    source_name,
-                    domain,
-                    dataset,
-                    evidence_type,
-                    finding_id,
-                    paper_id,
-                    id_field=finding_id_field,
-                )
+            outcome_edge = evidence_edge_row(
+                table_row,
+                source_name,
+                domain,
+                dataset,
+                evidence_type,
+                entity_kind,
+                "",
+                "",
+                paper_id,
+                compound_id,
+                entity_id,
+                id_field=finding_id_field,
             )
-            evidence_edges.append(
-                evidence_edge_row(
-                    table_row,
-                    source_name,
-                    domain,
-                    dataset,
-                    evidence_type,
-                    entity_kind,
-                    finding_id,
-                    evidence_id,
-                    paper_id,
-                    compound_id,
-                    entity_id,
-                    id_field=finding_id_field,
-                )
-            )
+            pending_finding = {
+                "key": finding_content_key(source_name, table_row, compound_label, entity_kind, entity_label),
+                "finding": finding,
+                "edges": [(outcome_edge, "evidence", (evidence_type, entity_kind))],
+            }
+            pending_findings.append(pending_finding)
             for projection in use_context_projections:
                 component_label = normalize(projection.get("subject_label", ""))
                 context_label = normalize(projection.get("context_label", ""))
@@ -13612,34 +13657,36 @@ def build_tables(
                         "proposition_conflict_group_id": "",
                     }
                 )
-                context_evidence_id = stable_id(
-                    "evidence-use-context",
-                    finding_id,
-                    component_label,
-                    context_label,
+                context_edge = evidence_edge_row(
+                    context_edge_row,
+                    source_name,
+                    domain,
+                    dataset,
+                    evidence_type,
+                    "exposure_context",
+                    "",
+                    "",
+                    paper_id,
+                    component_id,
+                    context_id,
+                    id_field=finding_id_field,
                 )
-                evidence_edges.append(
-                    evidence_edge_row(
-                        context_edge_row,
-                        source_name,
-                        domain,
-                        dataset,
-                        evidence_type,
-                        "exposure_context",
-                        finding_id,
-                        context_evidence_id,
-                        paper_id,
-                        component_id,
-                        context_id,
-                        id_field=finding_id_field,
-                    )
+                pending_finding["edges"].append(
+                    (context_edge, "evidence-use-context", (component_label, context_label))
                 )
+
+        assign_finding_ids(pending_findings, finding_id_prefix, finding_id_field)
+        for pending_finding in pending_findings:
+            findings.append(pending_finding["finding"])
+            evidence_edges.extend(edge for edge, _, _ in pending_finding["edges"])
 
         if not cfg.get("skip_audit", False):
             audit_path = Path(cfg.get("audit_path", ""))
             for row in load_json_array(audit_path):
                 audits.append(audit_row(row, source_name, domain, dataset))
 
+    require_unique_ids(findings, finding_id_field)
+    require_unique_ids(evidence_edges, "evidence_id")
     proposition_summary = finalize_proposition_groups(findings, evidence_edges, finding_id_field)
     research_area_queue, research_area_summary = build_review_queue(findings, audits)
     papers_df = apply_publication_notices(

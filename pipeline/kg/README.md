@@ -351,6 +351,15 @@ The legacy current KG under `data/processed/kg/` may still contain
 `claims.parquet` while the old pipeline is retained for comparison. New routed
 KG runs use `findings.parquet` and `finding_id`.
 
+A `finding_id` is a hash of the finding's content: source, DOI, subject
+compound, entity kind, entity label, finding statement (`support`), evidence
+locator and supporting quote. Findings that share all of these values are
+numbered in the order of their published fields, and the number is part of the
+hash. The ID therefore does not depend on the position of the row in the
+evidence file: a rebuild from the same findings in another order gives the same
+IDs. `evidence_id` is a hash of `finding_id`, the evidence type and the entity
+kind. The build stops if any finding or evidence ID occurs twice.
+
 Author identity is resolved as a separate KG-side layer after `papers.parquet`
 exists:
 

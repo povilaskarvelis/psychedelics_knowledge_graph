@@ -4457,6 +4457,91 @@ class BuildEvidenceTablesTest(unittest.TestCase):
             self.assertNotIn("claim_id", edges.columns)
             self.assertEqual(findings.iloc[0]["compound"], "Psilocybin")
 
+    def _build_findings_from_rows(self, root: Path, rows: list[dict]) -> tuple[pd.DataFrame, pd.DataFrame]:
+        registry_path = root / "registry.json"
+        routed_path = root / "routed_evidence_rows.json"
+        out_dir = root / "kg"
+        write_json(
+            registry_path,
+            {
+                "compounds": [{"label": "Psilocybin", "aliases": ["psilocybin"], "ids": {}, "status": "seeded"}],
+                "targets": [],
+                "disorders": [
+                    {"label": "Major depressive disorder", "aliases": ["MDD"], "ids": {}, "status": "seeded"}
+                ],
+            },
+        )
+        write_json(routed_path, rows)
+        build_tables(
+            registry_path=registry_path,
+            out_dir=out_dir,
+            write_duckdb=False,
+            graph_sources={
+                "routed_extractions": {
+                    "path": routed_path,
+                    "domain": "routed",
+                    "dataset": "routed",
+                    "default_evidence_type": "primary_evidence",
+                    "skip_audit": True,
+                }
+            },
+        )
+        return pd.read_parquet(out_dir / "findings.parquet"), pd.read_parquet(out_dir / "evidence_edges.parquet")
+
+    @staticmethod
+    def _content_finding_row(doi: str, effect_size: str, quote: str = "Depression scores fell.") -> dict:
+        return {
+            "study_doi": doi,
+            "study_title": f"Paper {doi}",
+            "study_year": 2026,
+            "domain": "clinical_outcome",
+            "compound": "psilocybin",
+            "condition_or_population": "MDD",
+            "support": "Psilocybin reduced depression scores.",
+            "supporting_quote": quote,
+            "evidence_locator": "Results",
+            "effect_size": effect_size,
+            "paper_assessment_route": "primary_evidence",
+            "source_type": "primary_study",
+            "paper_type": "primary_study",
+            "access_level": "article_text",
+        }
+
+    def test_finding_ids_do_not_depend_on_row_order(self) -> None:
+        rows = [
+            self._content_finding_row("10.1000/a", "0.5"),
+            self._content_finding_row("10.1000/a", "0.8"),
+            self._content_finding_row("10.1000/a", "0.5"),
+            self._content_finding_row("10.1000/b", "0.5"),
+        ]
+        builds = []
+        for order in (rows, list(reversed(rows))):
+            with tempfile.TemporaryDirectory() as tmpdir:
+                builds.append(self._build_findings_from_rows(Path(tmpdir), order))
+
+        def ids_by_content(findings: pd.DataFrame, edges: pd.DataFrame) -> list[tuple]:
+            evidence_by_finding = dict(zip(edges["finding_id"], edges["evidence_id"]))
+            return sorted(
+                (row.study_doi, row.effect_size, row.finding_id, evidence_by_finding[row.finding_id])
+                for row in findings.itertuples()
+            )
+
+        (first_findings, first_edges), (second_findings, second_edges) = builds
+        self.assertEqual(len(first_findings), 4)
+        self.assertTrue(first_findings["finding_id"].is_unique)
+        self.assertTrue(first_edges["evidence_id"].is_unique)
+        self.assertEqual(ids_by_content(first_findings, first_edges), ids_by_content(second_findings, second_edges))
+
+    def test_finding_id_changes_with_key_content_only(self) -> None:
+        def single_id(row: dict) -> str:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                findings, _ = self._build_findings_from_rows(Path(tmpdir), [row])
+            return findings.iloc[0]["finding_id"]
+
+        original = single_id(self._content_finding_row("10.1000/a", "0.5"))
+        self.assertEqual(original, single_id(self._content_finding_row("10.1000/a", "0.9")))
+        self.assertNotEqual(original, single_id(self._content_finding_row("10.1000/a", "0.5", quote="Scores fell.")))
+
     def test_routed_clinical_endpoint_source_derives_symptom_problem_edges(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
