@@ -3,9 +3,7 @@
 Notable changes to Psychedelics Knowledge Graph are recorded here. Releases use
 [Semantic Versioning](https://semver.org/).
 
-## Unreleased
-
-Planned as 3.0.0.
+## [3.0.0] - 2026-11-12
 
 - Screened all records again and extracted all findings again with GPT-6 Luna,
   which replaces Gemini 3 Flash, using revised extraction instructions and
@@ -48,5 +46,6 @@ Planned as 3.0.0.
 
 Initial release.
 
+[3.0.0]: https://github.com/povilaskarvelis/psychedelics_knowledge_graph/compare/v2.0.0...v3.0.0
 [2.0.0]: https://github.com/povilaskarvelis/psychedelics_knowledge_graph/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/povilaskarvelis/psychedelics_knowledge_graph/releases/tag/v1.0.0
