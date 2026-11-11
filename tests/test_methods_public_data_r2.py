@@ -41,7 +41,7 @@ def test_methods_labels_distinguish_screening_extraction_and_graph_representatio
     assert "<th scope=\"col\">Rules-based screening</th>" in page
     assert "<th scope=\"col\">Extraction selection</th>" in page
     assert "<th scope=\"col\">Graph representation</th>" in page
-    assert "Selection for evidence extraction does not guarantee graph" in page
+    assert "A publication selected for extraction can still be absent from the graph" in " ".join(page.split())
 
 
 def test_netlify_bundle_contains_no_generated_data_files() -> None:
