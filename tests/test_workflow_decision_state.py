@@ -217,3 +217,44 @@ def test_reconciler_filters_declared_active_views_but_not_historical_artifacts()
     assert historical_text == json.dumps({"doi": "10.example/new-exclude"}) + "\n"
     assert result["historical_artifact_policy"].startswith("preserved")
     assert report_exists
+
+
+def test_scoped_reconciliation_removes_rows_of_the_scoped_papers_only() -> None:
+    with TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir)
+        candidate = root / "candidate.parquet"
+        active_routes = root / "active_routes.parquet"
+        active_tasks = root / "active_tasks.jsonl"
+        candidate_rows().to_parquet(candidate, index=False)
+        pd.DataFrame(
+            [
+                {"doi": "10.example/stable-include", "route": "keep"},
+                {"doi": "10.example/new-exclude", "route": "remove"},
+                {"doi": "10.example/outside-update", "route": "keep"},
+            ]
+        ).to_parquet(active_routes, index=False)
+        task_rows = [{"study_doi": "10.example/outside-update", "task": "keep"}]
+        active_tasks.write_text("".join(json.dumps(row) + "\n" for row in task_rows), encoding="utf-8")
+
+        reconcile_workflow_decision(
+            candidate_table=candidate,
+            decision_updates=prescreen_updates(),
+            update_defaults={
+                "prescreen_retained_for_extraction_candidate": False,
+                "prescreen_decisions": "",
+            },
+            stage="prescreen",
+            previous_included_dois={"10.example/stable-include", "10.example/new-exclude"},
+            current_included_dois={"10.example/stable-include", "10.example/new-include"},
+            active_artifacts=[
+                ActiveArtifact(active_routes, kind="parquet"),
+                ActiveArtifact(active_tasks, kind="jsonl"),
+            ],
+            active_artifact_scope_dois={"10.example/new-include", "10.example/new-exclude"},
+        )
+
+        routes = pd.read_parquet(active_routes)
+        tasks = [json.loads(line) for line in active_tasks.read_text().splitlines()]
+
+    assert routes["doi"].tolist() == ["10.example/stable-include", "10.example/outside-update"]
+    assert [row["study_doi"] for row in tasks] == ["10.example/outside-update"]

@@ -211,6 +211,45 @@ def test_export_manual_pdf_queue_omits_worklist_rows_with_a_local_pdf() -> None:
         assert summary["rows"] == 0
 
 
+def test_export_manual_pdf_queue_keeps_a_local_pdf_whose_text_was_rejected() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir)
+        selection_table = root / "worklist.parquet"
+        metadata_table = root / "metadata.parquet"
+        candidate_table = root / "candidate_papers.parquet"
+        pdf_dir = root / "pdfs"
+        pdf_dir.mkdir()
+        doi = "10.1000/published"
+        local_pdf = pdf_dir / pdf_filename_for_doi(doi)
+        local_pdf.write_bytes(b"%PDF-1.4\n")
+        pd.DataFrame(
+            [
+                {
+                    "doi": doi,
+                    "selected_for_downstream": True,
+                    "fulltext_enrichment_needed": True,
+                    "fulltext_enrichment_action": "resolve_oa_landing_page",
+                    "fulltext_enrichment_basis": "local_text_rejected_by_identity_check",
+                }
+            ]
+        ).to_parquet(selection_table, engine="pyarrow", index=False)
+        pd.DataFrame([{"doi": doi}]).to_parquet(metadata_table, engine="pyarrow", index=False)
+        pd.DataFrame(
+            [{"doi": doi, "pdf_download_status": "downloaded", "pdf_local_path": str(local_pdf)}]
+        ).to_parquet(candidate_table, engine="pyarrow", index=False)
+
+        summary = export_manual_pdf_queue(
+            selection_table=selection_table,
+            metadata_table=metadata_table,
+            candidate_table=candidate_table,
+            pdf_dir=pdf_dir,
+            output_csv=root / "manual.csv",
+            output_txt=root / "manual.txt",
+        )
+
+        assert summary["rows"] == 1
+
+
 def test_export_manual_pdf_queue_applies_manual_progress_ledger() -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         root = Path(tmpdir)

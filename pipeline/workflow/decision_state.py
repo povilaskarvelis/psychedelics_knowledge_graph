@@ -269,13 +269,16 @@ def write_json_atomic(payload: dict, path: Path) -> None:
         temporary_path.unlink(missing_ok=True)
 
 
-def filter_active_parquet(path: Path, *, allowed_dois: set[str]) -> dict:
+def filter_active_parquet(path: Path, *, allowed_dois: set[str], scope_dois: set[str] | None = None) -> dict:
     if not path.is_file():
         return {"path": str(path), "kind": "parquet", "status": "missing", "rows_removed": 0}
     frame = pd.read_parquet(path)
     if "doi" not in frame.columns:
         raise ValueError(f"Active Parquet view has no doi column: {path}")
-    keep = frame["doi"].map(normalize_doi).isin(allowed_dois)
+    dois = frame["doi"].map(normalize_doi)
+    keep = dois.isin(allowed_dois)
+    if scope_dois is not None:
+        keep |= ~dois.isin(scope_dois)
     rows_before = len(frame)
     filtered = frame[keep].copy()
     removed = rows_before - len(filtered)
@@ -305,6 +308,7 @@ def filter_active_jsonl(
     *,
     allowed_dois: set[str],
     doi_fields: tuple[str, ...],
+    scope_dois: set[str] | None = None,
 ) -> dict:
     if not path.is_file():
         return {"path": str(path), "kind": "jsonl", "status": "missing", "rows_removed": 0}
@@ -334,7 +338,7 @@ def filter_active_jsonl(
                     blank_doi_rows += 1
                     target.write(line if line.endswith("\n") else line + "\n")
                     rows_after += 1
-                elif doi in allowed_dois:
+                elif doi in allowed_dois or (scope_dois is not None and doi not in scope_dois):
                     target.write(line if line.endswith("\n") else line + "\n")
                     rows_after += 1
                 else:
@@ -366,6 +370,7 @@ def reconcile_workflow_decision(
     current_included_dois: set[str],
     active_artifacts: Iterable[ActiveArtifact] = (),
     active_artifact_allowed_dois: set[str] | None = None,
+    active_artifact_scope_dois: set[str] | None = None,
     pending_status: str = "",
     excluded_status: str = "",
     report_path: Path | None = None,
@@ -403,17 +408,22 @@ def reconcile_workflow_decision(
         if active_artifact_allowed_dois is not None
         else stable_included
     )
+    # A scoped decision stage removes rows of the papers it decided only.
+    artifact_scope = (
+        normalized_dois(active_artifact_scope_dois) if active_artifact_scope_dois is not None else None
+    )
     artifact_summaries: list[dict] = []
     for artifact in active_artifacts:
         path = Path(artifact.path).resolve()
         if artifact.kind == "parquet":
-            artifact_summaries.append(filter_active_parquet(path, allowed_dois=artifact_allowed))
+            artifact_summaries.append(filter_active_parquet(path, allowed_dois=artifact_allowed, scope_dois=artifact_scope))
         elif artifact.kind == "jsonl":
             artifact_summaries.append(
                 filter_active_jsonl(
                     path,
                     allowed_dois=artifact_allowed,
                     doi_fields=artifact.doi_fields,
+                    scope_dois=artifact_scope,
                 )
             )
         else:
@@ -428,6 +438,7 @@ def reconcile_workflow_decision(
         "candidate": candidate_summary,
         "active_artifacts": artifact_summaries,
         "active_artifact_allowed_dois": len(artifact_allowed),
+        "active_artifact_scope_dois": None if artifact_scope is None else len(artifact_scope),
         "historical_artifact_policy": "preserved; only declared active views are filtered",
         "context": dict(context or {}),
     }

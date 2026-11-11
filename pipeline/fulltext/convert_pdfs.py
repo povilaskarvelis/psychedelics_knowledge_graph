@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
 import json
 import re
 import shutil
@@ -377,6 +378,34 @@ def select_best_extraction(extractions: List[dict]) -> dict:
     return max(ok, key=lambda entry: (int(entry.get("section_count", 0) or 0), int(entry.get("char_count", 0) or 0)))
 
 
+def pdf_sha256(path: Path) -> str:
+    try:
+        return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+    except OSError:
+        return ""
+
+
+def text_predates_pdf(artifact_path: Path, pdf_paths: List[str]) -> bool:
+    """Whether the PDF a stored text was converted from has since been replaced.
+
+    Only the PDF the text names counts, and only when it is one of the paper's
+    current PDFs; other PDFs stored for the paper do not. Texts written since
+    the converter recorded ``pdf_sha256`` are compared by hash, older texts by
+    modification time.
+    """
+    artifact_path = Path(artifact_path)
+    if not artifact_path.is_file():
+        return False
+    artifact = load_json_object(artifact_path)
+    source = normalize(artifact.get("pdf_local_path", ""))
+    if not source or source not in {normalize(value) for value in pdf_paths} or not Path(source).is_file():
+        return False
+    recorded = normalize(artifact.get("pdf_sha256", ""))
+    if recorded:
+        return pdf_sha256(Path(source)) != recorded
+    return Path(source).stat().st_mtime > artifact_path.stat().st_mtime
+
+
 def build_artifact(dataset: str, row: dict, pdf_path: Path, extractions: List[dict]) -> dict:
     best = select_best_extraction(extractions)
     artifact = {
@@ -388,6 +417,7 @@ def build_artifact(dataset: str, row: dict, pdf_path: Path, extractions: List[di
         "study_title": normalize(row.get("study_title", "")),
         "study_year": normalize(row.get("study_year", "")),
         "pdf_local_path": str(pdf_path),
+        "pdf_sha256": pdf_sha256(pdf_path),
         "best_backend": normalize(best.get("backend", "")) if best else "",
         "best_char_count": int(best.get("char_count", 0) or 0) if best else 0,
         "best_section_count": int(best.get("section_count", 0) or 0) if best else 0,

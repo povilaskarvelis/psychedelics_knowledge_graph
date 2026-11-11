@@ -1598,6 +1598,7 @@ def run(args: argparse.Namespace) -> tuple[list[dict], list[dict]]:
             previous_included_dois=previous_included_dois,
             current_included_dois=current_included_dois,
             active_artifacts=active_artifacts,
+            active_artifact_scope_dois=set(scoped_dois) if scoped_dois else None,
             pending_status="prescreen_retained_pending_model_screen",
             excluded_status="prescreen_excluded",
             report_path=Path(report_value) if report_value else None,

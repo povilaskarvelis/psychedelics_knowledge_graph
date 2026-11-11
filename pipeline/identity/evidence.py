@@ -351,7 +351,7 @@ NOT_TITLE_START_RE = re.compile(
 )
 NOT_TITLE_ANYWHERE_RE = re.compile(
     r"research portal|research online|e-?prints|institutional repository|digital commons|open access repository|"
-    r"special (?:collection|issue)|themed (?:issue|section)",
+    r"special (?:collection|issue)|themed (?:issue|section)|article in press",
     re.IGNORECASE,
 )
 LETTER_SPACED_RE = re.compile(r"^(?:\S ){5,}")
@@ -399,7 +399,9 @@ def title_printed_in(title: object, text: object, *, min_words: int = 4) -> bool
     wanted = words(title)
     if len(wanted) < min_words:
         return False
-    return f" {' '.join(wanted)} " in f" {' '.join(words(text))} "
+    found = words(text)
+    # Joined as well, so "5-HT(2A)" and "5-HT2A" compare equal.
+    return f" {' '.join(wanted)} " in f" {' '.join(found)} " or "".join(wanted) in "".join(found)
 
 
 def text_words(value: object) -> list[str]:

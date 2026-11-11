@@ -137,6 +137,37 @@ python pipeline/discovery/promote_search_run.py \
 See [`pipeline/discovery/README.md`](discovery/README.md) for full reruns,
 request budgets, scope-delta recovery, artifacts, and downstream handoff.
 
+Then take the promoted search through screening and article-text retrieval:
+
+```bash
+python pipeline/update/run_literature_update.py --run-id living_update_v3_YYYYMMDD
+```
+
+This runs, for the search's `screening_candidate_dois.txt`: abstract recovery
+(PubMed and PMC, then Crossref), rules-based initial screening, Luna screening
+with the instruction named in `model_pipeline_state.json` (one provider batch,
+one retry of failed requests), PMC XML, open-access link refresh, direct and
+alternate PDF downloads, GROBID conversion, extraction routes and the
+source-identity audit. It ends with the papers whose article text was not
+obtained, in batches of at most 50 under `downstream/manual_download/`, each
+with a page of links and an inbox folder under
+`data/raw/papers/manual_pdf_inbox/<run id>/`. Import the downloads with
+`pipeline/fulltext/import_manual_pdfs.py` (with `--replace-existing` when a
+download replaces a PDF whose text the identity check rejected, such as a
+preprint), then convert them, rebuild the update's routes, run the identity
+audit and list the papers still without text:
+
+```bash
+python pipeline/update/run_literature_update.py --run-id living_update_v3_YYYYMMDD --after-manual-import 1
+```
+
+The number names the import round; use the next number after a later import.
+Screening retries are sent as direct requests, not a new batch. The screening and route rows of the
+update's papers are added to the canonical tables only after the rows of all
+other papers are checked to be unchanged; the published release pointers are
+not changed. Each stage writes a receipt under `downstream/`, and running the
+command again resumes after the last completed stage.
+
 The user-authorized **19 October 2026 PCP addition** is the targeted run
 `pcp_scope_addition_20261019`: two historical PubMed/OpenAlex identity searches,
 corpus deduplication, initial cleanup, Luna V5 screening with PCP explicitly

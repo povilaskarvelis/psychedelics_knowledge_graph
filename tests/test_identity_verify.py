@@ -187,6 +187,7 @@ def test_supplement_and_non_work_dois_are_wrong_kind() -> None:
         "ORCID iDs",
         "78.e1",
         "Themed Section: Opioids: New Pathways to Functional Selectivity",
+        "SYSTEMATIC REVIEW | Article in Press",
     ],
 )
 def test_heading_that_is_not_a_title_is_ignored_when_the_paper_title_is_printed(heading: str) -> None:
@@ -227,6 +228,10 @@ def test_evidence_helpers() -> None:
     assert not is_cover_sheet(PAPER.title)
     assert title_printed_in("Drug Trends 2020 key findings", "South Australian Drug Trends 2020: Key findings")
     assert not title_printed_in("Drug Trends 2020 key findings", "South Australian Drug Trends 2025: Key findings")
+    assert title_printed_in(
+        "5-HT(2A) receptors in layer 5 pyramidal neurons mediate plasticity",
+        "Title\n5-HT2A receptors in layer 5 pyramidal neurons mediate plasticity",
+    )
     assert document_kind("Supplementary Information", "", PAPER.title) == "supplement"
     assert document_kind("Correction: " + PAPER.title, "", PAPER.title) == "correction"
     assert document_kind(PAPER.title, "Li and Sun et al.\fSupplementary Figure 1. Genome size by flow cytometry", PAPER.title) == "supplement"

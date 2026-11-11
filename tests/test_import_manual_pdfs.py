@@ -284,6 +284,24 @@ class ImportManualPdfsTest(unittest.TestCase):
         self.assertEqual(doi, "")
         self.assertEqual(basis, "filename_doi_unverified")
 
+    def test_filename_title_at_top_of_laid_out_page_is_accepted(self) -> None:
+        expected = "Intended ketamine trial outcomes in severe depression"
+        known = {"10.1001/intended": {"doi": "10.1001/intended", "study_title": expected}}
+
+        doi, basis, _candidates = select_match(
+            file_path=Path("10.1001_intended.pdf"),
+            known_records=known,
+            text=("Adjacent abstract content " * 140) + expected,
+            metadata_text="",
+            enable_title_match=True,
+            min_title_score=0.86,
+            min_title_margin=0.12,
+            layout_front=f"Journal header 2026\n{expected}\nFirst Author, Second Author",
+        )
+
+        self.assertEqual(doi, "10.1001/intended")
+        self.assertEqual(basis, "filename_doi+front_title_match")
+
     def test_title_match_score_accepts_high_overlap_title(self) -> None:
         title = "Psilocybin-assisted therapy for treatment-resistant depression"
         text = "Psilocybin assisted therapy for treatment resistant depression was evaluated in this article."

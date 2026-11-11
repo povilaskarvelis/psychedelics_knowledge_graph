@@ -32,6 +32,7 @@ from pipeline.extract.build_extraction_routes import (  # noqa: E402
     DEFAULT_SCREENING_DECISION_OVERRIDES,
     apply_fulltext_access_override,
     build_local_pdf_index,
+    fulltext_identity_rejected,
     fulltext_status_for_doi,
     load_manual_fulltext_access_overrides,
     load_manual_route_overrides,
@@ -43,7 +44,7 @@ from pipeline.extract.build_extraction_routes import (  # noqa: E402
     metadata_probable_pdf_url_candidates,
     source_status_from_domain_rows,
 )
-from pipeline.fulltext.convert_pdfs import normalize_doi  # noqa: E402
+from pipeline.fulltext.convert_pdfs import doi_to_slug, normalize_doi, text_predates_pdf  # noqa: E402
 from pipeline.identity.gate import (
     DEFAULT_VERDICTS_PATH,
     IdentityGate,
@@ -407,6 +408,24 @@ def build(args: argparse.Namespace) -> dict:
         elif manual_access_action == "suppress_pdf_download":
             action = "no_accessible_fulltext"
             action_basis = "manual_suppress_pdf_download"
+            needed = True
+        elif fulltext_identity_rejected(fulltext) and text_predates_pdf(
+            article_dir / f"{doi_to_slug(doi)}.json", split_candidates(local_pdf.get("local_pdf_paths", ""))
+        ):
+            # The rejected text came from a PDF that has since been replaced.
+            action = "convert_local_pdf"
+            action_basis = "local_pdf_replaced_after_rejected_text"
+            needed = True
+        elif fulltext_identity_rejected(fulltext) and (pdf_candidates or open_access_positive):
+            # The local PDF was converted and the identity check rejected its
+            # text (for example a preprint of the published paper). Converting
+            # it again cannot change that; the published text needs a browser.
+            action = "resolve_oa_landing_page"
+            action_basis = "local_text_rejected_by_identity_check"
+            needed = True
+        elif fulltext_identity_rejected(fulltext):
+            action = "no_accessible_fulltext"
+            action_basis = "local_text_rejected_without_location"
             needed = True
         elif local_pdf.get("has_local_pdf"):
             action = "convert_local_pdf"

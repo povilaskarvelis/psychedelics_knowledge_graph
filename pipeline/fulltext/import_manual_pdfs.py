@@ -299,10 +299,28 @@ def document_front_identity_text(text: str, metadata_text: str) -> str:
     return f"{clean(metadata_text)}\n{first_page[:PDF_IDENTITY_FRONT_RAW_CHAR_LIMIT]}".strip()
 
 
-def document_front_title_text(text: str, metadata_text: str) -> str:
+def document_front_title_text(text: str, metadata_text: str, layout_front: str = "") -> str:
     first_page = clean(text).split("\f", 1)[0]
     front = normalize_for_title_match(first_page)[:PDF_IDENTITY_FRONT_CHAR_LIMIT]
-    return f"{normalize_for_title_match(metadata_text)}\n{front}".strip()
+    # Two-column pages can put the abstract before the title in reading order;
+    # the top of the page as laid out still starts with the title.
+    layout = normalize_for_title_match(layout_front)[:PDF_IDENTITY_FRONT_CHAR_LIMIT]
+    return f"{normalize_for_title_match(metadata_text)}\n{front}\n{layout}".strip()
+
+
+def extract_pdf_layout_front(path: Path) -> str:
+    try:
+        result = subprocess.run(
+            ["pdftotext", "-layout", "-f", "1", "-l", "1", str(path), "-"],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            timeout=30,
+        )
+    except Exception:
+        return ""
+    lines = (" ".join(line.split()) for line in result.stdout.decode("utf-8", errors="replace").splitlines())
+    return "\n".join(line for line in lines if line)
 
 
 def document_support_for_doi(
@@ -312,6 +330,7 @@ def document_support_for_doi(
     text: str,
     metadata_text: str,
     min_title_score: float,
+    layout_front: str = "",
 ) -> tuple[bool, str, list[dict]]:
     identity_text = document_front_identity_text(text, metadata_text)
     embedded = []
@@ -331,7 +350,7 @@ def document_support_for_doi(
     )
     score = title_match_score(
         expected_title,
-        document_front_title_text(text, metadata_text),
+        document_front_title_text(text, metadata_text, layout_front),
     )
     if min_title_score > 0 and score >= min_title_score:
         return True, "front_title_match", [
@@ -563,6 +582,7 @@ def select_match(
     doi_aliases: dict[str, str] | None = None,
     title_token_lookup: dict[str, list[str]] | None = None,
     metadata_title_lookup: dict[str, list[str]] | None = None,
+    layout_front: str = "",
 ) -> tuple[str, str, list[dict]]:
     known_dois = set(known_records)
     attestations = (
@@ -592,7 +612,7 @@ def select_match(
                 known_records[canonical_doi].get("study_title", "")
                 or known_records[canonical_doi].get("title", "")
             )
-            score = title_match_score(canonical_title, document_front_title_text(text, metadata_text))
+            score = title_match_score(canonical_title, document_front_title_text(text, metadata_text, layout_front))
             if score >= min_title_score:
                 return canonical_doi, "filename_doi_alias+canonical_title_match", [
                     {"doi": filename_doi, "basis": "registered_alias_doi"},
@@ -604,6 +624,7 @@ def select_match(
             text=text,
             metadata_text=metadata_text,
             min_title_score=min_title_score,
+            layout_front=layout_front,
         )
         if accepted:
             return filename_doi, f"filename_doi+{support}", candidates
@@ -622,6 +643,7 @@ def select_match(
                 text=text,
                 metadata_text=metadata_text,
                 min_title_score=min_title_score,
+                layout_front=layout_front,
             )
             if accepted:
                 return slug_dois[0], f"filename_doi_slug+{support}", candidates
@@ -639,6 +661,7 @@ def select_match(
                 text=text,
                 metadata_text=metadata_text,
                 min_title_score=min_title_score,
+                layout_front=layout_front,
             )
             if accepted:
                 return source_filename_dois[0], f"source_url_filename+{support}", candidates
@@ -713,7 +736,7 @@ def select_match(
         return "", "no_doi_found", []
 
     scored: list[dict] = []
-    combined_text_norm = document_front_title_text(text, metadata_text)
+    combined_text_norm = document_front_title_text(text, metadata_text, layout_front)
     candidate_dois: set[str]
     if title_token_lookup:
         hit_counts: dict[str, int] = {}
@@ -955,6 +978,7 @@ def import_manual_pdfs(
                 doi_aliases=doi_aliases,
                 title_token_lookup=title_token_lookup,
                 metadata_title_lookup=metadata_title_lookup,
+                layout_front=extract_pdf_layout_front(file_path),
             )
         if not doi:
             row = {

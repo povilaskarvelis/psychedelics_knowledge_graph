@@ -236,7 +236,9 @@ def export_manual_pdf_queue(
             canonical_path = pdf_dir / filename
             recorded_path = clean(candidate.get("pdf_local_path", ""))
             local_pdf_exists = canonical_path.is_file() or bool(recorded_path and Path(recorded_path).is_file())
-            if local_pdf_exists:
+            # A local PDF whose text the identity check rejected still needs the published PDF.
+            rejected = clean(first.get("fulltext_enrichment_basis", "")) == "local_text_rejected_by_identity_check"
+            if local_pdf_exists and not rejected:
                 skipped_local_pdf += 1
                 continue
             progress = progress_by_doi.get(doi, {})

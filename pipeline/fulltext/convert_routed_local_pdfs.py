@@ -34,6 +34,7 @@ try:
         normalize_doi,
         now_utc,
         should_write_artifact,
+        text_predates_pdf,
         write_json,
     )
     from pipeline.identity.gate import DEFAULT_VERDICTS_PATH
@@ -64,6 +65,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution path
         normalize_doi,
         now_utc,
         should_write_artifact,
+        text_predates_pdf,
         write_json,
     )
     from pipeline.identity.gate import DEFAULT_VERDICTS_PATH
@@ -209,13 +211,13 @@ def selected_pdf_rows(
             skipped["doi_filter"] += 1
             continue
         artifact_path = out_dir / f"{doi_to_slug(doi)}.json"
-        if only_missing_artifacts and artifact_path.exists():
-            skipped["existing_artifact"] += 1
-            continue
         route_rows = grouped[doi]
         pdf_paths: list[str] = []
         for route_row in route_rows:
             pdf_paths.extend(split_values(route_row.get("local_pdf_paths", "")))
+        if only_missing_artifacts and artifact_path.exists() and not text_predates_pdf(artifact_path, pdf_paths):
+            skipped["existing_artifact"] += 1
+            continue
         pdf_path = valid_pdf_from_paths(pdf_paths)
         if pdf_path is None:
             skipped["missing_valid_pdf"] += 1
