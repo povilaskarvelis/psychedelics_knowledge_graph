@@ -115,9 +115,8 @@
       <div class="about-hero-copy">
         <h1>Methods</h1>
         <p>
-          How Psychedelics Knowledge Graph is assembled: how literature is
-          searched, how records are screened, how evidence is extracted, and how
-          everything is maintained.
+          How the graph is built: literature search, screening, source text
+          preparation, evidence extraction, and graph assembly.
         </p>
       </div>
     </header>
@@ -126,22 +125,15 @@
       <section class="about-section method-workflow-section" aria-labelledby="pipeline-overview">
         <h2 id="pipeline-overview">Pipeline overview</h2>
         <p>
-          The workflow is designed to keep literature discovery broad while
-          making graph inclusion conservative. Searches cast a wide net across
-          clinical, biological, brain, behavioral, subjective, treatment context,
-          and real-world evidence. Each publication is then interpreted according to
-          what it actually contains and how much source text is available, so
-          the graph shows findings that can be traced back to specific publications.
-          Rules-based checks and LLM-based screening and evidence extraction
-          allow the workflow to operate at scale, while source links, evidence
-          locations within source publications, and validation rules keep the
-          results auditable. The current
-          pipeline uses GPT-6 Luna for new title-and-abstract screening and
-          the planned replacement evidence extraction. The published graph
-          continues to represent its last completed release while that
-          replacement is prepared. The pipeline is
-          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">open source</a>
-          and available for inspection, reuse, and improvement. A detailed
+          The pipeline turns database search results into graph findings in
+          seven steps, summarized below and described in detail in the sections
+          that follow. Searches are broad; the later steps decide which
+          publications and findings enter the graph. Screening and extraction
+          combine fixed rules with GPT-6 Luna, a large language model (LLM).
+          Every finding in the graph links to its publication and, where
+          available, to its location in the text. The pipeline is
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph" target="_blank" rel="noopener noreferrer">open source</a>,
+          and a
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/README.md" target="_blank" rel="noopener noreferrer">workflow guide</a>
           documents its implementation.
         </p>
@@ -155,13 +147,12 @@
             <div>
               <h3>Define the evidence scope</h3>
               <p>
-                The project starts with explicit vocabularies for psychedelic
-                compounds and research areas: targets, pathways and
-                readouts, brain systems, cognitive and
-                behavioral function, subjective experience, pharmacokinetics and
-                exposure, intervention context, real-world use, clinical
-                outcomes, functioning, and safety. These vocabularies define
-                what the graph can represent and what the search needs to cover.
+                Fixed vocabularies define the compounds and research areas the
+                graph covers: molecular targets, pathways and readouts, brain
+                systems, cognition and behavior, subjective experience,
+                pharmacokinetics and exposure, intervention context, real-world
+                use, clinical outcomes and functioning, and safety. The same
+                vocabularies determine what the searches look for.
               </p>
             </div>
           </article>
@@ -174,14 +165,11 @@
             <div>
               <h3>Find records</h3>
               <p>
-                PubMed and OpenAlex searches combine broad searches across the
-                main research areas with compound searches that are not
-                restricted to a particular topic. Newly added compounds are
-                also searched across the historical literature. Results are
-                matched by DOI and merged into a single set of records. Metadata
-                enrichment uses PubMed, PMC, OpenAlex, Crossref, Semantic
-                Scholar, and Unpaywall for bibliographic information,
-                publication types, abstracts, and accessible full text.
+                PubMed and OpenAlex are searched for each compound, alone and
+                combined with each research area. Results are merged by DOI.
+                Bibliographic data, abstracts, and links to full text are added
+                from PubMed, PMC, OpenAlex, Crossref, Semantic Scholar, and
+                Unpaywall.
               </p>
             </div>
           </article>
@@ -194,12 +182,11 @@
             <div>
               <h3>Screen and classify records</h3>
               <p>
-                Explicit rules first remove records that are clearly ineligible
-                or irrelevant. An LLM then uses each title and abstract to
-                determine whether the publication is within scope and identify
-                its publication type and the research areas it addresses.
-                These classifications determine which extraction instructions
-                are applied.
+                Rules exclude publication types that are not source evidence and
+                records without a usable English abstract. GPT-6 Luna then reads each
+                remaining title and abstract, decides whether the publication is
+                in scope, and records its publication type and research areas.
+                These two classifications select the extraction instructions.
               </p>
             </div>
           </article>
@@ -212,13 +199,10 @@
             <div>
               <h3>Prepare source text</h3>
               <p>
-                Reusable full-text XML is retrieved directly from Europe PMC or
-                PubMed Central when available. Otherwise, accessible PDFs are
-                retrieved and parsed with GROBID into TEI XML. Both routes
-                preserve the article's sections, tables, figures, references,
-                and source locations in a form that can be processed by the
-                extraction workflow. The document identity is checked before
-                use.
+                Full text is taken from Europe PMC or PubMed Central XML when
+                available, and otherwise from PDFs converted with GROBID. Each
+                text is checked against the publication's identifiers and title
+                before it is used.
               </p>
             </div>
           </article>
@@ -231,12 +215,11 @@
             <div>
               <h3>Extract evidence</h3>
               <p>
-                LLM-based extraction uses instructions tailored to primary
-                studies, meta-analyses, and other reviews, the relevant area of
-                evidence, and whether full article text or only an abstract is
-                available. The extracted findings include the compounds or
-                exposures studied, related concepts or outcomes, study context,
-                and locations in the source publication.
+                GPT-6 Luna extracts findings using instructions specific to the
+                publication type, the research area, and whether the full text
+                or only the abstract is available. Each finding records the
+                compound or exposure, what was measured or examined, the study
+                context, and its location in the text.
               </p>
             </div>
           </article>
@@ -247,13 +230,12 @@
               </span>
             </div>
             <div>
-              <h3>Validate and publish</h3>
+              <h3>Build the graph</h3>
               <p>
-                Extracted findings are checked for the required fields and for
-                support in the source publication. Extracted compounds and
-                concepts are then normalized to consistent graph entities
-                before the graph is assembled. Relationships that are unclear,
-                unsupported, or cannot be represented accurately are left out.
+                Compound names and other concepts are mapped to consistent graph
+                entities. Findings that cannot be mapped without changing their
+                meaning, or that are reported only in a paper's background, are
+                kept out of the graph.
               </p>
             </div>
           </article>
@@ -264,14 +246,12 @@
               </span>
             </div>
             <div>
-              <h3>Maintain the living graph</h3>
+              <h3>Update</h3>
               <p>
-                The graph is designed to evolve as the literature grows. Newly
-                discovered records, selected publications, corrected metadata,
-                improved evidence extraction, and research community feedback
-                can all update the evidence base. Proposed updates are checked
-                before publication. The graph, bibliography, Methods counts,
-                and public site are then updated together.
+                Each update searches the period since the previous search,
+                overlapping it by 14 days, and passes new records through the
+                same steps. Each update is published as a numbered release with
+                release notes; earlier releases remain available.
               </p>
             </div>
           </article>
@@ -281,69 +261,34 @@
       <section class="about-section method-seeds-section" aria-labelledby="search-seed-words">
         <h2 id="search-seed-words">Literature search strategy</h2>
         <p>
-          The search strategy is organized around a defined set of psychedelic
-          compounds and the research areas represented in the graph. The
-          compound vocabulary includes compound names, selected chemical,
-          botanical, and common aliases that identify them with sufficient
-          specificity, and broader psychedelic class terms. Terms for each
-          research area were selected to cover its major concepts, methods,
-          measures, and outcomes, with PubMed subject headings added where
-          available. The compound vocabulary is combined with these
-          research area terms to retrieve literature addressing each area.
-          Each compound and its aliases are also searched without research area
-          terms to identify potentially relevant publications whose wording
-          falls outside those predefined vocabularies. When a compound is added
-          to the project scope, searches also cover its earlier literature
-          rather than only publications appearing after it was added.
+          The searches combine two vocabularies. The compound vocabulary
+          contains compound names, chemical, botanical, and common aliases
+          specific enough to identify each compound, and psychedelic class
+          terms. Each research area has its own vocabulary of concepts,
+          methods, measures, and outcomes, with PubMed subject headings where
+          available.
         </p>
         <p>
-          The research area searches cover molecular targets and pathways,
-          brain systems, cognition and behavior, subjective experience,
-          pharmacokinetics, intervention context, real-world use and public
-          health, clinical outcomes and safety, and biological or behavioral
-          endpoints in clinical studies. PubMed and OpenAlex are searched
-          because their overlapping coverage and different indexing systems
-          provide complementary routes to relevant records. PubMed queries use
-          text words together with MeSH and Supplementary Concept terms, while
-          OpenAlex queries search titles and abstracts. Results are matched by
-          DOI and merged. The graph represents the cumulative results of all
-          completed searches. Coverage depends on the compounds, aliases,
-          research area vocabulary, query structures, and databases used, so
-          the strategy can be revised as gaps are identified and newly
-          retrieved publications can be screened and incorporated. The search
-          vocabularies are summarized below: within each research area search,
-          the compound terms are joined with OR, as are the terms for that
-          research area, and the two groups are combined with AND.
+          In each research area search, the compound terms are joined with OR,
+          the research area terms are joined with OR, and the two groups are
+          combined with AND. Each compound is also searched alone, to find
+          relevant publications whose wording falls outside the research area
+          vocabularies. Aliases that are short or have other common meanings
+          are searched only together with drug-related terms; for example, PCP
+          must appear with terms such as NMDA, ketamine, or intoxication, which
+          avoids matches for primary care and pneumonia.
         </p>
         <p>
-          Phencyclidine (PCP) was explicitly added to the compound scope on
-          19 October 2026. A targeted historical PubMed and OpenAlex search
-          covers publications from 1800 through that date. The full name is
-          searched directly; the acronym PCP requires drug-related context
-          to reduce unrelated primary-care and pneumonia matches. Records are
-          deduplicated against the existing corpus and processed through
-          title-and-abstract screening and source preparation. Search completion
-          and graph publication are recorded separately.
+          PubMed queries use text words together with MeSH and Supplementary
+          Concept terms; OpenAlex queries search titles and abstracts. The two
+          databases index the literature differently, so together they find
+          records that either would miss. Searches cover publications from 1800
+          onward, and a compound added to the scope is searched across its full
+          publication history. Results are merged by DOI. Coverage depends on
+          the vocabularies, query structures, and the two databases; the
+          vocabularies are revised when gaps are found. The vocabularies are
+          listed below.
         </p>
-        <details class="method-query-details" id="pcp-historical-search-20261019">
-          <summary>PCP historical search — 19 October 2026</summary>
-          <p>Publication-date range: 1 January 1800–19 October 2026. PubMed returned
-          6,182 records; OpenAlex returned 8,269 against a reported count of 8,270
-          after retries, within the pipeline's existing count-drift tolerance.
-          After cross-source matching, 5,474 DOI records were new to the corpus,
-          2,429 were rediscovered, and 1,289 no-DOI records remained pending identifier
-          resolution. These are record counts, not independent-study counts.</p>
-          <p>The screening cohort also reconsiders existing PCP records without an
-          inclusion and records with restored abstracts. Publication-format,
-          language and usable-abstract cleanup ran first; 4,637 records passed for
-          title-and-abstract screening with GPT-6 Luna at low reasoning, using V5
-          with PCP explicitly named. Inclusion and source-recovery results are
-          reported separately from publication of a new graph release.</p>
-          <p><strong>PubMed expression</strong></p>
-          <pre style="white-space:pre-wrap;overflow-wrap:anywhere"><code>(Phencyclidine[MeSH Terms] OR phencyclidine[Text Word] OR (PCP[Title/Abstract] AND (NMDA[Title/Abstract] OR NMDAR[Title/Abstract] OR ketamine[Title/Abstract] OR dissociat*[Title/Abstract] OR hallucinog*[Title/Abstract] OR psychotomimetic[Title/Abstract] OR schizophrenia[Title/Abstract] OR intoxica*[Title/Abstract] OR &quot;drug abuse&quot;[Title/Abstract] OR &quot;drug use&quot;[Title/Abstract])))</code></pre>
-          <p><strong>OpenAlex expression</strong> (title-and-abstract search)</p>
-          <pre style="white-space:pre-wrap;overflow-wrap:anywhere"><code>(phencyclidine OR (PCP AND (NMDA OR NMDAR OR ketamine OR dissociative OR dissociation OR hallucinogen OR hallucinogenic OR psychotomimetic OR schizophrenia OR intoxication OR &quot;drug abuse&quot; OR &quot;drug use&quot;)))</code></pre>
-        </details>
         <div class="method-query-details-grid">
           <details class="method-query-details">
             <summary>Compound search terms <span>Names, aliases, and compound classes</span></summary>
@@ -491,36 +436,21 @@
       <section class="about-section" aria-labelledby="screening-and-routing">
         <h2 id="screening-and-routing">Screening and classification</h2>
         <p>
-          Screening is organized as two successive stages. The rules-based
-          stage handles decisions that can be made consistently from
-          bibliographic metadata and text availability. It excludes records
-          with no abstract; books, book chapters, theses, conference abstracts,
-          and preprints; protocols, corrections, peer-review records, and
-          citation-only records; non-English publications; and unusable
-          abstracts. Topic relevance is assessed by GPT-6 Luna using the title
-          and abstract, with publication labels, MeSH terms, and keywords used
-          as supporting context. A publication is considered in scope when a
-          psychedelic-related substance, intervention, exposure, or relevant
-          research question has a substantive drug-specific finding or is a
-          major topic of the synthesis. Background examples, incidental mentions,
-          and individual items in broad lists are insufficient. When
-          relevance is plausible but the abstract is limited or ambiguous, the
-          publication is retained for the next stage to reduce the chance of
-          excluding relevant evidence.
-          LLM-based screening also determines the publication type and the
-          research areas the paper addresses. These classifications determine
-          the evidence extraction strategy used in the next stage.
+          Screening has two stages. The first applies fixed rules to
+          bibliographic metadata and abstracts; the second uses GPT-6 Luna to judge
+          relevance from the title and abstract.
         </p>
         <div class="method-screening-visual" aria-label="Two-stage screening and classification process">
           <details class="method-query-details method-screening-details">
             <summary>1. Rules-based screening <span>Metadata and text rules</span></summary>
             <div class="method-screening-details-content">
-              <p>Records are excluded before LLM screening when any of the following applies:</p>
+              <p>Records are excluded before LLM screening when:</p>
               <ul>
-                <li>No usable abstract of at least 50 words is available.</li>
-                <li>The publication is a book, book chapter, thesis, preprint, or conference abstract.</li>
-                <li>The record is a protocol, correction, peer-review record, or citation-only record.</li>
-                <li>The publication is non-English under the source-language rules.</li>
+                <li>no abstract of at least 50 words is available, or the abstract is not usable;</li>
+                <li>the publication is not in English;</li>
+                <li>the publication is a book, book chapter, thesis, preprint, or conference abstract;</li>
+                <li>the record is a protocol, correction, retraction notice, peer-review record, supplementary material, data deposit, or citation-only record;</li>
+                <li>the publication is a letter, editorial, comment, or news item without original data.</li>
               </ul>
               <a class="method-screening-link method-screening-resource" href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/review/run_deterministic_prescreen.py" target="_blank" rel="noopener noreferrer">View screening code</a>
             </div>
@@ -528,22 +458,22 @@
           <details class="method-query-details method-screening-details">
             <summary>2. LLM-based screening and classification <span>Inclusion and classification</span></summary>
             <div class="method-screening-details-content">
-              <p>For the remaining records, GPT-6 Luna uses the title and abstract to make three linked decisions:</p>
+              <p>For the remaining records, GPT-6 Luna reads the title and abstract, with publication labels, MeSH terms, and keywords as supporting context, and makes three linked decisions:</p>
               <dl class="method-screening-decision-list">
                 <div>
                   <dt>Inclusion</dt>
-                  <dd>Whether there is a substantive eligible drug-specific result or central synthesis.</dd>
+                  <dd>Whether a psychedelic compound, exposure, or intervention has a substantive drug-specific finding, or is a central topic of a review or meta-analysis. Background examples, incidental mentions, and items in broad lists do not qualify. When relevance is plausible but the abstract is too limited to decide, the publication is retained.</dd>
                 </div>
                 <div>
                   <dt>Publication type</dt>
-                  <dd>Whether the publication is a primary study, meta-analysis, review, or another publication type.</dd>
+                  <dd>Primary study, meta-analysis, review, or another type.</dd>
                 </div>
                 <div>
                   <dt>Research areas</dt>
-                  <dd>Which research areas the publication substantially addresses.</dd>
+                  <dd>The research areas the publication substantially addresses.</dd>
                 </div>
               </dl>
-              <a class="method-screening-link method-screening-resource" href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/screening/title_abstract_screening.md" target="_blank" rel="noopener noreferrer">View screening prompt</a>
+              <a class="method-screening-link method-screening-resource" href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/docs/screening/title_abstract_screening_v5_pcp.md" target="_blank" rel="noopener noreferrer">View screening prompt</a>
             </div>
           </details>
         </div>
@@ -552,51 +482,46 @@
       <section class="about-section" aria-labelledby="source-text-preparation">
         <h2 id="source-text-preparation">Source text preparation</h2>
         <p>
-          For each eligible publication, the pipeline first looks for reusable
-          full-text XML from Europe PMC or PubMed Central. This source is
-          available directly in Journal Article Tag Suite (JATS) XML, a
-          machine-readable representation of the article's sections,
-          paragraphs, tables, figures, references, and identifiers. When an XML
-          record contains more than one article or sub-article, the pipeline
-          retains only the entry whose DOI matches the requested publication.
-          When reusable JATS XML is unavailable, the pipeline retrieves an
-          accessible PDF and uses GROBID to parse it into Text Encoding
-          Initiative (TEI) XML. GROBID reconstructs the article hierarchy from
-          the PDF, including section headings and paragraphs, and identifies
-          tables, figures, references, and their locations. The original XML,
-          parsed sections, and source metadata are stored together. Before the
-          text is used for evidence extraction, identifiers and title metadata
-          are checked to confirm that the source corresponds to the intended
-          publication. The
+          For each selected publication, the pipeline first looks for full-text
+          XML from Europe PMC or PubMed Central, in the Journal Article Tag Suite
+          (JATS) format, which marks sections, paragraphs, tables, figures,
+          references, and identifiers. When an XML record contains several
+          articles, only the one whose DOI matches the publication is kept.
+          Otherwise, an accessible PDF is retrieved and converted with GROBID to
+          Text Encoding Initiative (TEI) XML, which reconstructs the same
+          structure from the PDF. Openly accessible PDFs that the automated
+          retrieval cannot obtain are downloaded manually and enter the same
+          conversion.
+        </p>
+        <p>
+          Before a text is used, its identifiers and title are checked against
+          the publication. A preprint's text is not used for the published
+          article; an accepted author manuscript is used. A converted document
+          without an article body, such as a meeting abstract, is not used as
+          full text. When no usable full text is available, the abstract is
+          used. The
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/fulltext/README.md" target="_blank" rel="noopener noreferrer">source text workflow</a>
-          documents retrieval, file validation, conversion, and provenance in
-          more detail.
+          documents retrieval, file checks, conversion, and provenance.
         </p>
       </section>
 
       <section class="about-section" aria-labelledby="evidence-extraction">
         <h2 id="evidence-extraction">Evidence extraction</h2>
         <p>
-          To extract relevant findings from a paper, the pipeline supplies
-          three inputs to an LLM: the available source text, an extraction
-          prompt describing what evidence to identify, and
-          an output schema defining the fields and structure in which the
-          findings must be returned. The prompt and output schema are selected
-          based on the publication type and, for primary studies, the research
-          areas identified during screening. Separate prompt variants are used
-          for full article text and abstracts, with abstract extraction limited
-          to information stated in the abstract. Primary study prompts focus on
-          original empirical findings. Meta-analysis prompts preserve the
-          questions and pooled results of the quantitative synthesis, while
-          review prompts identify
-          relationships addressed in substantive detail. Across all
-          publication types, the LLM is instructed to extract only evidence
-          stated in the supplied source, preserve the publication's
-          terminology, and provide a source location when available. Extracted
-          findings are checked for the required fields before their compounds
-          and concepts are normalized. Results that contain no extractable
-          evidence or require human review are recorded but are not added to
-          the graph automatically.
+          For each paper, GPT-6 Luna receives three inputs: the source text, an
+          extraction prompt that describes what evidence to identify, and an
+          output schema that defines the fields of each finding. The prompt and
+          schema are selected by publication type and, for primary studies, by
+          research area; full text and abstracts have separate prompt variants,
+          and abstract extraction is limited to what the abstract states.
+          Primary study prompts target original empirical findings.
+          Meta-analysis prompts record the questions and pooled results, and
+          review prompts record the relationships a review discusses in
+          substantive detail. All prompts instruct the model to extract only
+          what the supplied text states, keep the publication's terminology,
+          and give the location of each finding. Outputs that do not match the
+          schema are rejected; papers with no extractable finding, or flagged
+          for human review, are recorded but not added to the graph.
         </p>
         <div class="method-extraction-panel">
           <div class="method-extraction-visual" aria-label="Source text, prompt, and output schema supplied to GPT-6 Luna">
@@ -692,30 +617,30 @@
       <section class="about-section" aria-labelledby="normalization-and-graph-inclusion">
         <h2 id="normalization-and-graph-inclusion">Entity normalization and graph inclusion</h2>
         <p>
-          Before extracted findings are added to the graph, compound names and
-          other extracted concepts are normalized to consistent graph entities
-          while the wording and context from the publication are preserved.
-          Alternative names and spellings for the same compound are mapped to
-          the same compound entity. Compound classes,
-          combinations, exposure contexts, and treatment regimens remain
-          distinct. Other extracted concepts are matched directly to existing
-          graph entities or through recognized aliases. A broader parent entity
-          is used only when the mapping preserves the original meaning. The
-          repository provides the
+          Compound names and other extracted concepts are mapped to consistent
+          graph entities, while the publication's own wording and context are
+          kept with each finding. Names and spellings of the same compound map
+          to one compound entity; compound classes, combinations, exposure
+          contexts, and treatment regimens stay distinct. Other concepts are
+          matched to existing graph entities directly or through recognized
+          aliases, and a broader parent entity is used only when it keeps the
+          original meaning. The repository provides the
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/data/curated/entity_registry.json" target="_blank" rel="noopener noreferrer">compound and entity registry</a>
           and the
-          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/schema/kg_node_vocabularies.json" target="_blank" rel="noopener noreferrer">controlled vocabularies for graph concepts</a>.
-          Inclusion in the graph is deliberately conservative. A finding must
-          identify a compound, exposure, or intervention and a concept or
-          relationship that can be represented consistently without changing
-          its meaning. Findings whose compounds or concepts cannot yet be
-          normalized confidently are flagged for review rather than added to
-          the graph. The same applies to findings that require human review or
-          are supported only by background text. Valid information that is too
-          specific for the visualization may remain searchable without being
-          shown directly. The
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/schema/kg_node_vocabularies.json" target="_blank" rel="noopener noreferrer">controlled vocabularies</a>.
+        </p>
+        <p>
+          A finding enters the graph when it names a compound, exposure, or
+          intervention and a concept that can be represented without changing
+          its meaning. Findings that cannot be mapped confidently, that need
+          human review, or that are reported only in a paper's background,
+          introduction, or references are held out. Findings that are valid
+          but too specific for the visualization remain searchable. Retracted
+          publications are held out of the graph; publications with an
+          expression of concern or a partial retraction stay in the graph with
+          the notice shown. The
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/blob/main/pipeline/kg/README.md#normalized-evidence-tables" target="_blank" rel="noopener noreferrer">graph inclusion rules</a>
-          document how these decisions are applied.
+          document these decisions.
         </p>
         <div class="method-normalization-visual" aria-label="Entity normalization and graph inclusion outcomes">
           <div class="method-process-stage">
@@ -754,19 +679,14 @@
           <div>
             <h2 id="paper-bibliography-heading">Search results and study selection</h2>
             <p>
-              The sections above describe how publications move through the
-              pipeline. The results of the literature search and study
-              selection process are summarized below: the
+              The
               <a href="https://www.prisma-statement.org/prisma-2020-flow-diagram" target="_blank" rel="noopener noreferrer">PRISMA</a>
-              flow diagram reports the number of records and reports reaching
-              each stage, while the searchable table provides the selection
-              decision for every record identified by the searches.
-              Selection for evidence extraction does not guarantee graph
-              representation. During evidence extraction, each selected report
-              is also evaluated for graph representation. A report may remain
-              outside the current graph when its source text is insufficient,
-              extraction fails, or it does not provide a sufficiently specific
-              finding to represent.
+              flow diagram reports how many records and reports reached each
+              stage, and the table below it gives the selection decision for
+              every record the searches found. A publication selected for
+              extraction can still be absent from the graph: when its text is
+              insufficient, when extraction fails, or when it reports no finding
+              specific enough to represent.
             </p>
           </div>
         </div>
@@ -783,10 +703,9 @@
             <div class="methods-audit-subsection">
               <h3 id="record-audit-heading">Search records and selection decisions</h3>
               <p>
-                The table lists all records identified by the searches and shows
-                their status at each stage of the selection process. When a record
-                was excluded, it gives the reason for that decision. Records can be
-                searched by author, title, journal, year, or DOI.
+                The table lists every record the searches found, its status at
+                each selection stage and, when it was excluded, the reason.
+                Records can be searched by author, title, journal, year, or DOI.
               </p>
             </div>
             <div class="methods-bibliography-controls" aria-label="Search records and selection decisions">
@@ -832,18 +751,24 @@
       <section class="about-section" aria-labelledby="limitations">
         <h2 id="limitations">Limitations</h2>
         <p>
-          The graph may not include every relevant report, and automated
-          screening and extraction can miss or misinterpret information.
-          Evidence extraction is more limited when only an abstract is
-          available. Full-text retrieval depends on the availability and
-          accuracy of article links and open-access metadata supplied by
-          external providers. These records are not always complete or
-          consistent, so the workflow may fail to retrieve some articles that
-          are in fact openly accessible. Model and instruction choices are
-          evaluated on saved examples, but those evaluations do not establish
-          error-free screening, extraction, or comprehensive coverage. The graph is
-          intended for research exploration, not as a complete systematic
-          review or as clinical guidance.
+          The pipeline is automated at every step, and each step has limits
+          that affect what the graph contains. The searches find publications
+          through their wording, so relevant publications that describe their
+          work in terms outside the search vocabularies can be missed.
+          Screening and extraction use GPT-6 Luna, a cost-efficient language
+          model. It can misjudge whether a publication is relevant or misread a
+          finding, and a more capable model may be more accurate, particularly
+          in judgments that require more nuance.
+        </p>
+        <p>
+          When no full text is available, findings are extracted from the
+          abstract alone, so they can include only what the abstract reports.
+          Abstracts often leave out details such as sample sizes, comparators,
+          and secondary outcomes, and they can summarize the results less
+          completely or less precisely than the article itself. Full text is
+          also missed for some openly accessible articles, because retrieval
+          depends on article links and open-access metadata from external
+          providers that are not always complete or correct.
         </p>
       </section>
 
@@ -858,6 +783,56 @@
           </p>
           <ol class="release-archive-list" id="releaseArchiveList"></ol>
         </div>
+        <h3>
+          <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/releases/tag/v3.0.0" target="_blank" rel="noopener noreferrer">v3.0.0</a>
+        </h3>
+        <p>
+          This release rebuilds the evidence base with a new language model
+          and stricter checks on the sources each finding is read from.
+        </p>
+        <ul>
+          <li>
+            Screened all records again and extracted all findings again with
+            <strong>GPT-6 Luna</strong>, which replaces Gemini 3 Flash, using
+            revised extraction instructions and output schemas.
+          </li>
+          <li>
+            Updated the evidence base through <strong>November 10, 2026</strong>,
+            representing <strong>23,855 papers</strong>: 18,794 primary studies,
+            4,720 reviews, and 341 meta-analyses.
+          </li>
+          <li>
+            Added phencyclidine (PCP) to the compounds in scope, with its
+            literature searched from 1800 onward.
+          </li>
+          <li>
+            Increased the number of papers whose findings are read from the
+            full text, from 10,324 to <strong>11,539</strong>. Every full text
+            is now checked to belong to the paper it is used for, and a
+            preprint's text is no longer used in place of the published
+            article.
+          </li>
+          <li>
+            Revised how findings are mapped to compounds and research-area
+            concepts, so that more findings are represented consistently
+            across the Explore and Analyze views.
+          </li>
+          <li>
+            Removed retracted papers from the graph and added notices to papers
+            with an expression of concern.
+          </li>
+          <li>
+            Improved author identities further: authors who share a name are
+            kept apart, and OpenAlex profiles are matched to ORCID records when
+            the name and coauthors agree.
+          </li>
+          <li>
+            Changed the API: finding IDs are now computed from the finding's
+            content, so they stay the same across rebuilds but differ from
+            earlier IDs; unsupported request fields are rejected; and earlier
+            pagination cursors must be discarded.
+          </li>
+        </ul>
         <h3>
           <a href="https://github.com/povilaskarvelis/psychedelics_knowledge_graph/releases/tag/v2.0.0" target="_blank" rel="noopener noreferrer">v2.0.0</a>
         </h3>

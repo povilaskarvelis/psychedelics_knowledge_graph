@@ -5,6 +5,26 @@ Notable changes to Psychedelics Knowledge Graph are recorded here. Releases use
 
 ## Unreleased
 
+Planned as 3.0.0.
+
+- Screened all records again and extracted all findings again with GPT-6 Luna,
+  which replaces Gemini 3 Flash, using revised extraction instructions and
+  output schemas.
+- Updated the evidence base through November 10, 2026, representing 23,855
+  papers: 18,794 primary studies, 4,720 reviews, and 341 meta-analyses.
+- Added phencyclidine (PCP) to the compounds in scope, with its literature
+  searched from 1800 onward.
+- Increased the number of papers whose findings are read from the full text,
+  from 10,324 to 11,539. Every full text is checked to belong to the paper it
+  is used for, and a preprint's text is no longer used in place of the
+  published article.
+- Revised how findings are mapped to compounds and research-area concepts.
+- Removed retracted papers from the graph and added notices to papers with an
+  expression of concern.
+- Kept authors who share a name apart, and matched OpenAlex profiles to ORCID
+  records when the name and coauthors agree.
+- Compute finding IDs from the finding's content, so they stay the same across
+  rebuilds; IDs from earlier releases change.
 - Reject unsupported REST query-body fields and MCP arguments instead of silently
   ignoring them. Clients with extra fields must correct their requests.
 - Add subject/object ID filters to paper search for matching a compound–outcome
