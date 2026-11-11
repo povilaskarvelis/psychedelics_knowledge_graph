@@ -2069,3 +2069,23 @@ class BuildExtractionRoutesTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_converted_pdf_without_an_article_body_routes_to_the_abstract(tmp_path):
+    import os
+
+    from pipeline.extract.build_extraction_routes import access_tier
+
+    pdf = tmp_path / "paper.pdf"
+    pdf.write_bytes(b"%PDF-1.4 meeting abstract")
+    text = tmp_path / "paper.json"
+    text.write_text(json.dumps({"pdf_local_path": str(pdf)}))
+    os.utime(pdf, (1_000, 1_000))
+    os.utime(text, (2_000, 2_000))
+    status = {"has_converted_full_text": False, "fulltext_identity_status": "", "fulltext_without_article_body": str(text)}
+    local = {"has_local_pdf": True, "local_pdf_paths": str(pdf)}
+
+    assert access_tier({"abstract": "An abstract."}, status, local) == "abstract_only"
+    assert access_tier({}, status, local) == "no_usable_text"
+    os.utime(pdf, (3_000, 3_000))
+    assert access_tier({"abstract": "An abstract."}, status, local) == "local_pdf_available"

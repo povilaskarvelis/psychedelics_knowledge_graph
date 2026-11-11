@@ -2,21 +2,21 @@
   "schema_version": "retraction_status_v1",
   "description": "Retraction status of papers checked against Crossref (publisher notices and Retraction Watch) and PubMed. Written by pipeline/ingest/check_retractions.py; the KG build holds retracted papers.",
   "last_check": {
-    "checked_at_utc": "2026-11-08T10:41:57+00:00",
+    "checked_at_utc": "2026-11-11T20:02:13+00:00",
     "scope": {
       "kind": "evidence_run",
-      "id": "text_provenance_20261108"
+      "id": "living_update_v3_20261110_extraction"
     },
-    "papers_checked": 25290,
-    "paper_dois_sha256": "f1b8eabf45290d17659fb71ff52da9c89ef63f8bc6763229990d1456205b030e",
+    "papers_checked": 25444,
+    "paper_dois_sha256": "e82f13ea39e065cb0d2c99ebfa44a6115684ad7c682118dcaae6e4515900e505",
     "crossref": {
-      "dois_queried": 25279,
-      "records_found": 25020,
+      "dois_queried": 25433,
+      "records_found": 25174,
       "lookup_errors": 0
     },
     "pubmed": {
-      "pmids_queried": 21262,
-      "records_found": 21258,
+      "pmids_queried": 21398,
+      "records_found": 21394,
       "lookup_errors": 0
     },
     "status_counts": {
@@ -24,7 +24,7 @@
       "retracted": 2,
       "withdrawn": 1
     },
-    "report": "data/processed/retraction_checks/20261108T104157Z/retraction_check_report.json"
+    "report": "data/processed/retraction_checks/20261111T200213Z/retraction_check_report.json"
   },
   "records": [
     {

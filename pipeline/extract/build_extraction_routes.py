@@ -33,7 +33,7 @@ from pipeline.extract.review_source_types import (
 )
 
 try:
-    from pipeline.fulltext.convert_pdfs import doi_to_slug, has_article_body, normalize_doi
+    from pipeline.fulltext.convert_pdfs import doi_to_slug, has_article_body, normalize_doi, text_predates_pdf
     from pipeline.identity.gate import (
         DEFAULT_VERDICTS_PATH,
         GATE_REJECTION_REASONS,
@@ -59,7 +59,7 @@ try:
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution path
     sys.path.insert(0, str(ROOT))
-    from pipeline.fulltext.convert_pdfs import doi_to_slug, has_article_body, normalize_doi
+    from pipeline.fulltext.convert_pdfs import doi_to_slug, has_article_body, normalize_doi, text_predates_pdf
     from pipeline.identity.gate import (
         DEFAULT_VERDICTS_PATH,
         GATE_REJECTION_REASONS,
@@ -639,11 +639,16 @@ def fulltext_status_for_doi(
     char_counts: list[int] = []
     # Blank when no artifact holds article text; otherwise the gate's verdict.
     identity_status = ""
+    without_body = ""
     gate = source_identity_gate
     if gate is None and canonical_path.is_file():
         gate = IdentityGate(identity_verdicts)
     if canonical_path.is_file():
         text_ready, char_count = artifact_text_ready(canonical_path)
+        if not text_ready:
+            # Converted, but the document has no article body (for example a
+            # meeting abstract or a one-page video record).
+            without_body = str(canonical_path)
         if text_ready:
             identity_status = gate.status(doi, canonical_path)
             if identity_status == GATE_VERIFIED:
@@ -663,6 +668,7 @@ def fulltext_status_for_doi(
         "fulltext_artifact_paths": join_values(ready_paths),
         "fulltext_char_count": max(char_counts) if char_counts else 0,
         "fulltext_identity_status": identity_status,
+        "fulltext_without_article_body": "" if ready_paths else without_body,
     }
 
 
@@ -739,6 +745,10 @@ def access_tier(metadata: dict, fulltext_status: dict, local_pdf_status: dict) -
         # The stored text was converted but is not usable under the current
         # audit. Converting the same local PDF again cannot change that, so the
         # paper uses its abstract until a verified text or a decision exists.
+        return "abstract_only" if clean(metadata.get("abstract", "")) else "no_usable_text"
+    without_body = clean(fulltext_status.get("fulltext_without_article_body", ""))
+    if without_body and not text_predates_pdf(Path(without_body), split_values(local_pdf_status.get("local_pdf_paths", ""))):
+        # Converting the same PDF again cannot produce an article body.
         return "abstract_only" if clean(metadata.get("abstract", "")) else "no_usable_text"
     if local_pdf_status.get("has_local_pdf"):
         return "local_pdf_available"
@@ -1372,6 +1382,10 @@ def build_route_rows(
             source_text_state_reason = (
                 f"Stored full text is not used because {GATE_REJECTION_REASONS.get(identity_status, identity_status)}. "
                 + source_text_state_reason
+            )
+        if clean(fulltext_status.get("fulltext_without_article_body", "")) and access in {"abstract_only", "no_usable_text"}:
+            source_text_state_reason = (
+                "The stored PDF was converted but has no article body. " + source_text_state_reason
             )
         if manual_fulltext_access_action == "abstract_only" and manual_fulltext_access_reason:
             source_text_state_reason = manual_fulltext_access_reason

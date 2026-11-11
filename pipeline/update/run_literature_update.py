@@ -194,25 +194,6 @@ class Update:
             if sha(self.inputs / name) != digest:
                 raise RuntimeError(f"Frozen screening input changed: {name}")
 
-    def send_direct(self, api, requests: Path, results: Path, responses: Path) -> None:
-        """Send each request on its own and write the replies in the batch output format, so the batch parser reads them."""
-        lines = []
-        for line in requests.open():
-            row = json.loads(line)
-            saved = responses / f"{row['custom_id']}.json"
-            if not saved.exists():
-                llm.reserve_budget(str(saved), llm.reservation_cost(row["body"]))
-                try:
-                    reply = {"status_code": 200, "body": api.responses.create(**row["body"]).model_dump(mode="json")}
-                except Exception as error:
-                    reply = {"status_code": getattr(error, "status_code", None), "body": {"error": str(error)}}
-                llm.atomic_json(saved, reply)
-                usage = reply["body"].get("usage") or {}
-                llm.settle_budget(str(saved), llm.token_cost(usage) if usage.get("output_tokens") is not None else 0.0)
-                print(now(), "direct", row["custom_id"], reply["status_code"], flush=True)
-            lines.append({"custom_id": row["custom_id"], "response": read_json(saved)})
-        results.write_text("".join(json.dumps(line, ensure_ascii=False) + "\n" for line in lines))
-
     def screening_batch(self, name: str, doi_file: Path, direct: bool = False) -> dict[str, Path]:
         folder = self.dir / "screening" / name
         folder.mkdir(parents=True, exist_ok=True)
@@ -242,7 +223,7 @@ class Update:
         if direct:
             if not paths["results"].exists():
                 self.save_state(stage=f"screening_{name}_direct")
-                self.send_direct(api, paths["requests"], paths["results"], folder / "responses")
+                llm.send_directly(api, paths["requests"], paths["results"], folder / "responses")
         elif not paths["job"].exists():
             llm.submit(api, requests_path=paths["requests"], job_path=paths["job"],
                        metadata={"stage": "screening", "model": SCREENING_MODEL, "run_id": self.run_id})

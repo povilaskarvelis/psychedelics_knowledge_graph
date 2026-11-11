@@ -14397,7 +14397,7 @@
     {
       "doi": "10.24272/j.issn.2095-8137.2025.352",
       "review_id": "author-list-20260906-057",
-      "expected_source_sha256": "e3051fb76631727f187571dac557db18e928b9d44c7f0eb7505352fa07149ac4",
+      "expected_source_sha256": "d77b71bce2d6f1ee67d1e294227e1bb12f4de294611ed0cc6ea9166c8bf1fdb7",
       "authors": [
         {
           "source_position": 1,
@@ -14440,7 +14440,13 @@
         "https://www.zoores.ac.cn/en/article/doi/10.24272/j.issn.2095-8137.2025.352"
       ],
       "reviewed_at": "2026-09-06",
-      "reviewed_by": "codex_source_review"
+      "reviewed_by": "codex_source_review",
+      "source_reconfirmed": {
+        "at": "2026-11-12",
+        "previous_source_sha256": "e3051fb76631727f187571dac557db18e928b9d44c7f0eb7505352fa07149ac4",
+        "by": "Claude",
+        "note": "OpenAlex now gives the first author as \"Wen-Jun Luo\" (was \"Luo Wen-Jun\") and orders one affiliation string differently; the same people in the same order. The reviewed author list is unchanged."
+      }
     },
     {
       "doi": "10.3389/fncel.2017.00100",

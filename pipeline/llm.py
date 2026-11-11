@@ -350,3 +350,42 @@ def download(api_client, job, output_path):
                     else:
                         entry["actual_usd"] = sum(costs)
     return dict(state=job.status, output_file_id=job.output_file_id, error_file_id=job.error_file_id)
+
+
+def send_directly(api_client, requests_path, results_path, responses_dir, *, workers=8):
+    """Send a prepared Batch request file as individual requests.
+
+    For a batch the provider has not started: the replies are written in the
+    Batch output format, so each stage's batch parser reads them unchanged.
+    A reply is saved per request, so a rerun sends only the missing ones.
+    """
+    from concurrent.futures import ThreadPoolExecutor
+
+    responses_dir = Path(responses_dir)
+    responses_dir.mkdir(parents=True, exist_ok=True)
+    rows = [json.loads(line) for line in Path(requests_path).open() if line.strip()]
+    for row in rows:
+        require_luna(row["body"]["model"])
+
+    def send(row):
+        saved = responses_dir / f"{row['custom_id']}.json"
+        if saved.exists():
+            return
+        reserve_budget(str(saved), reservation_cost(row["body"]))
+        try:
+            reply = {"status_code": 200, "body": api_client.responses.create(**row["body"]).model_dump(mode="json")}
+        except Exception as error:
+            reply = {"status_code": getattr(error, "status_code", None), "body": {"error": str(error)}}
+        atomic_json(saved, reply)
+        usage = reply["body"].get("usage") or {}
+        settle_budget(str(saved), token_cost(usage) if usage.get("output_tokens") is not None else 0.0)
+
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        list(pool.map(send, rows))
+    lines = [{"custom_id": row["custom_id"],
+              "response": json.loads((responses_dir / f"{row['custom_id']}.json").read_text())} for row in rows]
+    path = Path(results_path)
+    temp = path.with_suffix(path.suffix + ".tmp")
+    temp.write_text("".join(json.dumps(line, ensure_ascii=False) + "\n" for line in lines))
+    temp.replace(path)
+    return dict(requests=len(rows), errors=sum(line["response"]["status_code"] != 200 for line in lines))

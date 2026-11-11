@@ -34245,6 +34245,19 @@
       "decided_at_utc": "2026-10-22T01:38:49.805701+00:00"
     },
     {
+      "doi": "10.65034/anpabstract_cbn261001",
+      "decision": "exclude",
+      "reason_code": "conference_abstract",
+      "publication_format": "conference_abstract",
+      "reason": "The retrieved record is a conference, congress, meeting, or poster abstract rather than an eligible source article, review, or meta-analysis.",
+      "evidence": "Retrieved PDF page 1 reads \"MEETING ABSTRACT\", \"XXXII Congresso Brasileiro de Neurologia, Rio de Janeiro, 7-10 October 2026\" and \"Pôster eletrônico\"; the document is the abstract alone, with no article body. Provider metadata gives the type as a journal article.",
+      "decision_method": "retrieved_document_format_review",
+      "reviewer": "Claude; meeting-abstract rule of the project",
+      "source_artifact": "/Users/frank/Library/CloudStorage/Dropbox/projects/psychedelics_knowledge_graph/data/processed/paper_updates/living_update_v3_20261110_inputs/format_exclusion_audit.csv",
+      "run_id": "living_update_v3_20261110",
+      "decided_at_utc": "2026-11-11T20:49:32.623132+00:00"
+    },
+    {
       "doi": "10.65625/qdf6m345",
       "decision": "exclude",
       "reason_code": "non_english_article",
@@ -35376,5 +35389,5 @@
       "decided_at_utc": "2026-10-22T15:14:26.928255+00:00"
     }
   ],
-  "updated_at_utc": "2026-10-26T11:16:21.248946+00:00"
+  "updated_at_utc": "2026-11-11T20:49:32.623132+00:00"
 }

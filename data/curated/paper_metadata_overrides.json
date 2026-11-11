@@ -1911,6 +1911,14 @@
       "fields": {
         "study_title": "Therapeutic Use of Psilocybin in Depression: a Systematic Review of Clinical Evidence"
       }
+    },
+    {
+      "doi": "10.3390/ijms241813869",
+      "evidence_basis": "Crossref gives 8 Sep 2023, Int. J. Mol. Sci. volume 24; the ledger year 1998 is wrong, and the extraction model reported the conflict.",
+      "source_decision": "sid-7fa9bf753cf97620ce1f",
+      "fields": {
+        "study_year": "2023"
+      }
     }
   ]
 }
