@@ -46,6 +46,18 @@ or communities are required; when both files exist, Zenodo ignores
     citation, BibTeX, DOI links, and structured metadata.
 11. Keep the stable Zenodo concept DOI badge and citation links in `README.md`
     up to date.
+12. After that metadata reaches `main` and the site is deployed, rebuild the live
+    data release's archive entry. Publishing the data release records the site
+    version and literature date from `release-metadata.json` as they were at
+    that moment, which is before the new DOI exists:
+
+    ```bash
+    set -a; source .env; set +a
+    python3 pipeline/publish/release_archive.py --archive-live --replace-site --site-ref origin/main
+    python3 pipeline/publish/release_archive.py --archive-live --replace-site --site-ref origin/main --execute
+    ```
+
+    Check that the Methods release list shows the new site version.
 
 For reproducible research, cite the version-specific DOI. The concept DOI is
 useful when referring to the evolving project without selecting one version.
