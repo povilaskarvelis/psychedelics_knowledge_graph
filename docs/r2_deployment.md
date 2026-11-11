@@ -277,7 +277,10 @@ publication (dry run when called without `--execute`):
 - local `graph_payload_runs`, `kg_routed_runs`, `query_api_runs` and
   `extraction/routed_runs`: the active run, the run published before it
   (from `data/processed/release_history.jsonl`, written by every promotion and
-  public refresh), runs containing a `.keep` file, and runs that were never
+  public refresh), runs containing a `.keep` file, runs that hold raw model
+  requests or responses (an `async_batches/` folder, `*raw.jsonl`,
+  `*_results.jsonl`, `*_requests.jsonl` or `model_call_log.jsonl`), which cannot
+  be rebuilt without new model calls, and runs that were never
   published unless they were last changed before the active release was promoted
   and more than 7 days ago (`--candidate-grace-days`). Frozen model inputs and
   outputs under `data/processed/model_runs/` are never pruned.

@@ -7,8 +7,10 @@ every evidence release, each with its archived site copy (release_archive.py).
 Kept in the private API bucket: the live release and the one before it.
 
 Kept locally: the active run, the run published before it, runs that contain a
-``.keep`` file, and runs that were never published unless they were last changed
-before the active run was promoted and more than ``--candidate-grace-days`` ago.
+``.keep`` file, runs that hold raw model requests or responses (they cannot be
+rebuilt without new model calls), and runs that were never published unless they
+were last changed before the active run was promoted and more than
+``--candidate-grace-days`` ago.
 Release history (release_history.py) tells published runs from unpublished ones.
 
 The command is dry-run by default and prints every artifact it keeps or deletes
@@ -65,6 +67,9 @@ LOCAL_RELEASE_ROOTS = {
 }
 LOCAL_RELEASE_STAGING = ROOT / "data/processed/release_staging"
 KEEP_MARKER = ".keep"
+# Paid model calls: batch request/result files, raw responses and call logs.
+MODEL_OUTPUT_DIRS = ("async_batches",)
+MODEL_OUTPUT_FILE_SUFFIXES = ("raw.jsonl", "_results.jsonl", "_requests.jsonl", "model_call_log.jsonl")
 DEFAULT_CANDIDATE_GRACE_DAYS = 7
 
 
@@ -465,6 +470,15 @@ def active_promotion_timestamp(run_id: str, history: list[dict]) -> float | None
         return None
 
 
+def holds_model_outputs(path: Path) -> bool:
+    """Whether a run folder holds raw model requests or responses."""
+    if not path.is_dir():
+        return False
+    if any((path / name).is_dir() and any((path / name).iterdir()) for name in MODEL_OUTPUT_DIRS):
+        return True
+    return any(child.is_file() and child.name.endswith(MODEL_OUTPUT_FILE_SUFFIXES) for child in path.iterdir())
+
+
 def plan_local_retention(
     *,
     history_path: Path = RELEASE_HISTORY,
@@ -502,6 +516,8 @@ def plan_local_retention(
             keep_reason = extra_keep[name]
         elif any(path.is_dir() and (path / KEEP_MARKER).exists() for path in paths):
             keep_reason = f"protected by a {KEEP_MARKER} file"
+        elif any(holds_model_outputs(path) for path in paths):
+            keep_reason = "holds raw model requests or responses"
         elif name in published:
             remove_reason = "published earlier and since replaced"
         else:

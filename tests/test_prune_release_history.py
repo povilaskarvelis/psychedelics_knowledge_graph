@@ -326,6 +326,29 @@ class LocalPruneTest(unittest.TestCase):
         self.assertIn("stale", {decision.name for decision in kept})
         self.assertEqual(removed, [])
 
+    def test_runs_with_raw_model_outputs_are_never_pruned(self) -> None:
+        promoted = self.promoted_at
+        self.record("promotion", "replaced", promoted - 60 * DAY)
+        self.record("promotion", "previous", promoted - 30 * DAY)
+        self.record("promotion", "current", promoted)
+        for run_id in ("replaced", "batch_run", "raw_run", "derived_only"):
+            self.make_run(run_id, modified=promoted - 60 * DAY)
+        for run_id in ("replaced", "batch_run"):
+            batches = self.roots["extraction"] / run_id / "async_batches"
+            batches.mkdir()
+            (batches / "batch_001_results.jsonl").write_text("{}\n", encoding="utf-8")
+        (self.roots["extraction"] / "raw_run" / "route_extraction_raw.jsonl").write_text("{}\n", encoding="utf-8")
+
+        _run_id, kept, removed = pruning.plan_local_retention(
+            history_path=self.history,
+            now=promoted + 30 * DAY,
+        )
+
+        reasons = {decision.name: decision.reason for decision in kept}
+        for run_id in ("replaced", "batch_run", "raw_run"):
+            self.assertEqual(reasons[run_id], "holds raw model requests or responses")
+        self.assertEqual({decision.name for decision in removed}, {"derived_only"})
+
     def test_local_prune_refuses_cross_run_extraction_dependencies(self) -> None:
         pointer = json.loads(self.extraction_pointer.read_text(encoding="utf-8"))
         pointer["outputs_jsonl"] = "data/processed/extraction/routed_runs/older/route_extraction_outputs.jsonl"
