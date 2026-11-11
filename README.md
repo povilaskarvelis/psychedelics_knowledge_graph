@@ -120,9 +120,9 @@ terms.
 If you use the project or its public API, cite both the software version and the
 literature update represented by the graph:
 
-> Karvelis, P. (2026). *Psychedelics Knowledge Graph* (Version 1.0.0;
-> literature updated 2026-07-15). Zenodo.
-> https://doi.org/10.5281/zenodo.21671976
+> Karvelis, P. (2026). *Psychedelics Knowledge Graph* (Version 3.0.0;
+> literature updated 2026-11-10). Zenodo.
+> https://doi.org/10.5281/zenodo.24148222
 
 The version-specific DOI identifies the software release, while the literature
 date identifies the evidence represented by the graph. The [concept

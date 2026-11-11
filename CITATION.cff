@@ -3,6 +3,7 @@ message: "Please cite software v3.0.0 and state that the literature was updated 
 title: "Psychedelics Knowledge Graph"
 type: software
 version: "3.0.0"
+doi: "10.5281/zenodo.24148222"
 date-released: 2026-11-12
 authors:
   - family-names: "Karvelis"
