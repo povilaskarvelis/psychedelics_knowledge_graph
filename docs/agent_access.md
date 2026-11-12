@@ -16,6 +16,10 @@ The service's Render address, `https://psychedelics-kg-api.onrender.com`, serves
 the same API and remains available for clients configured before the custom
 domain was added on 12 Nov 2026.
 
+The remote MCP server is listed in the official MCP Registry as
+`com.psychedelicskg/knowledge-graph`, described by `server.json`. See step 13
+of [Releasing](releasing.md) for updating the listing.
+
 ## Public data contract
 
 The API is deliberately narrower than the internal knowledge graph. It exposes:

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "com.psychedelicskg/knowledge-graph",
+  "title": "Psychedelics Knowledge Graph",
+  "description": "Search psychedelic research papers, compounds, outcomes, authors and their relationships.",
+  "version": "3.0.0",
+  "websiteUrl": "https://psychedelicskg.com/api/",
+  "repository": {
+    "url": "https://github.com/povilaskarvelis/psychedelics_knowledge_graph",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://api.psychedelicskg.com/mcp"
+    }
+  ]
+}

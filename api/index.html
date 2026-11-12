@@ -26,6 +26,38 @@
       name="twitter:description"
       content="Query papers, concepts, authors, and paper-level relationships through the public Psychedelics Knowledge Graph API."
     />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebAPI",
+        "@id": "https://psychedelicskg.com/api/#webapi",
+        "name": "Psychedelics Knowledge Graph API",
+        "description": "Read-only REST and Model Context Protocol (MCP) access to papers, concepts, authors, and paper-level relationships in the Psychedelics Knowledge Graph.",
+        "url": "https://psychedelicskg.com/api/",
+        "documentation": [
+          "https://psychedelicskg.com/api/",
+          "https://psychedelicskg.com/api/agent-guide.md",
+          "https://api.psychedelicskg.com/openapi.json"
+        ],
+        "availableChannel": [
+          {
+            "@type": "ServiceChannel",
+            "name": "REST",
+            "serviceUrl": "https://api.psychedelicskg.com/api/v1"
+          },
+          {
+            "@type": "ServiceChannel",
+            "name": "MCP (streamable HTTP)",
+            "serviceUrl": "https://api.psychedelicskg.com/mcp"
+          }
+        ],
+        "provider": {
+          "@type": "Person",
+          "name": "Povilas Karvelis",
+          "url": "https://povilaskarvelis.github.io/"
+        }
+      }
+    </script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-8M798XF54S"></script>
     <script>

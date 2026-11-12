@@ -58,6 +58,21 @@ or communities are required; when both files exist, Zenodo ignores
     ```
 
     Check that the Methods release list shows the new site version.
+13. Set `version` in `server.json` to the released version and publish the
+    MCP Registry listing. The registry verifies ownership of the
+    `com.psychedelicskg` namespace through the root TXT record of
+    psychedelicskg.com; the matching private key is kept outside the
+    repository at `~/.config/psychedelicskg/mcp-registry-ed25519.pem`:
+
+    ```bash
+    mcp-publisher login dns --domain psychedelicskg.com --private-key \
+      "$(openssl pkey -in ~/.config/psychedelicskg/mcp-registry-ed25519.pem -noout -text \
+        | grep -A3 'priv:' | tail -n +2 | tr -d ' :\n')"
+    mcp-publisher publish
+    ```
+
+    Check the listing at
+    `https://registry.modelcontextprotocol.io/v0/servers?search=com.psychedelicskg`.
 
 For reproducible research, cite the version-specific DOI. The concept DOI is
 useful when referring to the evolving project without selecting one version.

@@ -113,6 +113,23 @@ def test_homepage_metadata_matches_landing_page_summary() -> None:
     assert metadata.meta["twitter:description"] == expected
 
 
+def test_api_page_describes_the_service_as_structured_data() -> None:
+    source = (ROOT / "api/index.html").read_text(encoding="utf-8")
+    blocks = re.findall(
+        r'<script type="application/ld\+json">(.*?)</script>', source, re.DOTALL
+    )
+    assert len(blocks) == 1
+    data = json.loads(blocks[0])
+
+    assert data["@type"] == "WebAPI"
+    assert data["url"] == "https://psychedelicskg.com/api/"
+    assert "https://api.psychedelicskg.com/openapi.json" in data["documentation"]
+    assert {channel["serviceUrl"] for channel in data["availableChannel"]} == {
+        "https://api.psychedelicskg.com/api/v1",
+        "https://api.psychedelicskg.com/mcp",
+    }
+
+
 def test_feedback_confirmation_is_not_indexable() -> None:
     metadata = parse_page(ROOT / "feedback/sent/index.html")
 
