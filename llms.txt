@@ -11,11 +11,11 @@ Record the data version ID when using API results.
 
 - [Agent access guide](https://psychedelicskg.com/api/agent-guide.md): Concise machine-readable instructions, endpoints, available tools, and interpretation guidance.
 - [API guide](https://psychedelicskg.com/api/): REST and MCP documentation.
-- [OpenAPI schema](https://psychedelics-kg-api.onrender.com/openapi.json): Machine-readable REST contract.
-- [Interactive API reference](https://psychedelics-kg-api.onrender.com/docs): Browser-based endpoint documentation.
-- [MCP server](https://psychedelics-kg-api.onrender.com/mcp): Public read-only Model Context Protocol endpoint for remote clients.
-- [Data version and counts](https://psychedelics-kg-api.onrender.com/api/v1/meta): Version ID, public scope, and record counts.
-- [Database structure](https://psychedelics-kg-api.onrender.com/api/v1/schema): Documented tables, fields, keys, and limitations.
+- [OpenAPI schema](https://api.psychedelicskg.com/openapi.json): Machine-readable REST contract.
+- [Interactive API reference](https://api.psychedelicskg.com/docs): Browser-based endpoint documentation.
+- [MCP server](https://api.psychedelicskg.com/mcp): Public read-only Model Context Protocol endpoint for remote clients.
+- [Data version and counts](https://api.psychedelicskg.com/api/v1/meta): Version ID, public scope, and record counts.
+- [Database structure](https://api.psychedelicskg.com/api/v1/schema): Documented tables, fields, keys, and limitations.
 
 ## Human-facing project documentation
 

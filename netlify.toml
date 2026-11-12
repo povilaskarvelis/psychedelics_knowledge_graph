@@ -41,7 +41,7 @@
 
 [[redirects]]
   from = "/openapi.json"
-  to = "https://psychedelics-kg-api.onrender.com/openapi.json"
+  to = "https://api.psychedelicskg.com/openapi.json"
   status = 302
 
 [[redirects]]

@@ -8,12 +8,12 @@ internal curation data are intentionally excluded.
 ## Service addresses
 
 - Human documentation: https://psychedelicskg.com/api/
-- REST base URL: https://psychedelics-kg-api.onrender.com/api/v1
-- OpenAPI schema: https://psychedelics-kg-api.onrender.com/openapi.json
-- Interactive API reference: https://psychedelics-kg-api.onrender.com/docs
-- Remote MCP server: https://psychedelics-kg-api.onrender.com/mcp
-- Data version and counts: https://psychedelics-kg-api.onrender.com/api/v1/meta
-- Database structure: https://psychedelics-kg-api.onrender.com/api/v1/schema
+- REST base URL: https://api.psychedelicskg.com/api/v1
+- OpenAPI schema: https://api.psychedelicskg.com/openapi.json
+- Interactive API reference: https://api.psychedelicskg.com/docs
+- Remote MCP server: https://api.psychedelicskg.com/mcp
+- Data version and counts: https://api.psychedelicskg.com/api/v1/meta
+- Database structure: https://api.psychedelicskg.com/api/v1/schema
 
 No API key is required.
 
@@ -109,14 +109,14 @@ Discover valid filters:
 
 ```bash
 curl -sS \
-  "https://psychedelics-kg-api.onrender.com/api/v1/facets"
+  "https://api.psychedelicskg.com/api/v1/facets"
 ```
 
 Resolve a concept:
 
 ```bash
 curl -sS \
-  "https://psychedelics-kg-api.onrender.com/api/v1/concepts/search?q=psilocybin&limit=5"
+  "https://api.psychedelicskg.com/api/v1/concepts/search?q=psilocybin&limit=5"
 ```
 
 Find primary papers linking psilocybin to major depressive disorder
@@ -124,7 +124,7 @@ Find primary papers linking psilocybin to major depressive disorder
 
 ```bash
 curl -sS \
-  "https://psychedelics-kg-api.onrender.com/api/v1/papers/query" \
+  "https://api.psychedelicskg.com/api/v1/papers/query" \
   -H "Content-Type: application/json" \
   -d '{
     "filters": {
@@ -143,7 +143,7 @@ Find relationships where NMDA receptor is used specifically as a target:
 
 ```bash
 curl -sS \
-  "https://psychedelics-kg-api.onrender.com/api/v1/relationships/query" \
+  "https://api.psychedelicskg.com/api/v1/relationships/query" \
   -H "Content-Type: application/json" \
   -d '{
     "filters": {
@@ -158,10 +158,10 @@ Find an author, then retrieve all papers linked to that identity:
 
 ```bash
 curl -sS \
-  "https://psychedelics-kg-api.onrender.com/api/v1/authors/search?q=carhart-harris"
+  "https://api.psychedelicskg.com/api/v1/authors/search?q=carhart-harris"
 
 curl -sS \
-  "https://psychedelics-kg-api.onrender.com/api/v1/authors/AUTHOR_ID/papers"
+  "https://api.psychedelicskg.com/api/v1/authors/AUTHOR_ID/papers"
 ```
 
 ## Access policy

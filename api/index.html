@@ -41,7 +41,7 @@
       rel="stylesheet"
     />
     <link rel="alternate" type="text/markdown" href="/api/agent-guide.md" title="Agent access guide" />
-    <link rel="service-desc" type="application/vnd.oai.openapi+json" href="https://psychedelics-kg-api.onrender.com/openapi.json" />
+    <link rel="service-desc" type="application/vnd.oai.openapi+json" href="https://api.psychedelicskg.com/openapi.json" />
     <link rel="stylesheet" href="/ui/styles.css?v=20260729-api-code-wrap-v1" />
   </head>
   <body class="methods-page access-page">
@@ -94,12 +94,12 @@
           reference.
         </p>
         <div class="access-reference-actions" aria-label="API documentation">
-          <a class="site-button primary" href="https://psychedelics-kg-api.onrender.com/docs" target="_blank" rel="noopener noreferrer">API reference</a>
-          <a class="site-button secondary" href="https://psychedelics-kg-api.onrender.com/openapi.json" target="_blank" rel="noopener noreferrer">OpenAPI specification</a>
+          <a class="site-button primary" href="https://api.psychedelicskg.com/docs" target="_blank" rel="noopener noreferrer">API reference</a>
+          <a class="site-button secondary" href="https://api.psychedelicskg.com/openapi.json" target="_blank" rel="noopener noreferrer">OpenAPI specification</a>
         </div>
         <div class="access-endpoint" aria-label="REST API base URL">
           <span>Base URL</span>
-          <code id="restBaseUrl">https://psychedelics-kg-api.onrender.com/api/v1</code>
+          <code id="restBaseUrl">https://api.psychedelicskg.com/api/v1</code>
           <button type="button" data-copy-target="restBaseUrl">Copy</button>
         </div>
 
@@ -111,7 +111,7 @@
               <button type="button" data-copy-target="conceptSearchExample">Copy</button>
             </div>
             <pre id="conceptSearchExample"><code>curl -sS --get \
-  "https://psychedelics-kg-api.onrender.com/api/v1/concepts/search" \
+  "https://api.psychedelicskg.com/api/v1/concepts/search" \
   --data-urlencode "q=psilocybin" \
   --data-urlencode "limit=5"</code></pre>
           </article>
@@ -121,7 +121,7 @@
               <button type="button" data-copy-target="paperQueryExample">Copy</button>
             </div>
             <pre id="paperQueryExample"><code>curl -sS \
-  "https://psychedelics-kg-api.onrender.com/api/v1/papers/query" \
+  "https://api.psychedelicskg.com/api/v1/papers/query" \
   -H "Content-Type: application/json" \
   -d '{
     "filters": {
@@ -135,7 +135,7 @@
         </div>
         <p class="access-filter-note">
           Valid controlled filter values are available from
-          <a href="https://psychedelics-kg-api.onrender.com/api/v1/facets" target="_blank" rel="noopener noreferrer"><code>GET /api/v1/facets</code></a>.
+          <a href="https://api.psychedelicskg.com/api/v1/facets" target="_blank" rel="noopener noreferrer"><code>GET /api/v1/facets</code></a>.
         </p>
       </section>
 
@@ -148,7 +148,7 @@
 
         <div class="access-endpoint" aria-label="MCP server URL">
           <span>MCP server</span>
-          <code id="mcpUrl">https://psychedelics-kg-api.onrender.com/mcp</code>
+          <code id="mcpUrl">https://api.psychedelicskg.com/mcp</code>
           <button type="button" data-copy-target="mcpUrl">Copy</button>
         </div>
 
@@ -161,7 +161,7 @@
             <pre id="mcpConfigExample"><code>{
   "mcpServers": {
     "psychedelics-knowledge-graph": {
-      "url": "https://psychedelics-kg-api.onrender.com/mcp"
+      "url": "https://api.psychedelicskg.com/mcp"
     }
   }
 }</code></pre>

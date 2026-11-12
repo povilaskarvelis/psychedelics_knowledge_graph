@@ -9,8 +9,12 @@ Public entry points:
 
 - `https://psychedelicskg.com/api/`
 - `https://psychedelicskg.com/api/agent-guide.md`
-- `https://psychedelics-kg-api.onrender.com`
-- `https://psychedelics-kg-api.onrender.com/mcp`
+- `https://api.psychedelicskg.com`
+- `https://api.psychedelicskg.com/mcp`
+
+The service's Render address, `https://psychedelics-kg-api.onrender.com`, serves
+the same API and remains available for clients configured before the custom
+domain was added on 12 Nov 2026.
 
 ## Public data contract
 

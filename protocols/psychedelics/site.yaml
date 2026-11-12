@@ -7,8 +7,8 @@ summary: A map of psychedelic research that makes findings easier to explore, au
 addresses:
   site: https://psychedelicskg.com/
   data_host: https://data.psychedelicskg.com/
-  api_base: https://psychedelics-kg-api.onrender.com/api/v1
-  mcp: https://psychedelics-kg-api.onrender.com/mcp
+  api_base: https://api.psychedelicskg.com/api/v1
+  mcp: https://api.psychedelicskg.com/mcp
   repository: https://github.com/povilaskarvelis/psychedelics_knowledge_graph
 
 citation:
